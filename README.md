@@ -9,10 +9,8 @@ You might need to install some packages using MSYS2 -- here is the cheat sheet (
 ```bash
 # Update the repository
 pacman -Syyu
-# Search for a particular package
+# Search for a particular package (link -lodbc32)
 pacman -Ss unixodbc
 # Install a package (the R toolchain uses mingw)
 pacman -S mingw-w64-x86_64-unixodbc
 ```
-
-Still not yet found the right library name to link odbc.
