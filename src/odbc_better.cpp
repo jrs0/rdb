@@ -11,9 +11,15 @@
 
 #define DEBUG
 
+void debug_msg(const std::string & msg) {
+#ifdef DEBUG
+    std::cout << msg << std::endl;
+#endif
+}
+
 /// Test an ODBC return code, return
 /// true for success and false for failure
-bool test_result(SQLRETURN ret_code) {
+bool result_ok(SQLRETURN ret_code) {
     switch(ret_code) {
     case SQL_SUCCESS_WITH_INFO:
 	return true;
@@ -22,8 +28,7 @@ bool test_result(SQLRETURN ret_code) {
     case SQL_ERROR:
 	return false;	
     default:
-	std::cerr << "Unexpected return code " << ret_code << std::endl;
-	return false;
+	throw std::runtime_error("Unexpected return code in SQLRETURN");
     }
 }
 
@@ -33,64 +38,48 @@ class SQLConnection {
 public:
     SQLConnection(const std::string & dsn) : dsn_{dsn} {
 	// Allocate global environment handle
-	if(test_result(SQLAllocHandle(SQL_HANDLE_ENV,
-				      SQL_NULL_HANDLE,
-				      &henv_))) {
+	if(!result_ok(SQLAllocHandle(SQL_HANDLE_ENV,
+				     SQL_NULL_HANDLE,
+				     &henv_))) {
 	    free_all();
 	    throw std::runtime_error("Failed to alloc ODBC "
 				     "global env handle");
 	}
-
-#ifdef DEBUG
-	std::cout << "Allocated global env" << std::endl;
-#endif
+	debug_msg("Allocated global env");
 
 	// Set environment attributes
-	if(test_result(SQLSetEnvAttr(henv_,
-				     SQL_ATTR_ODBC_VERSION,
-				     (SQLPOINTER)SQL_OV_ODBC3,
-				     0))) {
+	if(!result_ok(SQLSetEnvAttr(henv_,
+				    SQL_ATTR_ODBC_VERSION,
+				    (SQLPOINTER)SQL_OV_ODBC3,
+				    0))) {
 	    free_all();
 	    throw std::runtime_error("Failed to set env attributes ODBC3");
 	}
-
-#ifdef DEBUG
-	std::cout << "Set environment variables" << std::endl;
-#endif
+	debug_msg("Set environment variables");
 	
 	// Allocate a connection
-	if(test_result(SQLAllocHandle(SQL_HANDLE_DBC,
-				      henv_,
-				      &hdbc_))) {
+	if(!result_ok(SQLAllocHandle(SQL_HANDLE_DBC,
+				     henv_,
+				     &hdbc_))) {
 	    free_all();
 	    throw std::runtime_error("Failed to alloc connection handle");
 	}	
-
-#ifdef DEBUG
-	std::cout << "Set environment variables" << std::endl;
-#endif
+	debug_msg("Set environment variables");
 	
 	// Make the connection
-	if(test_result(SQLConnect(hdbc_,
-				  (SQLCHAR*)dsn_.c_str(),
-				  dsn_.size(), // Length of server name
-				  NULL, 0, NULL, 0))) {
+	if(!result_ok(SQLConnect(hdbc_,
+				 (SQLCHAR*)dsn_.c_str(),
+				 dsn_.size(), // Length of server name
+				 NULL, 0, NULL, 0))) {
 	    free_all();
 	    throw std::runtime_error("Failed to connect to DSN");
 	}
-
-
-#ifdef DEBUG
-	std::cout << "Created connection" << std::endl;
-#endif
+	debug_msg("Created connection");
 	
     }
 
     ~SQLConnection() {
-#ifdef DEBUG
-	std::cout << "Freeing all handles" << std::endl;
-#endif
-
+	debug_msg("Freeing all handles");
 	free_all();
     }
 
@@ -110,7 +99,7 @@ private:
 	if (henv_) {
 	    SQLFreeHandle(SQL_HANDLE_ENV, henv_);
 	}
-   } 
+    } 
 
     
 };
