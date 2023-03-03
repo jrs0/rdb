@@ -1,3 +1,16 @@
+// To understand the contents of this file, see the Microsoft ODBC
+// documentation starting here:
+//
+// "https://learn.microsoft.com/en-us/sql/relational-databases/
+//  native-client-odbc-communication/communicating-with-sql-
+//  server-odbc?view=sql-server-ver16"
+//
+// in conjunction with the example here:
+//
+// "https://learn.microsoft.com/en-us/sql/connect/odbc/cpp-code
+//  -example-app-connect-access-sql-db?view=sql-server-ver16"
+//
+
 #include <string>
 #include <iostream>
 #include <stdexcept>
@@ -75,7 +88,15 @@ public:
 	    throw std::runtime_error("Failed to connect to DSN");
 	}
 	debug_msg("Created connection");
-	
+
+	// Allocate statement handle
+	if(!result_ok(SQLAllocHandle(SQL_HANDLE_STMT,
+				     hdbc_,
+				     &hstmt_))) {
+	    free_all();
+	    throw std::runtime_error("Failed to allocate statement handle");
+	}
+	debug_msg("Allocated statement handle");
     }
 
     ~SQLConnection() {
@@ -83,14 +104,25 @@ public:
 	free_all();
     }
 
+    /// Submit an SQL query
+    void query(const std::string & query) {
+	
+    }
+    
 private:
     std::string dsn_; ///< Data source name
     SQLHENV henv_; ///< Global environment handle
     SQLHDBC hdbc_; ///< Connection handle
+    SQLHSTMT hstmt_; ///< Statement handle
 
+    
     /// Free any resources that have been allocated. For
     /// failed construction and destruction
     void free_all() {
+	if (hstmt_) {
+	    SQLFreeHandle(SQL_HANDLE_STMT, hstmt_);
+	}
+    
 	if (hdbc_) {
 	    SQLDisconnect(hdbc_);
 	    SQLFreeHandle(SQL_HANDLE_DBC, hdbc_);
@@ -100,14 +132,16 @@ private:
 	    SQLFreeHandle(SQL_HANDLE_ENV, henv_);
 	}
     } 
-
-    
 };
 
 // [[Rcpp::export]]
 void try_connect() {
     try {
+	// Make the connection
 	SQLConnection con("xsw");
+
+	
+	
     } catch (const std::runtime_error & e) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
     }
