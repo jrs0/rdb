@@ -59,7 +59,13 @@ void direxec::sqlconn(void)
 {
     SQLAllocEnv(&henv);
     SQLAllocConnect(henv,&hdbc);
-    rc=SQLConnect(hdbc,(SQLCHAR*)chr_ds_name,SQL_NTS,NULL,0,NULL,0);
+    rc=SQLConnect(hdbc, // handle
+		  (SQLCHAR*)chr_ds_name, // server name (DSN)
+		  SQL_NTS, // Length of server name
+		  NULL,
+		  0,
+		  NULL,
+		  0);
   
     // Deallocate handles, display error message, and exit.
     if (!MYSQLSUCCESS(rc))
