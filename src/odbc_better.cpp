@@ -31,15 +31,6 @@ void debug_msg(const std::string & msg) {
 #endif
 }
 
-class DiagnosticRecord {
-public:
-    DiagnosticRecord() {
-
-    }
-private:
-    
-};
-
 // Not currently return the correct messages, but throws runtime_error if
 // there is a problem
 void handle_diagnostic_record(SQLHANDLE handle, SQLSMALLINT type, RETCODE ret_code)
@@ -92,7 +83,6 @@ bool result_ok(SQLHANDLE handle, SQLSMALLINT type, SQLRETURN ret_code) {
     }
 }
 
-
 /// A simple SQL
 class SQLConnection {
 
@@ -102,7 +92,7 @@ public:
     SQLConnection(const std::string & dsn) : dsn_{dsn} {
 
 	SQLRETURN r;
-
+	
 	// Allocate global environment handle
 	r = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv_);
 	try {
@@ -113,7 +103,7 @@ public:
 	    std::stringstream ss;
 	    ss << "Failed to alloc environment: " << e.what();
 	    throw std::runtime_error(ss.str());
-	}
+	}	
 	
 	// Set environment attributes
 	r = SQLSetEnvAttr(henv_, SQL_ATTR_ODBC_VERSION,
@@ -143,7 +133,7 @@ public:
 	// Make the connection
 	r = SQLConnect(hdbc_, (SQLCHAR*)dsn_.c_str(), SQL_NTS, NULL, 0, NULL, 0);
 	try {
-	    result_ok(henv_, SQL_HANDLE_DBC, r);
+	    result_ok(hdbc_, SQL_HANDLE_DBC, r);
 	    debug_msg("Established connection");
 	} catch (const std::runtime_error & e) {
 	    free_all();
@@ -233,7 +223,7 @@ void try_connect(const Rcpp::CharacterVector & dsn_character,
 	std::string query = Rcpp::as<std::string>(query_character); 
 
 	// Make the connection
-	SQLConnection con("xsw");
+	SQLConnection con(dsn);
 
 	// Attempt to add a statement for direct execution
 	std::size_t num_results = con.query(query);
