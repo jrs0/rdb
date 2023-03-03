@@ -31,32 +31,46 @@ void debug_msg(const std::string & msg) {
 #endif
 }
 
+class DiagnosticRecord {
+public:
+    DiagnosticRecord() {
+
+    }
+private:
+    
+};
+
+// Not currently return the correct messages, but throws runtime_error if
+// there is a problem
 void handle_diagnostic_record(SQLHANDLE handle, SQLSMALLINT type, RETCODE ret_code)
 {
-    SQLSMALLINT iRec = 0;
-    SQLINTEGER  iError;
-    WCHAR wszMessage[1000];
-    WCHAR wszState[SQL_SQLSTATE_SIZE+1];
 
     if (ret_code == SQL_INVALID_HANDLE) {
 	throw std::runtime_error("Invalid handle");
     }
 
+    SQLINTEGER error;
+    std::string sql_state;
+    sql_state.reserve(SQL_SQLSTATE_SIZE+1);
+    std::string sql_message;
+    sql_message.reserve(1000);
+    SQLSMALLINT rec = 0;
     std::stringstream ss;
-    while (SQLGetDiagRec(type, handle, ++iRec, (SQLCHAR*)wszState, &iError,
-			 (SQLCHAR*)wszMessage,
-                         (SQLSMALLINT)(sizeof(wszMessage) / sizeof(WCHAR)),
+    while (SQLGetDiagRec(type, handle, ++rec, (SQLCHAR*)&sql_state[0], &error,
+			 (SQLCHAR*)&sql_message[0],
+                         (SQLSMALLINT)sql_message.size(),
                          (SQLSMALLINT *)NULL) == SQL_SUCCESS) {
 	// Hide data truncated..
-	if (wcsncmp(wszState, L"01004", 5)) {
-	    ss << "state: " << wszState
-	       << " message: " << wszMessage
-	       << " (" << iError;
-	    // TODO: format like this: 
-	    //L"[%5.5s] %s (%d)\n", wszState, wszMessage, iError);
-	}
+	ss << "state: " << sql_state
+	   << " message: " << sql_message
+	   << " (" << error << ")"
+	   << std::endl;
+	// TODO: format like this: 
+	//	    //L"[%5.5s] %s (%d)\n", wszState, wszMessage, iError);
+	//}
     }
     throw std::runtime_error(ss.str());
+
 }
 
 /// Test an ODBC return code, return
@@ -75,6 +89,7 @@ bool result_ok(SQLHANDLE handle, SQLSMALLINT type, SQLRETURN ret_code) {
 	throw std::runtime_error("Unexpected return code in SQLRETURN");
     }
 }
+
 
 /// A simple SQL
 class SQLConnection {
@@ -97,8 +112,7 @@ public:
 	    ss << "Failed to alloc environment: " << e.what();
 	    throw std::runtime_error(ss.str());
 	}
-	    
-
+	
 	// Set environment attributes
 	r = SQLSetEnvAttr(henv_, SQL_ATTR_ODBC_VERSION,
 			  (SQLPOINTER)SQL_OV_ODBC3, 0);
