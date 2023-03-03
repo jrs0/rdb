@@ -50,17 +50,19 @@ void handle_diagnostic_record(SQLHANDLE handle, SQLSMALLINT type, RETCODE ret_co
     }
 
     SQLINTEGER error;
-    std::string sql_state;
-    sql_state.reserve(SQL_SQLSTATE_SIZE+1);
-    std::string sql_message;
-    sql_message.reserve(1000);
+    //std::string sql_state(SQL_SQLSTATE_SIZE + 1, '.');
+    //std::string sql_message(1000, '.');
+    SQLCHAR sql_state[SQL_SQLSTATE_SIZE + 1];
+    SQLCHAR sql_message[1000];
     SQLSMALLINT rec = 0;
+    SQLSMALLINT message_size;
     std::stringstream ss;
-    while (SQLGetDiagRec(type, handle, ++rec, (SQLCHAR*)&sql_state[0], &error,
-			 (SQLCHAR*)&sql_message[0],
-                         (SQLSMALLINT)sql_message.size(),
-                         (SQLSMALLINT *)NULL) == SQL_SUCCESS) {
+    while (SQLGetDiagRec(type, handle, ++rec, sql_state, &error,
+			 sql_message, 1000,
+                         &message_size) == SQL_SUCCESS) {
 	// Hide data truncated..
+	//std::cout << message_size << std::endl;
+	//sql_message.resize(message_size);
 	ss << "state: " << sql_state
 	   << " message: " << sql_message
 	   << " (" << error << ")"
@@ -69,8 +71,8 @@ void handle_diagnostic_record(SQLHANDLE handle, SQLSMALLINT type, RETCODE ret_co
 	//	    //L"[%5.5s] %s (%d)\n", wszState, wszMessage, iError);
 	//}
     }
+    
     throw std::runtime_error(ss.str());
-
 }
 
 /// Test an ODBC return code, return
