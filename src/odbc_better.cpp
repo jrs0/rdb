@@ -93,7 +93,9 @@ public:
 	    debug_msg("Allocated global env");
 	} catch (const std::runtime_error & e) {
 	    free_all();
-	    throw std::runtime_error("Failed to alloc environment: " + e.what())
+	    std::stringstream ss;
+	    ss << "Failed to alloc environment: " << e.what();
+	    throw std::runtime_error(ss.str());
 	}
 	    
 
@@ -105,7 +107,9 @@ public:
 	    debug_msg("Set environment variables");
 	} catch (const std::runtime_error & e) {
 	    free_all();
-	    throw std::runtime_error("Failed to set env variable ODBC3: " + e.what())
+	    std::stringstream ss;
+	    ss << "Failed to set env variable ODBC: " << e.what();
+	    throw std::runtime_error(ss.str());
 	}
 	
 	// Allocate a connection
@@ -115,7 +119,9 @@ public:
 	    debug_msg("Allocated the connection handle");
 	} catch (const std::runtime_error & e) {
 	    free_all();
-	    throw std::runtime_error("Failed to alloc connection handle: " + e.what())
+	    std::stringstream ss;
+	    ss << "Failed to alloc connection handle: " << e.what();
+	    throw std::runtime_error(ss.str());
 	}
 	
 	// Make the connection
@@ -125,7 +131,9 @@ public:
 	    debug_msg("Established connection");
 	} catch (const std::runtime_error & e) {
 	    free_all();
-	    throw std::runtime_error("Failed to connect to DSN: " + e.what())
+	    std::stringstream ss;
+	    ss << "Failed to connect to DSN: " << e.what();
+	    throw std::runtime_error(ss.str());
 	}
 
 	// Allocate statement handle
@@ -135,7 +143,9 @@ public:
 	    debug_msg("Allocated statement handle");
 	} catch (const std::runtime_error & e) {
 	    free_all();
-	    throw std::runtime_error("Failed to allocate statement handle: " + e.what())
+	    std::stringstream ss;
+	    ss << "Failed to alloc statement handle: " << e.what();
+	    throw std::runtime_error(ss.str());
 	}
     }
 
@@ -147,16 +157,28 @@ public:
     /// Submit an SQL query
     std::size_t query(const std::string & query) {
 
+	SQLRETURN r;
+	
 	// SQL_NTS for null-terminated string (query)
-	if(!result_ok(SQLExecDirect(hstmt_, (SQLCHAR*)query.c_str(), SQL_NTS))) {
-	    throw std::runtime_error("Failed to add query for direct execution");
+	r = SQLExecDirect(hstmt_, (SQLCHAR*)query.c_str(), SQL_NTS);
+	try {
+	    result_ok(hstmt_, SQL_HANDLE_STMT, r);
+	} catch (std::runtime_error & e) {
+	    std::stringstream ss;
+	    ss << "Failed to add query for direct execution: " << e.what();
+	    throw std::runtime_error(ss.str());
 	}
 	debug_msg("Added statement for execution");
 
 	// Obtain the results
 	SQLSMALLINT num_results = 0;
-	if (!result_ok(SQLNumResultCols(hstmt_, &num_results))) {
-	    throw std::runtime_error("Failed to get the number of returned rows");
+	r = SQLNumResultCols(hstmt_, &num_results);
+	try {
+	    result_ok(hstmt_, SQL_HANDLE_STMT, r);
+	} catch (std::runtime_error & e) {
+	    std::stringstream ss;
+	    ss << "Failed to get number of returned rows: " << e.what();
+	    throw std::runtime_error(ss.str());
 	}
 
 	return num_results;
@@ -188,10 +210,12 @@ private:
 };
 
 // [[Rcpp::export]]
-void try_connect(const Rcpp::CharacterVector & query_string) {
+void try_connect(const Rcpp::CharacterVector & dsn_character,
+		 const Rcpp::CharacterVector & query_character) {
     try {
-	std::string query = Rcpp::as<std::string>(query_string); 
-	
+	std::string dsn = Rcpp::as<std::string>(dsn_character); 
+	std::string query = Rcpp::as<std::string>(query_character); 
+
 	// Make the connection
 	SQLConnection con("xsw");
 
