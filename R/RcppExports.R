@@ -9,3 +9,7 @@ connect <- function() {
     .Call(`_rdb_connect`)
 }
 
+try_connect <- function() {
+    invisible(.Call(`_rdb_try_connect`))
+}
+

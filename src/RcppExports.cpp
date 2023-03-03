@@ -31,10 +31,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// try_connect
+void try_connect();
+RcppExport SEXP _rdb_try_connect() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    try_connect();
+    return R_NilValue;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_cpp", (DL_FUNC) &_rdb_test_cpp, 1},
     {"_rdb_connect", (DL_FUNC) &_rdb_connect, 0},
+    {"_rdb_try_connect", (DL_FUNC) &_rdb_try_connect, 0},
     {NULL, NULL, 0}
 };
 
