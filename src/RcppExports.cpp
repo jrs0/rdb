@@ -32,11 +32,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // try_connect
-void try_connect();
-RcppExport SEXP _rdb_try_connect() {
+void try_connect(const Rcpp::CharacterVector& query_string);
+RcppExport SEXP _rdb_try_connect(SEXP query_stringSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    try_connect();
+    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type query_string(query_stringSEXP);
+    try_connect(query_string);
     return R_NilValue;
 END_RCPP
 }
@@ -44,7 +45,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_cpp", (DL_FUNC) &_rdb_test_cpp, 1},
     {"_rdb_connect", (DL_FUNC) &_rdb_connect, 0},
-    {"_rdb_try_connect", (DL_FUNC) &_rdb_try_connect, 0},
+    {"_rdb_try_connect", (DL_FUNC) &_rdb_try_connect, 1},
     {NULL, NULL, 0}
 };
 
