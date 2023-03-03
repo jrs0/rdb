@@ -5,3 +5,7 @@ test_cpp <- function(thing) {
     .Call(`_rdb_test_cpp`, thing)
 }
 
+connect <- function() {
+    .Call(`_rdb_connect`)
+}
+

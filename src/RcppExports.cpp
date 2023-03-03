@@ -21,9 +21,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// connect
+int connect();
+RcppExport SEXP _rdb_connect() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(connect());
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_cpp", (DL_FUNC) &_rdb_test_cpp, 1},
+    {"_rdb_connect", (DL_FUNC) &_rdb_connect, 0},
     {NULL, NULL, 0}
 };
 

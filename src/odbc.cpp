@@ -9,16 +9,16 @@
 
 class direxec
 {
-    RETCODE rc;       // ODBC return code
-    HENV henv;        // Environment  
-    HDBC hdbc;        // Connection handle
-    HSTMT hstmt;      // Statement handle
-    unsigned char szData[MAX_DATA];  // Returned data storage
-    SQLLEN cbData;    // Output length of data
-    char chr_ds_name[SQL_MAX_DSN_LENGTH];  // Data source name
+    RETCODE rc; ///< ODBC return code
+    HENV henv; ///< Environment  
+    HDBC hdbc; ///< Connection handle
+    HSTMT hstmt; ///< Statement handle
+    unsigned char szData[MAX_DATA]; ///< Returned data storage
+    SQLLEN cbData; ///< Output length of data
+    char chr_ds_name[SQL_MAX_DSN_LENGTH]; ///< Data source name
 
 public:
-    direxec();          // Constructor
+    direxec();
     void sqlconn();     // Allocate env, stat, and conn
     void sqlexec(unsigned char *);  // Execute SQL statement
     void sqldisconn();  // Free pointers to env, stat, conn,
@@ -26,31 +26,31 @@ public:
     void error_out();   // Displays errors
 };
 
-// int WINAPI WinMain (HANDLE hInstance, HANDLE hPrevInstance,
-// 		    LPSTR lpszCmdLine, int nCmdShow)
-// {
-//     // Declare an instance of the direxec object.
-//     direxec x;
+// [[Rcpp::export]]
+int connect()
+{
+    // Declare an instance of the direxec object.
+    direxec x;
   
-//     // Allocate handles, and connect.
-//     x.sqlconn();
+    // Allocate handles, and connect.
+    x.sqlconn();
 
-//     // Execute SQL command "SELECT first name, last_name FROM employee".
-//     x.sqlexec((UCHAR FAR *)"SELECT first name, last_name FROM employee");
+    // Execute SQL command "SELECT first name, last_name FROM employee".
+    x.sqlexec((UCHAR FAR *)"SELECT TOP 10 * from ABI.dbo.vw_APC_SEM_001");
 
-//     // Free handles, and disconnect.
-//     x.sqldisconn();
+    // Free handles, and disconnect.
+    x.sqldisconn();
     
-//     // Return success code; example executed successfully.
-//     return (TRUE);
-// }
+    // Return success code; example executed successfully.
+    return (TRUE);
+}
 
 
 // Constructor initializes the string chr_ds_name with the
 // data source name.
 direxec::direxec()
 {
-    strcpy(chr_ds_name, "Northwind");
+    strcpy(chr_ds_name, "xsw");
 }
 
 // Allocate environment handle, allocate connection handle,
