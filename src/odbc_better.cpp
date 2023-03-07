@@ -25,6 +25,32 @@
 
 #define DEBUG
 
+class Binding {
+public:
+    Binding() {
+	binding_ = (BINDING *)(malloc(sizeof(BINDING)));
+        if (!binding_)
+        {
+	    throw std::runtime_error("Malloc failed to allocate binding");
+        }
+    }
+
+    ~Binding() {
+	free(binding_);
+    }
+
+    Binding(const Binding&) = delete;
+    Binding& operator=(const Binding&) = delete;
+    
+    /// Make this Binding point to another Binding 
+    void set_next(const Binding & another) {
+	binding_->sNext = another.binding_;
+    }
+    
+private:
+    BINDING *binding_;
+};
+
 void debug_msg(const std::string & msg) {
 #ifdef DEBUG
     std::cout << msg << std::endl;
@@ -177,17 +203,23 @@ public:
 	debug_msg("Added statement for execution");
 
 	// Obtain the results
-	SQLSMALLINT num_results = 0;
-	r = SQLNumResultCols(hstmt_, &num_results);
+	SQLSMALLINT num_columns = 0;
+	r = SQLNumResultCols(hstmt_, &num_columns);
 	try {
 	    result_ok(hstmt_, SQL_HANDLE_STMT, r);
 	} catch (std::runtime_error & e) {
 	    std::stringstream ss;
-	    ss << "Failed to get number of returned rows: " << e.what();
+	    ss << "Failed to get number of returned columns: " << e.what();
 	    throw std::runtime_error(ss.str());
 	}
 
-	return num_results;
+	// Loop over the columns (note: indexed from 1!)
+	std::vector<Binding> bindings;
+	for (int col = 1; col <= num_columns; col++) {
+	    bindings.emplace_back();
+	}
+	
+	return num_columns;
     }
     
 private:
@@ -226,8 +258,9 @@ void try_connect(const Rcpp::CharacterVector & dsn_character,
 	SQLConnection con(dsn);
 
 	// Attempt to add a statement for direct execution
-	std::size_t num_results = con.query(query);
-	Rcpp::Rcout << "Got " << num_results << " results from query" << std::endl;
+	std::size_t num_columns = con.query(query);
+	Rcpp::Rcout << "Got " << num_columns
+		    << " columns from the query" << std::endl;
 	
     } catch (const std::runtime_error & e) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
