@@ -25,32 +25,6 @@
 
 #define DEBUG
 
-class Binding {
-public:
-    Binding() {
-	binding_ = (BINDING *)(malloc(sizeof(BINDING)));
-        if (!binding_)
-        {
-	    throw std::runtime_error("Malloc failed to allocate binding");
-        }
-    }
-
-    ~Binding() {
-	free(binding_);
-    }
-
-    Binding(const Binding&) = delete;
-    Binding& operator=(const Binding&) = delete;
-    
-    /// Make this Binding point to another Binding 
-    void set_next(const Binding & another) {
-	binding_->sNext = another.binding_;
-    }
-    
-private:
-    BINDING *binding_;
-};
-
 void debug_msg(const std::string & msg) {
 #ifdef DEBUG
     std::cout << msg << std::endl;
@@ -214,10 +188,46 @@ public:
 	}
 
 	// Loop over the columns (note: indexed from 1!)
-	std::vector<Binding> bindings;
+	// Get the column types
 	for (int col = 1; col <= num_columns; col++) {
-	    bindings.emplace_back();
-	}
+	    
+	    // Get the length of the column name
+	    SQLSMALLINT column_name_length = 0;
+	    r = SQLColAttribute(hstmt_, col, SQL_DESC_NAME, NULL, 0,
+				&column_name_length, NULL);
+	    try {
+		result_ok(hstmt_, SQL_HANDLE_STMT, r);
+	    } catch (std::runtime_error & e) {
+		std::stringstream ss;
+		ss << "Failed to get the length of column name "
+		   << col << ": " << e.what();
+		throw std::runtime_error(ss.str());
+	    }
+
+	    // Get the column name itself
+	    std::string column_name('.', column_name_length);
+	    r = SQLColAttribute(hstmt_, col, SQL_DESC_NAME,
+				&column_name[0], column_name_length,
+				NULL, NULL);
+	    try {
+		result_ok(hstmt_, SQL_HANDLE_STMT, r);
+	    } catch (std::runtime_error & e) {
+		std::stringstream ss;
+		ss << "Failed to get column name for col "
+		   << col << ": " << e.what();
+		throw std::runtime_error(ss.str());
+	    }	    
+	    
+	    std::cout << "Column: " << column_name << std::endl;
+	    
+	    // r = SQLColAttribute(hStmt,
+	    // 			iCol++,
+	    // 			SQL_DESC_NAME,
+	    // 			wszTitle,
+	    // 			sizeof(wszTitle), // Note count of bytes!
+	    // 			NULL,
+	    // 			NULL)));
+}
 	
 	return num_columns;
     }
