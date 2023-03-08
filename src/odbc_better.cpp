@@ -75,90 +75,18 @@ bool result_ok(SQLHANDLE handle, SQLSMALLINT type, SQLRETURN ret_code) {
 	return true;
     case SQL_SUCCESS:
 	return true;
+    case SQL_INVALID_HANDLE:
+	throw std::runtime_error("SQLRETURN Invalid Handle");
     case SQL_ERROR:
 	// Throws runtime_error
 	handle_diagnostic_record(handle, type, ret_code);
 	
     default:
-	throw std::runtime_error("Unexpected return code in SQLRETURN");
+	std::stringstream ss;
+	ss << "Unexpected return code in SQLRETURN: " << ret_code; 
+	throw std::runtime_error(ss.str());
     }
 }
-
-class EnvHandle;
-class ConHandle;
-
-class StmtHandle {
-public:
-    StmtHandle(std::shared_ptr<ConHandle> hdbc)
-	: hdbc_{hdbc}
-    {
-	SQLRETURN r = SQLAllocHandle(SQL_HANDLE_STMT, hdbc_.get(), &hstmt_);
-	try {
-	    result_ok(hdbc_.get(), SQL_HANDLE_DBC, r);
-	    debug_msg("Allocated statement handle");
-	} catch (const std::runtime_error & e) {
-	    std::stringstream ss;
-	    ss << "Failed to alloc statement handle: " << e.what();
-	    throw std::runtime_error(ss.str());
-	}
-
-    }
-    ~StmtHandle() {
-	if (hstmt_) {
-	    SQLFreeHandle(SQL_HANDLE_STMT, hstmt_);
-	}
-    }
-    StmtHandle(const StmtHandle&) = delete;
-    StmtHandle& operator=(const StmtHandle&) = delete;
-private:
-    std::shared_ptr<ConHandle> hdbc_; /// Keep alive for this
-    SQLHSTMT hstmt_; ///< Statement handle
-};
-
-
-class ConHandle {
-public:
-    ConHandle(std::shared_ptr<EnvHandle> henv, const std::string & dsn)
-	: henv_{henv}
-    {
-	SQLRETURN r = SQLAllocHandle(SQL_HANDLE_DBC, henv_.get(), &hdbc_);
-	try {
-	    result_ok(henv_.get(), SQL_HANDLE_ENV, r);
-	    debug_msg("Allocated the connection handle");
-	} catch (const std::runtime_error & e) {
-	    std::stringstream ss;
-	    ss << "Failed to alloc connection handle: " << e.what();
-	    throw std::runtime_error(ss.str());
-	}
-
-	// Make the connection
-	r = SQLConnect(hdbc_, (SQLCHAR*)dsn.c_str(), SQL_NTS, NULL, 0, NULL, 0);
-	try {
-	    result_ok(hdbc_, SQL_HANDLE_DBC, r);
-	    debug_msg("Established connection");
-	} catch (const std::runtime_error & e) {
-	    free_handle();
-	    std::stringstream ss;
-	    ss << "Failed to connect to DSN: " << e.what();
-	    throw std::runtime_error(ss.str());
-	}
-    }
-    ~ConHandle() {
-	free_handle();
-    }
-    ConHandle(const ConHandle&) = delete;
-    ConHandle& operator=(const ConHandle&) = delete;
-private:
-    void free_handle() {
-	if (hdbc_) {
-	    SQLDisconnect(hdbc_);
-	    SQLFreeHandle(SQL_HANDLE_DBC, hdbc_);
-	}	
-    }
-    
-    std::shared_ptr<EnvHandle> henv_; /// Keep alive for ConHandle
-    SQLHENV hdbc_{NULL};
-};
 
 /// Global environment handle
 class EnvHandle {
@@ -188,6 +116,9 @@ public:
 	    throw std::runtime_error(ss.str());
 	}	
     }
+    SQLHENV get_handle() {
+	return henv_;
+    }
     ~EnvHandle() {
     	if (henv_) {
 	    SQLFreeHandle(SQL_HANDLE_ENV, henv_);
@@ -199,6 +130,85 @@ private:
     SQLHENV henv_{NULL};
 };
 
+class ConHandle {
+public:
+    ConHandle(std::shared_ptr<EnvHandle> henv, const std::string & dsn)
+	: henv_{henv}
+    {
+	SQLRETURN r = SQLAllocHandle(SQL_HANDLE_DBC, henv_->get_handle(), &hdbc_);
+	try {
+	    result_ok(henv_->get_handle(), SQL_HANDLE_ENV, r);
+	    debug_msg("Allocated the connection handle");
+	} catch (const std::runtime_error & e) {
+	    std::stringstream ss;
+	    ss << "Failed to alloc connection handle: " << e.what();
+	    throw std::runtime_error(ss.str());
+	}
+
+	// Make the connection
+	r = SQLConnect(hdbc_, (SQLCHAR*)dsn.c_str(), SQL_NTS, NULL, 0, NULL, 0);
+	try {
+	    result_ok(hdbc_, SQL_HANDLE_DBC, r);
+	    debug_msg("Established connection");
+	} catch (const std::runtime_error & e) {
+	    free_handle();
+	    std::stringstream ss;
+	    ss << "Failed to connect to DSN: " << e.what();
+	    throw std::runtime_error(ss.str());
+	}
+    }
+    SQLHDBC get_handle() {
+	return hdbc_;
+    }
+    ~ConHandle() {
+	free_handle();
+    }
+    ConHandle(const ConHandle&) = delete;
+    ConHandle& operator=(const ConHandle&) = delete;
+private:
+    void free_handle() {
+	if (hdbc_) {
+	    SQLDisconnect(hdbc_);
+	    SQLFreeHandle(SQL_HANDLE_DBC, hdbc_);
+	}	
+    }
+    
+    std::shared_ptr<EnvHandle> henv_; /// Keep alive for ConHandle
+    SQLHDBC hdbc_{NULL};
+};
+
+class StmtHandle {
+public:
+    StmtHandle(std::shared_ptr<ConHandle> hdbc)
+	: hdbc_{hdbc}
+    {
+	SQLRETURN r = SQLAllocHandle(SQL_HANDLE_STMT, hdbc_->get_handle(), &hstmt_);
+	try {
+	    result_ok(hdbc_->get_handle(), SQL_HANDLE_DBC, r);
+	    debug_msg("Allocated statement handle");
+	} catch (const std::runtime_error & e) {
+	    std::stringstream ss;
+	    ss << "Failed to alloc statement handle: " << e.what();
+	    throw std::runtime_error(ss.str());
+	}
+
+    }
+    SQLHSTMT get_handle() {
+	return hstmt_;
+    }
+    ~StmtHandle() {
+	if (hstmt_) {
+	    SQLFreeHandle(SQL_HANDLE_STMT, hstmt_);
+	}
+    }
+    StmtHandle(const StmtHandle&) = delete;
+    StmtHandle& operator=(const StmtHandle&) = delete;
+private:
+    std::shared_ptr<ConHandle> hdbc_; /// Keep alive for this
+    SQLHSTMT hstmt_; ///< Statement handle
+};
+
+
 /// A simple SQL
 class SQLConnection {
 
@@ -208,7 +218,7 @@ public:
     SQLConnection(const std::string & dsn)
 	: dsn_{dsn}, henv_{std::make_shared<EnvHandle>()} {
 
-	SQLRETURN r;
+	//SQLRETURN r;
 	
 	// Allocate global environment handle
 	// r = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv_);
