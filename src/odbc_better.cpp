@@ -11,6 +11,8 @@
 //  -example-app-connect-access-sql-db?view=sql-server-ver16"
 //
 
+#include <vector>
+
 #include "stmt_handle.hpp"
 
 // To be moved out of here
@@ -38,9 +40,20 @@ public:
 	
 	// Loop over the columns (note: indexed from 1!)
 	// Get the column types
+	std::vector<ColBinding> col_bindings;
 	for (std::size_t n = 1; n <= num_columns; n++) {
 	    std::cout << "Got column name: " << stmt_->column_name(n) << std::endl;
+	    col_bindings.push_back(stmt_->make_binding(n));
 	}
+
+	// Fetch a single row. Data will end up in the column bindings
+	stmt_->fetch();
+
+	// Print the row of data from the column bindings
+	for (auto & bind : col_bindings) {
+	    bind.print();
+	}
+	
 	return num_columns;
     }
     
