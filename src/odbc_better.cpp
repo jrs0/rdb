@@ -120,6 +120,7 @@ public:
 	return henv_;
     }
     ~EnvHandle() {
+	debug_msg("Freeing environment handle");
     	if (henv_) {
 	    SQLFreeHandle(SQL_HANDLE_ENV, henv_);
 	}	
@@ -167,6 +168,7 @@ public:
     ConHandle& operator=(const ConHandle&) = delete;
 private:
     void free_handle() {
+	debug_msg("Freeing connection handle");
 	if (hdbc_) {
 	    SQLDisconnect(hdbc_);
 	    SQLFreeHandle(SQL_HANDLE_DBC, hdbc_);
@@ -196,7 +198,70 @@ public:
     SQLHSTMT get_handle() {
 	return hstmt_;
     }
+    void exec_direct(const std::string & query) {
+    	// SQL_NTS for null-terminated string (query)
+	SQLRETURN r = SQLExecDirect(hstmt_, (SQLCHAR*)query.c_str(), SQL_NTS);
+	try {
+	    result_ok(hstmt_, SQL_HANDLE_STMT, r);
+	} catch (std::runtime_error & e) {
+	    std::stringstream ss;
+	    ss << "Failed to add query for direct execution: " << e.what();
+	    throw std::runtime_error(ss.str());
+	}
+	debug_msg("Added statement for execution");
+    }
+    /// Get the number of returned columns (sql_direct comes first)
+    std::size_t num_columns() {
+	// Obtain the results
+	SQLSMALLINT num_columns = 0;
+	SQLRETURN r = SQLNumResultCols(hstmt_, &num_columns);
+	try {
+	    result_ok(hstmt_, SQL_HANDLE_STMT, r);
+	} catch (std::runtime_error & e) {
+	    std::stringstream ss;
+	    ss << "Failed to get number of returned columns: " << e.what();
+	    throw std::runtime_error(ss.str());
+	}
+	return num_columns;
+    }
+
+    /// Remember columns are indexed from 1
+    std::string column_name(std::size_t index) {
+	if (index == 0) {
+	    throw std::runtime_error("Column index 0 out of range");
+	}
+	SQLSMALLINT column_name_length = 0;
+	SQLRETURN r = SQLColAttribute(hstmt_, index, SQL_DESC_NAME, NULL, 0,
+			    &column_name_length, NULL);
+	try {
+	    result_ok(hstmt_, SQL_HANDLE_STMT, r);
+	} catch (std::runtime_error & e) {
+	    std::stringstream ss;
+	    ss << "Failed to get the length of column "
+	       << index << ": " << e.what();
+	    throw std::runtime_error(ss.str());
+	}
+
+	// Get the column name itself
+#define COLUMN_NAME_BUF_LEN 100
+	SQLCHAR column_name_buf[COLUMN_NAME_BUF_LEN];
+	r = SQLColAttribute(hstmt_, index, SQL_DESC_NAME,
+			    column_name_buf, COLUMN_NAME_BUF_LEN,
+			    NULL, NULL);
+	std::string column_name((char*)column_name_buf);
+	try {
+	    result_ok(hstmt_, SQL_HANDLE_STMT, r);
+	} catch (std::runtime_error & e) {
+	    std::stringstream ss;
+	    ss << "Failed to get column name for col "
+	       << index << ": " << e.what();
+	    throw std::runtime_error(ss.str());
+	}
+	return std::string((char*)column_name_buf);
+    }
+    
     ~StmtHandle() {
+	debug_msg("Freeing statement handle");
 	if (hstmt_) {
 	    SQLFreeHandle(SQL_HANDLE_STMT, hstmt_);
 	}
@@ -216,178 +281,33 @@ public:
 
     /// Create an SQL connection to a data source
     SQLConnection(const std::string & dsn)
-	: dsn_{dsn}, henv_{std::make_shared<EnvHandle>()} {
-
-	//SQLRETURN r;
-	
-	// Allocate global environment handle
-	// r = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv_);
-	// try {
-	//     result_ok(henv_, SQL_HANDLE_ENV, r);
-	//     debug_msg("Allocated global env");
-	// } catch (const std::runtime_error & e) {
-	//     free_all();
-	//     std::stringstream ss;
-	//     ss << "Failed to alloc environment: " << e.what();
-	//     throw std::runtime_error(ss.str());
-	// }
-	
-	// Set environment attributes
-	// r = SQLSetEnvAttr(henv_, SQL_ATTR_ODBC_VERSION,
-	// 		  (SQLPOINTER)SQL_OV_ODBC3, 0);
-	// try {
-	//     result_ok(henv_, SQL_HANDLE_ENV, r);
-	//     debug_msg("Set environment variables");
-	// } catch (const std::runtime_error & e) {
-	//     free_all();
-	//     std::stringstream ss;
-	//     ss << "Failed to set env variable ODBC: " << e.what();
-	//     throw std::runtime_error(ss.str());
-	// }
-	henv_->set_attribute((SQLPOINTER)SQL_OV_ODBC3, 0);
-	
-	// Allocate a connection
-	// r = SQLAllocHandle(SQL_HANDLE_DBC, henv_, &hdbc_);
-	// try {
-	//     result_ok(henv_, SQL_HANDLE_ENV, r);
-	//     debug_msg("Allocated the connection handle");
-	// } catch (const std::runtime_error & e) {
-	//     free_all();
-	//     std::stringstream ss;
-	//     ss << "Failed to alloc connection handle: " << e.what();
-	//     throw std::runtime_error(ss.str());
-	// }
-	hdbc_ = std::make_shared<ConHandle>(henv_, dsn);
-	
-	// Make the connection
-	// r = SQLConnect(hdbc_, (SQLCHAR*)dsn_.c_str(), SQL_NTS, NULL, 0, NULL, 0);
-	// try {
-	//     result_ok(hdbc_, SQL_HANDLE_DBC, r);
-	//     debug_msg("Established connection");
-	// } catch (const std::runtime_error & e) {
-	//     free_all();
-	//     std::stringstream ss;
-	//     ss << "Failed to connect to DSN: " << e.what();
-	//     throw std::runtime_error(ss.str());
-	// }
-
-	// Allocate statement handle
-	// r = SQLAllocHandle(SQL_HANDLE_STMT, hdbc_, &hstmt_);
-	// try {
-	//     result_ok(hdbc_, SQL_HANDLE_DBC, r);
-	//     debug_msg("Allocated statement handle");
-	// } catch (const std::runtime_error & e) {
-	//     free_all();
-	//     std::stringstream ss;
-	//     ss << "Failed to alloc statement handle: " << e.what();
-	//     throw std::runtime_error(ss.str());
-	// }
-	hstmt_ = std::make_shared<StmtHandle>(hdbc_);
-
+	: dsn_{dsn}, env_{std::make_shared<EnvHandle>()} {
+	env_->set_attribute((SQLPOINTER)SQL_OV_ODBC3, 0);
+	dbc_ = std::make_shared<ConHandle>(env_, dsn);
+	stmt_ = std::make_shared<StmtHandle>(dbc_);
     }
-
-    // ~SQLConnection() {
-    // 	debug_msg("Freeing all handles");
-    // 	//free_all();
-    // }
 
     /// Submit an SQL query
     std::size_t query(const std::string & query) {
 
-	/*
-	// SQL_NTS for null-terminated string (query)
-	r = SQLExecDirect(hstmt_, (SQLCHAR*)query.c_str(), SQL_NTS);
-	try {
-	    result_ok(hstmt_, SQL_HANDLE_STMT, r);
-	} catch (std::runtime_error & e) {
-	    std::stringstream ss;
-	    ss << "Failed to add query for direct execution: " << e.what();
-	    throw std::runtime_error(ss.str());
-	}
-	debug_msg("Added statement for execution");
+	stmt_->exec_direct(query);
 
-	// Obtain the results
-	SQLSMALLINT num_columns = 0;
-	r = SQLNumResultCols(hstmt_, &num_columns);
-	try {
-	    result_ok(hstmt_, SQL_HANDLE_STMT, r);
-	} catch (std::runtime_error & e) {
-	    std::stringstream ss;
-	    ss << "Failed to get number of returned columns: " << e.what();
-	    throw std::runtime_error(ss.str());
-	}
-
+	std::size_t num_columns{stmt_->num_columns()};
+	
 	// Loop over the columns (note: indexed from 1!)
 	// Get the column types
-	for (int col = 1; col <= num_columns; col++) {
-	    
-	    // Get the length of the column name
-	    SQLSMALLINT column_name_length = 0;
-	    r = SQLColAttribute(hstmt_, col, SQL_DESC_NAME, NULL, 0,
-				&column_name_length, NULL);
-	    try {
-		result_ok(hstmt_, SQL_HANDLE_STMT, r);
-	    } catch (std::runtime_error & e) {
-		std::stringstream ss;
-		ss << "Failed to get the length of column name "
-		   << col << ": " << e.what();
-		throw std::runtime_error(ss.str());
-	    }
-
-	    // Get the column name itself
-#define COLUMN_NAME_BUF_LEN 100
-	    SQLCHAR column_name_buf[COLUMN_NAME_BUF_LEN];
-	    r = SQLColAttribute(hstmt_, col, SQL_DESC_NAME,
-				column_name_buf, COLUMN_NAME_BUF_LEN,
-				NULL, NULL);
-	    std::string column_name((char*)column_name_buf);
-	    try {
-		result_ok(hstmt_, SQL_HANDLE_STMT, r);
-	    } catch (std::runtime_error & e) {
-		std::stringstream ss;
-		ss << "Failed to get column name for col "
-		   << col << ": " << e.what();
-		throw std::runtime_error(ss.str());
-	    }	    
-	    
-	    std::cout << "Column: " << column_name_length << " " << column_name << std::endl;
-	    
-	    // r = SQLColAttribute(hStmt,
-	    // 			iCol++,
-	    // 			SQL_DESC_NAME,
-	    // 			wszTitle,
-	    // 			sizeof(wszTitle), // Note count of bytes!
-	    // 			NULL,
-	    // 			NULL)));
-}
-	*/
-	return 0;//num_columns;
+	for (std::size_t n = 1; n <= num_columns; n++) {
+	    std::cout << "Got column name: " << stmt_->column_name(n) << std::endl;
+	}
+	return num_columns;
     }
     
 private:
     std::string dsn_; ///< Data source name
-    std::shared_ptr<EnvHandle> henv_; ///< Global environment handle
-    std::shared_ptr<ConHandle> hdbc_; ///< Connection handle
-    std::shared_ptr<StmtHandle> hstmt_; ///< Statement handle
+    std::shared_ptr<EnvHandle> env_; ///< Global environment handle
+    std::shared_ptr<ConHandle> dbc_; ///< Connection handle
+    std::shared_ptr<StmtHandle> stmt_; ///< Statement handle
 
-    /*
-    /// Free any resources that have been allocated. For
-    /// failed construction and destruction
-    void free_all() {
-	if (hstmt_) {
-	    SQLFreeHandle(SQL_HANDLE_STMT, hstmt_);
-	}
-    
-	// if (hdbc_) {
-	//     SQLDisconnect(hdbc_);
-	//     SQLFreeHandle(SQL_HANDLE_DBC, hdbc_);
-	// }
-	
-	// if (henv_) {
-	//     SQLFreeHandle(SQL_HANDLE_ENV, henv_);
-	// }
-    }
-    */
 };
 
 // [[Rcpp::export]]
