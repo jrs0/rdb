@@ -205,10 +205,12 @@ public:
 	    }
 
 	    // Get the column name itself
-	    std::string column_name('.', column_name_length);
+#define COLUMN_NAME_BUF_LEN 100
+	    SQLCHAR column_name_buf[COLUMN_NAME_BUF_LEN];
 	    r = SQLColAttribute(hstmt_, col, SQL_DESC_NAME,
-				&column_name[0], column_name_length,
+				column_name_buf, COLUMN_NAME_BUF_LEN,
 				NULL, NULL);
+	    std::string column_name((char*)column_name_buf);
 	    try {
 		result_ok(hstmt_, SQL_HANDLE_STMT, r);
 	    } catch (std::runtime_error & e) {
@@ -218,7 +220,7 @@ public:
 		throw std::runtime_error(ss.str());
 	    }	    
 	    
-	    std::cout << "Column: " << column_name << std::endl;
+	    std::cout << "Column: " << column_name_length << " " << column_name << std::endl;
 	    
 	    // r = SQLColAttribute(hStmt,
 	    // 			iCol++,
