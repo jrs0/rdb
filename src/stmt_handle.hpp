@@ -28,11 +28,9 @@ public:
     }
 
     void print() {
-	std::cout << "Binding: got " << *return_size_ << " bytes: ";
-	for (std::size_t n = 0; n < *return_size_; n++) {
-	    std::cout << (char)(buffer_[n]);
-	}
-	std::cout << std::endl;
+	std::cout << "Binding: got " << *return_size_ << " bytes: "
+		  << std::string(buffer_.get())
+		  << std::endl;
     }
     
 private:
