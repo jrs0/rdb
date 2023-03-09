@@ -1,7 +1,7 @@
 #ifndef ENV_HANDLE_HPP
 #define ENV_HANDLE_HPP
 
-#include "odbc_c.hpp"
+#include "debug.hpp"
 
 /// Global environment handle
 class EnvHandle {
