@@ -8,9 +8,9 @@ public:
     ConHandle(std::shared_ptr<EnvHandle> henv, const std::string & dsn)
 	: henv_{henv}
     {
-	SQLRETURN r = SQLAllocHandle(SQL_HANDLE_DBC, henv_->get_handle(), &hdbc_);
+	SQLRETURN r = SQLAllocHandle(SQL_HANDLE_DBC, henv_->get_handle().handle, &hdbc_);
 	try {
-	    result_ok(henv_->get_handle(), SQL_HANDLE_ENV, r);
+	    result_ok(henv_->get_handle(), r);
 	    debug_msg("Allocated the connection handle");
 	} catch (const std::runtime_error & e) {
 	    std::stringstream ss;
@@ -21,7 +21,7 @@ public:
 	// Make the connection
 	r = SQLConnect(hdbc_, (SQLCHAR*)dsn.c_str(), SQL_NTS, NULL, 0, NULL, 0);
 	try {
-	    result_ok(hdbc_, SQL_HANDLE_DBC, r);
+	    result_ok(get_handle(), r);
 	    debug_msg("Established connection");
 	} catch (const std::runtime_error & e) {
 	    free_handle();
@@ -30,8 +30,8 @@ public:
 	    throw std::runtime_error(ss.str());
 	}
     }
-    SQLHDBC get_handle() {
-	return hdbc_;
+    Handle get_handle() {
+	return Handle{hdbc_, SQL_HANDLE_DBC};
     }
     ~ConHandle() {
 	free_handle();

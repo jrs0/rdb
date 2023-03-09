@@ -54,9 +54,16 @@ void handle_diagnostic_record(SQLHANDLE handle, SQLSMALLINT type, RETCODE ret_co
     throw std::runtime_error(ss.str());
 }
 
+struct Handle {
+    SQLHANDLE handle;
+    SQLSMALLINT type;
+    Handle(SQLHANDLE handle, SQLSMALLINT type)
+	: handle{handle}, type{type} {}
+};
+
 /// Test an ODBC return code, return
 /// true for success and false for failure
-bool result_ok(SQLHANDLE handle, SQLSMALLINT type, SQLRETURN ret_code) {
+bool result_ok(const Handle & handle, SQLRETURN ret_code) {
     switch(ret_code) {
     case SQL_SUCCESS_WITH_INFO:
 	return true;
@@ -66,13 +73,25 @@ bool result_ok(SQLHANDLE handle, SQLSMALLINT type, SQLRETURN ret_code) {
 	throw std::runtime_error("SQLRETURN Invalid Handle");
     case SQL_ERROR:
 	// Throws runtime_error
-	handle_diagnostic_record(handle, type, ret_code);
+	handle_diagnostic_record(handle.handle, handle.type, ret_code);
 	
     default:
 	std::stringstream ss;
 	ss << "Unexpected return code in SQLRETURN: " << ret_code; 
 	throw std::runtime_error(ss.str());
     }
+}
+
+void ok_or_throw(const Handle & handle, SQLRETURN r, const std::string & description) {
+    try {
+	result_ok(handle, r);
+	debug_msg(description);
+    } catch (const std::runtime_error & e) {
+	std::stringstream ss;
+	ss << "'" << description << "' failed (" << e.what() << ")";
+	throw std::runtime_error(ss.str());
+    }
+
 }
 
 #endif

@@ -11,7 +11,7 @@ public:
 				     SQL_NULL_HANDLE,
 				     &henv_);
 	try {
-	    result_ok(henv_, SQL_HANDLE_ENV, r);
+	    result_ok(get_handle(), r);
 	    debug_msg("Allocated global env");
 	} catch (const std::runtime_error & e) {
 	    std::stringstream ss;
@@ -23,7 +23,7 @@ public:
 	SQLRETURN r = SQLSetEnvAttr(henv_, SQL_ATTR_ODBC_VERSION,
 				    value_ptr, str_len);
 	try {
-	    result_ok(henv_, SQL_HANDLE_ENV, r);
+	    result_ok(get_handle(), r);
 	    debug_msg("Set environment variables");
 	} catch (const std::runtime_error & e) {
 	    std::stringstream ss;
@@ -31,8 +31,8 @@ public:
 	    throw std::runtime_error(ss.str());
 	}	
     }
-    SQLHENV get_handle() {
-	return henv_;
+    Handle get_handle() {
+	return Handle{henv_, SQL_HANDLE_ENV};
     }
     ~EnvHandle() {
 	debug_msg("Freeing environment handle");
