@@ -3,11 +3,20 @@
 
 #include "con_handle.hpp"
 
+
+void throw_unimpl_sql_type(const std::string & type) {
+    std::stringstream ss;
+    ss << "Type '" << type << "' not yet implemented";
+    throw std::runtime_error(ss.str());
+}
+
 /// 
 class ColBinding {
 public:
-    ColBinding(Handle hstmt, std::size_t col_index, std::size_t buffer_size)
-	: col_index_{col_index},
+    ColBinding(Handle hstmt, const std::string & name, SQLLEN type,
+	       std::size_t col_index, std::size_t buffer_size)
+	: name_{name}, type_{type},
+	  col_index_{col_index},
 	  buffer_size_{buffer_size},
 	  return_size_{std::make_unique<SQLLEN>(0)},
 	  buffer_{new char[buffer_size]}
@@ -27,83 +36,13 @@ public:
 	debug_msg("Bound column");
     }
 
-    void print() {
-	std::cout << "Binding: got " << *return_size_ << " bytes: "
-		  << std::string(buffer_.get())
-		  << std::endl;
-    }
-    
-private:
-    std::size_t col_index_;
-    std::size_t buffer_size_;
-    std::unique_ptr<SQLLEN> return_size_;
-    std::unique_ptr<char[]> buffer_;
-};
-
-void throw_unimpl_sql_type(const std::string & type) {
-    std::stringstream ss;
-    ss << "Type '" << type << "' not yet implemented";
-    throw std::runtime_error(ss.str());
-}
-
-class StmtHandle {
-public:
-    StmtHandle(std::shared_ptr<ConHandle> hdbc)
-	: hdbc_{hdbc}
-    {
-	SQLRETURN r = SQLAllocHandle(SQL_HANDLE_STMT, hdbc_->get_handle().handle, &hstmt_);
-	ok_or_throw(hdbc_->get_handle(), r, "Allocating statement handle");
-    }
-    Handle get_handle() {
-	return Handle{hstmt_, SQL_HANDLE_STMT};
-    }
-    void exec_direct(const std::string & query) {
-    	// SQL_NTS for null-terminated string (query)
-	SQLRETURN r = SQLExecDirect(hstmt_, (SQLCHAR*)query.c_str(), SQL_NTS);
-	ok_or_throw(get_handle(), r, "Adding query for direct execution");
-    }
-    /// Get the number of returned columns (sql_direct comes first)
-    std::size_t num_columns() {
-	// Obtain the results
-	SQLSMALLINT num_columns = 0;
-	SQLRETURN r = SQLNumResultCols(hstmt_, &num_columns);
-	ok_or_throw(get_handle(), r, "Getting the number of returned rows");
-	return num_columns;
-    }
-
-    /// Remember columns are indexed from 1
-    std::string column_name(std::size_t index) {
-	if (index == 0) {
-	    throw std::runtime_error("Column index 0 out of range");
-	}
-	SQLSMALLINT column_name_length = 0;
-	SQLRETURN r = SQLColAttribute(hstmt_, index, SQL_DESC_NAME, NULL, 0,
-			    &column_name_length, NULL);
-	ok_or_throw(get_handle(), r, "Getting column name length attribute");
-	
-	// Get the column name itself
-#define COLUMN_NAME_BUF_LEN 100
-	SQLCHAR column_name_buf[COLUMN_NAME_BUF_LEN];
-	r = SQLColAttribute(hstmt_, index, SQL_DESC_NAME,
-			    column_name_buf, COLUMN_NAME_BUF_LEN,
-			    NULL, NULL);
-	ok_or_throw(get_handle(), r, "Getting column name attribute");
-	std::string column_name((char*)column_name_buf);
-	return std::string((char*)column_name_buf);
-    }
-
-    SQLLEN column_type(std::size_t index) {
-	/// Get column type
-	SQLLEN column_type{0};
-	SQLRETURN r = SQLColAttribute(hstmt_, index, SQL_DESC_CONCISE_TYPE,
-				      NULL, 0, NULL, &column_type);
-	ok_or_throw(get_handle(), r, "Getting column type attribute");
-
-	switch (column_type) {
+    void print_type() {
+	switch (type_) {
 	case SQL_CHAR:
 	    throw_unimpl_sql_type("SQL_CHAR");
 	    break;
 	case SQL_VARCHAR:
+	    ///
 	    std::cout << "SQL_VARCHAR";
 	    break;
 	case SQL_LONGVARCHAR:
@@ -167,22 +106,104 @@ public:
 	case SQL_TYPE_TIMESTAMP:
 	    std::cout << "SQL_TYPE_TIMESTAMP";
 	    break;
-
 	    
 	default: {
-	    std::cout << std::endl;
-	    std::stringstream ss;
-	    ss << "Unhandled column type " << column_type
-	       << " (SQL_DESC_CONCISE_TYPE)";
-	    throw std::runtime_error(ss.str());
+	    throw_unimpl_sql_type("Unknown: " + std::to_string(type_));	    
 	}
 	}
-
-	return column_type;
     }
     
+    void print() {
+
+	std::cout << name_ << " (";
+	print_type();
+	std::cout << ") ";
+	switch (*return_size_) {
+	case SQL_NO_TOTAL:
+	    throw_unimpl_sql_type("SQL_NO_TOTAL");
+	    break;
+	case SQL_NULL_DATA:
+	    std::cout << "NULL";
+	    break;
+	default: {
+	    // Length of data returned
+	    std::string data{buffer_.get()};
+	    std::cout << data << "( " << *return_size_ << " bytes)";
+	}
+	}
+	std::cout << std::endl;
+    }
+    
+private:
+    std::string name_;
+    SQLLEN type_;
+    std::size_t col_index_;
+    std::size_t buffer_size_;
+    std::unique_ptr<SQLLEN> return_size_;
+    std::unique_ptr<char[]> buffer_;
+};
+
+class StmtHandle {
+public:
+    StmtHandle(std::shared_ptr<ConHandle> hdbc)
+	: hdbc_{hdbc}
+    {
+	SQLRETURN r = SQLAllocHandle(SQL_HANDLE_STMT, hdbc_->get_handle().handle, &hstmt_);
+	ok_or_throw(hdbc_->get_handle(), r, "Allocating statement handle");
+    }
+    Handle get_handle() {
+	return Handle{hstmt_, SQL_HANDLE_STMT};
+    }
+    void exec_direct(const std::string & query) {
+    	// SQL_NTS for null-terminated string (query)
+	SQLRETURN r = SQLExecDirect(hstmt_, (SQLCHAR*)query.c_str(), SQL_NTS);
+	ok_or_throw(get_handle(), r, "Adding query for direct execution");
+    }
+    /// Get the number of returned columns (sql_direct comes first)
+    std::size_t num_columns() {
+	// Obtain the results
+	SQLSMALLINT num_columns = 0;
+	SQLRETURN r = SQLNumResultCols(hstmt_, &num_columns);
+	ok_or_throw(get_handle(), r, "Getting the number of returned rows");
+	return num_columns;
+    }
+
+    /// Remember columns are indexed from 1
+    std::string column_name(std::size_t index) {
+	if (index == 0) {
+	    throw std::runtime_error("Column index 0 out of range");
+	}
+	SQLSMALLINT column_name_length = 0;
+	SQLRETURN r = SQLColAttribute(hstmt_, index, SQL_DESC_NAME, NULL, 0,
+			    &column_name_length, NULL);
+	ok_or_throw(get_handle(), r, "Getting column name length attribute");
+	
+	// Get the column name itself
+#define COLUMN_NAME_BUF_LEN 100
+	SQLCHAR column_name_buf[COLUMN_NAME_BUF_LEN];
+	r = SQLColAttribute(hstmt_, index, SQL_DESC_NAME,
+			    column_name_buf, COLUMN_NAME_BUF_LEN,
+			    NULL, NULL);
+	ok_or_throw(get_handle(), r, "Getting column name attribute");
+	std::string column_name((char*)column_name_buf);
+	return std::string((char*)column_name_buf);
+    }
+
+    SQLLEN column_type(std::size_t index) {
+	/// Get column type
+	SQLLEN column_type{0};
+	SQLRETURN r = SQLColAttribute(hstmt_, index, SQL_DESC_CONCISE_TYPE,
+				      NULL, 0, NULL, &column_type);
+	ok_or_throw(get_handle(), r, "Getting column type attribute");
+	
+	return column_type;
+    }
+
     /// Binding to column index (numbered from 1)
     ColBinding make_binding(std::size_t index) {
+	
+	/// Get the column type
+	SQLLEN type = column_type(index);
 	
 	/// Get length of data type
 	SQLLEN column_length{0};
@@ -192,7 +213,8 @@ public:
 	
 	std::cout << "Column " << index << " length is " << column_length << std::endl;
 
-	ColBinding col_binding{get_handle(), index, column_length};
+	std::string col_name{column_name(index)};
+	ColBinding col_binding{get_handle(), col_name, type, index, column_length};
 
 	return col_binding;
 	
