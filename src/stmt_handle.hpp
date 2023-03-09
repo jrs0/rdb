@@ -40,6 +40,12 @@ private:
     std::unique_ptr<char[]> buffer_;
 };
 
+void throw_unimpl_sql_type(const std::string & type) {
+    std::stringstream ss;
+    ss << "Type '" << type << "' not yet implemented";
+    throw std::runtime_error(ss.str());
+}
+
 class StmtHandle {
 public:
     StmtHandle(std::shared_ptr<ConHandle> hdbc)
@@ -86,18 +92,101 @@ public:
 	return std::string((char*)column_name_buf);
     }
 
-    /// Binding to column index (numbered from 1)
-    ColBinding make_binding(std::size_t index) {
-
+    SQLLEN column_type(std::size_t index) {
 	/// Get column type
 	SQLLEN column_type{0};
 	SQLRETURN r = SQLColAttribute(hstmt_, index, SQL_DESC_CONCISE_TYPE,
 				      NULL, 0, NULL, &column_type);
 	ok_or_throw(get_handle(), r, "Getting column type attribute");
+
+	switch (column_type) {
+	case SQL_CHAR:
+	    throw_unimpl_sql_type("SQL_CHAR");
+	    break;
+	case SQL_VARCHAR:
+	    std::cout << "SQL_VARCHAR";
+	    break;
+	case SQL_LONGVARCHAR:
+	    throw_unimpl_sql_type("SQL_LONGVARCHAR");
+	    break;
+	case SQL_WCHAR:
+	    throw_unimpl_sql_type("SQL_WCHAR");
+	    break;
+	case SQL_WVARCHAR:
+	    throw_unimpl_sql_type("SQL_WVARCHAR");
+	    break;
+	case SQL_WLONGVARCHAR:
+	    throw_unimpl_sql_type("SQL_WLONGVARCHAR");
+	    break;
+
+	case SQL_DECIMAL:
+	    throw_unimpl_sql_type("SQL_DECIMAL");
+	    break;
+	case SQL_NUMERIC:
+	    throw_unimpl_sql_type("SQL_NUMERIC");
+	    break;
+	case SQL_SMALLINT:
+	    throw_unimpl_sql_type("SQL_SMALLINT");
+	    break;
+	case SQL_INTEGER:
+	    std::cout << "SQL_INTEGER";
+	    break;
+
+	case SQL_REAL:
+	    throw_unimpl_sql_type("SQL_REAL");
+	    break;
+	case SQL_FLOAT:
+	    throw_unimpl_sql_type("SQL_FLOAT");
+	    break;
+	case SQL_DOUBLE:
+	    throw_unimpl_sql_type("SQL_DOUBLE");
+	    break;
+
+	case SQL_BIT:
+	    throw_unimpl_sql_type("SQL_BIT");
+	    break;
+	case SQL_BIGINT:
+	    std::cout << "SQL_BIGINT";
+	    break;
+	case SQL_BINARY:
+	    throw_unimpl_sql_type("SQL_BINARY");
+	    break;
+	case SQL_VARBINARY:
+	    throw_unimpl_sql_type("SQL_VARBINARY");
+	    break;
+	case SQL_LONGVARBINARY:
+	    throw_unimpl_sql_type("SQL_LONGVARBINARY");
+	    break;
+
+	case SQL_TYPE_DATE:
+	    throw_unimpl_sql_type("SQL_TYPE_DATE");
+	    break;
+	case SQL_TYPE_TIME:
+	    throw_unimpl_sql_type("SQL_TYPE_TIME");
+	    break;
+	case SQL_TYPE_TIMESTAMP:
+	    std::cout << "SQL_TYPE_TIMESTAMP";
+	    break;
+
+	    
+	default: {
+	    std::cout << std::endl;
+	    std::stringstream ss;
+	    ss << "Unhandled column type " << column_type
+	       << " (SQL_DESC_CONCISE_TYPE)";
+	    throw std::runtime_error(ss.str());
+	}
+	}
+
+	return column_type;
+    }
+    
+    /// Binding to column index (numbered from 1)
+    ColBinding make_binding(std::size_t index) {
 	
 	/// Get length of data type
 	SQLLEN column_length{0};
-	r = SQLColAttribute(hstmt_, index, SQL_DESC_LENGTH,
+	SQLRETURN r = SQLColAttribute(hstmt_, index, SQL_DESC_LENGTH,
 				      NULL, 0, NULL, &column_length);
 	ok_or_throw(get_handle(), r, "Getting column type length attribute");
 	
