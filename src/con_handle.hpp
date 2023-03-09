@@ -9,27 +9,13 @@ public:
 	: henv_{henv}
     {
 	SQLRETURN r = SQLAllocHandle(SQL_HANDLE_DBC, henv_->get_handle().handle, &hdbc_);
-	try {
-	    result_ok(henv_->get_handle(), r);
-	    debug_msg("Allocated the connection handle");
-	} catch (const std::runtime_error & e) {
-	    std::stringstream ss;
-	    ss << "Failed to alloc connection handle: " << e.what();
-	    throw std::runtime_error(ss.str());
-	}
+	ok_or_throw(henv_->get_handle(), r, "Allocating the connection handle");
 
 	// Make the connection
 	r = SQLConnect(hdbc_, (SQLCHAR*)dsn.c_str(), SQL_NTS, NULL, 0, NULL, 0);
-	try {
-	    result_ok(get_handle(), r);
-	    debug_msg("Established connection");
-	} catch (const std::runtime_error & e) {
-	    free_handle();
-	    std::stringstream ss;
-	    ss << "Failed to connect to DSN: " << e.what();
-	    throw std::runtime_error(ss.str());
-	}
+	ok_or_throw(get_handle(), r, "Attempting to connect to the server");
     }
+    
     Handle get_handle() {
 	return Handle{hdbc_, SQL_HANDLE_DBC};
     }
