@@ -22,14 +22,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // try_connect
-void try_connect(const Rcpp::CharacterVector& dsn_character, const Rcpp::CharacterVector& query_character);
+Rcpp::List try_connect(const Rcpp::CharacterVector& dsn_character, const Rcpp::CharacterVector& query_character);
 RcppExport SEXP _rdb_try_connect(SEXP dsn_characterSEXP, SEXP query_characterSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type dsn_character(dsn_characterSEXP);
     Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type query_character(query_characterSEXP);
-    try_connect(dsn_character, query_character);
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(try_connect(dsn_character, query_character));
+    return rcpp_result_gen;
 END_RCPP
 }
 

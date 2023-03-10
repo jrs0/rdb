@@ -6,6 +6,6 @@ test_cpp <- function(thing) {
 }
 
 try_connect <- function(dsn_character, query_character) {
-    invisible(.Call(`_rdb_try_connect`, dsn_character, query_character))
+    .Call(`_rdb_try_connect`, dsn_character, query_character)
 }
 

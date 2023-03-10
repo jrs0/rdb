@@ -33,7 +33,7 @@ public:
     }
 
     /// Submit an SQL query
-    std::size_t query(const std::string & query) {
+    std::map<std::string, std::vector<std::string>> query(const std::string & query) {
 
 	stmt_->exec_direct(query);
 
@@ -56,7 +56,7 @@ public:
 	    try {
 		// Fetch a single row. Data will end up in the column bindings
 		stmt_->fetch();
-	    } catch (const std::runtime_error e) {
+	    } catch (const std::runtime_error & e) {
 		std::cout << "Fetch failed: " << e.what() << std::endl;
 		break;
 	    }
@@ -74,7 +74,7 @@ public:
 	    num_rows++;
 	}
 	
-	return num_rows;
+	return table;
     }
     
 private:
@@ -86,8 +86,8 @@ private:
 };
 
 // [[Rcpp::export]]
-void try_connect(const Rcpp::CharacterVector & dsn_character,
-		 const Rcpp::CharacterVector & query_character) {
+Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
+		       const Rcpp::CharacterVector & query_character) {
     try {
 	std::string dsn = Rcpp::as<std::string>(dsn_character); 
 	std::string query = Rcpp::as<std::string>(query_character); 
@@ -96,9 +96,18 @@ void try_connect(const Rcpp::CharacterVector & dsn_character,
 	SQLConnection con(dsn);
 
 	// Attempt to add a statement for direct execution
-	std::size_t num_rows = con.query(query);
-	Rcpp::Rcout << "Got " << num_rows
-		    << " rows from the query" << std::endl;
+	auto table{con.query(query)};
+
+	Rcpp::List table_list;;
+	// Loop over columns
+	for (const auto & [col_name, col_values] : table) {
+	    
+	    Rcpp::CharacterVector col_values_vector(col_values.begin(), col_values.end());
+	    table_list[col_name] = col_values_vector;
+	}
+
+	return table_list;
+	
 	
     } catch (const std::runtime_error & e) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
