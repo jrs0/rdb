@@ -1,134 +1,106 @@
-#include <windows.h>
-#include <sql.h>
-#include <sqlext.h>
-#include <stdlib.h>
-#include <mbstring.h>
+// To understand the contents of this file, see the Microsoft ODBC
+// documentation starting here:
+//
+// "https://learn.microsoft.com/en-us/sql/relational-databases/
+//  native-client-odbc-communication/communicating-with-sql-
+//  server-odbc?view=sql-server-ver16"
+//
+// in conjunction with the example here:
+//
+// "https://learn.microsoft.com/en-us/sql/connect/odbc/cpp-code
+//  -example-app-connect-access-sql-db?view=sql-server-ver16"
+//
 
-#define MAX_DATA 100
-#define MYSQLSUCCESS(rc) ((rc==SQL_SUCCESS)||(rc==SQL_SUCCESS_WITH_INFO))
+#include <vector>
+#include <map>
 
-class direxec
-{
-    RETCODE rc; ///< ODBC return code
-    HENV henv; ///< Environment  
-    HDBC hdbc; ///< Connection handle
-    HSTMT hstmt; ///< Statement handle
-    unsigned char szData[MAX_DATA]; ///< Returned data storage
-    SQLLEN cbData; ///< Output length of data
-    char chr_ds_name[SQL_MAX_DSN_LENGTH]; ///< Data source name
+#include "stmt_handle.hpp"
+
+// To be moved out of here
+#include <Rcpp.h>
+
+/// A simple SQL
+class SQLConnection {
 
 public:
-    direxec();
-    void sqlconn();     // Allocate env, stat, and conn
-    void sqlexec(unsigned char *);  // Execute SQL statement
-    void sqldisconn();  // Free pointers to env, stat, conn,
-    // and disconnect
-    void error_out();   // Displays errors
+
+    /// Create an SQL connection to a data source
+    SQLConnection(const std::string & dsn)
+	: dsn_{dsn}, env_{std::make_shared<EnvHandle>()} {
+	env_->set_attribute((SQLPOINTER)SQL_OV_ODBC3, 0);
+	dbc_ = std::make_shared<ConHandle>(env_, dsn);
+	stmt_ = std::make_shared<StmtHandle>(dbc_);
+    }
+
+    /// Submit an SQL query
+    std::size_t query(const std::string & query) {
+
+	stmt_->exec_direct(query);
+
+	std::size_t num_columns{stmt_->num_columns()};
+	
+	// Loop over the columns (note: indexed from 1!)
+	// Get the column types
+	std::vector<ColBinding> col_bindings;
+	std::map<std::string, std::vector<std::string>> table;
+	for (std::size_t n = 1; n <= num_columns; n++) {
+	    std::string colname{stmt_->column_name(n)};
+	    col_bindings.push_back(stmt_->make_binding(n));
+	    table[col_bindings.back().col_name()] = std::vector<std::string>{};
+	}
+
+	// Fetch all the rows
+	std::size_t num_rows{0};
+	while(true) {
+
+	    try {
+		// Fetch a single row. Data will end up in the column bindings
+		stmt_->fetch();
+	    } catch (const std::runtime_error e) {
+		std::cout << "Fetch failed: " << e.what() << std::endl;
+		break;
+	    }
+	    
+	    // Print the row of data from the column bindings
+	    for (auto & bind : col_bindings) {
+		std::string value;
+		try {
+		    value = bind.read_buffer();
+		} catch (const std::logic_error &) {
+		    value = "NULL";
+		}
+		table[bind.col_name()].push_back(value);
+	    }
+	    num_rows++;
+	}
+	
+	return num_rows;
+    }
+    
+private:
+    std::string dsn_; ///< Data source name
+    std::shared_ptr<EnvHandle> env_; ///< Global environment handle
+    std::shared_ptr<ConHandle> dbc_; ///< Connection handle
+    std::shared_ptr<StmtHandle> stmt_; ///< Statement handle
+
 };
 
 // [[Rcpp::export]]
-int connect()
-{
-    // Declare an instance of the direxec object.
-    direxec x;
-  
-    // Allocate handles, and connect.
-    x.sqlconn();
+void try_connect(const Rcpp::CharacterVector & dsn_character,
+		 const Rcpp::CharacterVector & query_character) {
+    try {
+	std::string dsn = Rcpp::as<std::string>(dsn_character); 
+	std::string query = Rcpp::as<std::string>(query_character); 
 
-    // Execute SQL command "SELECT first name, last_name FROM employee".
-    x.sqlexec((UCHAR FAR *)"SELECT TOP 10 * from ABI.dbo.vw_APC_SEM_001");
+	// Make the connection
+	SQLConnection con(dsn);
 
-    // Free handles, and disconnect.
-    x.sqldisconn();
-    
-    // Return success code; example executed successfully.
-    return (TRUE);
-}
-
-
-// Constructor initializes the string chr_ds_name with the
-// data source name.
-direxec::direxec()
-{
-    strcpy(chr_ds_name, "xsw");
-}
-
-// Allocate environment handle, allocate connection handle,
-// connect to data source, and allocate statement handle.
-void direxec::sqlconn(void)
-{
-    SQLAllocEnv(&henv);
-    SQLAllocConnect(henv,&hdbc);
-    rc=SQLConnect(hdbc, // handle
-		  (SQLCHAR*)chr_ds_name, // server name (DSN)
-		  SQL_NTS, // Length of server name
-		  NULL,
-		  0,
-		  NULL,
-		  0);
-  
-    // Deallocate handles, display error message, and exit.
-    if (!MYSQLSUCCESS(rc))
-	{
-	    SQLFreeEnv(henv);
-	    SQLFreeConnect(hdbc);
-	    error_out();
-	    exit(-1);
-	}
-
-    rc=SQLAllocStmt(hdbc,&hstmt);
-
-}
-
-// Execute SQL command with SQLExecDirect() ODBC API.
-void direxec::sqlexec(unsigned char * cmdstr)
-{
-    rc=SQLExecDirect(hstmt,cmdstr,SQL_NTS);
-    if (!MYSQLSUCCESS(rc)) //Error
-	{
-	    error_out();
-	    // Deallocate handles and disconnect.
-	    SQLFreeStmt(hstmt,SQL_DROP);
-	    SQLDisconnect(hdbc);
-	    SQLFreeConnect(hdbc);
-	    SQLFreeEnv(henv);
-	    exit(-1);
-	}
-    else
-	{
-	    for (rc=SQLFetch(hstmt); rc == SQL_SUCCESS; rc=SQLFetch(hstmt))
-		{
-		    SQLGetData(hstmt,1,SQL_C_CHAR,szData,sizeof(szData),&cbData);
-		    // In this example, the data is returned in a messagebox
-		    // for simplicity. However, normally the SQLBindCol() ODBC API
-		    // could be called to bind individual rows of data and assign
-		    // for a rowset.
-		    MessageBox(NULL,(const char *)szData,"ODBC",MB_OK);
-		}
-	}
-}
-
-// Free the statement handle, disconnect, free the connection handle, and
-// free the environment handle.
-void direxec::sqldisconn(void)
-{
-    SQLFreeStmt(hstmt,SQL_DROP);
-    SQLDisconnect(hdbc);
-    SQLFreeConnect(hdbc);
-    SQLFreeEnv(henv);
-}
-
-// Display error message in a message box that has an OK button.
-void direxec::error_out(void)
-{
-    unsigned char szSQLSTATE[10];
-    SDWORD nErr;
-    unsigned char msg[SQL_MAX_MESSAGE_LENGTH+1];
-    SWORD cbmsg;
-
-    while(SQLError(0,0,hstmt,szSQLSTATE,&nErr,msg,sizeof(msg),&cbmsg)== SQL_SUCCESS)
-	{
-	    wsprintf((char *)szData,"Error:\nSQLSTATE=%s, Native error=%ld,msg='%s'",szSQLSTATE,nErr,msg);
-	    MessageBox(NULL,(const char *)szData,"ODBC Error",MB_OK);
-	}
+	// Attempt to add a statement for direct execution
+	std::size_t num_rows = con.query(query);
+	Rcpp::Rcout << "Got " << num_rows
+		    << " rows from the query" << std::endl;
+	
+    } catch (const std::runtime_error & e) {
+	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+    }
 }

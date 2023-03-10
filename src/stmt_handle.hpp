@@ -120,25 +120,23 @@ public:
 	}
     }
     
-    void print() {
-
-	std::cout << col_name_ << " (";
-	print_type();
-	std::cout << ") ";
+    std::string read_buffer() {
 	switch (*len_ind_) {
 	case SQL_NO_TOTAL:
 	    throw_unimpl_sql_type("SQL_NO_TOTAL");
 	    break;
 	case SQL_NULL_DATA:
-	    std::cout << "NULL";
+	    throw std::logic_error("NULL value");
 	    break;
 	default: {
 	    // Length of data returned
-	    std::string data{buffer_.get()};
-	    std::cout << data << "( " << *len_ind_ << " bytes)";
+	    return std::string{buffer_.get()};
 	}
 	}
-	std::cout << std::endl;
+    }
+
+    std::string col_name() const {
+	return col_name_;
     }
     
 private:

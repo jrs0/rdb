@@ -21,16 +21,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// connect
-int connect();
-RcppExport SEXP _rdb_connect() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(connect());
-    return rcpp_result_gen;
-END_RCPP
-}
 // try_connect
 void try_connect(const Rcpp::CharacterVector& dsn_character, const Rcpp::CharacterVector& query_character);
 RcppExport SEXP _rdb_try_connect(SEXP dsn_characterSEXP, SEXP query_characterSEXP) {
@@ -45,7 +35,6 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_cpp", (DL_FUNC) &_rdb_test_cpp, 1},
-    {"_rdb_connect", (DL_FUNC) &_rdb_connect, 0},
     {"_rdb_try_connect", (DL_FUNC) &_rdb_try_connect, 2},
     {NULL, NULL, 0}
 };

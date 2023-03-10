@@ -71,6 +71,8 @@ bool result_ok(const Handle & handle, SQLRETURN ret_code) {
 	return true;
     case SQL_INVALID_HANDLE:
 	throw std::runtime_error("SQLRETURN Invalid Handle");
+    case SQL_NO_DATA_FOUND:
+	throw std::runtime_error("SQLRETURN No data found");
     case SQL_ERROR:
 	// Throws runtime_error
 	handle_diagnostic_record(handle.handle, handle.type, ret_code);
