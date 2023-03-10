@@ -10,34 +10,41 @@ void throw_unimpl_sql_type(const std::string & type) {
     throw std::runtime_error(ss.str());
 }
 
+/// An application buffer 
+class Buffer {
+public:
+    Buffer(std::size_t buffer_len)
+	: buffer_len_{buffer_len}, buffer_{new char[buffer_len_]}
+    { }
+    std::size_t len() const {
+	return buffer_len_;
+    }
+    char* get() {
+	return buffer_.get();
+    }
+private:
+    std::size_t buffer_len_;
+    std::unique_ptr<char[]> buffer_;    
+};
+
 /// 
 class ColBinding {
 public:
-    ColBinding(Handle hstmt, const std::string & name, SQLLEN type,
-	       std::size_t col_index, std::size_t buffer_size)
-	: name_{name}, type_{type},
-	  col_index_{col_index},
-	  buffer_size_{buffer_size},
-	  return_size_{std::make_unique<SQLLEN>(0)},
-	  buffer_{new char[buffer_size]}
+    ColBinding(Handle hstmt, const std::string & col_name, SQLLEN col_type,
+	       std::size_t col_index, std::size_t buffer_len)
+	: col_index_{col_index}, col_name_{col_name},  col_type_{col_type},
+	  len_ind_{std::make_unique<SQLLEN>(0)},
+	  buffer_{buffer_len}
     {
 	// What type to pass instead of SQL_C_TCHAR?
 	// Buffer length is in bytes, but the column_length might be in chars
-	SQLRETURN r = SQLBindCol(hstmt.handle, col_index, SQL_C_TCHAR,
-				 (SQLPOINTER)buffer_.get(),
-				 buffer_size_, return_size_.get());
-	try {
-	    result_ok(hstmt, r);
-	} catch (std::runtime_error & e) {
-	    std::stringstream ss;
-	    ss << "Failed to bind columns " << col_index << ":" << e.what();
-	    throw std::runtime_error(ss.str());
-	}
-	debug_msg("Bound column");
+	SQLRETURN r = SQLBindCol(hstmt.handle, col_index_, SQL_C_TCHAR,
+				 (SQLPOINTER)buffer_.get(), buffer_.len(), len_ind_.get());
+	ok_or_throw(hstmt, r, "Binding columns");	
     }
 
     void print_type() {
-	switch (type_) {
+	switch (col_type_) {
 	case SQL_CHAR:
 	    throw_unimpl_sql_type("SQL_CHAR");
 	    break;
@@ -108,17 +115,17 @@ public:
 	    break;
 	    
 	default: {
-	    throw_unimpl_sql_type("Unknown: " + std::to_string(type_));	    
+	    throw_unimpl_sql_type("Unknown: " + std::to_string(col_type_));	    
 	}
 	}
     }
     
     void print() {
 
-	std::cout << name_ << " (";
+	std::cout << col_name_ << " (";
 	print_type();
 	std::cout << ") ";
-	switch (*return_size_) {
+	switch (*len_ind_) {
 	case SQL_NO_TOTAL:
 	    throw_unimpl_sql_type("SQL_NO_TOTAL");
 	    break;
@@ -128,19 +135,18 @@ public:
 	default: {
 	    // Length of data returned
 	    std::string data{buffer_.get()};
-	    std::cout << data << "( " << *return_size_ << " bytes)";
+	    std::cout << data << "( " << *len_ind_ << " bytes)";
 	}
 	}
 	std::cout << std::endl;
     }
     
 private:
-    std::string name_;
-    SQLLEN type_;
     std::size_t col_index_;
-    std::size_t buffer_size_;
-    std::unique_ptr<SQLLEN> return_size_;
-    std::unique_ptr<char[]> buffer_;
+    std::string col_name_;
+    SQLLEN col_type_;
+    std::unique_ptr<SQLLEN> len_ind_;
+    Buffer buffer_;
 };
 
 class StmtHandle {
