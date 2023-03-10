@@ -222,11 +222,14 @@ public:
 	
     }
 
-    /// Fetch a single row into the column bindings
-    void fetch() {
+    /// Fetch a single row into the column bindings. Returns false
+    /// if no data was returned.
+    bool fetch() {
 	// Run one fetch (get a single row)
 	SQLRETURN r = SQLFetch(hstmt_);
-	ok_or_throw(get_handle(), r, "Fetching row");
+	///TODO this is a bug, what if r is a *real* error -- need
+	// to catch and throw that.
+	return (r != SQL_NO_DATA_FOUND);
     }
     
     ~StmtHandle() {

@@ -32,7 +32,8 @@ public:
 	stmt_ = std::make_shared<StmtHandle>(dbc_);
     }
 
-    /// Submit an SQL query
+    /// Submit an SQL query and get the result back as a set of
+    /// columns (with column names).
     std::map<std::string, std::vector<std::string>> query(const std::string & query) {
 
 	stmt_->exec_direct(query);
@@ -53,11 +54,8 @@ public:
 	std::size_t num_rows{0};
 	while(true) {
 
-	    try {
-		// Fetch a single row. Data will end up in the column bindings
-		stmt_->fetch();
-	    } catch (const std::runtime_error & e) {
-		std::cout << "Fetch failed: " << e.what() << std::endl;
+	    /// Attempt to fetch a row and break if no rows left
+	    if(not stmt_->fetch()) {
 		break;
 	    }
 	    
