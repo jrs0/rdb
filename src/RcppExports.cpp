@@ -21,12 +21,13 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// yaml_test
-void yaml_test();
-RcppExport SEXP _rdb_yaml_test() {
+// parse_icd
+void parse_icd(const Rcpp::CharacterVector& icd10_file_character);
+RcppExport SEXP _rdb_parse_icd(SEXP icd10_file_characterSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    yaml_test();
+    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type icd10_file_character(icd10_file_characterSEXP);
+    parse_icd(icd10_file_character);
     return R_NilValue;
 END_RCPP
 }
@@ -45,7 +46,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_cpp", (DL_FUNC) &_rdb_test_cpp, 1},
-    {"_rdb_yaml_test", (DL_FUNC) &_rdb_yaml_test, 0},
+    {"_rdb_parse_icd", (DL_FUNC) &_rdb_parse_icd, 1},
     {"_rdb_try_connect", (DL_FUNC) &_rdb_try_connect, 2},
     {NULL, NULL, 0}
 };

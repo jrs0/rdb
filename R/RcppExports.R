@@ -5,8 +5,8 @@ test_cpp <- function(thing) {
     .Call(`_rdb_test_cpp`, thing)
 }
 
-yaml_test <- function() {
-    invisible(.Call(`_rdb_yaml_test`))
+parse_icd <- function(icd10_file_character) {
+    invisible(.Call(`_rdb_parse_icd`, icd10_file_character))
 }
 
 try_connect <- function(dsn_character, query_character) {

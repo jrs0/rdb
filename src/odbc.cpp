@@ -92,8 +92,10 @@ private:
 };
 
 // [[Rcpp::export]]
-void yaml_test() {
-    return foo();
+void parse_icd(const Rcpp::CharacterVector & icd10_file_character) {
+
+    std::string icd10_file = Rcpp::as<std::string>(icd10_file_character);     
+    return foo(icd10_file);
 }
 
 // [[Rcpp::export]]
@@ -118,7 +120,6 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 	}
 
 	return table_list;
-	
 	
     } catch (const std::runtime_error & e) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
