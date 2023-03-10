@@ -11,7 +11,7 @@
 #include <sqlext.h>
 #include <memory>
 
-#define DEBUG
+//#define DEBUG
 
 void debug_msg(const std::string & msg) {
 #ifdef DEBUG

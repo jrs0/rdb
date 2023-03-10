@@ -214,8 +214,6 @@ public:
 	SQLRETURN r = SQLColAttribute(hstmt_, index, SQL_DESC_LENGTH,
 				      NULL, 0, NULL, &column_length);
 	ok_or_throw(get_handle(), r, "Getting column type length attribute");
-	
-	std::cout << "Column " << index << " length is " << column_length << std::endl;
 
 	std::string col_name{column_name(index)};
 	ColBinding col_binding{get_handle(), col_name, type, index, column_length};
