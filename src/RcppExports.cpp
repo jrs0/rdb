@@ -21,6 +21,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// yaml_test
+void yaml_test();
+RcppExport SEXP _rdb_yaml_test() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    yaml_test();
+    return R_NilValue;
+END_RCPP
+}
 // try_connect
 Rcpp::List try_connect(const Rcpp::CharacterVector& dsn_character, const Rcpp::CharacterVector& query_character);
 RcppExport SEXP _rdb_try_connect(SEXP dsn_characterSEXP, SEXP query_characterSEXP) {
@@ -36,6 +45,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_cpp", (DL_FUNC) &_rdb_test_cpp, 1},
+    {"_rdb_yaml_test", (DL_FUNC) &_rdb_yaml_test, 0},
     {"_rdb_try_connect", (DL_FUNC) &_rdb_try_connect, 2},
     {NULL, NULL, 0}
 };

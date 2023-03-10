@@ -13,4 +13,7 @@ pacman -Syyu
 pacman -Ss unixodbc
 # Install a package (the R toolchain uses mingw)
 pacman -S mingw-w64-x86_64-unixodbc
+
+# Other dependencies
+pacman -S mingw-w64-x86_64-yaml-cpp
 ```

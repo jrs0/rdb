@@ -15,6 +15,7 @@
 #include <map>
 
 #include "stmt_handle.hpp"
+#include "yaml.hpp"
 
 // To be moved out of here
 #include <Rcpp.h>
@@ -43,14 +44,21 @@ public:
 	// Loop over the columns (note: indexed from 1!)
 	// Get the column types
 	std::vector<ColBinding> col_bindings;
+
+	// For now, the table is a map from column names to vectors
+	// of strings (can handle types later)
 	std::map<std::string, std::vector<std::string>> table;
+
+	// Get all the column names. This is where you might do
+	// column name remapping.
 	for (std::size_t n = 1; n <= num_columns; n++) {
 	    std::string colname{stmt_->column_name(n)};
 	    col_bindings.push_back(stmt_->make_binding(n));
 	    table[col_bindings.back().col_name()] = std::vector<std::string>{};
 	}
 
-	// Fetch all the rows
+	// Fetch all the rows. This is where "local" preprocessing of
+	// values would go (i.e. parsing of ICD values). 
 	std::size_t num_rows{0};
 	while(true) {
 
@@ -82,6 +90,11 @@ private:
     std::shared_ptr<StmtHandle> stmt_; ///< Statement handle
 
 };
+
+// [[Rcpp::export]]
+void yaml_test() {
+    return foo();
+}
 
 // [[Rcpp::export]]
 Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
