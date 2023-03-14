@@ -54,7 +54,6 @@ public:
 	for (std::size_t n = 1; n <= num_columns; n++) {
 	    std::string colname{stmt_->column_name(n)};
 	    col_bindings.push_back(stmt_->make_binding(n));
-	    table[col_bindings.back().col_name()] = std::vector<std::string>{};
 	}
 
 	// Fetch all the rows. This is where "local" preprocessing of
@@ -79,7 +78,6 @@ public:
 	    }
 	    num_rows++;
 	}
-	
 	return table;
     }
     
