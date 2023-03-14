@@ -16,6 +16,7 @@
 
 #include "stmt_handle.hpp"
 #include "yaml.hpp"
+#include "category.hpp"
 
 // To be moved out of here
 #include <Rcpp.h>
@@ -93,7 +94,10 @@ private:
 void parse_icd(const Rcpp::CharacterVector & icd10_file_character) {
 
     std::string icd10_file = Rcpp::as<std::string>(icd10_file_character);     
-    return foo(icd10_file);
+
+    TopLevelCategory top_level_category(icd10_file);
+
+    top_level_category.print();
 }
 
 // [[Rcpp::export]]
