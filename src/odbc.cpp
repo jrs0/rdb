@@ -91,13 +91,16 @@ private:
 };
 
 // [[Rcpp::export]]
-void parse_icd(const Rcpp::CharacterVector & icd10_file_character) {
+void parse_icd(const Rcpp::CharacterVector & icd10_file_character,
+	       const Rcpp::CharacterVector & code_character) {
 
     std::string icd10_file = Rcpp::as<std::string>(icd10_file_character);     
-
+    std::string code = Rcpp::as<std::string>(code_character);
+    
     try {
 	YAML::Node top_level_category_yaml = YAML::LoadFile(icd10_file);
 	TopLevelCategory top_level_category{top_level_category_yaml};
+	std::cout << top_level_category.parse_code(code) << std::endl;;
     } catch(const YAML::BadFile& e) {
 	throw std::runtime_error("Bad YAML file");
     } catch(const YAML::ParserException& e) {

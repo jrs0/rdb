@@ -167,6 +167,13 @@ public:
     /// Parse a raw code. Return the standard name of the code.
     /// Throw a runtime error if the code is invalid or not found
     std::string parse_code(const std::string & code) {
+
+	// Check for the empty string
+	if(std::ranges::all_of(code, isspace)) {
+	    throw std::runtime_error("Got the empty string in parse_code()");
+	}
+
+	return code;
 	
     }
     
