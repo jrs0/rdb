@@ -18,8 +18,40 @@ std::string expect_string(const YAML::Node & node, const std::string & field_nam
 	// TODO Want to throw an error here if parse fails
 	return node[field_name].as<std::string>();
     } else {
-	throw std::runtime_error("Missing required '" + field_name + "' in category");
+	throw std::runtime_error("Missing required string '" + field_name + "' in category");
     }    
+}
+
+/// Expect a field called field_name which is a list of strings (else throw
+/// a runtime error
+std::vector<std::string> expect_string_vector(const YAML::Node & node,
+						const std::string & field_name) {
+    if (node[field_name]) {
+	/// TODO deal with parsing errors
+	return node[field_name].as<std::vector<std::string>>();
+    } else {
+	throw std::runtime_error("Missing required vector of strings '" + field_name + "' in category");
+    }        
+}
+
+class Category;
+
+/// Create a vector of pointers to Category objects from a list of categories. An
+// error is thrown if the category is not present
+std::vector<std::unique_ptr<Category>>
+expect_category_vector(const YAML::Node & node,
+		       const std::string & field_name) {
+    if (not node[field_name]) {
+	throw std::runtime_error("Missing required vector of categories '" + field_name + "'.");
+    } else if (not node[field_name].IsSequence()) {
+	throw std::runtime_error("Expected sequence type for vector of categories key '" + field_name + "'");
+    } else {
+	std::vector<std::unique_ptr<Category>> categories;
+	for (const auto & category : node[field_name]) {
+	    categories.push_back(std::make_unique<Category>(category));
+	}
+	return categories;
+    }
 }
 
 /// The type of a category of codes
@@ -33,7 +65,7 @@ public:
 	
 	// The exclude key may not be present
 	if (category["exclude"]) {
-	    exclude_ = category["exclude"].as<std::vector<std::string>>();
+	    exclude_ = expect_string_vector(category, "exclude");
 	}
     }
 
@@ -61,17 +93,13 @@ public:
     TopLevelCategory(const YAML::Node & top_level_category) {
 
 	// Read the groups key
-	groups_ = top_level_category["groups"].as<std::vector<std::string>>();
+	groups_ = expect_string_vector(top_level_category, "groups");
 
 	// Check for correct type
 	if (not top_level_category["categories"]) {
 	    throw std::runtime_error("Missing required 'categories' key at top level");
-	} else if (not top_level_category["categories"].IsSequence()) {
-	    throw std::runtime_error("Expected sequence type for 'categories' key");
-	} else {   
-	    for (const auto & category : top_level_category["categories"]) {
-		categories_.push_back(std::make_unique<Category>(category));
-	    }
+	} else {
+	    categories_ = expect_category_vector(top_level_category, "categories");
 	}
     }
 
