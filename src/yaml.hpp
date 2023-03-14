@@ -4,6 +4,7 @@
 #include <yaml-cpp/yaml.h>
 
 
+
 void parse_child(const YAML::Node & child) {
     for (const auto & cat : child) {
 	std::cout << cat["category"] << ":" << std::endl;

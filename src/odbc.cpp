@@ -111,6 +111,7 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 
 	Rcpp::List table_list;;
 	// Loop over columns
+
 	for (const auto & [col_name, col_values] : table) {
 	    
 	    Rcpp::CharacterVector col_values_vector(col_values.begin(), col_values.end());
