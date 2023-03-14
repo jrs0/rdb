@@ -34,6 +34,35 @@ std::vector<std::string> expect_string_vector(const YAML::Node & node,
     }        
 }
 
+/// Indexes the categories
+class Index {
+public:
+    /// Expects node to be the index node; i.e. a single string
+    /// or a sequence (vector) of length 1 or 2. A runtime error
+    /// is thrown for anything else
+    Index(const YAML::Node & category) {
+	if (category["index"]) {
+	    try {
+		if (category["index"].IsSequence()) {
+		    index_ = expect_string_vector(category, "index");
+		    if (index_.size() != 2) {
+		 	throw std::runtime_error("Wrong length of 'index' key (expected length 2)");
+		    }
+		} else {
+		    index_.push_back(expect_string(category, "index"));
+		}
+	    } catch (const YAML::Exception & e) {
+		throw std::runtime_error("Failed to parse 'index' key in category: " + std::string{e.what()});
+	    }
+	} else {
+	    throw std::runtime_error("Missing required 'index' key in category");
+	}
+
+    }
+private:
+    std::vector<std::string> index_;
+};
+
 class Category;
 
 /// Create a vector of pointers to Category objects from a list of categories. An
@@ -60,7 +89,8 @@ public:
     
     Category(const YAML::Node & category)
 	: name_{expect_string(category, "name")},
-	  docs_{expect_string(category, "docs")}
+	  docs_{expect_string(category, "docs")},
+	  index_{category}
     {
 	// The exclude key is optional -- if there is not
 	// exclude key, then all groups are included below
@@ -96,7 +126,7 @@ private:
     /// If there are no subcategories, then this list is empty
     std::vector<std::unique_ptr<Category>> categories_;
     /// An index used to order a collection of categories
-    std::string index_;
+    Index index_;
 };
 
 /// Special case top level (contains a groups key)
