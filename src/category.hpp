@@ -64,8 +64,11 @@ public:
 	    try {
 		if (category["index"].IsSequence()) {
 		    index_ = expect_string_vector(category, "index");
+		    // The index must have just two components
 		    if (index_.size() != 2) {
 		 	throw std::runtime_error("Wrong length of 'index' key (expected length 2)");
+		    } else if (index_[0].size() != index_[1].size()) {
+			throw std::runtime_error("The two parts of the index (strings) must have equal length");
 		    }
 		} else {
 		    index_.push_back(expect_string(category, "index"));
@@ -83,6 +86,23 @@ public:
 	return n1.index_[0] < n2.index_[0];
     }
 
+    /// This is the length of the index string. It is not whether or not their
+    /// index has two components. For a one component index, the length of the 
+    std::size_t size() const {
+	return index_[0].size();
+    }
+
+    bool contains(const std::string & code) const {
+	// Truncates to the length of the first part of
+	// the range, assuming the two parts are equal length
+	std::string trunc{code.substr(0, size())};
+	if (index_.size() == 2) {
+	    return (code >= index_[0]) && (trunc <= index_[1]);
+	} else {
+	    return trunc == index_[0];
+	}
+    }
+    
 private:
     std::vector<std::string> index_;
 };
@@ -115,6 +135,44 @@ public:
 	}	
     }
 
+    std::string parse_code(const std::string & code, std::set<std::string> groups = std::set<std::string>{}) {
+
+	// Look through the index keys at the current level
+	// and find the position of the code. Inside the codes
+	// structure, the index keys provide an array to search
+	// (using binary search) for the ICD code in str.
+	auto position = std::upper_bound(categories_.begin(), categories_.end(), code);
+	const bool found = (position != std::begin(categories_)) &&
+	    ((position-1)->contains(code));
+	
+	// If found == false, then a match was not found. This
+	// means that the code is not a valid member of any member
+	// of this level, so it is not a valid code. TODO it still
+	// may be possible to return the category above as a fuzzy
+	// match -- consider implementing
+	if (!found) {
+	    throw std::runtime_error("Invalid code");
+	}
+
+	// Decrement the position to point to the largest category
+	// c such that c <= code
+	position--;
+
+	// Check for any group exclusions at this level and remove
+	// them from the current group list (note that if exclude
+	// is not present, NULL is returned, which works fine).
+	// try {
+	//     std::set<std::string> exclude = position->exclude();
+	//     for (const auto & e : exclude) {
+	// 	groups.erase(e);
+	//     }
+	// } catch (const Rcpp::index_out_of_bounds &) {
+	//     // No exclude tag present, no need to remove anything,
+	//     // groups is still valid
+	// }
+	
+    }
+    
     const_iterator begin() const {
 	return categories_.begin();
     }
@@ -144,6 +202,12 @@ public:
 	}
     }
 
+    // Return true if code is (lexicographically) contained
+    // in the range specified by the index of this Cat
+    bool contains(const std::string & code) const {
+	return index_.contains(code);
+    }
+    
     void print() {
 	std::cout << "Category: " << name_ << std::endl;
 	std::cout << "- " << docs_ << std::endl;
@@ -201,39 +265,7 @@ public:
 	    throw std::runtime_error("Got the empty string in parse_code()");
 	}
 	
-	// // Look through the index keys at the current level
-	// // and find the position of the code. Inside the codes
-	// // structure, the index keys provide an array to search
-	// // (using binary search) for the ICD code in str.
-	// auto position = std::ranges::upper_bound(categories_, code);
-	// const bool found = (position != std::begin(categories_)) &&
-	//     ((position-1)->contains(code));
-	
-	// // If found == false, then a match was not found. This
-	// // means that the code is not a valid member of any member
-	// // of this level, so it is not a valid code. TODO it still
-	// // may be possible to return the category above as a fuzzy
-	// // match -- consider implementing
-	// if (!found) {
-	//     throw std::runtime_error("Invalid code");
-	// }
-
-	// // Decrement the position to point to the largest category
-	// // c such that c <= code
-	// position--;
-
-	// // Check for any group exclusions at this level and remove
-	// // them from the current group list (note that if exclude
-	// // is not present, NULL is returned, which works fine).
-	// try {
-	//     std::set<std::string> exclude = position->exclude();
-	//     for (const auto & e : exclude) {
-	// 	groups.erase(e);
-	//     }
-	// } catch (const Rcpp::index_out_of_bounds &) {
-	//     // No exclude tag present, no need to remove anything,
-	//     // groups is still valid
-	// }
+	std::string result{categories_.parse_code(code)};
 	
 	
 	return code;
