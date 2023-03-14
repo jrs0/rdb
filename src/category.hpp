@@ -58,20 +58,32 @@ expect_category_vector(const YAML::Node & node,
 class Category {
 public:
     
-    Category(const YAML::Node & category) {
-	// Doesn't like the init list apparently
-	name_ = expect_string(category, "name");
-	docs_ = expect_string(category, "docs");
-	
-	// The exclude key may not be present
+    Category(const YAML::Node & category)
+	: name_{expect_string(category, "name")},
+	  docs_{expect_string(category, "docs")}
+    {
+	// The exclude key is optional -- if there is not
+	// exclude key, then all groups are included below
+	// this level
 	if (category["exclude"]) {
 	    exclude_ = expect_string_vector(category, "exclude");
 	}
+
+	// A category may or may not contain a categories key.
+	// If it does not, it is a leaf node, and the recursive
+	// construction ends
+	if (category["categories"]) {
+	    categories_ = expect_category_vector(category, "categories");
+	}
+
     }
 
     void print() {
 	std::cout << "Category: " << name_ << std::endl;
 	std::cout << "- " << docs_ << std::endl;
+	for (const auto & category_pointer_ : categories_) {
+	    category_pointer_->print();
+	}
     }
 private:
     /// The category name
@@ -82,7 +94,7 @@ private:
     std::vector<std::string> exclude_;
     /// The list of subcategories within this category.
     /// If there are no subcategories, then this list is empty
-    std::vector<std::unique_ptr<Category>> sub_cats_;
+    std::vector<std::unique_ptr<Category>> categories_;
     /// An index used to order a collection of categories
     std::string index_;
 };
@@ -91,11 +103,7 @@ private:
 class TopLevelCategory {
 public:
     TopLevelCategory(const YAML::Node & top_level_category) {
-
-	// Read the groups key
 	groups_ = expect_string_vector(top_level_category, "groups");
-
-	// Check for correct type
 	if (not top_level_category["categories"]) {
 	    throw std::runtime_error("Missing required 'categories' key at top level");
 	} else {
