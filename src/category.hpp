@@ -9,6 +9,8 @@
 #ifndef CATEGORY_HPP
 #define CATEGORY_HPP
 
+#include <algorithm>
+
 #include <yaml-cpp/yaml.h>
 
 // Expect a key called field_name containing a string (else throw runtime error
@@ -59,9 +61,15 @@ public:
 	}
 
     }
+
+    friend bool operator< (const Index & n1, const Index & n2) {
+	return n1.index_[0] < n2.index_[0];
+    }
+
 private:
     std::vector<std::string> index_;
 };
+
 
 class Category;
 
@@ -104,6 +112,10 @@ public:
 	// construction ends
 	if (category["categories"]) {
 	    categories_ = expect_category_vector(category, "categories");
+
+	    // It is important that the categories are sorted by index
+	    // for the binary search.
+	    std::ranges::sort(categories_);
 	}
 
     }
