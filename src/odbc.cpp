@@ -98,7 +98,6 @@ void parse_icd(const Rcpp::CharacterVector & icd10_file_character) {
     try {
 	YAML::Node top_level_category_yaml = YAML::LoadFile(icd10_file);
 	TopLevelCategory top_level_category{top_level_category_yaml};
-	top_level_category.print();	
     } catch(const YAML::BadFile& e) {
 	throw std::runtime_error("Bad YAML file");
     } catch(const YAML::ParserException& e) {

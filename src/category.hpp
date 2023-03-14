@@ -163,6 +163,13 @@ public:
 	    category_pointer_->print();
 	}
     }
+
+    /// Parse a raw code. Return the standard name of the code.
+    /// Throw a runtime error if the code is invalid or not found
+    std::string parse_code(const std::string & code) {
+	
+    }
+    
 private:
     /// The list of groups present in the sub-catagories
     std::vector<std::string> groups_;
