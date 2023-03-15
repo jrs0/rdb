@@ -216,7 +216,7 @@ std::string remove_non_alphanum(const std::string & code) {
     return s;
 }
 
-std::string TopLevelCategory::parse_code(const std::string & code) {
+std::string TopLevelCategory::get_code_name(const std::string & code) {
 
     // Check for the empty string
     if(std::ranges::all_of(code, isspace)) {
@@ -224,8 +224,8 @@ std::string TopLevelCategory::parse_code(const std::string & code) {
     }
 
     auto code_alphanum{remove_non_alphanum(code)};
-    
-    return get_code_name(code_alphanum, categories_);
-	
+
+    // TODO -- scope issue here (same name function in scope)
+    return ::get_code_name(code_alphanum, categories_);
 }
     

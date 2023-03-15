@@ -14,9 +14,7 @@
 #include <vector>
 #include <map>
 
-#include "stmt_handle.hpp"
-#include "yaml.hpp"
-#include "category.hpp"
+#include "row_buffer.hpp"
 
 // To be moved out of here
 #include <Rcpp.h>
@@ -36,50 +34,9 @@ public:
 
     /// Submit an SQL query and get the result back as a set of
     /// columns (with column names).
-    std::map<std::string, std::vector<std::string>> query(const std::string & query) {
-
+    RowBuffer execute_direct(const std::string & query) {
 	stmt_->exec_direct(query);
-
-	std::size_t num_columns{stmt_->num_columns()};
-	
-	// Loop over the columns (note: indexed from 1!)
-	// Get the column types
-	std::vector<ColBinding> col_bindings;
-
-	// For now, the table is a map from column names to vectors
-	// of strings (can handle types later)
-	std::map<std::string, std::vector<std::string>> table;
-
-	// Get all the column names. This is where you might do
-	// column name remapping.
-	for (std::size_t n = 1; n <= num_columns; n++) {
-	    std::string colname{stmt_->column_name(n)};
-	    col_bindings.push_back(stmt_->make_binding(n));
-	}
-
-	// Fetch all the rows. This is where "local" preprocessing of
-	// values would go (i.e. parsing of ICD values). 
-	std::size_t num_rows{0};
-	while(true) {
-
-	    /// Attempt to fetch a row and break if no rows left
-	    if(not stmt_->fetch()) {
-		break;
-	    }
-	    
-	    // Print the row of data from the column bindings
-	    for (auto & bind : col_bindings) {
-		std::string value;
-		try {
-		    value = bind.read_buffer();
-		} catch (const std::logic_error &) {
-		    value = "NULL";
-		}
-		table[bind.col_name()].push_back(value);
-	    }
-	    num_rows++;
-	}
-	return table;
+	return RowBuffer{stmt_};
     }
     
 private:
@@ -91,26 +48,6 @@ private:
 };
 
 // [[Rcpp::export]]
-void parse_icd(const Rcpp::CharacterVector & icd10_file_character,
-	       const Rcpp::CharacterVector & code_character) {
-
-    std::string icd10_file = Rcpp::as<std::string>(icd10_file_character);     
-    std::string code = Rcpp::as<std::string>(code_character);
-    
-    try {
-	YAML::Node top_level_category_yaml = YAML::LoadFile(icd10_file);
-	TopLevelCategory top_level_category{top_level_category_yaml};
-	std::cout << top_level_category.parse_code(code) << std::endl;;
-    } catch(const YAML::BadFile& e) {
-	throw std::runtime_error("Bad YAML file");
-    } catch(const YAML::ParserException& e) {
-	throw std::runtime_error("YAML parsing error");
-    } catch(const std::runtime_error & e) {
-	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
-    }
-}
-
-// [[Rcpp::export]]
 Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 		       const Rcpp::CharacterVector & query_character) {
     try {
@@ -120,12 +57,50 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 	// Make the connection
 	SQLConnection con(dsn);
 
-	// Attempt to add a statement for direct execution
-	auto table{con.query(query)};
+	// Fetch the row buffer (column names + allocated buffer space for one row)
+	auto row_buffer{con.execute_direct(query)};
+	auto column_names{row_buffer.column_names()};
+	
+	// Make a (column-major) table to store the fetched rows
+	std::map<std::string, std::vector<std::string>> table;
 
-	Rcpp::List table_list;;
-	// Loop over columns
+	try {
+	    
+	    YAML::Node top_level_category_yaml = YAML::LoadFile("icd10_example.yaml");
+	    TopLevelCategory top_level_category{top_level_category_yaml};
+	    while(true) {
+		try {
 
+		    // Try to fetch the next row (throws if none left)
+		    auto row{row_buffer.try_next_row()};
+
+		    // NOW row HAS VALUES, DO PARSING HERE
+		    row[0] = top_level_category.get_code_name(row[0]);
+		    std::cout << row[0] << std::endl;
+		    
+		    // Copy into the table
+		    for (std::size_t col{0}; col < row_buffer.size(); col++) {
+			auto col_name{column_names[col]};
+			auto col_value{row[col]};
+			table[col_name].push_back(col_value); 
+		    }
+			
+		} catch (const std::logic_error & e) {
+		    std::cout << e.what() << std::endl;
+		    break;
+		}
+	    }
+
+	} catch(const YAML::BadFile& e) {
+	    throw std::runtime_error("Bad YAML file");
+	} catch(const YAML::ParserException& e) {
+	    throw std::runtime_error("YAML parsing error");
+	} catch(const std::runtime_error & e) {
+	    Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+	}
+	
+	// Convert the table to R format
+	Rcpp::List table_list;
 	for (const auto & [col_name, col_values] : table) {
 	    
 	    Rcpp::CharacterVector col_values_vector(col_values.begin(), col_values.end());
@@ -137,5 +112,25 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
     } catch (const std::runtime_error & e) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
 	return Rcpp::List{};
+    }
+}
+
+// [[Rcpp::export]]
+void parse_icd(const Rcpp::CharacterVector & icd10_file_character,
+	       const Rcpp::CharacterVector & code_character) {
+
+    std::string icd10_file = Rcpp::as<std::string>(icd10_file_character);     
+    std::string code = Rcpp::as<std::string>(code_character);
+    
+    try {
+	YAML::Node top_level_category_yaml = YAML::LoadFile(icd10_file);
+	TopLevelCategory top_level_category{top_level_category_yaml};
+	std::cout << top_level_category.get_code_name(code) << std::endl;;
+    } catch(const YAML::BadFile& e) {
+	throw std::runtime_error("Bad YAML file");
+    } catch(const YAML::ParserException& e) {
+	throw std::runtime_error("YAML parsing error");
+    } catch(const std::runtime_error & e) {
+	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
     }
 }

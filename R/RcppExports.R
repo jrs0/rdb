@@ -5,11 +5,11 @@ test_cpp <- function(thing) {
     .Call(`_rdb_test_cpp`, thing)
 }
 
-parse_icd <- function(icd10_file_character, code_character) {
-    invisible(.Call(`_rdb_parse_icd`, icd10_file_character, code_character))
-}
-
 try_connect <- function(dsn_character, query_character) {
     .Call(`_rdb_try_connect`, dsn_character, query_character)
+}
+
+parse_icd <- function(icd10_file_character, code_character) {
+    invisible(.Call(`_rdb_parse_icd`, icd10_file_character, code_character))
 }
 

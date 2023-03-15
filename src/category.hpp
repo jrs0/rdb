@@ -130,8 +130,8 @@ public:
     void print() const;
     
     /// Parse a raw code. Return the standard name of the code.
-    /// Throw a runtime error if the code is invalid or not found
-    std::string parse_code(const std::string & code);
+    /// Throw a runtime error if the code is invalid or not found.
+    std::string get_code_name(const std::string & code);
     
 private:
     /// The list of groups present in the sub-catagories
@@ -140,6 +140,5 @@ private:
     std::vector<Category> categories_;
 };
 
-    
 
 #endif
