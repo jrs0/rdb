@@ -17,3 +17,11 @@ pacman -S mingw-w64-x86_64-unixodbc
 # Other dependencies
 pacman -S mingw-w64-x86_64-yaml-cpp
 ```
+
+To compile this properly (during development, with optimisations turned on), run this:
+
+```bash
+pkgbuild::compile_dll(debug=FALSE)
+```
+
+This will remove the -O0 flags.

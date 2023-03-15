@@ -86,6 +86,25 @@ public:
     std::string name() const {
 	return name_;
     }
+
+    /// Get a view of the excluded groups at this level
+    const std::set<std::string> & exclude() const {
+	return exclude_;
+    }
+
+    /// Get a view of the sub-categories
+    const std::vector<Category> & categories() const {
+	return categories_;
+    }
+    
+    /// Check if this category is a leaf node (i.e. it has no
+    /// sub-categories)
+    bool is_leaf() const {
+	return categories_.size() == 0;
+    }
+
+    
+    
 private:
     
     /// The category name

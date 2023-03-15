@@ -123,8 +123,8 @@ void Category::print() const {
     }
 }
 
-
-/// 
+/// Return the category in the supplied vector that contains the code,
+/// or throw a runtime_error if the code is not found anywhere.
 const Category &
 locate_code_in_categories(const std::string & code,
 			  const std::vector<Category> & categories) {
@@ -143,14 +143,46 @@ locate_code_in_categories(const std::string & code,
     // may be possible to return the category above as a fuzzy
     // match -- consider implementing
     if (!found) {
-	throw std::runtime_error("Invalid code");
+	throw std::runtime_error("Code not found in any category");
     }
 
     // Decrement the position to point to the largest category
     // c such that c <= code
     position--;
-
+    
     return *position;
+}
+
+/// Return the name of a code, if it exists in the categories tree, or
+/// throw a runtime error for an invalid code
+std::string get_code_name(const std::string code,
+			  const std::vector<Category> & categories,
+			  std::set<std::string> groups = std::set<std::string>{}) {
+
+    // Locate the category containing the code at the current level
+    auto cat{locate_code_in_categories(code, categories)};
+
+    // Check for any group exclusions at this level and remove
+    // them from the current group list (note that if exclude
+    // is not present, NULL is returned, which works fine).
+    for (const auto & excluded_group : cat.exclude()) {
+	groups.erase(excluded_group);
+    }
+
+    // If there is a subcategory, make a call to this function
+    // to process the next category down. Otherwise you are
+    // at a leaf node, so start returning up the call graph.
+    // TODO: since this function is linearly recursive,
+    // there should be a tail-call optimisation available here
+    // somewhere.
+    if (not cat.is_leaf()) {
+	// There are sub-categories -- parse the code at the next level
+	// down (put a try catch here for the case where the next level
+	// down isn't better)
+	return get_code_name(code, cat.categories(), groups);
+    } else {
+	return cat.name();
+    }
 }
 
 TopLevelCategory::TopLevelCategory(const YAML::Node & top_level_category)
@@ -174,6 +206,16 @@ void TopLevelCategory::print() const {
     }
 }
 
+/// Remove non-alphanumeric characters from code (e.g. dots)
+std::string remove_non_alphanum(const std::string & code) {
+    std::string s{code};
+    s.erase(std::remove_if(s.begin(), s.end(), 
+			   []( auto const& c ) -> bool {
+			       return !std::isalnum(c);
+			   }), s.end());
+    return s;
+}
+
 std::string TopLevelCategory::parse_code(const std::string & code) {
 
     // Check for the empty string
@@ -181,11 +223,9 @@ std::string TopLevelCategory::parse_code(const std::string & code) {
 	throw std::runtime_error("Got the empty string in parse_code()");
     }
 
-    auto cat{locate_code_in_categories(code, categories_)};
+    auto code_alphanum{remove_non_alphanum(code)};
     
-    std::string result{cat.name()};
-        
-    return result;
+    return get_code_name(code_alphanum, categories_);
 	
 }
     
