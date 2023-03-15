@@ -93,7 +93,8 @@ std::vector<Category> make_sub_categories(const YAML::Node & category) {
 	    return categories;
 	}
     } else {
-	throw std::runtime_error("Expected categories field");
+	// There are no categories
+	return std::vector<Category>{};
     }
 }
 
@@ -183,9 +184,8 @@ std::string TopLevelCategory::parse_code(const std::string & code) {
     auto cat{locate_code_in_categories(code, categories_)};
     
     std::string result{cat.name()};
-	
-	
-    return code;
+        
+    return result;
 	
 }
     
