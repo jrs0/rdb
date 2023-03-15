@@ -64,41 +64,31 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 	// Make a (column-major) table to store the fetched rows
 	std::map<std::string, std::vector<std::string>> table;
 
-	try {
-	    
-	    YAML::Node top_level_category_yaml = YAML::LoadFile("icd10_example.yaml");
-	    TopLevelCategory top_level_category{top_level_category_yaml};
-	    while(true) {
-		try {
+	YAML::Node top_level_category_yaml = YAML::LoadFile("icd10_example.yaml");
+	TopLevelCategory top_level_category{top_level_category_yaml};
 
-		    // Try to fetch the next row (throws if none left)
-		    auto row{row_buffer.try_next_row()};
+	while(true) {
+	    try {
 
-		    // NOW row HAS VALUES, DO PARSING HERE
-		    row[0] = top_level_category.get_code_name(row[0]);
-		    std::cout << row[0] << std::endl;
+		// Try to fetch the next row (throws if none left)
+		auto row{row_buffer.try_next_row()};
+
+		// NOW row HAS VALUES, DO PARSING HERE
+		row[0] = top_level_category.get_code_name(row[0]);
 		    
-		    // Copy into the table
-		    for (std::size_t col{0}; col < row_buffer.size(); col++) {
-			auto col_name{column_names[col]};
-			auto col_value{row[col]};
-			table[col_name].push_back(col_value); 
-		    }
-			
-		} catch (const std::logic_error & e) {
-		    std::cout << e.what() << std::endl;
-		    break;
+		// Copy into the table
+		for (std::size_t col{0}; col < row_buffer.size(); col++) {
+		    auto col_name{column_names[col]};
+		    auto col_value{row[col]};
+		    table[col_name].push_back(col_value); 
 		}
+			
+	    } catch (const std::logic_error & e) {
+		std::cout << e.what() << std::endl;
+		break;
 	    }
-
-	} catch(const YAML::BadFile& e) {
-	    throw std::runtime_error("Bad YAML file");
-	} catch(const YAML::ParserException& e) {
-	    throw std::runtime_error("YAML parsing error");
-	} catch(const std::runtime_error & e) {
-	    Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
 	}
-	
+        
 	// Convert the table to R format
 	Rcpp::List table_list;
 	for (const auto & [col_name, col_values] : table) {
@@ -108,7 +98,11 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 	}
 
 	return table_list;
-	
+
+    } catch(const YAML::BadFile& e) {
+	throw std::runtime_error("Bad YAML file");
+    } catch(const YAML::ParserException& e) {
+	throw std::runtime_error("YAML parsing error");
     } catch (const std::runtime_error & e) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
 	return Rcpp::List{};

@@ -24,4 +24,4 @@ To compile this properly (during development, with optimisations turned on), run
 pkgbuild::compile_dll(debug=FALSE)
 ```
 
-This will remove the -O0 flags.
+This will remove the -O0 flags. You may also need to do a load_all afterwords to get it to use the updated functions (the key is not making any cpp changes in between so that load_all does not recompile).
