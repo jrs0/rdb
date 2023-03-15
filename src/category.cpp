@@ -92,7 +92,9 @@ std::vector<Category> make_sub_categories(const YAML::Node & category) {
 	    std::ranges::sort(categories);
 	    return categories;
 	}
-    }	
+    } else {
+	throw std::runtime_error("Expected categories field");
+    }
 }
 
 Category::Category(const YAML::Node & category)
@@ -121,7 +123,7 @@ void Category::print() const {
 }
 
 
-/// Search for the category 
+/// 
 const Category &
 locate_code_in_categories(const std::string & code,
 			  const std::vector<Category> & categories) {
@@ -130,7 +132,7 @@ locate_code_in_categories(const std::string & code,
     // and find the position of the code. Inside the codes
     // structure, the index keys provide an array to search
     // (using binary search) for the ICD code in str.
-    auto position = std::ranges::upper_bound(categories, code);
+    auto position = std::upper_bound(categories.begin(), categories.end(), code);
     const bool found = (position != std::begin(categories)) &&
 	((position-1)->contains(code));
 	
@@ -177,8 +179,10 @@ std::string TopLevelCategory::parse_code(const std::string & code) {
     if(std::ranges::all_of(code, isspace)) {
 	throw std::runtime_error("Got the empty string in parse_code()");
     }
-	
-    std::string result{categories_.parse_code(code)};
+
+    auto cat{locate_code_in_categories(code, categories_)};
+    
+    std::string result{cat.name()};
 	
 	
     return code;

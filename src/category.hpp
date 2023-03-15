@@ -27,6 +27,10 @@ public:
     /// in the codes (although there may be gaps).
     friend auto operator<=>(const Index&, const Index&) = default;
     friend bool operator==(const Index&, const Index&) = default;
+
+    friend bool operator<(const std::string & code, const Index& n) {
+	return code < n.start_;
+    }
     
     /// This is the length of the index string. It is not whether or not their
     /// index has two components. For a one component index, the length of the 
@@ -72,9 +76,16 @@ public:
     friend bool operator==(const Category & c1, const Category & c2) {
         return c1.index_ == c2.index_;
     }
+
+    friend bool operator<(const std::string & code, const Category & c) {
+	return code < c.index_;
+    }
     
     void print() const;
-    
+
+    std::string name() const {
+	return name_;
+    }
 private:
     
     /// The category name
