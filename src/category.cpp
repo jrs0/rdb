@@ -120,14 +120,18 @@ void Category::print() const {
     }
 }
 
-std::string Category::parse_code(const std::string & code, std::set<std::string> groups) {
 
+/// Search for the category 
+const Category &
+locate_code_in_categories(const std::string & code,
+			  const std::vector<Category> & categories) {
+    
     // Look through the index keys at the current level
     // and find the position of the code. Inside the codes
     // structure, the index keys provide an array to search
     // (using binary search) for the ICD code in str.
-    auto position = std::upper_bound(categories_.begin(), categories_.end(), code);
-    const bool found = (position != std::begin(categories_)) &&
+    auto position = std::ranges::upper_bound(categories, code);
+    const bool found = (position != std::begin(categories)) &&
 	((position-1)->contains(code));
 	
     // If found == false, then a match was not found. This
@@ -143,19 +147,7 @@ std::string Category::parse_code(const std::string & code, std::set<std::string>
     // c such that c <= code
     position--;
 
-    // Check for any group exclusions at this level and remove
-    // them from the current group list (note that if exclude
-    // is not present, NULL is returned, which works fine).
-    // try {
-    //     std::set<std::string> exclude = position->exclude();
-    //     for (const auto & e : exclude) {
-    // 	groups.erase(e);
-    //     }
-    // } catch (const Rcpp::index_out_of_bounds &) {
-    //     // No exclude tag present, no need to remove anything,
-    //     // groups is still valid
-    // }
-	
+    return *position;
 }
 
 TopLevelCategory::TopLevelCategory(const YAML::Node & top_level_category)

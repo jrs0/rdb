@@ -75,9 +75,6 @@ public:
     
     void print() const;
     
-    std::string parse_code(const std::string & code,
-			   std::set<std::string> groups = std::set<std::string>{});
-
 private:
     
     /// The category name
