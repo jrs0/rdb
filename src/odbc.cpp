@@ -74,7 +74,7 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 		auto row{row_buffer.try_next_row()};
 
 		// NOW row HAS VALUES, DO PARSING HERE
-		row[0] = top_level_category.get_code_name(row[0]);
+		//row[0] = top_level_category.get_code_name(row[0]);
 		    
 		// Copy into the table
 		for (std::size_t col{0}; col < row_buffer.size(); col++) {

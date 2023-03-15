@@ -131,6 +131,8 @@ public:
     
     /// Parse a raw code. Return the standard name of the code.
     /// Throw a runtime error if the code is invalid or not found.
+    /// Query results are cached and used to speed up the next
+    /// call to the function
     std::string get_code_name(const std::string & code);
     
 private:
@@ -138,6 +140,8 @@ private:
     std::set<std::string> groups_;
     /// The list of sub-categories
     std::vector<Category> categories_;
+    /// Cached parsed code names
+    std::map<std::string, std::string> code_name_cache_;
 };
 
 

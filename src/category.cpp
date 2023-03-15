@@ -225,7 +225,14 @@ std::string TopLevelCategory::get_code_name(const std::string & code) {
 
     auto code_alphanum{remove_non_alphanum(code)};
 
-    // TODO -- scope issue here (same name function in scope)
-    return ::get_code_name(code_alphanum, categories_);
+    // Inspect the cache
+    try {
+	return code_name_cache_.at(code_alphanum);
+    } catch (const std::out_of_range &) {
+	// TODO -- scope issue here (same name function in scope)
+	auto code_name{::get_code_name(code_alphanum, categories_)};
+	code_name_cache_.insert({code_alphanum, code_name});
+	return code_name;
+    }   
 }
     
