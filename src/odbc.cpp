@@ -136,5 +136,6 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 	
     } catch (const std::runtime_error & e) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+	return Rcpp::List{};
     }
 }

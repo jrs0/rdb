@@ -113,6 +113,7 @@ class CategoryList {
 public:
 
     using const_iterator = std::vector<std::unique_ptr<Category>>::const_iterator;
+    using iterator = std::vector<std::unique_ptr<Category>>::iterator;
 
     /// Empty category list
     CategoryList() = default;
@@ -135,43 +136,8 @@ public:
 	}	
     }
 
-    std::string parse_code(const std::string & code, std::set<std::string> groups = std::set<std::string>{}) {
-
-	// Look through the index keys at the current level
-	// and find the position of the code. Inside the codes
-	// structure, the index keys provide an array to search
-	// (using binary search) for the ICD code in str.
-	auto position = std::upper_bound(categories_.begin(), categories_.end(), code);
-	const bool found = (position != std::begin(categories_)) &&
-	    ((position-1)->contains(code));
-	
-	// If found == false, then a match was not found. This
-	// means that the code is not a valid member of any member
-	// of this level, so it is not a valid code. TODO it still
-	// may be possible to return the category above as a fuzzy
-	// match -- consider implementing
-	if (!found) {
-	    throw std::runtime_error("Invalid code");
-	}
-
-	// Decrement the position to point to the largest category
-	// c such that c <= code
-	position--;
-
-	// Check for any group exclusions at this level and remove
-	// them from the current group list (note that if exclude
-	// is not present, NULL is returned, which works fine).
-	// try {
-	//     std::set<std::string> exclude = position->exclude();
-	//     for (const auto & e : exclude) {
-	// 	groups.erase(e);
-	//     }
-	// } catch (const Rcpp::index_out_of_bounds &) {
-	//     // No exclude tag present, no need to remove anything,
-	//     // groups is still valid
-	// }
-	
-    }
+    std::string parse_code(const std::string & code,
+			   std::set<std::string> groups = std::set<std::string>{});
     
     const_iterator begin() const {
 	return categories_.begin();
@@ -181,6 +147,14 @@ public:
 	return categories_.end();
     }
 
+    // iterator begin() {
+    // 	return categories_.begin();
+    // }
+
+    // iterator end() {
+    // 	return categories_.end();
+    // }
+    
 private:
     std::vector<std::unique_ptr<Category>> categories_;
 };
@@ -231,6 +205,46 @@ private:
     /// or below
     std::set<std::string> exclude_;
 };
+
+std::string CategoryList::parse_code(const std::string & code,
+				     std::set<std::string> groups = std::set<std::string>{}) {
+
+    // Look through the index keys at the current level
+    // and find the position of the code. Inside the codes
+    // structure, the index keys provide an array to search
+    // (using binary search) for the ICD code in str.
+    auto position = std::upper_bound(categories_.begin(), categories_.end(), code);
+    const bool found = (position != std::begin(categories_)) &&
+	((position-1)->contains(code));
+	
+    // If found == false, then a match was not found. This
+    // means that the code is not a valid member of any member
+    // of this level, so it is not a valid code. TODO it still
+    // may be possible to return the category above as a fuzzy
+    // match -- consider implementing
+    if (!found) {
+	throw std::runtime_error("Invalid code");
+    }
+
+    // Decrement the position to point to the largest category
+    // c such that c <= code
+    position--;
+
+    // Check for any group exclusions at this level and remove
+    // them from the current group list (note that if exclude
+    // is not present, NULL is returned, which works fine).
+    // try {
+    //     std::set<std::string> exclude = position->exclude();
+    //     for (const auto & e : exclude) {
+    // 	groups.erase(e);
+    //     }
+    // } catch (const Rcpp::index_out_of_bounds &) {
+    //     // No exclude tag present, no need to remove anything,
+    //     // groups is still valid
+    // }
+	
+}
+
 
 /// Special case top level (contains a groups key)
 class TopLevelCategory {
