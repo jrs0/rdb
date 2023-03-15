@@ -211,7 +211,7 @@ public:
 	/// Get length of data type
 	std::size_t column_length{0};
 	SQLRETURN r = SQLColAttribute(hstmt_, index, SQL_DESC_LENGTH,
-				      NULL, 0, NULL, &(SQLLEN)column_length);
+				      NULL, 0, NULL, (SQLLEN*)&column_length);
 	ok_or_throw(get_handle(), r, "Getting column type length attribute");
 
 	std::string col_name{column_name(index)};

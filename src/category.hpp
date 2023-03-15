@@ -206,8 +206,7 @@ private:
     std::set<std::string> exclude_;
 };
 
-std::string CategoryList::parse_code(const std::string & code,
-				     std::set<std::string> groups = std::set<std::string>{}) {
+std::string CategoryList::parse_code(const std::string & code, std::set<std::string> groups) {
 
     // Look through the index keys at the current level
     // and find the position of the code. Inside the codes
@@ -215,7 +214,7 @@ std::string CategoryList::parse_code(const std::string & code,
     // (using binary search) for the ICD code in str.
     auto position = std::upper_bound(categories_.begin(), categories_.end(), code);
     const bool found = (position != std::begin(categories_)) &&
-	((position-1)->contains(code));
+	((*(position-1))->contains(code));
 	
     // If found == false, then a match was not found. This
     // means that the code is not a valid member of any member
