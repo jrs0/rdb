@@ -1,1 +1,15 @@
+^icdb\.Rproj$
+^\.Rproj\.user$
 ^LICENSE\.md$
+^README\.Rmd$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^doc$
+^Meta$
+^codecov\.yml$
+^\.github$
+^map-editor
+^scripts
+^index.md$
+gendata
