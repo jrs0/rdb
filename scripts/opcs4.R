@@ -36,13 +36,14 @@ opcs_chapter_names <- list (
 ##'
 ##' This function accepts a text file, whitespace-separated
 ##' with two columns, containing the OPCS code in the first
-##' column and the description in the second column. OPCS
-##' codes have the general format Xnn[.n] where X is the
+##' column and the description in the second column
+##'
+##' OPCS codes have the general format Xnn[.n] where X is the
 ##' chapter letter, n is a numeric digit, and the third
 ##' digit along with the point may be omitted.
-##'
 ##' 
-opcs_get_codes <- function(txt_in_path, yaml_out_path = "opcs.yaml") {
+opcs_get_codes <- function(input_file_path, output_name = "opcs.yaml") {
+    codes <- readr::read_delim(input_file_path, col_names = c("",""))
     
 }
 
