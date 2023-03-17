@@ -1,10 +1,51 @@
+
+
+
+code_to_category <- function(name, docs, code) {
+
+    ## Calculate the index
+    index <- code %>%
+        dplyr::select(code) %>%
+        filter(code == min(code)) %>%
+        mutate(code = str_replace(code, "\\.", "")) %>%
+        pull(code)
+    
+    list (
+        name = name,
+        docs = docs,
+        index = index
+    )
+}
+
 ##' The functions in this file can be used to obtain a blank OPCS4
 ##' codes configuration file.
 ##'
 ##'
+section_to_category <- function(name, docs, codes) {
 
-section_to_category <- function(name, docs, section) {
-    
+    ## Get the index for this section
+    index <- codes %>%
+        dplyr::select(code) %>%
+        filter(code == max(code) | code == min(code)) %>%
+        mutate(code = str_replace(code, "\\.", "")) %>%
+        pull(code)
+
+    ## Generate the sub-categories
+    categories <- codes %>%
+        purrr::pmap(function(code, description) {
+            list(
+                name = code,
+                docs = description,
+                index = stringr::str_replace(code, "\\.", "")
+            )
+        })      
+            
+    list (
+        name = name,
+        docs = docs,
+        categories = categories,
+        index = index
+    )  
 }
 
 ##' Convert the contents of a chapter of OPCS codes to a Category list
@@ -30,17 +71,34 @@ chapter_to_category <- function(name, docs, chapter) {
     sections <- chapter %>%
         dplyr::filter(!stringr::str_detect(code, "\\."))
     
-    ## Obtain the index key for this level
+    ## Obtain the index key for this level (from the section)
     index <- sections %>%
         dplyr::select(code) %>%
         filter(code == max(code) | code == min(code)) %>%
         mutate(code = str_replace(code, "\\.", "")) %>%
         pull(code)
 
+    ## Generate the sub-categories
+    categories <- sections %>%
+        dplyr::rename(section_name = code, section_docs = description) %>%
+        purrr::pmap(function(section_name, section_docs) {
+            ## Get the section
+            section <- chapter %>%
+                dplyr::filter(str_detect(code, section_name),
+                              str_detect(code, "\\."))
+            section_to_category(section_name, section_docs, section)            
+        })
+    
+    ## section <- chapter %>%
+    ##     dplyr::filter(str_detect(code, "A01"), str_detect(code, "\\."))
+    ## categories <- list(
+    ##     section_to_category("A01", "thing", section)
+    ## )
+    
     list(
         name = name,
         docs = docs,
-        categories = NA,
+        categories = categories,
         index = index
     )
 }
@@ -59,7 +117,7 @@ chapter_to_category <- function(name, docs, chapter) {
 opcs_get_codes <- function(input_file_path, output_name = "opcs.yaml") {
     codes <- readr::read_delim(input_file_path, col_names = c("code","description")) 
     ## Chapter letters and descriptions
-    opcs_chapter_names <- list (
+    opcs_chapters <- list (
         A = "Nervous System",
         B = "Endocrine System and Breast",
         C = "Eye",
@@ -86,22 +144,19 @@ opcs_get_codes <- function(input_file_path, output_name = "opcs.yaml") {
         Z = "Subsidiary Classification of Sites of Operation"
     )
 
-    contents <- codes %>%
-        filter(str_detect(code, "A"))
-
-    chapter_to_category("A", opcs_chapter_names[["A"]], contents)
-    
-    ## ## Make a list of all 
-    ## chapter <- names(opcs_chapter_names) %>%
-    ##     ## Get the sections in each chapter
-    ##     purrr::map(~ codes %>% dplyr::filter(str_detect(code, .x),
-    ##                                          !str_detect(code, "\\."))) %>%
-
+    categories <- list(name = names(opcs_chapters), docs = opcs_chapters) %>%
+        purrr::pmap(function(name, docs) {
+            contents <- codes %>% filter(str_detect(code, name))
+            chapter_to_category(name, docs, contents)
+        })
     
 
-    ## ## Get the 
-    ##     purrr::map()
-    ## codes_by_chapter
+    top_level_category <- list(
+        categories = categories,
+        groups = list()
+    )
+
+    yaml::write_yaml(top_level_category, output_name)
 }
 
 
