@@ -1,25 +1,6 @@
 
-
-
-code_to_category <- function(name, docs, code) {
-
-    ## Calculate the index
-    index <- code %>%
-        dplyr::select(code) %>%
-        filter(code == min(code)) %>%
-        mutate(code = str_replace(code, "\\.", "")) %>%
-        pull(code)
-    
-    list (
-        name = name,
-        docs = docs,
-        index = index
-    )
-}
-
 ##' The functions in this file can be used to obtain a blank OPCS4
 ##' codes configuration file.
-##'
 ##'
 section_to_category <- function(name, docs, codes) {
 
@@ -88,12 +69,6 @@ chapter_to_category <- function(name, docs, chapter) {
                               str_detect(code, "\\."))
             section_to_category(section_name, section_docs, section)            
         })
-    
-    ## section <- chapter %>%
-    ##     dplyr::filter(str_detect(code, "A01"), str_detect(code, "\\."))
-    ## categories <- list(
-    ##     section_to_category("A01", "thing", section)
-    ## )
     
     list(
         name = name,
