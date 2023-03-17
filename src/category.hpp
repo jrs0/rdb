@@ -87,6 +87,10 @@ public:
 	return name_;
     }
 
+    std::string docs() const {
+	return docs_;
+    }
+
     /// Get a view of the excluded groups at this level
     const std::set<std::string> & exclude() const {
 	return exclude_;
@@ -102,8 +106,6 @@ public:
     bool is_leaf() const {
 	return categories_.size() == 0;
     }
-
-    
     
 private:
     
@@ -129,11 +131,12 @@ public:
     
     void print() const;
     
-    /// Parse a raw code. Return the standard name of the code.
+    /// Parse a raw code. Return the standard name of the code,
+    /// or the docs of the code if the bool flag is true.
     /// Throw a runtime error if the code is invalid or not found.
     /// Query results are cached and used to speed up the next
-    /// call to the function
-    std::string get_code_name(const std::string & code);
+    /// call to the function.
+    std::string get_code_prop(const std::string & code, bool docs);
     
 private:
     /// The list of groups present in the sub-catagories

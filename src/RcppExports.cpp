@@ -33,14 +33,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// parse_icd
-void parse_icd(const Rcpp::CharacterVector& icd10_file_character, const Rcpp::CharacterVector& code_character);
-RcppExport SEXP _rdb_parse_icd(SEXP icd10_file_characterSEXP, SEXP code_characterSEXP) {
+// parse_code
+void parse_code(const Rcpp::CharacterVector& icd10_file_character, const Rcpp::CharacterVector& code_character);
+RcppExport SEXP _rdb_parse_code(SEXP icd10_file_characterSEXP, SEXP code_characterSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type icd10_file_character(icd10_file_characterSEXP);
     Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type code_character(code_characterSEXP);
-    parse_icd(icd10_file_character, code_character);
+    parse_code(icd10_file_character, code_character);
     return R_NilValue;
 END_RCPP
 }
@@ -48,7 +48,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_cpp", (DL_FUNC) &_rdb_test_cpp, 1},
     {"_rdb_try_connect", (DL_FUNC) &_rdb_try_connect, 2},
-    {"_rdb_parse_icd", (DL_FUNC) &_rdb_parse_icd, 2},
+    {"_rdb_parse_code", (DL_FUNC) &_rdb_parse_code, 2},
     {NULL, NULL, 0}
 };
 

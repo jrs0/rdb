@@ -153,10 +153,11 @@ locate_code_in_categories(const std::string & code,
     return *position;
 }
 
-/// Return the name of a code, if it exists in the categories tree, or
-/// throw a runtime error for an invalid code
-std::string get_code_name(const std::string code,
+/// Return the name or docs field of a code (depending on the bool argument)
+/// if it exists in the categories tree, or throw a runtime error for an invalid code
+std::string get_code_prop(const std::string code,
 			  const std::vector<Category> & categories,
+			  bool docs,
 			  std::set<std::string> groups = std::set<std::string>{}) {
 
     // Locate the category containing the code at the current level
@@ -179,9 +180,13 @@ std::string get_code_name(const std::string code,
 	// There are sub-categories -- parse the code at the next level
 	// down (put a try catch here for the case where the next level
 	// down isn't better)
-	return get_code_name(code, cat.categories(), groups);
+	return get_code_prop(code, cat.categories(), docs, groups);
     } else {
-	return cat.name();
+	if (docs) {
+	    return cat.docs();
+	} else {
+	    return cat.name();
+	}
     }
 }
 
@@ -216,7 +221,7 @@ std::string remove_non_alphanum(const std::string & code) {
     return s;
 }
 
-std::string TopLevelCategory::get_code_name(const std::string & code) {
+std::string TopLevelCategory::get_code_prop(const std::string & code, bool docs) {
 
     // Check for the empty string
     if(std::ranges::all_of(code, isspace)) {
@@ -230,7 +235,7 @@ std::string TopLevelCategory::get_code_name(const std::string & code) {
 	return code_name_cache_.at(code_alphanum);
     } catch (const std::out_of_range &) {
 	// TODO -- scope issue here (same name function in scope)
-	auto code_name{::get_code_name(code_alphanum, categories_)};
+	auto code_name{::get_code_prop(code_alphanum, categories_, docs)};
 	code_name_cache_.insert({code_alphanum, code_name});
 	return code_name;
     }   

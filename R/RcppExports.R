@@ -9,7 +9,7 @@ try_connect <- function(dsn_character, query_character) {
     .Call(`_rdb_try_connect`, dsn_character, query_character)
 }
 
-parse_icd <- function(icd10_file_character, code_character) {
-    invisible(.Call(`_rdb_parse_icd`, icd10_file_character, code_character))
+parse_code <- function(icd10_file_character, code_character) {
+    invisible(.Call(`_rdb_parse_code`, icd10_file_character, code_character))
 }
 

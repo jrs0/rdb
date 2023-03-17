@@ -74,7 +74,11 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 		auto row{row_buffer.try_next_row()};
 
 		// NOW row HAS VALUES, DO PARSING HERE
-		row[0] = top_level_category.get_code_name(row[0]);
+		try {
+		    row[0] = top_level_category.get_code_prop(row[0], false);
+		} catch (const std::runtime_error & e) {
+		    row[0] = row[0] + std::string{" [INVALID]"};
+		}
 		    
 		// Copy into the table
 		for (std::size_t col{0}; col < row_buffer.size(); col++) {
@@ -119,7 +123,7 @@ void parse_code(const Rcpp::CharacterVector & icd10_file_character,
     try {
 	YAML::Node top_level_category_yaml = YAML::LoadFile(icd10_file);
 	TopLevelCategory top_level_category{top_level_category_yaml};
-	std::cout << top_level_category.get_code_name(code) << std::endl;;
+	std::cout << top_level_category.get_code_prop(code, false) << std::endl;;
     } catch(const YAML::BadFile& e) {
 	throw std::runtime_error("Bad YAML file");
     } catch(const YAML::ParserException& e) {
