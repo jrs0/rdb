@@ -1,3 +1,4 @@
+library(tidyverse)
 
 ##' The functions in this file can be used to obtain a blank OPCS4
 ##' codes configuration file.
@@ -21,13 +22,26 @@ section_to_category <- function(name, docs, codes) {
             )
         })      
 
-    ## Return the Category
-    list (
-        name = name,
-        docs = docs,
-        categories = categories,
-        index = index
-    )  
+    ## In some cases, a category may not have any codes
+    ## (for example, if it has been deleted). Test for
+    ## empty categories here
+    if (length(categories) == 0) {
+        list (
+            name = name,
+            docs = docs,
+            ## Do not include a categories field (this is a leaf)
+            ## Set the index equal to the category name 
+            index = name
+        )          
+    } else {
+        list (
+            name = name,
+            docs = docs,
+            categories = categories,
+            index = index
+        )  
+    }
+    
 }
 
 ##' Convert the contents of a chapter of OPCS codes to a Category list

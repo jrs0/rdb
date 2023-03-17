@@ -550,7 +550,7 @@ categories:
     - name: A26.3
       docs: Intracranial destruction of trigeminal nerve (v)
       index: A263
-    - name: A26.4
+    - name: A26.4
       docs: Intracranial destruction of facial nerve (vii)
       index: A264
     - name: A26.5
@@ -6124,8 +6124,7 @@ categories:
     - E449
   - name: E45
     docs: Code deleted
-    categories: []
-    index: []
+    index: E45
   - name: E46
     docs: Partial extirpation of bronchus
     categories:
@@ -22004,8 +22003,7 @@ categories:
     - R029
   - name: R03
     docs: Category retired - refer to introduction
-    categories: []
-    index: []
+    index: R03
   - name: R04
     docs: Therapeutic percutaneous operations on fetus
     categories:
@@ -33200,12 +33198,10 @@ categories:
     - X629
   - name: X63
     docs: Category retired - refer to introduction
-    categories: []
-    index: []
+    index: X63
   - name: X64
     docs: Category retired - refer to introduction
-    categories: []
-    index: []
+    index: X64
   - name: X65
     docs: Radiotherapy delivery
     categories:
@@ -38978,4 +38974,4 @@ categories:
   index:
   - Z01
   - Z99
-groups:
+groups: []

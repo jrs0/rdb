@@ -47,7 +47,7 @@ Index::Index(const YAML::Node & category) {
 		auto index_vec = expect_string_vector(category, "index");
 		// The index must have just two components
 		if (index_vec.size() != 2) {
-		    throw std::runtime_error("Wrong length of 'index' key (expected length 2)");
+		    throw std::runtime_error("Wrong length of 'index' key (expected length 2) at "  + category["name"].as<std::string>());
 		} else if (index_vec[0].size() != index_vec[1].size()) {
 		    throw std::runtime_error("The two parts of the index (strings) must have equal length");
 		}
