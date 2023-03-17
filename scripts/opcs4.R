@@ -3,33 +3,47 @@
 ##'
 ##'
 
+section_to_category <- function(name, docs, section) {
+    
+}
 
-opcs_chapter_names <- list (
-    A = "Nervous System",
-    B = "Endocrine System and Breast",
-    C = "Eye",
-    D = "Ear",
-    E = "Respiratory Tract",
-    F = "Mouth",
-    G = "Upper Digestive System",
-    H = "Lower Digestive System",
-    J = "Other Abdominal Organs, Principally Digestive",
-    K = "Heart",
-    L = "Arteries and Veins",
-    M = "Urinary",
-    N = "Male Genital Organs",
-    P = "Lower Female Genital Tract",
-    Q = "Upper Female Genital Tract",
-    R = "Female Genital Tract Associated with Pregnancy, Childbirth and the Puerperium",
-    S = "Skin",
-    T = "Soft Tissue",
-    U = "Diagnostic Imaging, Testing and Rehabilitation",
-    V = "Bones and Joints of Skull and Spine",
-    W = "Other Bones and Joints",
-    X = "Miscellaneous Operations",
-    Y = "Subsidiary Classification of Methods of Operation",
-    Z = "Subsidiary Classification of Sites of Operation",
-)
+##' Convert the contents of a chapter of OPCS codes to a Category list
+##'
+##' The input is a tibble containing codes and descriptions for a
+##' single category (all the codes begin with the same latter). The
+##' result is a Category named list, which contains a name, docs,
+##' categories, and index field. The categories field contains a list of
+##' subcategories inside this chapter. The index contains up to two
+##' items, representing the start and end of the code range in the
+##' chapter (the end of the range includes codes which match after
+##' truncation). The categories list is sorted by index.
+##'
+##' @title Convert tibble to Category
+##' @param name The chapter name
+##' @param docs The chapter description
+##' @param chapter An input tibble with code and description columns
+##' @return A named list containing the Category for this chapter
+##' 
+chapter_to_category <- function(name, docs, chapter) {
+
+    ## Filter to only get chapter rows
+    sections <- chapter %>%
+        dplyr::filter(!stringr::str_detect(code, "\\."))
+    
+    ## Obtain the index key for this level
+    index <- sections %>%
+        dplyr::select(code) %>%
+        filter(code == max(code) | code == min(code)) %>%
+        mutate(code = str_replace(code, "\\.", "")) %>%
+        pull(code)
+
+    list(
+        name = name,
+        docs = docs,
+        categories = NA,
+        index = index
+    )
+}
 
 ##' Generate the nested chapter structure from the flat OPCS4
 ##' codes list
@@ -43,8 +57,51 @@ opcs_chapter_names <- list (
 ##' digit along with the point may be omitted.
 ##' 
 opcs_get_codes <- function(input_file_path, output_name = "opcs.yaml") {
-    codes <- readr::read_delim(input_file_path, col_names = c("",""))
+    codes <- readr::read_delim(input_file_path, col_names = c("code","description")) 
+    ## Chapter letters and descriptions
+    opcs_chapter_names <- list (
+        A = "Nervous System",
+        B = "Endocrine System and Breast",
+        C = "Eye",
+        D = "Ear",
+        E = "Respiratory Tract",
+        F = "Mouth",
+        G = "Upper Digestive System",
+        H = "Lower Digestive System",
+        J = "Other Abdominal Organs, Principally Digestive",
+        K = "Heart",
+        L = "Arteries and Veins",
+        M = "Urinary",
+        N = "Male Genital Organs",
+        P = "Lower Female Genital Tract",
+        Q = "Upper Female Genital Tract",
+        R = "Female Genital Tract Associated with Pregnancy, Childbirth and the Puerperium",
+        S = "Skin",
+        T = "Soft Tissue",
+        U = "Diagnostic Imaging, Testing and Rehabilitation",
+        V = "Bones and Joints of Skull and Spine",
+        W = "Other Bones and Joints",
+        X = "Miscellaneous Operations",
+        Y = "Subsidiary Classification of Methods of Operation",
+        Z = "Subsidiary Classification of Sites of Operation"
+    )
+
+    contents <- codes %>%
+        filter(str_detect(code, "A"))
+
+    chapter_to_category("A", opcs_chapter_names[["A"]], contents)
     
+    ## ## Make a list of all 
+    ## chapter <- names(opcs_chapter_names) %>%
+    ##     ## Get the sections in each chapter
+    ##     purrr::map(~ codes %>% dplyr::filter(str_detect(code, .x),
+    ##                                          !str_detect(code, "\\."))) %>%
+
+    
+
+    ## ## Get the 
+    ##     purrr::map()
+    ## codes_by_chapter
 }
 
 
