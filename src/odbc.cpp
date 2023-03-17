@@ -110,8 +110,8 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 }
 
 // [[Rcpp::export]]
-void parse_icd(const Rcpp::CharacterVector & icd10_file_character,
-	       const Rcpp::CharacterVector & code_character) {
+void parse_code(const Rcpp::CharacterVector & icd10_file_character,
+		const Rcpp::CharacterVector & code_character) {
 
     std::string icd10_file = Rcpp::as<std::string>(icd10_file_character);     
     std::string code = Rcpp::as<std::string>(code_character);
