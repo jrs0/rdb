@@ -64,7 +64,7 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 	// Make a (column-major) table to store the fetched rows
 	std::map<std::string, std::vector<std::string>> table;
 
-	YAML::Node top_level_category_yaml = YAML::LoadFile("opcs.yaml");
+	YAML::Node top_level_category_yaml = YAML::LoadFile("opcs4.yaml");
 	TopLevelCategory top_level_category{top_level_category_yaml};
 
 	while(true) {
