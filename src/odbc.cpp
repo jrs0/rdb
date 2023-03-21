@@ -74,11 +74,11 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 		auto row{row_buffer.try_next_row()};
 
 		// NOW row HAS VALUES, DO PARSING HERE
-		try {
-		    row[0] = top_level_category.get_code_prop(row[0], true);
-		} catch (const std::runtime_error & e) {
-		    row[0] = row[0] + std::string{" [INVALID]"};
-		}
+		// try {
+		//     row[0] = top_level_category.get_code_prop(row[0], false);
+		// } catch (const std::runtime_error & e) {
+		//     row[0] = row[0] + std::string{" [INVALID]"};
+		// }
 		    
 		// Copy into the table
 		for (std::size_t col{0}; col < row_buffer.size(); col++) {
