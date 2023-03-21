@@ -1,0 +1,23 @@
+---
+title: "Modelling Bleeding and Ischaemia Risk in patients prescribed dual antiplatelet therapy"
+subtitle: "Classification models based on diagnosis/procedures codes from HES data"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: true
+knit: (function(input, ...) { rmarkdown::render(input, output_dir = "gendata") })
+---
+
+# Overview of the problem
+
+Patients on dual antiplatelet therapy (following percutaneous coronary intervention or other procedures) to reduce their ischaemic risk are at increased risk of bleeding. 
+
+Further intro here
+
+# Model development using hospital episode statistics
+
+Hospital episodes statistics (HES) contain diagnosis and procedure information from consultant episodes in secondary care. Each episode contains one or multiple diagnoses or procedures, which may be used to identify patients of interest, and track subsequent diagnoses and procedures in a follow-up period.
+
+Hospital episodes group episodes into spells. A spell defines one in-patient hospital visit for a patients. A spell may contain multiple episodes because a patient may be attended by multiple consultants over the course of their stay.
+
+HES data does not contain detailed information about 
