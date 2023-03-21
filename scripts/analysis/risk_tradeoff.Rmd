@@ -5,19 +5,31 @@ date: "`r Sys.Date()`"
 output:
   pdf_document:
     toc: true
-knit: (function(input, ...) { rmarkdown::render(input, output_dir = "gendata") })
 ---
 
 # Overview of the problem
 
 Patients on dual antiplatelet therapy (following percutaneous coronary intervention or other procedures) to reduce their ischaemic risk are at increased risk of bleeding. 
 
-Further intro here
+Risk factors for both bleeding and ischaemia have been previously investigated in several studies, and several qualitative risk scores exist. These are often based on a mixture of patient characteristics at the time of the intervention (such as current comorbidities), and patient history of related diagnoses and procedures. The purpose of this report is to try to extract this information, or proxies for this information, from hospital episodes statistics (HES) data.
 
-# Model development using hospital episode statistics
+More detailed relevant information is available from other data sources -- for example, the record of blood test results stored in hospital systems. However, a trade-off exists between finding data sources that are generic enough that they are likely available everywhere, vs. data sources that may not be easily generalised. HES data is the simplest data sources that is guaranteed to be present for all hospitals in the UK.
+
+## Hospital episode statistics
 
 Hospital episodes statistics (HES) contain diagnosis and procedure information from consultant episodes in secondary care. Each episode contains one or multiple diagnoses or procedures, which may be used to identify patients of interest, and track subsequent diagnoses and procedures in a follow-up period.
 
 Hospital episodes group episodes into spells. A spell defines one in-patient hospital visit for a patients. A spell may contain multiple episodes because a patient may be attended by multiple consultants over the course of their stay.
 
-HES data does not contain detailed information about 
+# Dataset definition
+
+# Classification models
+
+# Discussion
+
+# Appendix
+
+## OPCS 4 and ICD 10 codes in the dataset
+
+## Parsing clinical codes
+
