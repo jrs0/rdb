@@ -35,7 +35,7 @@ Maybe this is not needed
 
 # Appendix
 
-All the technical stuff
+All the technical stuff. Short description of how the code works. Where are the repositories. What commits to reproduce the results, etc.
 
 ## OPCS 4 and ICD 10 codes in the dataset
 
