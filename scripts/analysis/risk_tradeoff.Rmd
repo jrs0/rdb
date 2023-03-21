@@ -21,13 +21,21 @@ Hospital episodes statistics (HES) contain diagnosis and procedure information f
 
 Hospital episodes group episodes into spells. A spell defines one in-patient hospital visit for a patients. A spell may contain multiple episodes because a patient may be attended by multiple consultants over the course of their stay.
 
-# Dataset definition
+# Dataset definition and characteristics
+
+Describe how the dataset is produced (what columns, what they are etc.). Do some simple descriptive stats.
 
 # Classification models
 
+Run the multi models script here
+
 # Discussion
 
+Maybe this is not needed 
+
 # Appendix
+
+All the technical stuff
 
 ## OPCS 4 and ICD 10 codes in the dataset
 
