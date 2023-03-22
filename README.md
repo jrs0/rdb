@@ -28,6 +28,10 @@ This will remove the -O0 flags. You may also need to do a load_all afterwords to
 
 ## Profiling
 
+### MSYS attempt to make gperftools work
+
+*This did not work, due to the lack of libprofiler. However, the notes are here for posterity anyway*.
+
 It is preferable to use the MSYS installation that is bundled with R installations on windows (look for a program like `Rtools42 Bash`). First, install some prerequisities for building:
 
 ```bash
@@ -79,3 +83,12 @@ pprof -v
 ```
 
 To profile Rcpp code, you need to use the MSYS shell. R is not present by default in that environment, so install it
+
+### Using gperf with MSYS
+
+If you follow the steps above (installing binutils), you will have gprof already:
+
+```bash
+gprof -v
+```
+

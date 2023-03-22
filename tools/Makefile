@@ -1,2 +1,2 @@
 test: test.cpp
-	g++ test.cpp -o test
+	g++ -g -pg test.cpp -o test

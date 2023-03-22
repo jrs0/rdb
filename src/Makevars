@@ -11,7 +11,7 @@ CXX_STD=CXX20
 # -lprofiler library too)
 #
 PKG_LIBS = -lodbc32 -lyaml-cpp  #-pg -lprofiler #$(SHLIB_OPENMP_CFLAGS)
-PKG_CXXFLAGS = #-pg -gdwarf-2 -DNO_GPERFTOOLS
+PKG_CXXFLAGS = -pg -g #-gdwarf-2 -DNO_GPERFTOOLS
 
 ## This flag is important to override the -s from
 ## the user Makevars
