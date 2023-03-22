@@ -32,7 +32,14 @@
 index_event:
   start_date: "2015-1-1" 
   end_date: "2023-1-1"  
-  
+
+# Defining the output columns for diagnoses
+diagnosis_groups:
+  acs: acs
+  diabetes: [type_1_diabetes, type_2_diabetes]
+
+# Defining the output columns for procedures
+procedure_groups:
   
 data_sources:
   hospital_episodes:
