@@ -160,6 +160,8 @@ std::string get_code_prop(const std::string code,
 			  bool docs,
 			  std::set<std::string> groups = std::set<std::string>{}) {
 
+    return "Trivial";
+    
     // Locate the category containing the code at the current level
     auto cat{locate_code_in_categories(code, categories)};
 
