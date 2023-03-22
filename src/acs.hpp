@@ -10,7 +10,48 @@
 #define ACS_HPP
 
 #include <yaml-cpp/yaml.h>
+#include "category.hpp"
 
+/// This class has two jobs -- keep the diagnoses and
+/// procedure parsers close together; and map collections
+/// of groups as defined in the codes file into "meta" groups
+/// that will become the column names in the data frame.
+///
+/// This class owns its parser, so it will be thread safe
+/// at the cost of duplicated copies of the codes tree
+class CodeParser {
+public:
+    CodeParser(const YAML::Node & parser_config) {
+	// Open both the codes files and make the
+	// categories -- also store maps that group
+	// together categories into higher level groups,
+	// as defined by the parser_config
+    }
+
+    /// Parse a procedure, returning the code group defined
+    /// by the parser_config (this may group multiple
+    /// code groups defined in the codes file together) 
+    std::string parse_procedure(const std::string & procedure) {
+
+    }
+
+    /// Parse a diagnosis, return code group
+    std::string parse_diagnosis(const std::string & diagnosis) {
+
+    }
+    
+private:
+    TopLevelCategory procedures_category_;
+    std::map<std::string, std::string> procedures_group_map_;
+    
+    TopLevelCategory diagnoses_category_;
+    std::map<std::string, std::string> diagnoses_group_map_;
+};
+
+/// The purpose of the Episode class is to parse all the
+/// primary and secondary diagnosis and procedure fields
+/// and expose them as flat lists of groups (defined by
+/// the ICD and OPCS code group files)
 class Episode {
 public:
     Episode() {
@@ -33,7 +74,7 @@ public:
     }
 
     std::vector<std::string> diagnoses() const {
-	return procedure_groups_;
+	return diagnosis_groups_;
     }
     
 private:
@@ -41,7 +82,7 @@ private:
     std::string episode_end_;
     std::string episode_id_;
 
-    std::vector<std::string> diagnosis_GROUPS_;
+    std::vector<std::string> diagnosis_groups_;
     std::vector<std::string> procedure_groups_;
 };
 
