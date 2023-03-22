@@ -160,8 +160,6 @@ std::string get_code_prop(const std::string code,
 			  bool docs,
 			  std::set<std::string> groups = std::set<std::string>{}) {
 
-    return "Trivial";
-    
     // Locate the category containing the code at the current level
     auto cat{locate_code_in_categories(code, categories)};
 
@@ -232,7 +230,8 @@ std::string TopLevelCategory::get_code_prop(const std::string & code, bool docs)
 
     auto code_alphanum{remove_non_alphanum(code)};
 
-    // Inspect the cache
+    // Inspect the cache. For procedure codes (OPCS), there are about 1800 unique
+    // codes in 50,000; 2400 in 100,000; 3100 in 200,000; 3800 in 400,000
     try {
 	return code_name_cache_.at(code_alphanum);
     } catch (const std::out_of_range &) {
