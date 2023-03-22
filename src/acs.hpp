@@ -12,6 +12,8 @@
 #include <yaml-cpp/yaml.h>
 #include "category.hpp"
 
+/*
+
 /// This class has two jobs -- keep the diagnoses and
 /// procedure parsers close together; and map collections
 /// of groups as defined in the codes file into "meta" groups
@@ -140,6 +142,7 @@ private:
     
 };
 
+*/
 
 class Acs {
 public:
@@ -159,8 +162,10 @@ public:
     }
     
 private:
+    /*
     std::vector<Record> records_;
     CodeParser code_parser_;
+    */
 };
 
 
