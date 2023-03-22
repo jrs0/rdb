@@ -160,6 +160,8 @@ std::string get_code_prop(const std::string code,
 			  bool docs,
 			  std::set<std::string> groups = std::set<std::string>{}) {
 
+    return "Trivial";
+    
     // Locate the category containing the code at the current level
     auto cat{locate_code_in_categories(code, categories)};
 
@@ -232,7 +234,7 @@ std::string TopLevelCategory::get_code_prop(const std::string & code, bool docs)
 
     // Inspect the cache
     try {
-	return "Hello"; //"code_name_cache_.at(code_alphanum);
+	return code_name_cache_.at(code_alphanum);
     } catch (const std::out_of_range &) {
 	// TODO -- scope issue here (same name function in scope)
 	auto code_name{::get_code_prop(code_alphanum, categories_, docs)};
