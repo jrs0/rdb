@@ -96,7 +96,7 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 	    }
 	}
 
-	std::cout << "Finished fetch" << std::endl;
+	std::cout << "Finished fetch: cache size = " << top_level_category.cache_size() << std::endl;
 	
 	// Convert the table to R format. This is not the slow part.
 	Rcpp::List table_list;

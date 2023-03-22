@@ -128,6 +128,10 @@ private:
 class TopLevelCategory {
 public:
     TopLevelCategory(const YAML::Node & top_level_category);
+
+    std::size_t cache_size() const {
+	return code_name_cache_.size();
+    }
     
     void print() const;
     
