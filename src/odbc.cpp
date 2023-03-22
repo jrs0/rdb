@@ -15,6 +15,7 @@
 #include <map>
 
 #include "row_buffer.hpp"
+#include "acs.hpp"
 
 // To be moved out of here
 #include <Rcpp.h>
@@ -46,6 +47,15 @@ private:
     std::shared_ptr<StmtHandle> stmt_; ///< Statement handle
 
 };
+
+// [[Rcpp::export]]
+Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & dsn_character,
+		       const Rcpp::CharacterVector & query_character) {
+
+    YAML::Node config = YAML::LoadFile("data_config.yaml");    
+    Acs acs{config};
+}
+
 
 // [[Rcpp::export]]
 Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,

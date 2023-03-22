@@ -5,7 +5,7 @@
 
 class Acs {
 public:
-    Acs(const std::string & config_path) {
+    Acs(const YAML::Node & category) {
 	
     }
     
