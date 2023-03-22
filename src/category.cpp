@@ -232,7 +232,7 @@ std::string TopLevelCategory::get_code_prop(const std::string & code, bool docs)
 
     // Inspect the cache
     try {
-	return code_name_cache_.at(code_alphanum);
+	return "Hello"; //"code_name_cache_.at(code_alphanum);
     } catch (const std::out_of_range &) {
 	// TODO -- scope issue here (same name function in scope)
 	auto code_name{::get_code_prop(code_alphanum, categories_, docs)};

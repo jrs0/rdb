@@ -78,7 +78,7 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 		    // Parsing 100,000 rows takes 54 seconds, vs 2s without
 		    // parsing. 50,000 takes 28 seconds, so it scales approximately
 		    // linearly.
-		    row[0] = "Hello";//top_level_category.get_code_prop(row[0], false);
+		    row[0] = top_level_category.get_code_prop(row[0], false);
 		} catch (const std::runtime_error & e) {
 		    row[0] = row[0] + std::string{" [INVALID]"};
 		}
