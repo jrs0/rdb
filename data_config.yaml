@@ -29,7 +29,13 @@
 #
 #
 
-  
-
+input:
+  index_event:
+    table: abi.dbo.vw_apc_sem_001
+    diagnosis:
+      - DiagnosisPrimary_ICD
+      - Diagnosis1stSecondary_ICD
+    procedures:
+      - PrimaryProcedure_OPCS
 
   
