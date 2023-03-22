@@ -75,6 +75,9 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 
 		// NOW row HAS VALUES, DO PARSING HERE
 		try {
+		    // Parsing 100,000 rows takes 54 seconds, vs 2s without
+		    // parsing. 50,000 takes 28 seconds, so it scales approximately
+		    // linearly. 
 		    row[0] = top_level_category.get_code_prop(row[0], false);
 		} catch (const std::runtime_error & e) {
 		    row[0] = row[0] + std::string{" [INVALID]"};
@@ -92,8 +95,10 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 		break;
 	    }
 	}
-        
-	// Convert the table to R format
+
+	std::cout << "Finished fetch" << std::endl;
+	
+	// Convert the table to R format. This is not the slow part.
 	Rcpp::List table_list;
 	for (const auto & [col_name, col_values] : table) {
 	    

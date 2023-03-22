@@ -25,3 +25,22 @@ pkgbuild::compile_dll(debug=FALSE)
 ```
 
 This will remove the -O0 flags. You may also need to do a load_all afterwords to get it to use the updated functions (the key is not making any cpp changes in between so that load_all does not recompile).
+
+## Profiling
+
+```bash
+pacman -Syuu
+pacman -S base-devel mingw-w64-x86_64-toolchain libtool
+```
+
+Clone the gperftools repository, and build it as follows (see the INSTALL folder)
+
+```bash
+./autogen.sh
+
+# As per the documentation, only tcmalloc_minimal is supported on windows
+./configure --disable-shared CXXFLAGS=-DTCMALLOC_MINIMAL
+
+make
+make install
+```

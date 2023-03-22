@@ -21,14 +21,14 @@
 #      of ICD codes) in the <months_after> period after the index event.
 #  death_after: Whether the patient died in the following <months_after>
 #      period
-#  cardio_death: Whether the death was associated with a cardiovascular
-#      ICD code (NA if no death_after)
+#  cardiovascular_death: Whether the death was associated with a
+#      cardiovascular ICD code (NA if no death_after)
 #  ischaemia_death: Whether the death was associated with an ischaemia
 #      ICD code (NA if no death_after)
 #  
 #
 #
-    
+
   
 
 
