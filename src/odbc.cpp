@@ -64,7 +64,7 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 	// Make a (column-major) table to store the fetched rows
 	std::map<std::string, std::vector<std::string>> table;
 
-	YAML::Node top_level_category_yaml = YAML::LoadFile("icd10_example.yaml");
+	YAML::Node top_level_category_yaml = YAML::LoadFile("opcs4.yaml");
 	TopLevelCategory top_level_category{top_level_category_yaml};
 
 	while(true) {
@@ -78,9 +78,9 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 		    // Parsing 100,000 rows takes 54 seconds, vs 2s without
 		    // parsing. 50,000 takes 28 seconds, so it scales approximately
 		    // linearly.
-		    row[0] = top_level_category.get_code_prop(row[0], false);
+		    row[1] = top_level_category.get_code_prop(row[0], false);
 		} catch (const std::runtime_error & e) {
-		    row[0] = row[0] + std::string{" [INVALID]"};
+		    row[1] = row[0] + std::string{" [INVALID]"};
 		}
 		
 		// Copy into the table
