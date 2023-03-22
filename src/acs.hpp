@@ -5,16 +5,29 @@
 
 class Episode {
 public:
-    Episode() {}
+    Episode() {
+	// Expect a single row as argument, which will be the
+	// episode. THe episode may contain either a procedure
+	// or a diagnosis (including secondaries), or both. The
+	// episode relates to what happened under one attending
+	// consultant.
+    }
 private:
     std::string episode_start_;
     std::string episode_end_;
     std::string episode_id_;
 };
 
+
+// A spell is a hospital visit. The spell may contain multiple
+// episodes if the hospital stay involved multiple consultants.
 class Spell {
 public:
-    Spell() {}
+    Spell() {
+	// Assume the next row is the start of a new spell
+	// block. Push back to the episodes vector one row
+	// per episode.
+    }
 private:
     std::string spell_start_;
     std::string spell_end_;
@@ -40,7 +53,15 @@ public:
 	// some kind, otherwise will use up first row of
 	// next patient.
 
-	// 
+	// Make a vector of spells. Pass results object by
+	// reference to spells constructor and allow it to
+	// consume all the episodes in the spell.
+	std::vector<Spell> spells;
+
+	// Process the list of spells. The target information
+	// is the identification of index events, which will
+	// be one to one with Records, and counting before
+	// and after events. 
     }
 private:
     IndexEvent index_event_;
