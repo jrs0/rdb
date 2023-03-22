@@ -28,19 +28,54 @@ This will remove the -O0 flags. You may also need to do a load_all afterwords to
 
 ## Profiling
 
+It is preferable to use the MSYS installation that is bundled with R installations on windows (look for a program like `Rtools42 Bash`). First, install some prerequisities for building:
+
 ```bash
 pacman -Syuu
 pacman -S base-devel mingw-w64-x86_64-toolchain libtool
 ```
 
-Clone the gperftools repository, and build it as follows (see the INSTALL folder)
+Next, download and build gperftools from source:
 
 ```bash
-./autogen.sh
+# Clone the gperftools repository, and build it as follows
+# (see the INSTALL folder)
+git clone https://github.com/gperftools/gperftools.git
+cd gperftools
 
-# As per the documentation, only tcmalloc_minimal is supported on windows
-./configure --disable-shared CXXFLAGS=-DTCMALLOC_MINIMAL
+
+# As per the documentation, should "just work" on msys
+./autogen.sh
+./configure
+
+# The configure step determines not to build libprofiler, with
+# the following error:
+#
+# 'configure: WARNING: Could not find the PC.
+#  Will not try to compile libprofiler...'
+#
+# This means it is not possible to use ProfilerStart, ProfilerStop.
+# However, the pprof tool will still be available, so the only option
+# is to profile the full Rscript process.
 
 make
 make install
+
+# The make install step gives the following warning:
+#
+# 'libtool: warning: undefined symbols not allowed in
+#  x86_64-pc-msys shared libraries; building static only'
+#
+# The make install fails with linker errors to
+# tcmalloc::* functions. However, the pprof executable
+# is built successfully, at src/pprof.
+
+# To manually install the pprof executable, run
+mkdir /usr/local/bin
+cp src/pprof /usr/local/bin
+
+# To check the install works, run
+pprof -v
 ```
+
+To profile Rcpp code, you need to use the MSYS shell. R is not present by default in that environment, so install it

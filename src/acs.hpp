@@ -145,6 +145,9 @@ class Acs {
 public:
     Acs(const YAML::Node & category) {
 
+	// Make the codes parser. This will be passed by reference
+	// down to the spells and episodes classes
+	
 	// sql statement that fetches all episodes for all patients
 	// ordered by nhs number, then spell id. Include count column
 	// for length of patient, length of spell.
@@ -157,7 +160,7 @@ public:
     
 private:
     std::vector<Record> records_;
-
+    CodeParser code_parser_;
 };
 
 
