@@ -225,7 +225,7 @@ std::string TopLevelCategory::get_code_prop(const std::string & code, bool docs)
 
     // Check for the empty string
     if(std::ranges::all_of(code, isspace)) {
-	throw std::runtime_error("Got the empty string in parse_code()");
+	return "[EMPTY]";
     }
 
     auto code_alphanum{remove_non_alphanum(code)};
