@@ -49,11 +49,13 @@ private:
 };
 
 // [[Rcpp::export]]
-Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & dsn_character,
-		       const Rcpp::CharacterVector & query_character) {
+void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
 
-    YAML::Node config = YAML::LoadFile("data_config.yaml");    
+    auto config_path{Rcpp::as<std::string>(config_path_chr)};
+    YAML::Node config = YAML::LoadFile(config_path);
     Acs acs{config};
+
+
 }
 
 

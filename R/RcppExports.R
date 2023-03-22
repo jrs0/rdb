@@ -5,8 +5,8 @@ test_cpp <- function(thing) {
     .Call(`_rdb_test_cpp`, thing)
 }
 
-make_acs_dataset <- function(dsn_character, query_character) {
-    .Call(`_rdb_make_acs_dataset`, dsn_character, query_character)
+make_acs_dataset <- function(config_path_chr) {
+    invisible(.Call(`_rdb_make_acs_dataset`, config_path_chr))
 }
 
 try_connect <- function(dsn_character, query_character) {
