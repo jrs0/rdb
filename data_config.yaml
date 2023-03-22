@@ -29,13 +29,24 @@
 #
 #
 
-input:
-  index_event:
+index_event:
+  start_date: "2015-1-1" 
+  end_date: "2023-1-1"  
+  
+  
+data_sources:
+  hospital_episodes:
     table: abi.dbo.vw_apc_sem_001
+    nhs_number: AIMTC_Pseudo_NHS
     diagnosis:
       - DiagnosisPrimary_ICD
       - Diagnosis1stSecondary_ICD
     procedures:
       - PrimaryProcedure_OPCS
-
-  
+      - SecondaryProcedure1_OPCS # Fix me 
+  mortality:
+      table: abi.civil_registration.mortality
+      nhs_number: Derived_Pseudo_NHS
+      date_of_death: REG_DATE_OF_DEATH
+      cause_of_death: S_UNDERLYING_COD_ICD10
+      
