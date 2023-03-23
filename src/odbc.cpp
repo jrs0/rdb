@@ -54,22 +54,22 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 	    try {
 
 		// Try to fetch the next row (throws if none left)
-		auto row{row_buffer.try_next_row()};
+		row_buffer.fetch_next_row();
 
 		try {
 		    // NOW row HAS VALUES, DO PARSING HERE
 		    // Parsing 100,000 rows takes 54 seconds, vs 2s without
 		    // parsing. 50,000 takes 28 seconds, so it scales approximately
 		    // linearly.
-		    row[1] = top_level_category.get_code_prop(row[0], false);
+		    //row[1] = top_level_category.get_code_prop(row[0], false);
 		} catch (const std::runtime_error & e) {
-		    row[1] = row[0] + std::string{" [INVALID]"};
+		    //row[1] = row[0] + std::string{" [INVALID]"};
 		}
 		
 		// Copy into the table
 		for (std::size_t col{0}; col < row_buffer.size(); col++) {
 		    auto col_name{column_names[col]};
-		    auto col_value{row[col]};
+		    auto col_value{row_buffer.get(col)};
 		    table[col_name].push_back(col_value); 
 		}
 			

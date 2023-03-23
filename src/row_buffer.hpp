@@ -37,17 +37,19 @@ public:
 	}
 	return names;
     }
-    
-    /// Fetch one row of data, or throw logic error if there
-    /// are no more rows. Rows are in the same order as column
-    /// names.
-    std::vector<std::string> try_next_row() {
 
+    const std::string & get(std::size_t col_index) const {
+	return current_row_[col_index];
+    }
+    
+    /// Fetch the next row of data into an internal state
+    /// variable. Use get() to access items from the current
+    /// row. This function throws a logic error if there are
+    /// not more rows.
+    void fetch_next_row() {
 	if(not stmt_->fetch()) {
 	    throw std::logic_error("No more rows");
 	}
-
-	std::vector<std::string> row;
 	for (auto & bind : col_bindings_) {
 	    std::string value;
 	    try {
@@ -55,14 +57,14 @@ public:
 	    } catch (const std::logic_error &) {
 		value = "NULL";
 	    }
-	    row.push_back(value);
+	    current_row_.push_back(value);
 	}
-	return row;
     }
     
 private:
     std::shared_ptr<StmtHandle> stmt_;
     std::vector<ColBinding> col_bindings_;
+    std::vector<std::string> current_row_;
 };
 
 #endif
