@@ -13,8 +13,6 @@
 #include "category.hpp"
 #include "sql_connection.hpp"
 
-/*
-
 /// This class has two jobs -- keep the diagnoses and
 /// procedure parsers close together; and map collections
 /// of groups as defined in the codes file into "meta" groups
@@ -24,7 +22,11 @@
 /// at the cost of duplicated copies of the codes tree
 class CodeParser {
 public:
-    CodeParser(const YAML::Node & parser_config) {
+    CodeParser(const YAML::Node & parser_config)
+	: procedures_{parser_config["opcs"]},
+	  
+	  diagnoses_{parser_config["opcs"]},
+    {
 	// Open both the codes files and make the
 	// categories -- also store maps that group
 	// together categories into higher level groups,
@@ -44,10 +46,10 @@ public:
     }
     
 private:
-    TopLevelCategory procedures_category_;
+    TopLevelCategory procedures_;
     std::map<std::string, std::string> procedures_group_map_;
     
-    TopLevelCategory diagnoses_category_;
+    TopLevelCategory diagnoses_;
     std::map<std::string, std::string> diagnoses_group_map_;
 };
 
@@ -143,12 +145,20 @@ private:
     
 };
 
-*/
+class Patient {
+public:
+    Patient(RowBuffer & row) {
+
+    }
+
+private:
+    std::vector<Record> records_;
+}
 
 const std::string episodes_query{
     R"raw_sql(
 
-select top 5000
+select top 500
 	episodes.*,
 	mort.REG_DATE_OF_DEATH as date_of_death,
 	mort.S_UNDERLYING_COD_ICD10 as cause_of_death,
@@ -187,20 +197,23 @@ public:
 
 	// Make the codes parser. This will be passed by reference
 	// down to the spells and episodes classes
+	
+	
+	// Fetch the database name and connect
 	auto dsn{config["data_sources"]["dsn"].as<std::string>()};
 	std::cout << "Connection to DSN " << dsn << std::endl;
-
-	// Make the connection
 	SQLConnection con{dsn};
 	std::cout << "Executing statement" << std::endl;
-	auto row_buffer{con.execute_direct(episodes_query)};
-	std::cout << "Starting to fetch rows" << dsn << std::endl;
-	
-	
-	// sql statement that fetches all episodes for all patients
-	// ordered by nhs number, then spell id. Include count column
-	// for length of patient, length of spell.
+	auto row{con.execute_direct(episodes_query)};
+	std::cout << "Starting to fetch rows" << std::endl;
 
+	// sql statement that fetches all episodes for all patients
+	// ordered by nhs number, then spell id.
+
+	while (true) {
+	    
+	}
+	
 	// While true, keep fetching into Record, push back results
 	// Record constructor takes reference to results, and uses
 	// up one patient block per record
@@ -208,10 +221,8 @@ public:
     }
     
 private:
-    /*
-    std::vector<Record> records_;
+    std::vector<Patient> patients_;
     CodeParser code_parser_;
-    */
 };
 
 

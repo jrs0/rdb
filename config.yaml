@@ -33,10 +33,22 @@ index_event:
   start_date: "2015-1-1" 
   end_date: "2023-1-1"  
 
-# Defining the output columns for diagnoses
-diagnosis_groups:
-  acs: acs
-  diabetes: [type_1_diabetes, type_2_diabetes]
+parser_config:
+  # Defines how diagnoses are processed
+  diagnoses:
+    # The file defining the low-level ICD groups
+    file: icd10.yaml
+    # How the low-level groups are combined into
+    # output columns
+    groups:
+      acs: acs
+      diabetes: [type_1_diabetes, type_2_diabetes]
+  # Defines how procedures are processed
+  procedures:
+    # Where to get the low-level groups
+    file: opcs4.yaml
+    # How to combine the groups into output
+    groups:
 
 # Defining the output columns for procedures
 procedure_groups:
