@@ -144,6 +144,43 @@ private:
 
 */
 
+const std::string sql_query{
+    R"raw_sql(
+
+select top 5000
+	episodes.*,
+	mort.REG_DATE_OF_DEATH as date_of_death,
+	mort.S_UNDERLYING_COD_ICD10 as cause_of_death,
+	mort.Dec_Age_At_Death as age_at_death
+from (
+	select
+		AIMTC_Pseudo_NHS as nhs_number,
+		PBRspellID as spell_id,
+		StartDate_ConsultantEpisode as episode_start,
+		EndDate_ConsultantEpisode as episode_end,
+		AIMTC_ProviderSpell_Start_Date as spell_start,
+		AIMTC_ProviderSpell_End_Date as spell_end,
+		diagnosisprimary_icd as diagnosis_0,
+		diagnosis1stsecondary_icd as diagnosis_1,
+		diagnosis2ndsecondary_icd as diagnosis_2,
+		primaryprocedure_opcs as procedure_0,
+		procedure2nd_opcs as procedure_1,
+		procedure3rd_opcs as procedure_2,
+		procedure4th_opcs as procedure_3,
+		procedure5th_opcs as procedure_4,
+		procedure6th_opcs as procedure_5
+	from abi.dbo.vw_apc_sem_001
+	where datalength(AIMTC_Pseudo_NHS) > 0
+		and datalength(pbrspellid) > 0  
+) as episodes
+left join abi.civil_registration.mortality as mort
+on episodes.nhs_number = mort.derived_pseudo_nhs
+order by nhs_number, spell_id
+"};
+
+    )raw_sql"
+};
+
 class Acs {
 public:
     Acs(const YAML::Node & category) {

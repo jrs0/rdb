@@ -44,13 +44,14 @@ procedure_groups:
 data_sources:
   hospital_episodes:
     table: abi.dbo.vw_apc_sem_001
-    nhs_number: AIMTC_Pseudo_NHS
+    nhs_number: aimtc_pseudo_nhs
+    spell_id: pbrspellid
     diagnosis:
-      - DiagnosisPrimary_ICD
-      - Diagnosis1stSecondary_ICD
+      - diagnosisprimary_icd
+      - diagnosis1stsecondary_icd
     procedures:
-      - PrimaryProcedure_OPCS
-      - SecondaryProcedure1_OPCS # Fix me 
+      - primary_procedure_opcs
+      - procedure1st_opcs
   mortality:
       table: abi.civil_registration.mortality
       nhs_number: Derived_Pseudo_NHS
