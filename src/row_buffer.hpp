@@ -58,7 +58,11 @@ public:
 		value = "NULL";
 	    }
 	    auto column_name{bind.col_name()};
-	    current_row_.insert({column_name, value});
+
+	    // We are assuming here that the column names
+	    // are not changing from one row fetch to the next.
+	    // First time will insert, next will update.
+	    current_row_[column_name] = value;
 	}
     }
 	
