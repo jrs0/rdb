@@ -50,9 +50,6 @@ parser_config:
     # How to combine the groups into output
     groups:
 
-# Defining the output columns for procedures
-procedure_groups:
-  
 data_sources:
   dsn: xsw
   hospital_episodes:

@@ -13,6 +13,17 @@
 #include "category.hpp"
 #include "sql_connection.hpp"
 
+/// Load a top_level_category YAML Node from file
+YAML::Node load_codes_helper(const YAML::Node & file_path) {
+    try {
+	return YAML::LoadFile(file_path.as<std::string>());
+    } catch(const YAML::BadFile& e) {
+	throw std::runtime_error("Bad YAML file");
+    } catch(const YAML::ParserException& e) {
+	throw std::runtime_error("YAML parsing error");
+    }
+}
+
 /// This class has two jobs -- keep the diagnoses and
 /// procedure parsers close together; and map collections
 /// of groups as defined in the codes file into "meta" groups
@@ -23,8 +34,8 @@
 class CodeParser {
 public:
     CodeParser(const YAML::Node & parser_config)
-	: procedures_{parser_config["procedures"]["file"]},
-	  diagnoses_{parser_config["diagnoses"]["file"]}
+	: procedures_{load_codes_helper(parser_config["procedures"]["file"])},
+	  diagnoses_{load_codes_helper(parser_config["diagnoses"]["file"])}
     {
 	// Open both the codes files and make the
 	// categories -- also store maps that group
@@ -208,9 +219,12 @@ public:
 	// sql statement that fetches all episodes for all patients
 	// ordered by nhs number, then spell id.
 
+	int c{0};
 	while (true) {
 	    try {
-
+		row.fetch_next_row();
+		c++;
+		std::cout << "c = " << c << std::endl;
 	    } catch (const std::logic_error &) {
 		// There are no more rows
 		break;
