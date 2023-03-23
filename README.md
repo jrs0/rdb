@@ -28,6 +28,13 @@ This will remove the -O0 flags. You may also need to do a load_all afterwords to
 
 ## Profiling
 
+### On linux
+
+```bash
+sudo apt install unixodbc-dev libyaml-cpp-dev
+```
+
+
 ### MSYS attempt to make gperftools work
 
 *This did not work, due to the lack of libprofiler. However, the notes are here for posterity anyway*.

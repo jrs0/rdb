@@ -5,19 +5,7 @@ test_cpp <- function(thing) {
     .Call(`_rdb_test_cpp`, thing)
 }
 
-make_acs_dataset <- function(config_path_chr) {
-    invisible(.Call(`_rdb_make_acs_dataset`, config_path_chr))
-}
-
 test_random_code <- function() {
     invisible(.Call(`_rdb_test_random_code`))
-}
-
-try_connect <- function(dsn_character, query_character) {
-    .Call(`_rdb_try_connect`, dsn_character, query_character)
-}
-
-parse_code <- function(icd10_file_character, code_character) {
-    invisible(.Call(`_rdb_parse_code`, icd10_file_character, code_character))
 }
 

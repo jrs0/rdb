@@ -11,6 +11,27 @@
 //  -example-app-connect-access-sql-db?view=sql-server-ver16"
 //
 
+#include "random.hpp"
+#include "mem_row_buffer.hpp" 
+
+// [[Rcpp::export]]
+void test_random_code() {
+    auto gen{Generator<std::size_t,0,1>(Seed<>())};
+
+    YAML::Node config = YAML::LoadFile("config.yaml");
+    InMemoryRowBuffer row{config};
+    
+    // TopLevelCategory procedures{opcs4};
+    // std::cout << "Random OPCS: " << procedures.random_code(gen)
+    // 	      << std::endl; 
+    // YAML::Node icd10 = YAML::LoadFile("icd10.yaml");
+    // TopLevelCategory diagnoses{icd10};
+    // std::cout << "Random ICD: " << diagnoses.random_code(gen)
+    // 	      << std::endl;
+}
+
+/*
+
 #include "acs.hpp"
 #include "random.hpp"
 
@@ -138,3 +159,5 @@ void parse_code(const Rcpp::CharacterVector & icd10_file_character,
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
     }
 }
+
+*/
