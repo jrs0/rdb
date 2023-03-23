@@ -23,34 +23,33 @@
 class CodeParser {
 public:
     CodeParser(const YAML::Node & parser_config)
-	: procedures_{parser_config["opcs"]},
-	  
-	  diagnoses_{parser_config["opcs"]},
+	: procedures_{parser_config["procedures"]["file"]},
+	  diagnoses_{parser_config["diagnoses"]["file"]}
     {
 	// Open both the codes files and make the
 	// categories -- also store maps that group
 	// together categories into higher level groups,
 	// as defined by the parser_config
     }
-
+    
     /// Parse a procedure, returning the code group defined
     /// by the parser_config (this may group multiple
-    /// code groups defined in the codes file together) 
+    /// code groups defined in the codes file together)
     std::string parse_procedure(const std::string & procedure) {
-
+	return procedures_.get_code_prop(procedure, false);
     }
 
     /// Parse a diagnosis, return code group
     std::string parse_diagnosis(const std::string & diagnosis) {
-
+	return diagnoses_.get_code_prop(diagnosis, false);
     }
     
 private:
     TopLevelCategory procedures_;
-    std::map<std::string, std::string> procedures_group_map_;
-    
     TopLevelCategory diagnoses_;
-    std::map<std::string, std::string> diagnoses_group_map_;
+
+    //std::map<std::string, std::string> procedures_group_map_;
+    //std::map<std::string, std::string> diagnoses_group_map_;
 };
 
 /// The purpose of the Episode class is to parse all the
@@ -153,7 +152,7 @@ public:
 
 private:
     std::vector<Record> records_;
-}
+};
 
 const std::string episodes_query{
     R"raw_sql(
@@ -193,11 +192,10 @@ order by nhs_number, spell_id;
 
 class Acs {
 public:
-    Acs(const YAML::Node & config) {
+    Acs(const YAML::Node & config)
+	: code_parser_{config["parser_config"]}
+    {
 
-	// Make the codes parser. This will be passed by reference
-	// down to the spells and episodes classes
-	
 	
 	// Fetch the database name and connect
 	auto dsn{config["data_sources"]["dsn"].as<std::string>()};
@@ -211,7 +209,12 @@ public:
 	// ordered by nhs number, then spell id.
 
 	while (true) {
-	    
+	    try {
+
+	    } catch (const std::logic_error &) {
+		// There are no more rows
+		break;
+	    }
 	}
 	
 	// While true, keep fetching into Record, push back results
