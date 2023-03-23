@@ -13,6 +13,48 @@ concept RowBuffer = requires(T t, const std::string & s) {
     t.fetch_next_row();   
 };
 
+// A hard-coded
+class InMemoryRowBuffer {
+public:
+    InMemoryRowBuffer(std::size_t num_rows)
+	: num_rows_{num_rows} {
+
+    }
+
+    // Get the number of columns
+    std::size_t size() const {
+	return col_bindings_.size();
+    }
+    
+    std::vector<std::string> column_names() const {
+	std::vector<std::string> column_names;
+	for (const auto & column : table_) {
+	    column_names.push_back(column.first);
+	}
+	return column_names;
+    }
+
+    const std::string & at(std::string column_name) const {
+	return table_.at(column_name)[current_row_index_];
+    }
+    
+    /// Fetch the next row of data into an internal state
+    /// variable. Use get() to access items from the current
+    /// row. This function throws a logic error if there are
+    /// not more rows.
+    void fetch_next_row() {
+	current_row_index_++;
+	if (current_row_index_ == num_rows_) {
+	    throw std::logic_error("No more rows");
+	}
+    }
+    
+private:
+    std::size_t num_rows;
+    std::size_t current_row_index_{0};
+    std::map<std::string, std::vector<std::string>> table_;
+};
+
 /// Holds the column bindings for an in-progress query. Allows
 /// rows to be fetched one at a time.
 class SqlRowBuffer {
