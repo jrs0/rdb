@@ -24,17 +24,6 @@
 #include "category.hpp"
 #include "sql_connection.hpp"
 
-/// Load a top_level_category YAML Node from file
-YAML::Node load_codes_helper(const YAML::Node & config) {
-    try {
-	return YAML::LoadFile(config["file"].as<std::string>());
-    } catch(const YAML::BadFile& e) {
-	throw std::runtime_error("Bad YAML file");
-    } catch(const YAML::ParserException& e) {
-	throw std::runtime_error("YAML parsing error");
-    }
-}
-
 /// Get the vector of source columns from the config file node
 std::vector<std::string> source_columns(const YAML::Node & config) {
     return config["source_columns"].as<std::vector<std::string>>();

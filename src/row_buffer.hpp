@@ -1,9 +1,12 @@
 #ifndef ROW_BUFFER_HPP
 #define ROW_BUFFER_HPP
 
+#include <functional>
+
 #include "stmt_handle.hpp"
 #include "yaml.hpp"
 #include "category.hpp"
+#include "random.hpp"
 
 template<class T>
 concept RowBuffer = requires(T t, const std::string & s) {
@@ -12,6 +15,17 @@ concept RowBuffer = requires(T t, const std::string & s) {
     t.column_names();
     t.fetch_next_row();   
 };
+
+/// Load a top_level_category YAML Node from file
+YAML::Node load_codes_helper(const YAML::Node & config) {
+    try {
+	return YAML::LoadFile(config["file"].as<std::string>());
+    } catch(const YAML::BadFile& e) {
+	throw std::runtime_error("Bad YAML file");
+    } catch(const YAML::ParserException& e) {
+	throw std::runtime_error("YAML parsing error");
+    }
+}
 
 /// A SQL-like results set for making mock results for testing
 /// and optimisation purposes.
@@ -38,14 +52,43 @@ concept RowBuffer = requires(T t, const std::string & s) {
 ///
 class InMemoryRowBuffer {
 public:
-    InMemoryRowBuffer(const YAML::Node & config)
-	: num_rows_{config["in_memory"]["num_rows"].as<std::size_t>()} {
+    InMemoryRowBuffer(const YAML::Node & config) {
 
+	YAML::Node in_mem{config["in_memory"]};
+	
 	// Create a random generator
-        Seed seed{config["in_memory"]["seed"]};
+        Seed seed{in_mem["seed"].as<std::size_t>()};
 	auto gen{Generator<std::size_t,0,1>(seed)};
 
-	// 
+	std::size_t num_patients{in_mem["num_patients"].as<std::size_t>()};
+	
+	// Make the generators number of spells and episodes
+	Random<std::size_t> spells_rnd{1, 5, seed};
+	Random<std::size_t> episodes_rnd{1, 7, seed};
+
+	auto parser_config{config["parse_config"]};
+	TopLevelCategory opcs4{load_codes_helper(parser_config["procedures"])};
+	TopLevelCategory icd10{load_codes_helper(parser_config["diagnoses"])};
+	
+	// Make the patients
+	for (std::size_t n{0}; n < num_patients; n++) {
+	    // Make spells
+	    for (std::size_t s{0}; s < spells_rnd(); s++) {
+		// Make episodes
+		for (std::size_t e{0}; e < episodes_rnd(); e++) {
+		    // Push the episode rows
+		    table_["nhs_number"].push_back(std::to_string(n));
+		    table_["spell_id"].push_back(std::to_string(s));
+		    table_["diagnosisprimary_icd"].push_back(icd10.random_code(gen));
+		    table_["diagnosis1stsecondary_icd"].push_back(icd10.random_code(gen));
+		    table_["primaryprocedure_opcs"].push_back(opcs4.random_code(gen));
+		    table_["procedure2nd_opcs"].push_back(opcs4.random_code(gen));
+		}
+	    }
+	}
+	
+	       
+	// Make the vector of nhs numbers
 	
     }
 
@@ -72,13 +115,19 @@ public:
     /// not more rows.
     void fetch_next_row() {
 	current_row_index_++;
-	if (current_row_index_ == num_rows_) {
+	if (current_row_index_ == num_rows()) {
 	    throw std::logic_error("No more rows");
 	}
     }
+
+    
     
 private:
-    std::size_t num_rows_;
+
+    std::size_t num_rows() const {
+	return table_.at("nhs_number").size();
+    }
+    
     std::size_t current_row_index_{0};
     std::map<std::string, std::vector<std::string>> table_;
 };
