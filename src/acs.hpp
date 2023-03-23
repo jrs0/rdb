@@ -117,16 +117,39 @@ private:
 // episodes if the hospital stay involved multiple consultants.
 class Spell {
 public:
-    Spell() {
+    Spell(RowBuffer & row) {
 	// Assume the next row is the start of a new spell
 	// block. Push back to the episodes vector one row
 	// per episode.
+
+	// The first row contains the spell id
+	try {
+	    spell_id_ = row.at("spell_id");
+	} catch (const std::out_of_range & e) {
+	    throw std::runtime_error("Column not found");
+	}
+
+	int c{0};
+	while (row.at("spell_id") == spell_id_) {
+
+	    // If you get here, then the current row
+	    // contains valid data for this spell
+
+	    c++;
+	    
+	    // Now do the next fetch.
+	    row.fetch_next_row();
+	}
+
+	std::cout << " - Spell " << spell_id_
+		  << " c = " << c
+		  << std::endl;  
     }
 
 private:
+    std::string spell_id_;
     std::string spell_start_;
     std::string spell_end_;
-    std::string spell_id_;
     std::vector<Episode> episodes_;
 };
 
@@ -181,26 +204,25 @@ public:
 	    throw std::runtime_error("Column not found");
 	}
 	    
-	int c{0};
 	while(row.at("nhs_number") == nhs_number_) {
 
 	    // If you get here, then the current row
 	    // contains valid data for this patient
 
-	    // Store the patient info
-	    c++;
-
-	    // Now do the next fetch.
-	    row.fetch_next_row();
+	    // Store the patient info. Note that this
+	    // will leave row pointing to the start of
+	    // the next spell block
+	    spells_.emplace_back(row);
 	}
 	
 	std::cout << "Patient " << nhs_number_
-		  << " c = " << c << std::endl;  
+		  << " num_spells = " << spells_.size()
+		  << std::endl;  
     }
 
 private:
     std::string nhs_number_;
-    std::vector<Record> records_;
+    std::vector<Spell> spells_;
 };
 
 const std::string episodes_query{
@@ -244,8 +266,6 @@ public:
     Acs(const YAML::Node & config)
 	: code_parser_{config["parser_config"]}
     {
-
-	
 	// Fetch the database name and connect
 	auto dsn{config["data_sources"]["dsn"].as<std::string>()};
 	std::cout << "Connection to DSN " << dsn << std::endl;
