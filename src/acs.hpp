@@ -188,12 +188,14 @@ public:
 	// Make the codes parser. This will be passed by reference
 	// down to the spells and episodes classes
 	auto dsn{config["data_sources"]["dsn"].as<std::string>()};
-	std::cout << dsn << std::endl;
+	std::cout << "Connection to DSN " << dsn << std::endl;
 
 	// Make the connection
 	SQLConnection con{dsn};
-
+	std::cout << "Executing statement" << std::endl;
 	auto row_buffer{con.execute_direct(episodes_query)};
+	std::cout << "Starting to fetch rows" << dsn << std::endl;
+	
 	
 	// sql statement that fetches all episodes for all patients
 	// ordered by nhs number, then spell id. Include count column
