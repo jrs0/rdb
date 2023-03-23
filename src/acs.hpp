@@ -11,6 +11,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include "category.hpp"
+#include "sql_connection.hpp"
 
 /*
 
@@ -144,7 +145,7 @@ private:
 
 */
 
-const std::string sql_query{
+const std::string episodes_query{
     R"raw_sql(
 
 select top 5000
@@ -175,18 +176,24 @@ from (
 ) as episodes
 left join abi.civil_registration.mortality as mort
 on episodes.nhs_number = mort.derived_pseudo_nhs
-order by nhs_number, spell_id
-"};
+order by nhs_number, spell_id;
 
     )raw_sql"
 };
 
 class Acs {
 public:
-    Acs(const YAML::Node & category) {
+    Acs(const YAML::Node & config) {
 
 	// Make the codes parser. This will be passed by reference
 	// down to the spells and episodes classes
+	auto dsn{config["data_sources"]["dsn"].as<std::string>()};
+	std::cout << dsn << std::endl;
+
+	// Make the connection
+	SQLConnection con{dsn};
+
+	auto row_buffer{con.execute_direct(episodes_query)};
 	
 	// sql statement that fetches all episodes for all patients
 	// ordered by nhs number, then spell id. Include count column

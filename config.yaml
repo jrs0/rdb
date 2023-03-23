@@ -42,6 +42,7 @@ diagnosis_groups:
 procedure_groups:
   
 data_sources:
+  dsn: xsw
   hospital_episodes:
     table: abi.dbo.vw_apc_sem_001
     nhs_number: aimtc_pseudo_nhs
