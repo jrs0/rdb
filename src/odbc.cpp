@@ -16,10 +16,6 @@
 
 // [[Rcpp::export]]
 void in_mem_test() {
-    auto gen{Generator<std::size_t,0,1>(Seed<>())};
-
-    YAML::Node config = YAML::LoadFile("config.yaml");
-    InMemoryRowBuffer row{config};
 
     
     
@@ -34,16 +30,13 @@ void in_mem_test() {
     // }
 }
 
-
-/*
-
 #include "acs.hpp"
-#include "random.hpp"
 
 // [[Rcpp::export]]
-void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
+void make_acs_dataset() {
 
-    auto config_path{Rcpp::as<std::string>(config_path_chr)};
+    //auto config_path{Rcpp::as<std::string>(config_path_chr)};
+    auto config_path{"config.yaml"};
     try {
 	YAML::Node config = YAML::LoadFile(config_path);
 	Acs acs{config};
@@ -52,9 +45,15 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
     } catch(const YAML::ParserException& e) {
 	throw std::runtime_error("YAML parsing error");
     } catch (const std::runtime_error & e) {
-	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+	//Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+	std::cout << "Failed with error "  << e.what() << std::endl;
     }
 }
+
+/*
+
+#include "acs.hpp"
+#include "random.hpp"
 
 // [[Rcpp::export]]
 void test_random_code() {

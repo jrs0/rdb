@@ -5,7 +5,11 @@ test_cpp <- function(thing) {
     .Call(`_rdb_test_cpp`, thing)
 }
 
-test_random_code <- function() {
-    invisible(.Call(`_rdb_test_random_code`))
+in_mem_test <- function() {
+    invisible(.Call(`_rdb_in_mem_test`))
+}
+
+make_acs_dataset <- function() {
+    invisible(.Call(`_rdb_make_acs_dataset`))
 }
 

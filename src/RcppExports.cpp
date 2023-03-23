@@ -21,19 +21,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// test_random_code
-void test_random_code();
-RcppExport SEXP _rdb_test_random_code() {
+// in_mem_test
+void in_mem_test();
+RcppExport SEXP _rdb_in_mem_test() {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    test_random_code();
+    in_mem_test();
+    return R_NilValue;
+END_RCPP
+}
+// make_acs_dataset
+void make_acs_dataset();
+RcppExport SEXP _rdb_make_acs_dataset() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    make_acs_dataset();
     return R_NilValue;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_cpp", (DL_FUNC) &_rdb_test_cpp, 1},
-    {"_rdb_test_random_code", (DL_FUNC) &_rdb_test_random_code, 0},
+    {"_rdb_in_mem_test", (DL_FUNC) &_rdb_in_mem_test, 0},
+    {"_rdb_make_acs_dataset", (DL_FUNC) &_rdb_make_acs_dataset, 0},
     {NULL, NULL, 0}
 };
 
