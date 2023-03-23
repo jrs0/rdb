@@ -1,0 +1,80 @@
+# This file controls the behaviour of a routine that generates a dataset
+# of information rleating to patients who have had acute coronary syndromes
+# or PCI procedures. The script generates a dataset where each row is a
+# patient, and the columns contain characteristics of the index event
+# (either ACS or PCI) and other diagnostic episodes that happened either
+# before or after the index event.
+#
+# output columns:
+#  index_spell_date: The date of the spell containing the index episode.
+#  index_type: "ACS" or "PCI" depending on the type of index episode
+#  age: The age of the patient at the index spell
+#  <diagnosis_name>_before: The number of occurances of the diagnosis
+#      identified by <diagnosis_name> (a group of ICD codes) in episodes
+#      in the period <months_before> before the index event.
+#  <diagnosis_name>_after: The number of occurances of the diagnosis
+#      identified by <diagnosis_name> (a group of ICD codes) in episodes
+#      in the period <months_after> after the index event.
+#  bleed_after: The number of bleeding events (defined by a group of ICD
+#      codes) in the <months_after> period after the index event.
+#  ischaemia_after: The number of ischaemic events (defined by a group
+#      of ICD codes) in the <months_after> period after the index event.
+#  death_after: Whether the patient died in the following <months_after>
+#      period
+#  cardiovascular_death: Whether the death was associated with a
+#      cardiovascular ICD code (NA if no death_after)
+#  ischaemia_death: Whether the death was associated with an ischaemia
+#      ICD code (NA if no death_after)
+#  
+#
+#
+
+index_event:
+  start_date: "2015-1-1" 
+  end_date: "2023-1-1"  
+
+parser_config:
+  # Defines how diagnoses are processed
+  diagnoses:
+    # The file defining the low-level ICD groups
+    file: icd10.yaml
+    # How the low-level groups are combined into
+    # output columns
+    source_columns:
+    - diagnosisprimary_icd
+    - diagnosis1stsecondary_icd
+    groups:
+      acs: acs
+      diabetes: [type_1_diabetes, type_2_diabetes]
+  # Defines how procedures are processed
+  procedures:
+    # Where to get the low-level groups
+    file: opcs4.yaml
+    # How to combine the groups into output
+    source_columns:
+    - primaryprocedure_opcs
+    - procedure2nd_opcs      
+    groups:
+
+data_sources:
+  dsn: xsw
+  hospital_episodes:
+    table: abi.dbo.vw_apc_sem_001
+    nhs_number: aimtc_pseudo_nhs
+    spell_id: pbrspellid
+    diagnosis:
+      - diagnosisprimary_icd
+      - diagnosis1stsecondary_icd
+    procedures:
+      - primary_procedure_opcs
+      - procedure2nd_opcs
+  mortality:
+      table: abi.civil_registration.mortality
+      nhs_number: Derived_Pseudo_NHS
+      date_of_death: REG_DATE_OF_DEATH
+      cause_of_death: S_UNDERLYING_COD_ICD10
+      
+in_memory:
+  num_patients: 50
+  seed: 47
+      

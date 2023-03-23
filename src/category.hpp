@@ -14,6 +14,15 @@
 
 #include <yaml-cpp/yaml.h>
 
+/// Select a random element from a vector
+template<typename T>
+T select_random(const std::vector<T> & in,
+		std::uniform_random_bit_generator auto & gen) {
+    std::vector<T> out;
+    std::ranges::sample(in, std::back_inserter(out), 1, gen);
+    return out.back();
+}
+
 /// Indexes the categories
 class Index {
 public:
@@ -28,6 +37,7 @@ public:
     friend auto operator<=>(const Index&, const Index&) = default;
     friend bool operator==(const Index&, const Index&) = default;
 
+    
     friend bool operator<(const std::string & code, const Index& n) {
 	return code < n.start_;
     }
@@ -106,6 +116,17 @@ public:
     bool is_leaf() const {
 	return categories_.size() == 0;
     }
+
+    /// Get a uniformly randomly chosen code from this category
+    std::string
+    random_code(std::uniform_random_bit_generator auto & gen) const {
+	if (categories_.size() == 0) {
+	    // At a leaf node, pick this code
+	    return name_;
+	} else {
+	    return select_random(categories_, gen).random_code(gen);
+	}
+    }
     
 private:
     
@@ -129,6 +150,10 @@ class TopLevelCategory {
 public:
     TopLevelCategory(const YAML::Node & top_level_category);
     
+    std::size_t cache_size() const {
+	return code_name_cache_.size();
+    }
+    
     void print() const;
     
     /// Parse a raw code. Return the standard name of the code,
@@ -137,6 +162,12 @@ public:
     /// Query results are cached and used to speed up the next
     /// call to the function.
     std::string get_code_prop(const std::string & code, bool docs);
+
+    /// Get a uniformly randomly chosen code from the tree.
+    std::string
+    random_code(std::uniform_random_bit_generator auto & gen) const {
+	return select_random(categories_, gen).random_code(gen);
+    }
     
 private:
     /// The list of groups present in the sub-catagories

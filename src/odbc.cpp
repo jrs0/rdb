@@ -11,41 +11,42 @@
 //  -example-app-connect-access-sql-db?view=sql-server-ver16"
 //
 
-#include <vector>
-#include <map>
+#include "acs.hpp"
+#include "random.hpp"
 
-#include "row_buffer.hpp"
+// [[Rcpp::export]]
+void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
 
-// To be moved out of here
-#include <Rcpp.h>
-
-/// A simple SQL
-class SQLConnection {
-
-public:
-
-    /// Create an SQL connection to a data source
-    SQLConnection(const std::string & dsn)
-	: dsn_{dsn}, env_{std::make_shared<EnvHandle>()} {
-	env_->set_attribute((SQLPOINTER)SQL_OV_ODBC3, 0);
-	dbc_ = std::make_shared<ConHandle>(env_, dsn);
-	stmt_ = std::make_shared<StmtHandle>(dbc_);
+    auto config_path{Rcpp::as<std::string>(config_path_chr)};
+    try {
+	YAML::Node config = YAML::LoadFile(config_path);
+	Acs acs{config};
+    } catch(const YAML::BadFile& e) {
+	throw std::runtime_error("Bad YAML file");
+    } catch(const YAML::ParserException& e) {
+	throw std::runtime_error("YAML parsing error");
+    } catch (const std::runtime_error & e) {
+	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
     }
+}
 
-    /// Submit an SQL query and get the result back as a set of
-    /// columns (with column names).
-    RowBuffer execute_direct(const std::string & query) {
-	stmt_->exec_direct(query);
-	return RowBuffer{stmt_};
-    }
+// [[Rcpp::export]]
+void test_random_code() {
+    auto gen{Generator<std::size_t,0,1>(Seed<>())};
+
+    YAML::Node config = YAML::LoadFile("config.yaml");
+    InMemoryRowBuffer row{config};
     
-private:
-    std::string dsn_; ///< Data source name
-    std::shared_ptr<EnvHandle> env_; ///< Global environment handle
-    std::shared_ptr<ConHandle> dbc_; ///< Connection handle
-    std::shared_ptr<StmtHandle> stmt_; ///< Statement handle
+    // TopLevelCategory procedures{opcs4};
+    // std::cout << "Random OPCS: " << procedures.random_code(gen)
+    // 	      << std::endl; 
+    // YAML::Node icd10 = YAML::LoadFile("icd10.yaml");
+    // TopLevelCategory diagnoses{icd10};
+    // std::cout << "Random ICD: " << diagnoses.random_code(gen)
+    // 	      << std::endl;
+}
 
-};
+
 
 // [[Rcpp::export]]
 Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
@@ -64,26 +65,29 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 	// Make a (column-major) table to store the fetched rows
 	std::map<std::string, std::vector<std::string>> table;
 
-	YAML::Node top_level_category_yaml = YAML::LoadFile("opcs.yaml");
+	YAML::Node top_level_category_yaml = YAML::LoadFile("opcs4.yaml");
 	TopLevelCategory top_level_category{top_level_category_yaml};
 
 	while(true) {
 	    try {
 
 		// Try to fetch the next row (throws if none left)
-		auto row{row_buffer.try_next_row()};
+		row_buffer.fetch_next_row();
 
-		// NOW row HAS VALUES, DO PARSING HERE
 		try {
-		    row[0] = top_level_category.get_code_prop(row[0], true);
+		    // NOW row HAS VALUES, DO PARSING HERE
+		    // Parsing 100,000 rows takes 54 seconds, vs 2s without
+		    // parsing. 50,000 takes 28 seconds, so it scales approximately
+		    // linearly.
+		    //row[1] = top_level_category.get_code_prop(row[0], false);
 		} catch (const std::runtime_error & e) {
-		    row[0] = row[0] + std::string{" [INVALID]"};
+		    //row[1] = row[0] + std::string{" [INVALID]"};
 		}
-		    
+		
 		// Copy into the table
 		for (std::size_t col{0}; col < row_buffer.size(); col++) {
 		    auto col_name{column_names[col]};
-		    auto col_value{row[col]};
+		    auto col_value{row_buffer.at(col_name)};
 		    table[col_name].push_back(col_value); 
 		}
 			
@@ -92,8 +96,10 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 		break;
 	    }
 	}
-        
-	// Convert the table to R format
+
+	std::cout << "Finished fetch: cache size = " << top_level_category.cache_size() << std::endl;
+	
+	// Convert the table to R format. This is not the slow part.
 	Rcpp::List table_list;
 	for (const auto & [col_name, col_values] : table) {
 	    

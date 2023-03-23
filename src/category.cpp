@@ -143,7 +143,8 @@ locate_code_in_categories(const std::string & code,
     // may be possible to return the category above as a fuzzy
     // match -- consider implementing
     if (!found) {
-	throw std::runtime_error("Code not found in any category");
+	throw std::runtime_error("Code " + code
+				 + " not found in any category");
     }
 
     // Decrement the position to point to the largest category
@@ -159,7 +160,7 @@ std::string get_code_prop(const std::string code,
 			  const std::vector<Category> & categories,
 			  bool docs,
 			  std::set<std::string> groups = std::set<std::string>{}) {
-
+    
     // Locate the category containing the code at the current level
     auto cat{locate_code_in_categories(code, categories)};
 
@@ -225,12 +226,20 @@ std::string TopLevelCategory::get_code_prop(const std::string & code, bool docs)
 
     // Check for the empty string
     if(std::ranges::all_of(code, isspace)) {
-	throw std::runtime_error("Got the empty string in parse_code()");
+	throw std::runtime_error("Code is empty");
     }
 
     auto code_alphanum{remove_non_alphanum(code)};
 
-    // Inspect the cache
+    // Inspect the cache.
+    //
+    // For procedure codes (OPCS), there are about 1800 unique
+    // codes in 50,000; 2400 in 100,000; 3100 in 200,000; 3800 in 400,000.
+    // 400,000 rows takes about 180 seconds.
+    //
+    // For diagnosis codes (ICD), there are about 90 unique codes in
+    // 50,000; 300 codes in 100,000; 600 codes in 200,000; 1100 codes
+    // in 400,000. 400,000 rows takes about 6 seconds. 
     try {
 	return code_name_cache_.at(code_alphanum);
     } catch (const std::out_of_range &) {

@@ -1,6 +1,9 @@
 categories:
 - name: OPCS-4.1
   docs: OPCS-4 Classification of Interventions and Procedures (OPCS-4), Nov 2022
+  index:
+  - A01
+  - Z99
   categories:
   - name: A
     docs: Nervous System
