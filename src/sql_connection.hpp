@@ -25,9 +25,9 @@ public:
 
     /// Submit an SQL query and get the result back as a set of
     /// columns (with column names).
-    RowBuffer execute_direct(const std::string & query) {
+    SqlRowBuffer execute_direct(const std::string & query) {
 	stmt_->exec_direct(query);
-	return RowBuffer{stmt_};
+	return SqlRowBuffer{stmt_};
     }
     
 private:

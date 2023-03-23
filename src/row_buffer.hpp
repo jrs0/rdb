@@ -5,12 +5,20 @@
 #include "yaml.hpp"
 #include "category.hpp"
 
+template<class T>
+concept RowBuffer = requires(T t, const std::string & s) {
+    t.size();
+    t.at(s);
+    t.column_names();
+    t.fetch_next_row();   
+};
+
 /// Holds the column bindings for an in-progress query. Allows
-/// rows to be fetched one at a time
-class RowBuffer {
+/// rows to be fetched one at a time.
+class SqlRowBuffer {
 public:
     /// Make sure you only do this after executing the stam
-    RowBuffer(const std::shared_ptr<StmtHandle> & stmt)
+    SqlRowBuffer(const std::shared_ptr<StmtHandle> & stmt)
 	: stmt_{stmt}
     {
 	// Loop over the columns (note: indexed from 1!)

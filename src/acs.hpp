@@ -46,7 +46,7 @@ std::vector<std::string> source_columns(const YAML::Node & config) {
 /// (and not included) if the parser throws a runtime error during
 /// parsing. Look at the TopLevelcategory to see what is covered.
 std::vector<std::string> all_codes(const std::vector<std::string> & columns,
-				   const RowBuffer & row,
+				   const RowBuffer auto & row,
 				   TopLevelCategory & parser) {
     std::vector<std::string> result;
     for (const auto & column : columns) {
@@ -87,12 +87,12 @@ public:
     
     /// Parse all the procedure codes into a flat list, omitting
     /// any codes that are invalid. In addition, map the parsed
-    std::vector<std::string> all_procedures(const RowBuffer & row) {
+    std::vector<std::string> all_procedures(const RowBuffer auto & row) {
 	return all_codes(procedure_columns_, row, procedures_);
     }
 
     /// Parse all the diagnosis codes
-    std::vector<std::string> all_diagnoses(const RowBuffer & row) {
+    std::vector<std::string> all_diagnoses(const RowBuffer auto & row) {
 	return all_codes(diagnosis_columns_, row, diagnoses_);
     }
     
@@ -118,7 +118,7 @@ public:
     /// For consistency with the other functions, this constructor
     /// will also fetch the next row after it is done (modifying
     /// the row argument)
-    Episode(RowBuffer & row, CodeParser & code_parser) {
+    Episode(RowBuffer auto & row, CodeParser & code_parser) {
 	// Expect a single row as argument, which will be the
 	// episode. The episode may contain either a procedure
 	// or a diagnosis (including secondaries), or both. The
@@ -181,7 +181,7 @@ private:
 // episodes if the hospital stay involved multiple consultants.
 class Spell {
 public:
-    Spell(RowBuffer & row, CodeParser & code_parser) {
+    Spell(RowBuffer auto & row, CodeParser & code_parser) {
 	// Assume the next row is the start of a new spell
 	// block. Push back to the episodes vector one row
 	// per episode.
@@ -256,7 +256,7 @@ public:
     /// first row fetched_. At the other end, when it
     /// discovers a new patients, the row is left in
     /// the buffer for the next Patient object
-    Patient(RowBuffer & row, CodeParser & code_parser) {
+    Patient(RowBuffer auto & row, CodeParser & code_parser) {
 
 	// The first row contains the nhs number
 	try {
