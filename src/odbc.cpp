@@ -15,11 +15,13 @@
 #include "mem_row_buffer.hpp" 
 
 // [[Rcpp::export]]
-void test_random_code() {
+void in_mem_test() {
     auto gen{Generator<std::size_t,0,1>(Seed<>())};
 
     YAML::Node config = YAML::LoadFile("config.yaml");
     InMemoryRowBuffer row{config};
+
+    
     
     // TopLevelCategory procedures{opcs4};
     // std::cout << "Random OPCS: " << procedures.random_code(gen)

@@ -36,7 +36,6 @@ public:
     /// in the codes (although there may be gaps).
     friend auto operator<=>(const Index&, const Index&) = default;
     friend bool operator==(const Index&, const Index&) = default;
-
     
     friend bool operator<(const std::string & code, const Index& n) {
 	return code < n.start_;
