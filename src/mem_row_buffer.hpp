@@ -53,14 +53,20 @@ public:
 	YAML::Node in_mem{config["in_memory"]};
 	
 	// Create a random generator
-        Seed seed{in_mem["seed"].as<std::size_t>()};
-	auto gen{Generator<std::size_t,0,1>(seed)};
+        //Seed seed{in_mem["seed"].as<std::size_t>()};
+	//auto gen{Generator<std::size_t,0,1>(seed)};
+	std::random_device dev;
+	std::mt19937 gen(dev());
 
+	
 	std::size_t num_patients{in_mem["num_patients"].as<std::size_t>()};
 	
 	// Make the generators number of spells and episodes
-	Random<std::size_t> spells_rnd{1, 5, seed};
-	Random<std::size_t> episodes_rnd{1, 7, seed};
+	// Random<std::size_t> spells_rnd{1, 5, seed};
+	std::uniform_int_distribution<> spells_rnd(1, 5);
+	
+	// Random<std::size_t> episodes_rnd{1, 7, seed};
+	std::uniform_int_distribution<> episodes_rnd(1, 7);
 
 	auto parser_config{config["parser_config"]};
 	TopLevelCategory opcs4{load_codes_helper(parser_config["procedures"])};
@@ -70,17 +76,17 @@ public:
 	for (std::size_t n{0}; n < num_patients; n++) {
 	    // Make spells
 	    std::cout << "P " << n << std::endl;
-	    for (std::size_t s{0}; s < spells_rnd(); s++) {
+	    for (std::size_t s{0}; s < spells_rnd(gen); s++) {
 		// Make episodes
 		std::cout << "S " << s << std::endl;
-		for (std::size_t e{0}; e < episodes_rnd(); e++) {
+		for (std::size_t e{0}; e < episodes_rnd(gen); e++) {
 		    // Push the episode rows
 		    table_["nhs_number"].push_back(std::to_string(n));
 		    table_["spell_id"].push_back(std::to_string(s));
-		    table_["diagnosisprimary_icd"].push_back(icd10.random_code(gen));
-		    table_["diagnosis1stsecondary_icd"].push_back(icd10.random_code(gen));
-		    table_["primaryprocedure_opcs"].push_back(opcs4.random_code(gen));
-		    table_["procedure2nd_opcs"].push_back(opcs4.random_code(gen));
+		     table_["diagnosisprimary_icd"].push_back(icd10.random_code(gen));
+		      table_["diagnosis1stsecondary_icd"].push_back(icd10.random_code(gen));
+		      table_["primaryprocedure_opcs"].push_back(opcs4.random_code(gen));
+		    // table_["procedure2nd_opcs"].push_back(opcs4.random_code(gen));
 		}
 	    }
 	}
