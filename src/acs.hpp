@@ -231,7 +231,7 @@ public:
 	// Assume rows ordered by patient. Loop over rows
 	// until next patient is found (needs a count of
 	// some kind, otherwise will use up first row of
-	// next patient.
+	// next patient.	
 
 	// Make a vector of spells. Pass results object by
 	// reference to spells constructor and allow it to
