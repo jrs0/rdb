@@ -13,17 +13,33 @@ concept RowBuffer = requires(T t, const std::string & s) {
     t.fetch_next_row();   
 };
 
-// A hard-coded
+/// A SQL-like results set for making mock results for testing
+/// and optimisation purposes.
+///
+/// This object has the following columns:
+///
+/// - nhs_number - a unique string
+/// - spell_id - a unique string
+/// - diagnosisprimary_icd - a raw ICD code
+/// - diagnosis1stsecondary_icd - a raw ICD code
+/// - primaryprocedure_opcs - a raw OPCS code
+/// - procedure2nd_opcs - a raw OPCS code
+///
+/// Each patient has a number of spells, each of which comprises
+/// a number of episodes (one per row). The nhs_number and spell_id
+/// are globally unique (i.e. two patients do not share a spell_id
+/// either). The ICD and OPCS codes are drawn at random from the
+/// codes files, and are valid
+///
 class InMemoryRowBuffer {
 public:
     InMemoryRowBuffer(std::size_t num_rows)
 	: num_rows_{num_rows} {
-
     }
 
     // Get the number of columns
     std::size_t size() const {
-	return col_bindings_.size();
+	return table_.size();
     }
     
     std::vector<std::string> column_names() const {
@@ -50,7 +66,7 @@ public:
     }
     
 private:
-    std::size_t num_rows;
+    std::size_t num_rows_;
     std::size_t current_row_index_{0};
     std::map<std::string, std::vector<std::string>> table_;
 };
