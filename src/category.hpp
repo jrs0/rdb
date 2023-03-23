@@ -11,16 +11,16 @@
 
 #include <algorithm>
 #include <set>
+#include <random>
 
 #include <yaml-cpp/yaml.h>
 
 /// Select a random element from a vector
 template<typename T>
-T select_random(const std::vector<T> & in,
+const T & select_random(const std::vector<T> & in,
 		std::uniform_random_bit_generator auto & gen) {
-    std::vector<T> out;
-    std::ranges::sample(in, std::back_inserter(out), 1, gen);
-    return out.back();
+    std::uniform_int_distribution<> rnd(0, in.size()-1);
+    return in[rnd(gen)];
 }
 
 /// Indexes the categories

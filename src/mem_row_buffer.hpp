@@ -57,7 +57,6 @@ public:
 	//auto gen{Generator<std::size_t,0,1>(seed)};
 	std::random_device dev;
 	std::mt19937 gen(dev());
-
 	
 	std::size_t num_patients{in_mem["num_patients"].as<std::size_t>()};
 	
@@ -86,7 +85,7 @@ public:
 		     table_["diagnosisprimary_icd"].push_back(icd10.random_code(gen));
 		      table_["diagnosis1stsecondary_icd"].push_back(icd10.random_code(gen));
 		      table_["primaryprocedure_opcs"].push_back(opcs4.random_code(gen));
-		    // table_["procedure2nd_opcs"].push_back(opcs4.random_code(gen));
+		      table_["procedure2nd_opcs"].push_back(opcs4.random_code(gen));
 		}
 	    }
 	}
