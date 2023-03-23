@@ -162,7 +162,7 @@ std::string get_code_prop(const std::string code,
 			  std::set<std::string> groups = std::set<std::string>{}) {
     
     // Locate the category containing the code at the current level
-    auto cat{locate_code_in_categories(code, categories)};
+    auto & cat{locate_code_in_categories(code, categories)};
 
     // Check for any group exclusions at this level and remove
     // them from the current group list (note that if exclude

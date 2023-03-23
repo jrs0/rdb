@@ -21,55 +21,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// in_mem_test
+void in_mem_test();
+RcppExport SEXP _rdb_in_mem_test() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    in_mem_test();
+    return R_NilValue;
+END_RCPP
+}
 // make_acs_dataset
-void make_acs_dataset(const Rcpp::CharacterVector& config_path_chr);
-RcppExport SEXP _rdb_make_acs_dataset(SEXP config_path_chrSEXP) {
+void make_acs_dataset();
+RcppExport SEXP _rdb_make_acs_dataset() {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type config_path_chr(config_path_chrSEXP);
-    make_acs_dataset(config_path_chr);
-    return R_NilValue;
-END_RCPP
-}
-// test_random_code
-void test_random_code();
-RcppExport SEXP _rdb_test_random_code() {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    test_random_code();
-    return R_NilValue;
-END_RCPP
-}
-// try_connect
-Rcpp::List try_connect(const Rcpp::CharacterVector& dsn_character, const Rcpp::CharacterVector& query_character);
-RcppExport SEXP _rdb_try_connect(SEXP dsn_characterSEXP, SEXP query_characterSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type dsn_character(dsn_characterSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type query_character(query_characterSEXP);
-    rcpp_result_gen = Rcpp::wrap(try_connect(dsn_character, query_character));
-    return rcpp_result_gen;
-END_RCPP
-}
-// parse_code
-void parse_code(const Rcpp::CharacterVector& icd10_file_character, const Rcpp::CharacterVector& code_character);
-RcppExport SEXP _rdb_parse_code(SEXP icd10_file_characterSEXP, SEXP code_characterSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type icd10_file_character(icd10_file_characterSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type code_character(code_characterSEXP);
-    parse_code(icd10_file_character, code_character);
+    make_acs_dataset();
     return R_NilValue;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_cpp", (DL_FUNC) &_rdb_test_cpp, 1},
-    {"_rdb_make_acs_dataset", (DL_FUNC) &_rdb_make_acs_dataset, 1},
-    {"_rdb_test_random_code", (DL_FUNC) &_rdb_test_random_code, 0},
-    {"_rdb_try_connect", (DL_FUNC) &_rdb_try_connect, 2},
-    {"_rdb_parse_code", (DL_FUNC) &_rdb_parse_code, 2},
+    {"_rdb_in_mem_test", (DL_FUNC) &_rdb_in_mem_test, 0},
+    {"_rdb_make_acs_dataset", (DL_FUNC) &_rdb_make_acs_dataset, 0},
     {NULL, NULL, 0}
 };
 

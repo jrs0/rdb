@@ -22,7 +22,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include "category.hpp"
-#include "sql_connection.hpp"
+//#include "sql_connection.hpp"
 
 /// Get the vector of source columns from the config file node
 std::vector<std::string> source_columns(const YAML::Node & config) {
@@ -313,12 +313,18 @@ public:
     Acs(const YAML::Node & config)
 	: code_parser_{config["parser_config"]}
     {
+	// Choose between in-memory or sql -- move this
+	// little bit into a function 
+	/*
 	// Fetch the database name and connect
 	auto dsn{config["data_sources"]["dsn"].as<std::string>()};
 	std::cout << "Connection to DSN " << dsn << std::endl;
 	SQLConnection con{dsn};
 	std::cout << "Executing statement" << std::endl;
-	auto row{con.execute_direct(episodes_query)};
+	//auto row{con.execute_direct(episodes_query)};
+	*/
+	InMemoryRowBuffer row{config};
+
 	std::cout << "Starting to fetch rows" << std::endl;
 
 	// sql statement that fetches all episodes for all patients

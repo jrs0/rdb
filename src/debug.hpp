@@ -23,7 +23,6 @@ void debug_msg(const std::string & msg) {
 // there is a problem
 void handle_diagnostic_record(SQLHANDLE handle, SQLSMALLINT type, RETCODE ret_code)
 {
-
     if (ret_code == SQL_INVALID_HANDLE) {
 	throw std::runtime_error("Invalid handle");
     }

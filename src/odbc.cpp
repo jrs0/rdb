@@ -11,13 +11,32 @@
 //  -example-app-connect-access-sql-db?view=sql-server-ver16"
 //
 
-#include "acs.hpp"
 #include "random.hpp"
+#include "mem_row_buffer.hpp" 
 
 // [[Rcpp::export]]
-void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
+void in_mem_test() {
 
-    auto config_path{Rcpp::as<std::string>(config_path_chr)};
+    
+    
+    // TopLevelCategory procedures{opcs4};
+    // std::cout << "Random OPCS: " << procedures.random_code(gen)
+    // 	      << std::endl; 
+    // YAML::Node icd10 = YAML::LoadFile("icd10.yaml");
+    // TopLevelCategory diagnoses{icd10};
+    // for (std::size_t n{0}; n < 10; n++) {
+    // 	std::cout << "Random ICD: " << diagnoses.random_code(gen)
+    // 		  << std::endl;
+    // }
+}
+
+#include "acs.hpp"
+
+// [[Rcpp::export]]
+void make_acs_dataset() {
+
+    //auto config_path{Rcpp::as<std::string>(config_path_chr)};
+    auto config_path{"config.yaml"};
     try {
 	YAML::Node config = YAML::LoadFile(config_path);
 	Acs acs{config};
@@ -26,9 +45,15 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
     } catch(const YAML::ParserException& e) {
 	throw std::runtime_error("YAML parsing error");
     } catch (const std::runtime_error & e) {
-	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+	//Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+	std::cout << "Failed with error "  << e.what() << std::endl;
     }
 }
+
+/*
+
+#include "acs.hpp"
+#include "random.hpp"
 
 // [[Rcpp::export]]
 void test_random_code() {
@@ -138,3 +163,5 @@ void parse_code(const Rcpp::CharacterVector & icd10_file_character,
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
     }
 }
+
+*/
