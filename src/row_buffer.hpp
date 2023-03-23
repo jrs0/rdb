@@ -29,11 +29,16 @@ concept RowBuffer = requires(T t, const std::string & s) {
 /// a number of episodes (one per row). The nhs_number and spell_id
 /// are globally unique (i.e. two patients do not share a spell_id
 /// either). The ICD and OPCS codes are drawn at random from the
-/// codes files, and are valid
+/// codes files, and are valid.
+///
+/// The properties of the object are controlled by a special
+/// in_memory section of the config file. Other properties are
+/// taken from the rest of the file (e.g. paths to code definition
+/// files).
 ///
 class InMemoryRowBuffer {
 public:
-    InMemoryRowBuffer(std::size_t num_rows)
+    InMemoryRowBuffer(const YAML::Node & config)
 	: num_rows_{num_rows} {
     }
 

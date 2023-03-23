@@ -74,3 +74,7 @@ data_sources:
       date_of_death: REG_DATE_OF_DEATH
       cause_of_death: S_UNDERLYING_COD_ICD10
       
+in_memory:
+  num_rows: 5000
+  
+      
