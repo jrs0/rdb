@@ -69,7 +69,7 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 		// Copy into the table
 		for (std::size_t col{0}; col < row_buffer.size(); col++) {
 		    auto col_name{column_names[col]};
-		    auto col_value{row_buffer.get(col)};
+		    auto col_value{row_buffer.at(col_name)};
 		    table[col_name].push_back(col_value); 
 		}
 			

@@ -38,8 +38,8 @@ public:
 	return names;
     }
 
-    const std::string & get(std::size_t col_index) const {
-	return current_row_[col_index];
+    const std::string & at(std::string column_name) const {
+	return current_row_.at(column_name);
     }
     
     /// Fetch the next row of data into an internal state
@@ -57,14 +57,15 @@ public:
 	    } catch (const std::logic_error &) {
 		value = "NULL";
 	    }
-	    current_row_.push_back(value);
+	    auto column_name{bind.col_name()};
+	    current_row_.insert({column_name, value});
 	}
     }
-    
+	
 private:
     std::shared_ptr<StmtHandle> stmt_;
     std::vector<ColBinding> col_bindings_;
-    std::vector<std::string> current_row_;
+    std::map<std::string, std::string> current_row_;
 };
 
 #endif
