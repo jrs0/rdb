@@ -100,6 +100,9 @@ public:
 
 	// Currently just pushes the raw code, need to parse it
 	// which also means having the CodeParser around here.
+	// This episode should also throw an exception if the
+	// episode is not of interest (it is then not included
+	// in the spell). 
 	procedures_.push_back(row.at("procedure_0"));
 	diagnoses_.push_back(row.at("diagnosis_0"));
 
@@ -115,15 +118,15 @@ public:
     }
 
     void print() const {
-	std::cout << "  Episode: diagnoses(";
+	std::cout << "  Episode: D(";
 	for (const auto & diagnosis : diagnoses_) {
 	    std::cout << diagnosis << ",";
 	}
-	std::cout << ") procedures(";
+	std::cout << ") P(";
 	for (const auto & procedure : procedures_) {
 	    std::cout << procedure << ",";
 	}
-	std::cout << ")";
+	std::cout << ")" << std::endl;;
     }
     
 private:
@@ -155,6 +158,7 @@ public:
 	    throw std::runtime_error("Column not found");
 	}
 
+       	std::cout << " Spell " << spell_id_ << std::endl;
 	while (row.at("spell_id") == spell_id_) {
 
 	    // If you get here, then the current row
@@ -166,10 +170,6 @@ public:
 	    episodes_.emplace_back(row);
 	    episodes_.back().print();
 	}
-
-	std::cout << " - Spell " << spell_id_
-		  << " num_episodes = " << episodes_.size()
-		  << std::endl;  
     }
 
 private:
@@ -229,7 +229,8 @@ public:
 	} catch (const std::out_of_range & e) {
 	    throw std::runtime_error("Column not found");
 	}
-	    
+
+	std::cout << "Patient " << nhs_number_ << std::endl;
 	while(row.at("nhs_number") == nhs_number_) {
 
 	    // If you get here, then the current row
@@ -240,10 +241,6 @@ public:
 	    // the next spell block
 	    spells_.emplace_back(row);
 	}
-	
-	std::cout << "Patient " << nhs_number_
-		  << " num_spells = " << spells_.size()
-		  << std::endl;  
     }
 
 private:
