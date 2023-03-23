@@ -52,8 +52,8 @@ parser_config:
     file: opcs4.yaml
     # How to combine the groups into output
     source_columns:
-    - primary_procedure_opcs
-    - procedure1st_opcs      
+    - primaryprocedure_opcs
+    - procedure2nd_opcs      
     groups:
 
 data_sources:
@@ -67,7 +67,7 @@ data_sources:
       - diagnosis1stsecondary_icd
     procedures:
       - primary_procedure_opcs
-      - procedure1st_opcs
+      - procedure2nd_opcs
   mortality:
       table: abi.civil_registration.mortality
       nhs_number: Derived_Pseudo_NHS

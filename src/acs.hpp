@@ -56,6 +56,9 @@ std::vector<std::string> all_codes(const std::vector<std::string> & columns,
 	    result.push_back(parsed);
 	} catch (const std::runtime_error & /* invalid or not found */) {
 	    // Continue
+	} catch (const std::out_of_range & e) {
+	    throw std::runtime_error("Could not read from column "
+				     + column);
 	}
     }
     return result;
@@ -138,7 +141,6 @@ public:
 	procedures_ = code_parser.all_procedures(row);
 	diagnoses_ = code_parser.all_diagnoses(row);
 	
-
 	row.fetch_next_row();
     }
 
@@ -344,7 +346,7 @@ public:
 	while (true) {
 	    try {
 		patients_.emplace_back(row, code_parser_);
-	    } catch (const std::logic_error &) {
+	    } catch (const std::logic_error & e) {
 		// There are no more rows
 		std::cout << "No more rows -- finished" << std::endl;
 		break;
