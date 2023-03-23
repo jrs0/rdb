@@ -39,7 +39,14 @@ concept RowBuffer = requires(T t, const std::string & s) {
 class InMemoryRowBuffer {
 public:
     InMemoryRowBuffer(const YAML::Node & config)
-	: num_rows_{num_rows} {
+	: num_rows_{config["in_memory"]["num_rows"].as<std::size_t>()} {
+
+	// Create a random generator
+        Seed seed{config["in_memory"]["seed"]};
+	auto gen{Generator<std::size_t,0,1>(seed)};
+
+	// 
+	
     }
 
     // Get the number of columns

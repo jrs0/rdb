@@ -14,6 +14,15 @@
 
 #include <yaml-cpp/yaml.h>
 
+/// Select a random element from a vector
+template<typename T>
+T select_random(const std::vector<T> & in,
+		std::uniform_random_bit_generator auto & gen) {
+    std::vector<T> out;
+    std::ranges::sample(in, std::back_inserter(out), 1, gen);
+    return out.back();
+}
+
 /// Indexes the categories
 class Index {
 public:
@@ -107,6 +116,17 @@ public:
     bool is_leaf() const {
 	return categories_.size() == 0;
     }
+
+    /// Get a uniformly randomly chosen code from this category
+    std::string
+    random_code(std::uniform_random_bit_generator auto & gen) const {
+	if (categories_.size() == 0) {
+	    // At a leaf node, pick this code
+	    return name_;
+	} else {
+	    return select_random(categories_, gen).random_code(gen);
+	}
+    }
     
 private:
     
@@ -142,6 +162,12 @@ public:
     /// Query results are cached and used to speed up the next
     /// call to the function.
     std::string get_code_prop(const std::string & code, bool docs);
+
+    /// Get a uniformly randomly chosen code from the tree.
+    std::string
+    random_code(std::uniform_random_bit_generator auto & gen) const {
+	return select_random(categories_, gen).random_code(gen);
+    }
     
 private:
     /// The list of groups present in the sub-catagories

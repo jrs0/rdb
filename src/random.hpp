@@ -71,8 +71,6 @@ private:
 /**
  * \brief Generator with static integral limits
  *
- * 
- *
  */
 template<std::integral T, T Min, T Max, typename Gen = std::mt19937_64>
 struct Generator
@@ -87,8 +85,5 @@ struct Generator
     constexpr static result_type min() { return Min; }
     constexpr static result_type max() { return Max; }
 };
-
-
-
 
 #endif

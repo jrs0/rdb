@@ -12,6 +12,7 @@
 //
 
 #include "acs.hpp"
+#include "random.hpp"
 
 // [[Rcpp::export]]
 void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
@@ -28,6 +29,21 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
     }
 }
+
+// [[Rcpp::export]]
+void test_random_code() {
+    auto gen{Generator<std::size_t,0,1>(Seed<>())};
+
+    YAML::Node opcs4 = YAML::LoadFile("opcs4.yaml");
+    TopLevelCategory procedures{opcs4};
+    std::cout << "Random OPCS: " << procedures.random_code(gen)
+	      << std::endl; 
+    YAML::Node icd10 = YAML::LoadFile("icd10.yaml");
+    TopLevelCategory diagnoses{icd10};
+    std::cout << "Random ICD: " << diagnoses.random_code(gen)
+	      << std::endl;
+}
+
 
 
 // [[Rcpp::export]]

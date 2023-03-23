@@ -31,6 +31,15 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// test_random_code
+void test_random_code();
+RcppExport SEXP _rdb_test_random_code() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    test_random_code();
+    return R_NilValue;
+END_RCPP
+}
 // try_connect
 Rcpp::List try_connect(const Rcpp::CharacterVector& dsn_character, const Rcpp::CharacterVector& query_character);
 RcppExport SEXP _rdb_try_connect(SEXP dsn_characterSEXP, SEXP query_characterSEXP) {
@@ -58,6 +67,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_cpp", (DL_FUNC) &_rdb_test_cpp, 1},
     {"_rdb_make_acs_dataset", (DL_FUNC) &_rdb_make_acs_dataset, 1},
+    {"_rdb_test_random_code", (DL_FUNC) &_rdb_test_random_code, 0},
     {"_rdb_try_connect", (DL_FUNC) &_rdb_try_connect, 2},
     {"_rdb_parse_code", (DL_FUNC) &_rdb_parse_code, 2},
     {NULL, NULL, 0}

@@ -76,5 +76,5 @@ data_sources:
       
 in_memory:
   num_rows: 5000
-  
+  seed: 47
       
