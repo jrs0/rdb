@@ -57,12 +57,12 @@ public:
     /// Parse a procedure, returning the code group defined
     /// by the parser_config (this may group multiple
     /// code groups defined in the codes file together)
-    std::string parse_procedure(const std::string & procedure) {
+    std::string procedure(const std::string & procedure) {
 	return procedures_.get_code_prop(procedure, false);
     }
 
     /// Parse a diagnosis, return code group
-    std::string parse_diagnosis(const std::string & diagnosis) {
+    std::string diagnosis(const std::string & diagnosis) {
 	return diagnoses_.get_code_prop(diagnosis, false);
     }
     
@@ -103,11 +103,20 @@ public:
 	// This episode should also throw an exception if the
 	// episode is not of interest (it is then not included
 	// in the spell). 
-	auto procedure{code_parser.parse_procedure(row.at("procedure_0"))};
-	auto diagnosis{code_parser.parse_diagnosis(row.at("diagnosis_0"))};
+	try {
+	    auto diagnosis{code_parser.diagnosis(row.at("diagnosis_0"))};
+	    diagnoses_.push_back(diagnosis);
+	} catch (const std::runtime_error & /* invalid or not found */) {
+	    // Continue
+	}
+	
+	try {
+	    auto procedure{code_parser.procedure(row.at("procedure_0"))};
+	    procedures_.push_back(procedure);
+	} catch (const std::runtime_error & /* invalid or not found */) {
+	    // Continue
+	}
 
-	procedures_.push_back(procedure);
-	diagnoses_.push_back(diagnosis);
 
 	row.fetch_next_row();
     }

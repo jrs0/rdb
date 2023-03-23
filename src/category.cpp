@@ -143,7 +143,8 @@ locate_code_in_categories(const std::string & code,
     // may be possible to return the category above as a fuzzy
     // match -- consider implementing
     if (!found) {
-	throw std::runtime_error("Code not found in any category");
+	throw std::runtime_error("Code " + code
+				 + " not found in any category");
     }
 
     // Decrement the position to point to the largest category
@@ -225,7 +226,7 @@ std::string TopLevelCategory::get_code_prop(const std::string & code, bool docs)
 
     // Check for the empty string
     if(std::ranges::all_of(code, isspace)) {
-	return "[EMPTY]";
+	throw std::runtime_error("Code is empty");
     }
 
     auto code_alphanum{remove_non_alphanum(code)};
