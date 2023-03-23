@@ -191,10 +191,7 @@ public:
 	    c++;
 
 	    // Now do the next fetch.
-	    std::cout << "Trying to fetch next row..." << std::endl;
 	    row.fetch_next_row();
-	    std::cout << nhs_number_ << std::endl;
-	    std::cout << row.at("nhs_number") << std::endl;
 	}
 	
 	std::cout << "Patient " << nhs_number_
