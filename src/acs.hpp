@@ -25,9 +25,9 @@
 #include "sql_connection.hpp"
 
 /// Load a top_level_category YAML Node from file
-YAML::Node load_codes_helper(const YAML::Node & file_path) {
+YAML::Node load_codes_helper(const YAML::Node & config) {
     try {
-	return YAML::LoadFile(file_path.as<std::string>());
+	return YAML::LoadFile(config["file"].as<std::string>());
     } catch(const YAML::BadFile& e) {
 	throw std::runtime_error("Bad YAML file");
     } catch(const YAML::ParserException& e) {
@@ -36,8 +36,8 @@ YAML::Node load_codes_helper(const YAML::Node & file_path) {
 }
 
 /// Get the vector of source columns from the config file node
-std::vector<std::string> source_columns(const YAML::Node list) {
-    return list.as<std::vector<std::string>>();
+std::vector<std::string> source_columns(const YAML::Node & config) {
+    return config["source_columns"].as<std::vector<std::string>>();
 }
 
 /// Helper function to read a set of columns of codes, parse them using
@@ -71,10 +71,10 @@ std::vector<std::string> all_codes(const std::vector<std::string> & columns,
 class CodeParser {
 public:
     CodeParser(const YAML::Node & parser_config)
-	: procedures_{load_codes_helper(parser_config["procedures"]["file"])},
-	  diagnoses_{load_codes_helper(parser_config["diagnoses"]["file"])},
-	  procedure_columns_{source_columns(parser_config["procedures"]["file"])},
-	  diagnosis_columns_{source_columns(parser_config["diagnoses"]["file"])}
+	: procedures_{load_codes_helper(parser_config["procedures"])},
+	  diagnoses_{load_codes_helper(parser_config["diagnoses"])},
+	  procedure_columns_{source_columns(parser_config["procedures"])},
+	  diagnosis_columns_{source_columns(parser_config["diagnoses"])}
     {
 	// Open both the codes files and make the
 	// categories -- also store maps that group
