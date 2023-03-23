@@ -75,6 +75,6 @@ data_sources:
       cause_of_death: S_UNDERLYING_COD_ICD10
       
 in_memory:
-  num_patients: 5000
+  num_patients: 50
   seed: 47
       

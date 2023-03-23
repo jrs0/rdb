@@ -66,15 +66,17 @@ public:
 	Random<std::size_t> spells_rnd{1, 5, seed};
 	Random<std::size_t> episodes_rnd{1, 7, seed};
 
-	auto parser_config{config["parse_config"]};
+	auto parser_config{config["parser_config"]};
 	TopLevelCategory opcs4{load_codes_helper(parser_config["procedures"])};
 	TopLevelCategory icd10{load_codes_helper(parser_config["diagnoses"])};
 	
 	// Make the patients
 	for (std::size_t n{0}; n < num_patients; n++) {
 	    // Make spells
+	    std::cout << "P " << n << std::endl;
 	    for (std::size_t s{0}; s < spells_rnd(); s++) {
 		// Make episodes
+		std::cout << "S " << s << std::endl;
 		for (std::size_t e{0}; e < episodes_rnd(); e++) {
 		    // Push the episode rows
 		    table_["nhs_number"].push_back(std::to_string(n));
@@ -86,9 +88,6 @@ public:
 		}
 	    }
 	}
-	
-	       
-	// Make the vector of nhs numbers
 	
     }
 
