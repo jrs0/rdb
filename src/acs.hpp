@@ -35,6 +35,32 @@ YAML::Node load_codes_helper(const YAML::Node & file_path) {
     }
 }
 
+/// Get the vector of source columns from the config file node
+std::vector<std::string> source_columns(const YAML::Node list) {
+    return list.as<std::vector<std::string>>();
+}
+
+/// Helper function to read a set of columns of codes, parse them using
+/// a specified parser, and collect the valid ones into a flat vector
+/// (in the same order as the column order). A code is considered invalid
+/// (and not included) if the parser throws a runtime error during
+/// parsing. Look at the TopLevelcategory to see what is covered.
+std::vector<std::string> all_codes(const std::vector<std::string> & columns,
+				   const RowBuffer & row,
+				   TopLevelCategory & parser) {
+    std::vector<std::string> result;
+    for (const auto & column : columns) {
+	try {
+	    auto value{row.at(column)};
+	    auto parsed{parser.get_code_prop(value, false)};
+	    result.push_back(parsed);
+	} catch (const std::runtime_error & /* invalid or not found */) {
+	    // Continue
+	}
+    }
+    return result;
+}
+
 /// This class has two jobs -- keep the diagnoses and
 /// procedure parsers close together; and map collections
 /// of groups as defined in the codes file into "meta" groups
@@ -46,7 +72,9 @@ class CodeParser {
 public:
     CodeParser(const YAML::Node & parser_config)
 	: procedures_{load_codes_helper(parser_config["procedures"]["file"])},
-	  diagnoses_{load_codes_helper(parser_config["diagnoses"]["file"])}
+	  diagnoses_{load_codes_helper(parser_config["diagnoses"]["file"])},
+	  procedure_columns_{source_columns(parser_config["procedures"]["file"])},
+	  diagnosis_columns_{source_columns(parser_config["diagnoses"]["file"])}
     {
 	// Open both the codes files and make the
 	// categories -- also store maps that group
@@ -54,22 +82,25 @@ public:
 	// as defined by the parser_config
     }
     
-    /// Parse a procedure, returning the code group defined
-    /// by the parser_config (this may group multiple
-    /// code groups defined in the codes file together)
-    std::string procedure(const std::string & procedure) {
-	return procedures_.get_code_prop(procedure, false);
+    /// Parse all the procedure codes into a flat list, omitting
+    /// any codes that are invalid. In addition, map the parsed
+    std::vector<std::string> all_procedures(const RowBuffer & row) {
+	return all_codes(procedure_columns_, row, procedures_);
     }
 
-    /// Parse a diagnosis, return code group
-    std::string diagnosis(const std::string & diagnosis) {
-	return diagnoses_.get_code_prop(diagnosis, false);
+    /// Parse all the diagnosis codes
+    std::vector<std::string> all_diagnoses(const RowBuffer & row) {
+	return all_codes(diagnosis_columns_, row, diagnoses_);
     }
     
 private:
+    
     TopLevelCategory procedures_;
     TopLevelCategory diagnoses_;
 
+    std::vector<std::string> procedure_columns_;
+    std::vector<std::string> diagnosis_columns_;
+    
     //std::map<std::string, std::string> procedures_group_map_;
     //std::map<std::string, std::string> diagnoses_group_map_;
 };
@@ -102,21 +133,11 @@ public:
 	// which also means having the CodeParser around here.
 	// This episode should also throw an exception if the
 	// episode is not of interest (it is then not included
-	// in the spell). 
-	try {
-	    auto diagnosis{code_parser.diagnosis(row.at("diagnosis_0"))};
-	    diagnoses_.push_back(diagnosis);
-	} catch (const std::runtime_error & /* invalid or not found */) {
-	    // Continue
-	}
-	
-	try {
-	    auto procedure{code_parser.procedure(row.at("procedure_0"))};
-	    procedures_.push_back(procedure);
-	} catch (const std::runtime_error & /* invalid or not found */) {
-	    // Continue
-	}
+	// in the spell).
 
+	procedures_ = code_parser.all_procedures(row);
+	diagnoses_ = code_parser.all_diagnoses(row);
+	
 
 	row.fetch_next_row();
     }
@@ -276,15 +297,15 @@ from (
 		EndDate_ConsultantEpisode as episode_end,
 		AIMTC_ProviderSpell_Start_Date as spell_start,
 		AIMTC_ProviderSpell_End_Date as spell_end,
-		diagnosisprimary_icd as diagnosis_0,
-		diagnosis1stsecondary_icd as diagnosis_1,
-		diagnosis2ndsecondary_icd as diagnosis_2,
-		primaryprocedure_opcs as procedure_0,
-		procedure2nd_opcs as procedure_1,
-		procedure3rd_opcs as procedure_2,
-		procedure4th_opcs as procedure_3,
-		procedure5th_opcs as procedure_4,
-		procedure6th_opcs as procedure_5
+		diagnosisprimary_icd,
+		diagnosis1stsecondary_icd,
+		diagnosis2ndsecondary_icd,
+		primaryprocedure_opcs,
+		procedure2nd_opcs,
+		procedure3rd_opcs,
+		procedure4th_opcs,
+		procedure5th_opcs,
+		procedure6th_opcs
 	from abi.dbo.vw_apc_sem_001
 	where datalength(AIMTC_Pseudo_NHS) > 0
 		and datalength(pbrspellid) > 0  

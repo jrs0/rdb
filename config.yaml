@@ -40,6 +40,9 @@ parser_config:
     file: icd10.yaml
     # How the low-level groups are combined into
     # output columns
+    source_columns:
+    - diagnosisprimary_icd
+    - diagnosis1stsecondary_icd
     groups:
       acs: acs
       diabetes: [type_1_diabetes, type_2_diabetes]
@@ -48,6 +51,9 @@ parser_config:
     # Where to get the low-level groups
     file: opcs4.yaml
     # How to combine the groups into output
+    source_columns:
+    - primary_procedure_opcs
+    - procedure1st_opcs      
     groups:
 
 data_sources:
