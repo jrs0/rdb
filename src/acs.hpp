@@ -84,7 +84,7 @@ public:
     /// For consistency with the other functions, this constructor
     /// will also fetch the next row after it is done (modifying
     /// the row argument)
-    Episode(RowBuffer & row) {
+    Episode(RowBuffer & row, CodeParser & code_parser) {
 	// Expect a single row as argument, which will be the
 	// episode. The episode may contain either a procedure
 	// or a diagnosis (including secondaries), or both. The
@@ -103,8 +103,11 @@ public:
 	// This episode should also throw an exception if the
 	// episode is not of interest (it is then not included
 	// in the spell). 
-	procedures_.push_back(row.at("procedure_0"));
-	diagnoses_.push_back(row.at("diagnosis_0"));
+	auto procedure{code_parser.parse_procedure(row.at("procedure_0"))};
+	auto diagnosis{code_parser.parse_diagnosis(row.at("diagnosis_0"))};
+
+	procedures_.push_back(procedure);
+	diagnoses_.push_back(diagnosis);
 
 	row.fetch_next_row();
     }
@@ -146,7 +149,7 @@ private:
 // episodes if the hospital stay involved multiple consultants.
 class Spell {
 public:
-    Spell(RowBuffer & row) {
+    Spell(RowBuffer & row, CodeParser & code_parser) {
 	// Assume the next row is the start of a new spell
 	// block. Push back to the episodes vector one row
 	// per episode.
@@ -167,7 +170,7 @@ public:
 
 	    /// Note this will consume a row and fetch the
 	    /// next row
-	    episodes_.emplace_back(row);
+	    episodes_.emplace_back(row, code_parser);
 	    episodes_.back().print();
 	}
     }
@@ -221,7 +224,7 @@ public:
     /// first row fetched_. At the other end, when it
     /// discovers a new patients, the row is left in
     /// the buffer for the next Patient object
-    Patient(RowBuffer & row) {
+    Patient(RowBuffer & row, CodeParser & code_parser) {
 
 	// The first row contains the nhs number
 	try {
@@ -239,7 +242,7 @@ public:
 	    // Store the patient info. Note that this
 	    // will leave row pointing to the start of
 	    // the next spell block
-	    spells_.emplace_back(row);
+	    spells_.emplace_back(row, code_parser);
 	}
     }
 
@@ -310,7 +313,7 @@ public:
 	
 	while (true) {
 	    try {
-		patients_.emplace_back(row);
+		patients_.emplace_back(row, code_parser_);
 	    } catch (const std::logic_error &) {
 		// There are no more rows
 		std::cout << "No more rows -- finished" << std::endl;
