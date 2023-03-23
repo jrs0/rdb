@@ -80,9 +80,13 @@ private:
 /// the ICD and OPCS code group files)
 class Episode {
 public:
-    Episode() {
+
+    /// For consistency with the other functions, this constructor
+    /// will also fetch the next row after it is done (modifying
+    /// the row argument)
+    Episode(RowBuffer & row) {
 	// Expect a single row as argument, which will be the
-	// episode. THe episode may contain either a procedure
+	// episode. The episode may contain either a procedure
 	// or a diagnosis (including secondaries), or both. The
 	// episode relates to what happened under one attending
 	// consultant.
@@ -92,15 +96,34 @@ public:
 	// a reference to a top_level_category for ICD and OPCS,
 	// and also the config file for further grouping. This
 	// can probably be abstracted into a wrapper which
-	// handles the parsing and mapping 
+	// handles the parsing and mapping
+
+	// Currently just pushes the raw code, need to parse it
+	// which also means having the CodeParser around here.
+	procedures_.push_back(row.at("procedure_0"));
+	diagnoses_.push_back(row.at("diagnosis_0"));
+
+	row.fetch_next_row();
     }
 
     std::vector<std::string> procedures() const {
-	return procedure_groups_;
+	return procedures_;
     }
 
     std::vector<std::string> diagnoses() const {
-	return diagnosis_groups_;
+	return diagnoses_;
+    }
+
+    void print() const {
+	std::cout << "  Episode: diagnoses(";
+	for (const auto & diagnosis : diagnoses_) {
+	    std::cout << diagnosis << ",";
+	}
+	std::cout << ") procedures(";
+	for (const auto & procedure : procedures_) {
+	    std::cout << procedure << ",";
+	}
+	std::cout << ")";
     }
     
 private:
@@ -108,8 +131,11 @@ private:
     std::string episode_end_;
     std::string episode_id_;
 
-    std::vector<std::string> diagnosis_groups_;
-    std::vector<std::string> procedure_groups_;
+    /// Parsed procedures from any procedure field
+    std::vector<std::string> procedures_;
+
+    /// Parsed diagnoses from any diagnosis field
+    std::vector<std::string> diagnoses_;
 };
 
 
@@ -129,20 +155,20 @@ public:
 	    throw std::runtime_error("Column not found");
 	}
 
-	int c{0};
 	while (row.at("spell_id") == spell_id_) {
 
 	    // If you get here, then the current row
-	    // contains valid data for this spell
+	    // contains an episode that is part of this
+	    // spell.
 
-	    c++;
-	    
-	    // Now do the next fetch.
-	    row.fetch_next_row();
+	    /// Note this will consume a row and fetch the
+	    /// next row
+	    episodes_.emplace_back(row);
+	    episodes_.back().print();
 	}
 
 	std::cout << " - Spell " << spell_id_
-		  << " c = " << c
+		  << " num_episodes = " << episodes_.size()
 		  << std::endl;  
     }
 
