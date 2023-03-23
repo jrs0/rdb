@@ -18,17 +18,20 @@
 void test_random_code() {
     auto gen{Generator<std::size_t,0,1>(Seed<>())};
 
-    YAML::Node config = YAML::LoadFile("config.yaml");
-    InMemoryRowBuffer row{config};
+    //YAML::Node config = YAML::LoadFile("config.yaml");
+    //InMemoryRowBuffer row{config};
     
     // TopLevelCategory procedures{opcs4};
     // std::cout << "Random OPCS: " << procedures.random_code(gen)
     // 	      << std::endl; 
-    // YAML::Node icd10 = YAML::LoadFile("icd10.yaml");
-    // TopLevelCategory diagnoses{icd10};
-    // std::cout << "Random ICD: " << diagnoses.random_code(gen)
-    // 	      << std::endl;
+    YAML::Node icd10 = YAML::LoadFile("icd10.yaml");
+    TopLevelCategory diagnoses{icd10};
+    for (std::size_t n{0}; n < 10; n++) {
+	std::cout << "Random ICD: " << diagnoses.random_code(gen)
+		  << std::endl;
+    }
 }
+
 
 /*
 

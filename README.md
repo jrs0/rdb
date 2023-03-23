@@ -30,10 +30,16 @@ This will remove the -O0 flags. You may also need to do a load_all afterwords to
 
 ### On linux
 
+
 ```bash
 sudo apt install unixodbc-dev libyaml-cpp-dev
 ```
 
+You can profile using kcachegrind by running 
+
+```bash
+R -d "valgrind --tool=callgrind" -f script.R
+```
 
 ### MSYS attempt to make gperftools work
 
