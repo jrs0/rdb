@@ -157,8 +157,12 @@ private:
 
 class Patient {
 public:
+    /// The row object passed in has _already had the
+    /// first row fetched_. At the other end, when it
+    /// discovers a new patient, it returns (the constructed
+    /// object
     Patient(RowBuffer & row) {
-
+	
     }
 
 private:
