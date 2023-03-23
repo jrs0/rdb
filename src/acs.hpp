@@ -4,7 +4,18 @@
 //
 // For the purposes of this file, an episode is only of interest
 // if its diagnosis or procedure falls within a group of
-// interest. If it does not, then that episode can be ignored.
+// interest. If it does not, then that episode is ignored.
+//
+// Every class whose job it is to parse a block of (ordered)
+// rows does it in the same way: the first row is assumed to
+// point to the first row of the block (which is used to identify
+// the block). The class then steps through rows until it reaches
+// one that is outside its current block. At this point it
+// returns, and the next block is handled by another class
+// (which can assume its first row is ready in the buffer).
+// This approach avoids the need to know up front how long
+// each block is going to be. It does however require a column
+// which uniquely distinguishes the blocks from each other.
 
 #ifndef ACS_HPP
 #define ACS_HPP
@@ -159,13 +170,37 @@ class Patient {
 public:
     /// The row object passed in has _already had the
     /// first row fetched_. At the other end, when it
-    /// discovers a new patient, it returns (the constructed
-    /// object
+    /// discovers a new patients, the row is left in
+    /// the buffer for the next Patient object
     Patient(RowBuffer & row) {
+
+	// The first row contains the nhs number
+	try {
+	    nhs_number_ = row.at("nhs_number");
+	} catch (const std::out_of_range & e) {
+	    throw std::runtime_error("Column not found");
+	}
+	    
+	int c{0};
+	while(row.at("nhs_number") == nhs_number_) {
+
+	    // If you get here, then the current row
+	    // contains valid data for this patient
+
+	    // Store the patient info
+	    c++;
+
+	    // Now do the next fetch.
+	    std::cout << "Trying to fetch next row..." << std::endl;
+	    row.fetch_next_row();
+	}
 	
+	std::cout << "Patient " << nhs_number_
+		  << " c = " << c << std::endl;  
     }
 
 private:
+    std::string nhs_number_;
     std::vector<Record> records_;
 };
 
@@ -223,14 +258,20 @@ public:
 	// sql statement that fetches all episodes for all patients
 	// ordered by nhs number, then spell id.
 
-	int c{0};
+	// Print the returned rows
+	for (const auto & column_name : row.column_names()) {
+	    std::cout << column_name << std::endl;
+	}
+	
+	// Make the first fetch
+	row.fetch_next_row();
+	
 	while (true) {
 	    try {
-		row.fetch_next_row();
-		c++;
-		std::cout << "c = " << c << std::endl;
+		patients_.emplace_back(row);
 	    } catch (const std::logic_error &) {
 		// There are no more rows
+		std::cout << "No more rows -- finished" << std::endl;
 		break;
 	    }
 	}
