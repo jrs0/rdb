@@ -4,57 +4,6 @@
 #include "con_handle.hpp"
 #include "sql_types.hpp"
 
-void throw_unimpl_sql_type(const std::string & type) {
-    std::stringstream ss;
-    ss << "Type '" << type << "' not yet implemented";
-    throw std::runtime_error(ss.str());
-}
-
-/// 
-class ColBinding {
-public:
-    ColBinding(Handle hstmt, const std::string & col_name, SQLLEN col_type,
-	       std::size_t col_index, std::size_t buffer_len)
-	: col_index_{col_index}, col_name_{col_name},  col_type_{col_type},
-	  len_ind_{std::make_unique<SQLLEN>(0)},
-	  buffer_{buffer_len}
-    {	
-	// Buffer length is in bytes, but the column_length might be in chars
-	// Here, the type is specified in the SQL_C_CHAR position.
-	SQLRETURN r = SQLBindCol(hstmt.handle, col_index_, col_type,
-				 (SQLPOINTER)buffer_.get(),
-				 buffer_.length(), len_ind_.get());
-	ok_or_throw(hstmt, r, "Binding columns");	
-    }
-    
-    std::string read_buffer() {
-	switch (*len_ind_) {
-	case SQL_NO_TOTAL:
-	    throw_unimpl_sql_type("SQL_NO_TOTAL");
-	    break;
-	case SQL_NULL_DATA:
-	    throw std::logic_error("NULL value");
-	    break;
-	default:
-	    // Length of data returned. Here, converting
-	    // raw data to string -- this is where the
-	    // cast/interpretation as correct type should
-	    // happen
-	    return std::string{buffer_.get()};
-	}
-    }
-
-    std::string col_name() const {
-	return col_name_;
-    }
-    
-private:
-    std::size_t col_index_;
-    std::string col_name_;
-    SQLLEN col_type_;
-    Buffer buffer_;
-};
-
 
 /// Make a column binding for a VARCHAR column
 ColBinding make_varchar_binding(std::size_t index,
@@ -63,7 +12,7 @@ ColBinding make_varchar_binding(std::size_t index,
     
     /// Get length of the character
     std::size_t varchar_length{0};
-    SQLRETURN r = SQLColAttribute(hstmt.handle, index, SQL_DESC_LENGTH,
+    SQLRETURN r = SQLColAttribute(hstmt.handle(), index, SQL_DESC_LENGTH,
 				  NULL, 0, NULL, (SQLLEN*)&varchar_length);
     ok_or_throw(hstmt, r, "Getting column type length attribute");
 
@@ -91,7 +40,8 @@ public:
     StmtHandle(std::shared_ptr<ConHandle> hdbc)
 	: hdbc_{hdbc}
     {
-	SQLRETURN r = SQLAllocHandle(SQL_HANDLE_STMT, hdbc_->get_handle().handle, &hstmt_);
+	SQLRETURN r = SQLAllocHandle(SQL_HANDLE_STMT,
+				     hdbc_->get_handle().handle(), &hstmt_);
 	ok_or_throw(hdbc_->get_handle(), r, "Allocating statement handle");
     }
     Handle get_handle() {

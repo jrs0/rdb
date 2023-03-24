@@ -58,7 +58,7 @@ public:
     Handle(SQLHANDLE handle, SQLSMALLINT type)
 	: handle_{handle}, type_{type} {}
     SQLHANDLE handle() const { return handle_; }
-    SQLSMALLING type() const { return type_; }
+    SQLSMALLINT type() const { return type_; }
 private:
     SQLHANDLE handle_;
     SQLSMALLINT type_;

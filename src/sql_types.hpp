@@ -3,6 +3,12 @@
 
 #include <variant>
 
+void throw_unimpl_sql_type(const std::string & type) {
+    std::stringstream ss;
+    ss << "Type '" << type << "' not yet implemented";
+    throw std::runtime_error(ss.str());
+}
+
 class Varchar {
 public:
     // Will default construct to a null varchar
@@ -25,19 +31,19 @@ private:
     long value_{0};
 };
 
-using SqlType = std::variant<Varchar, Datetime>;
+using SqlType = std::variant<Varchar, Integer>;
 
 class VarcharBuffer {
 public:
     VarcharBuffer(Handle hstmt, const std::string & col_name,
-		  std::size_t col_index, std::size_t buffer_len)
-	: buffer_len_{buffer_len}, buffer_{new char[buffer_len_]}
+		  std::size_t col_index, std::size_t buffer_length)
+	: buffer_length_{buffer_length}, buffer_{new char[buffer_length_]},
 	  col_name_{col_name}, len_ind_{std::make_unique<SQLLEN>(0)} {
 	// Buffer length is in bytes, but the column_length might be in chars
 	// Here, the type is specified in the SQL_C_CHAR position.
-	SQLRETURN r = SQLBindCol(hstmt.handle(), col_index_, SQL_C_CHAR,
+	SQLRETURN r = SQLBindCol(hstmt.handle(), col_index, SQL_C_CHAR,
 				 (SQLPOINTER)buffer_.get(),
-				 buffer_.length(), len_ind_.get());
+				 buffer_length_, len_ind_.get());
 	ok_or_throw(hstmt, r, "Binding varchar column");
     }
 
@@ -49,7 +55,7 @@ public:
 	case SQL_NULL_DATA:
 	    return Varchar{};
 	default:
-	    return Varchar{buffer_};
+	    return Varchar{buffer_.get()};
 	}
     }
 
@@ -79,8 +85,8 @@ public:
 	  len_ind_{std::make_unique<SQLLEN>(0)} {
 	// Note: because integer is a fixed length type, the buffer length
 	// field is ignored. 
-	SQLRETURN r = SQLBindCol(hstmt.handle(), col_index_, SQL_C_LONG,
-				 (SQLPOINTER)buffer_.get(), NULL,
+	SQLRETURN r = SQLBindCol(hstmt.handle(), col_index, SQL_C_LONG,
+				 (SQLPOINTER)buffer_.get(), 0,
 				 len_ind_.get());
 	ok_or_throw(hstmt, r, "Binding integer column");
     }
@@ -105,6 +111,8 @@ public:
 private:
     std::unique_ptr<long> buffer_;
 
+    std::string col_name_;
+    
     /// Where the output data length with
     /// be written
     std::unique_ptr<SQLLEN> len_ind_;    
