@@ -311,13 +311,18 @@ private:
 /// If all three of the mortality fields are NULL, then the
 /// patient is considered still alive.
 bool patient_alive(const RowBuffer auto & row) {
-    std::string date_of_death{row.at("date_of_death")};
-    std::string cause_of_death{row.at("cause_of_death")};
-    std::string age_at_death{row.at("age_of_death")};
-    return (date_of_death == "NULL")
-	and (cause_of_death == "NULL")
-	and (age_at_death == "NULL");
+    try {
+	std::string date_of_death{row.at("date_of_death")};
+	std::string cause_of_death{row.at("cause_of_death")};
+	std::string age_at_death{row.at("age_at_death")};
+	return (date_of_death == "NULL")
+	    and (cause_of_death == "NULL")
+	    and (age_at_death == "NULL");
+    } catch (const std::out_of_range &) {
+	throw std::runtime_error("Missing mortality columns");
+    }
 }
+    
 
 class Patient {
 public:
@@ -352,7 +357,7 @@ public:
 	    }
 
 	    if (not alive_) {
-		cause_of_death_ = code_parser.cause_of_death(row);
+		//cause_of_death_ = code_parser.cause_of_death(row);
 	    }
 	}
     }
@@ -466,6 +471,7 @@ public:
 	    } catch (const std::logic_error & e) {
 		// There are no more rows
 		std::cout << "No more rows -- finished" << std::endl;
+		std::cout << e.what() << std::endl;
 		break;
 	    }
 	}
