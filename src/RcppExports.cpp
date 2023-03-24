@@ -53,14 +53,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // parse_code
-void parse_code(const Rcpp::CharacterVector& icd10_file_character, const Rcpp::CharacterVector& code_character);
-RcppExport SEXP _rdb_parse_code(SEXP icd10_file_characterSEXP, SEXP code_characterSEXP) {
+Rcpp::CharacterVector parse_code(const Rcpp::CharacterVector& file, const Rcpp::CharacterVector& code, const std::size_t what);
+RcppExport SEXP _rdb_parse_code(SEXP fileSEXP, SEXP codeSEXP, SEXP whatSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type icd10_file_character(icd10_file_characterSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type code_character(code_characterSEXP);
-    parse_code(icd10_file_character, code_character);
-    return R_NilValue;
+    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type file(fileSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type code(codeSEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type what(whatSEXP);
+    rcpp_result_gen = Rcpp::wrap(parse_code(file, code, what));
+    return rcpp_result_gen;
 END_RCPP
 }
 
@@ -69,7 +71,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rdb_make_acs_dataset", (DL_FUNC) &_rdb_make_acs_dataset, 1},
     {"_rdb_test_random_code", (DL_FUNC) &_rdb_test_random_code, 0},
     {"_rdb_try_connect", (DL_FUNC) &_rdb_try_connect, 2},
-    {"_rdb_parse_code", (DL_FUNC) &_rdb_parse_code, 2},
+    {"_rdb_parse_code", (DL_FUNC) &_rdb_parse_code, 3},
     {NULL, NULL, 0}
 };
 

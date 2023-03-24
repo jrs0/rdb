@@ -147,7 +147,7 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
     }
 }
 
-// [[Rcpp::export]]
+/*
 void parse_code(const Rcpp::CharacterVector & icd10_file_character,
 		const Rcpp::CharacterVector & code_character) {
 
@@ -165,4 +165,50 @@ void parse_code(const Rcpp::CharacterVector & icd10_file_character,
     } catch(const std::runtime_error & e) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
     }
+}
+*/
+
+/// Parse a single code. Return the name (what == 0), the docs
+/// (what == 2) or the groups that contain this code. This function
+/// is just for testing purposes. Call as follows:
+///
+/// parse_code("icd10.yaml", "I210", 0)
+/// parse_code("opcs4.yaml", "A010", 1)
+///
+// [[Rcpp::export]]
+Rcpp::CharacterVector parse_code(const Rcpp::CharacterVector & file,
+				 const Rcpp::CharacterVector & code,
+				 const std::size_t what) {
+
+    std::string file_ = Rcpp::as<std::string>(file);     
+    std::string code_ = Rcpp::as<std::string>(code);
+    
+    try {
+	YAML::Node top_level_category_yaml = YAML::LoadFile(file_);
+	TopLevelCategory top_level_category{top_level_category_yaml};
+	
+	switch (what) {
+	case 0:
+	    return Rcpp::CharacterVector(top_level_category.code_name(code_));
+	case 1:
+	    return Rcpp::CharacterVector(top_level_category.code_docs(code_));
+	case 2: {
+	    auto groups{top_level_category.code_groups(code_)};
+	    return Rcpp::CharacterVector(groups.begin(), groups.end());
+	}
+	default:
+	    throw std::runtime_error("what arg must be 0, 1, or 2");
+	}
+        
+    } catch(const YAML::BadFile& e) {
+	throw std::runtime_error("Bad YAML file");
+    } catch(const YAML::ParserException& e) {
+	throw std::runtime_error("YAML parsing error");
+    } catch(const std::runtime_error & e) {
+	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+	return Rcpp::CharacterVector{};
+    }
+    
+    
+
 }
