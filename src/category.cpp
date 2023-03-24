@@ -155,6 +155,7 @@ locate_code_in_categories(const std::string & code,
     position--;
     
     return *position;
+
 }
 
 std::vector<std::pair<std::string, std::string>>
