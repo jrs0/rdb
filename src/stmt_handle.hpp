@@ -54,7 +54,7 @@ public:
 	    throw_unimpl_sql_type("SQL_CHAR");
 	    break;
 	case SQL_VARCHAR:
-	    ///
+	    /// Store a varchar in a std::string
 	    std::cout << "SQL_VARCHAR";
 	    break;
 	case SQL_LONGVARCHAR:
@@ -80,6 +80,7 @@ public:
 	    throw_unimpl_sql_type("SQL_SMALLINT");
 	    break;
 	case SQL_INTEGER:
+	    /// 32-bit signed or unsigned integer -> map to SqlInteger
 	    std::cout << "SQL_INTEGER";
 	    break;
 
@@ -97,6 +98,7 @@ public:
 	    throw_unimpl_sql_type("SQL_BIT");
 	    break;
 	case SQL_BIGINT:
+	    // 64-bit signed or unsigned int -> map to SqlInteger
 	    std::cout << "SQL_BIGINT";
 	    break;
 	case SQL_BINARY:
@@ -116,6 +118,8 @@ public:
 	    throw_unimpl_sql_type("SQL_TYPE_TIME");
 	    break;
 	case SQL_TYPE_TIMESTAMP:
+	    // Year, month, day, hour, minute, and second
+	    // -> map to SqlDatetime
 	    std::cout << "SQL_TYPE_TIMESTAMP";
 	    break;
 	    
