@@ -144,13 +144,50 @@ private:
     std::set<std::string> exclude_;
 };
 
+/// The triple of information returned about each code
+/// by the parser and stored in the cache
+struct CacheEntry {
+public:
+    CacheEntry(const Category & category,
+	       const std::set<std::string> & groups)
+	: name_{category.name()},
+	  docs_{category.docs()},
+	  groups_{groups}
+    { }
+    const std::string & name() const { return name_; }
+    const std::string & docs() const { return docs_; }
+    const std::set<std::string> & groups() const { return groups_; }
+private:
+    std::string name_;
+    std::string docs_;
+    std::set<std::string> groups_;
+};
+
+/// Parses a code and caches the name, docs and groups. Make sure
+/// you do some preprocessing on the code before parsing it (i.e.
+/// remove whitespace etc.) to reduce the cache size.
+class CachingParser {
+public:
+    CacheEntry parse(const std::string & code,
+		     const std::vector<Category> & categories,
+		     const std::set<std::string> & all_groups);
+    std::size_t cache_size() const { return cache_.size(); }
+private:
+    std::map<std::string, CacheEntry> cache_;
+};
+
+/// Do some initial checks on the code (remove whitespace
+/// and non-alphanumeric characters). Throw runtime error
+/// if the string is all whitespace or "NULL"
+std::string preprocess(const std::string & code);
+
 /// Special case top level (contains a groups key)
 class TopLevelCategory {
 public:
     TopLevelCategory(const YAML::Node & top_level_category);
     
     std::size_t cache_size() const {
-	return code_name_cache_.size();
+	return parser_.cache_size();
     }
     
     void print() const;
@@ -160,8 +197,32 @@ public:
     /// Throw a runtime error if the code is invalid or not found.
     /// Query results are cached and used to speed up the next
     /// call to the function.
-    std::string get_code_prop(const std::string & code, bool docs);
+    std::string code_name(const std::string & code) {	
+	auto code_alphanum{preprocess(code)};
+	return parser_.parse(code_alphanum, categories_, groups_).name();
+    }
 
+    /// Return the docs
+    std::string code_docs(const std::string & code) {	
+	auto code_alphanum{preprocess(code)};
+	return parser_.parse(code_alphanum, categories_, groups_).docs();
+    }
+
+    std::set<std::string> code_groups(const std::string & code) {	
+	auto code_alphanum{preprocess(code)};
+	return parser_.parse(code_alphanum, categories_, groups_).groups();
+    }
+
+    /// Return all groups defined in the config file
+    std::set<std::string> all_groups() const {
+	return groups_;
+    }
+
+    /// Return all the codes in a particular group. Throws
+    /// std::runtime_error if the group does not exist.
+    std::vector<std::pair<std::string, std::string>>
+    codes_in_group(const std::string & group);
+    
     /// Get a uniformly randomly chosen code from the tree.
     std::string
     random_code(std::uniform_random_bit_generator auto & gen) const {
@@ -173,8 +234,9 @@ private:
     std::set<std::string> groups_;
     /// The list of sub-categories
     std::vector<Category> categories_;
-    /// Cached parsed code names
-    std::map<std::string, std::string> code_name_cache_;
+
+    /// Parses a code name and stores the result
+    CachingParser parser_;
 };
 
 

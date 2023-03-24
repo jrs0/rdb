@@ -1,5 +1,6 @@
 #include <iostream>
 #include "category.hpp"
+#include <ranges>
 
 // Expect a key called field_name containing a string (else throw runtime error
 // if it is not present or cannot be converted). 
@@ -133,7 +134,9 @@ locate_code_in_categories(const std::string & code,
     // and find the position of the code. Inside the codes
     // structure, the index keys provide an array to search
     // (using binary search) for the ICD code in str.
-    auto position = std::upper_bound(categories.begin(), categories.end(), code);
+    auto position = std::upper_bound(categories.begin(),
+				     categories.end(),
+				     code);
     const bool found = (position != std::begin(categories)) &&
 	((position-1)->contains(code));
 	
@@ -152,21 +155,66 @@ locate_code_in_categories(const std::string & code,
     position--;
     
     return *position;
+
 }
 
-/// Return the name or docs field of a code (depending on the bool argument)
-/// if it exists in the categories tree, or throw a runtime error for an invalid code
-std::string get_code_prop(const std::string code,
-			  const std::vector<Category> & categories,
-			  bool docs,
-			  std::set<std::string> groups = std::set<std::string>{}) {
+std::vector<std::pair<std::string, std::string>>
+get_codes_in_group(const std::string & group,
+		   const std::vector<Category> & categories) {
+
+    std::vector<std::pair<std::string, std::string>> codes_in_group;
+
+    auto included = [&](const Category & cat) {
+	return not cat.exclude().contains(group);
+    };
+    
+    // Filter out the categories that exclude the group
+    auto categories_left{categories | std::views::filter(included)};
+    
+    // Loop over the remaining categories. For all the leaf
+    // categories, if there is no exclude for this group,
+    // include it in the results. For non-leaf categories,
+    // call this function again and append the resulting
+    for (const auto & category : categories_left) {
+	if (category.is_leaf() and included(category)) {
+	    codes_in_group.push_back({category.name(), category.docs()});
+	} else {
+	    auto new_codes{get_codes_in_group(group, category.categories())};
+	    codes_in_group.insert(codes_in_group.end(),
+				  new_codes.begin(),
+				  new_codes.end());
+	}
+    }
+
+    // Return the current list of codes
+    return codes_in_group;
+}
+
+std::vector<std::pair<std::string, std::string>>
+TopLevelCategory::codes_in_group(const std::string & group) {
+
+    if (not groups_.contains(group)) {
+	throw std::runtime_error("Group " + group + " does not exist");
+    }
+
+    return get_codes_in_group(group, categories_);
+}
+
+
+/// Return the name and docs field of a code (depending on the bool argument)
+/// if it exists in the categories tree, or throw a runtime error for an
+/// invalid code. The final argument is the set of groups that might contains
+/// this code. Groups are dropped as exclude tags are encountered while
+/// descending through the tree. 
+CacheEntry get_code_prop(const std::string code,
+			 const std::vector<Category> & categories,
+			 std::set<std::string> groups) {
     
     // Locate the category containing the code at the current level
     auto & cat{locate_code_in_categories(code, categories)};
 
     // Check for any group exclusions at this level and remove
-    // them from the current group list (note that if exclude
-    // is not present, NULL is returned, which works fine).
+    // them from the current group list
     for (const auto & excluded_group : cat.exclude()) {
 	groups.erase(excluded_group);
     }
@@ -181,19 +229,27 @@ std::string get_code_prop(const std::string code,
 	// There are sub-categories -- parse the code at the next level
 	// down (put a try catch here for the case where the next level
 	// down isn't better)
-	return get_code_prop(code, cat.categories(), docs, groups);
+	return get_code_prop(code, cat.categories(), groups);
     } else {
-	if (docs) {
-	    return cat.docs();
-	} else {
-	    return cat.name();
-	}
+	return CacheEntry{cat, groups};
     }
+}
+
+CacheEntry CachingParser::parse(const std::string & code,
+				const std::vector<Category> & categories,
+				const std::set<std::string> & all_groups) {
+    try {
+	return cache_.at(code);
+    } catch (const std::out_of_range &) {
+	auto result{get_code_prop(code, categories, all_groups)};
+	cache_.insert({code, result});
+	return result;
+    }   
 }
 
 TopLevelCategory::TopLevelCategory(const YAML::Node & top_level_category)
     : groups_{expect_string_set(top_level_category, "groups")}
-{	
+{
     if (not top_level_category["categories"]) {
 	throw std::runtime_error("Missing required 'categories' key at top level");
     } else {
@@ -212,6 +268,7 @@ void TopLevelCategory::print() const {
     }
 }
 
+
 /// Remove non-alphanumeric characters from code (e.g. dots)
 std::string remove_non_alphanum(const std::string & code) {
     std::string s{code};
@@ -222,31 +279,26 @@ std::string remove_non_alphanum(const std::string & code) {
     return s;
 }
 
-std::string TopLevelCategory::get_code_prop(const std::string & code, bool docs) {
-
-    // Check for the empty string
-    if(std::ranges::all_of(code, isspace)) {
+std::string preprocess(const std::string & code) {
+    // Cover two common cases of invalid codes here
+    if (std::ranges::all_of(code, isspace)) {
 	throw std::runtime_error("Code is empty");
     }
+    if (code == "NULL") {
+	throw std::runtime_error("Code is NULL");
+    }
 
-    auto code_alphanum{remove_non_alphanum(code)};
-
-    // Inspect the cache.
-    //
-    // For procedure codes (OPCS), there are about 1800 unique
-    // codes in 50,000; 2400 in 100,000; 3100 in 200,000; 3800 in 400,000.
-    // 400,000 rows takes about 180 seconds.
-    //
-    // For diagnosis codes (ICD), there are about 90 unique codes in
-    // 50,000; 300 codes in 100,000; 600 codes in 200,000; 1100 codes
-    // in 400,000. 400,000 rows takes about 6 seconds. 
-    try {
-	return code_name_cache_.at(code_alphanum);
-    } catch (const std::out_of_range &) {
-	// TODO -- scope issue here (same name function in scope)
-	auto code_name{::get_code_prop(code_alphanum, categories_, docs)};
-	code_name_cache_.insert({code_alphanum, code_name});
-	return code_name;
-    }   
+    /// Strip alphanumeric for the parser
+    return remove_non_alphanum(code);
 }
-    
+
+
+// Some legacy performance (before fixing the copying error):
+//
+// For procedure codes (OPCS), there are about 1800 unique
+// codes in 50,000; 2400 in 100,000; 3100 in 200,000; 3800 in 400,000.
+// 400,000 rows takes about 180 seconds.
+//
+// For diagnosis codes (ICD), there are about 90 unique codes in
+// 50,000; 300 codes in 100,000; 600 codes in 200,000; 1100 codes
+// in 400,000. 400,000 rows takes about 6 seconds. 

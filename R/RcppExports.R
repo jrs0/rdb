@@ -5,11 +5,23 @@ test_cpp <- function(thing) {
     .Call(`_rdb_test_cpp`, thing)
 }
 
-in_mem_test <- function() {
-    invisible(.Call(`_rdb_in_mem_test`))
+make_acs_dataset <- function(config_path_chr) {
+    invisible(.Call(`_rdb_make_acs_dataset`, config_path_chr))
 }
 
-make_acs_dataset <- function() {
-    invisible(.Call(`_rdb_make_acs_dataset`))
+test_random_code <- function() {
+    invisible(.Call(`_rdb_test_random_code`))
+}
+
+try_connect <- function(dsn_character, query_character) {
+    .Call(`_rdb_try_connect`, dsn_character, query_character)
+}
+
+parse_code <- function(file, code, what) {
+    .Call(`_rdb_parse_code`, file, code, what)
+}
+
+dump_groups <- function(file) {
+    .Call(`_rdb_dump_groups`, file)
 }
 

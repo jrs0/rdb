@@ -12,8 +12,11 @@
 //
 
 #include "random.hpp"
-#include "mem_row_buffer.hpp" 
+#include "mem_row_buffer.hpp"
+#include "acs.hpp"
 
+
+/*
 // [[Rcpp::export]]
 void in_mem_test() {
 
@@ -30,13 +33,15 @@ void in_mem_test() {
     // }
 }
 
-#include "acs.hpp"
+*/
+
+
 
 // [[Rcpp::export]]
-void make_acs_dataset() {
+void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
 
     //auto config_path{Rcpp::as<std::string>(config_path_chr)};
-    auto config_path{"config.yaml"};
+    auto config_path{Rcpp::as<std::string>(config_path_chr)};
     try {
 	YAML::Node config = YAML::LoadFile(config_path);
 	Acs acs{config};
@@ -49,8 +54,6 @@ void make_acs_dataset() {
 	std::cout << "Failed with error "  << e.what() << std::endl;
     }
 }
-
-/*
 
 #include "acs.hpp"
 #include "random.hpp"
@@ -144,24 +147,83 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
     }
 }
 
+/// Parse a single code. Return the name (what == 0), the docs
+/// (what == 2) or the groups that contain this code. This function
+/// is just for testing purposes. Call as follows:
+///
+/// parse_code("icd10.yaml", "I210", 0)
+/// parse_code("opcs4.yaml", "A010", 1)
+///
 // [[Rcpp::export]]
-void parse_code(const Rcpp::CharacterVector & icd10_file_character,
-		const Rcpp::CharacterVector & code_character) {
+Rcpp::CharacterVector parse_code(const Rcpp::CharacterVector & file,
+				 const Rcpp::CharacterVector & code,
+				 const std::size_t what) {
 
-    std::string icd10_file = Rcpp::as<std::string>(icd10_file_character);     
-    std::string code = Rcpp::as<std::string>(code_character);
+    std::string file_ = Rcpp::as<std::string>(file);     
+    std::string code_ = Rcpp::as<std::string>(code);
     
     try {
-	YAML::Node top_level_category_yaml = YAML::LoadFile(icd10_file);
+	YAML::Node top_level_category_yaml = YAML::LoadFile(file_);
 	TopLevelCategory top_level_category{top_level_category_yaml};
-	std::cout << top_level_category.get_code_prop(code, true) << std::endl;;
+	
+	switch (what) {
+	case 0:
+	    return Rcpp::CharacterVector(top_level_category.code_name(code_));
+	case 1:
+	    return Rcpp::CharacterVector(top_level_category.code_docs(code_));
+	case 2: {
+	    auto groups{top_level_category.code_groups(code_)};
+	    return Rcpp::CharacterVector(groups.begin(), groups.end());
+	}
+	default:
+	    throw std::runtime_error("what arg must be 0, 1, or 2");
+	}
+        
     } catch(const YAML::BadFile& e) {
 	throw std::runtime_error("Bad YAML file");
     } catch(const YAML::ParserException& e) {
 	throw std::runtime_error("YAML parsing error");
     } catch(const std::runtime_error & e) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+	return Rcpp::CharacterVector{};
     }
 }
 
-*/
+/// Return a list of all the groups, and which codes they contain.
+/// The structure is a named list. The names are the groups, and
+/// the items are a list of codes (with name and docs). Pass the codes
+/// file which defines the groupings.
+// [[Rcpp::export]]
+Rcpp::List dump_groups(const Rcpp::CharacterVector & file) {
+
+    std::string file_ = Rcpp::as<std::string>(file);     
+    
+    try {
+	YAML::Node top_level_category_yaml = YAML::LoadFile(file_);
+	TopLevelCategory top_level_category{top_level_category_yaml};
+
+	Rcpp::List list;
+	for (const auto & group : top_level_category.all_groups()) {
+	    Rcpp::CharacterVector names_vec, docs_vec;
+	    auto codes_in_group{top_level_category.codes_in_group(group)};
+	    for (const auto & [name, docs] : codes_in_group) {
+		names_vec.push_back(name);
+		docs_vec.push_back(docs);
+	    }
+	    list[group] = Rcpp::List::create(Rcpp::Named("names")
+					     = names_vec,
+					     Rcpp::Named("docs")
+					     = docs_vec);
+	}
+
+	return list;
+	
+    } catch(const YAML::BadFile& e) {
+	throw std::runtime_error("Bad YAML file");
+    } catch(const YAML::ParserException& e) {
+	throw std::runtime_error("YAML parsing error");
+    } catch(const std::runtime_error & e) {
+	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+	return Rcpp::List{};
+    }
+}

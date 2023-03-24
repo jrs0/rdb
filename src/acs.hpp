@@ -22,7 +22,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include "category.hpp"
-//#include "sql_connection.hpp"
+#include "sql_connection.hpp"
 
 /// Get the vector of source columns from the config file node
 std::vector<std::string> source_columns(const YAML::Node & config) {
@@ -41,7 +41,7 @@ std::vector<std::string> all_codes(const std::vector<std::string> & columns,
     for (const auto & column : columns) {
 	try {
 	    auto value{row.at(column)};
-	    auto parsed{parser.get_code_prop(value, false)};
+	    auto parsed{parser.code_name(value)};
 	    result.push_back(parsed);
 	} catch (const std::runtime_error & /* invalid or not found */) {
 	    // Continue
@@ -75,7 +75,7 @@ public:
     }
     
     /// Parse all the procedure codes into a flat list, omitting
-    /// any codes that are invalid. In addition, map the parsed
+    /// any codes that are invalid.
     std::vector<std::string> all_procedures(const RowBuffer auto & row) {
 	return all_codes(procedure_columns_, row, procedures_);
     }
@@ -275,7 +275,7 @@ private:
 const std::string episodes_query{
     R"raw_sql(
 
-select top 500
+select top 5000
 	episodes.*,
 	mort.REG_DATE_OF_DEATH as date_of_death,
 	mort.S_UNDERLYING_COD_ICD10 as cause_of_death,
@@ -308,6 +308,7 @@ order by nhs_number, spell_id;
     )raw_sql"
 };
 
+
 class Acs {
 public:
     Acs(const YAML::Node & config)
@@ -315,15 +316,15 @@ public:
     {
 	// Choose between in-memory or sql -- move this
 	// little bit into a function 
-	/*
+	
 	// Fetch the database name and connect
 	auto dsn{config["data_sources"]["dsn"].as<std::string>()};
 	std::cout << "Connection to DSN " << dsn << std::endl;
 	SQLConnection con{dsn};
 	std::cout << "Executing statement" << std::endl;
-	//auto row{con.execute_direct(episodes_query)};
-	*/
-	InMemoryRowBuffer row{config};
+	auto row{con.execute_direct(episodes_query)};
+	
+	//InMemoryRowBuffer row{config};
 
 	std::cout << "Starting to fetch rows" << std::endl;
 
@@ -347,6 +348,7 @@ public:
 		break;
 	    }
 	}
+	std::cout << "Total patients = " << patients_.size() << std::endl;
 	
 	// While true, keep fetching into Record, push back results
 	// Record constructor takes reference to results, and uses
