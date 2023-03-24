@@ -357,7 +357,7 @@ public:
 	    }
 
 	    if (not alive_) {
-		//cause_of_death_ = code_parser.cause_of_death(row);
+		cause_of_death_ = code_parser.cause_of_death(row);
 	    }
 	}
     }

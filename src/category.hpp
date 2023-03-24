@@ -67,10 +67,19 @@ private:
  */
 class Category {
 public:
+    
 
     /// Create a category by parsing a node in the yaml file. This
     /// parses all the sub-categories too.
     Category(const YAML::Node & category);
+
+    // Do not allow copies -- there is a huge tree in this class
+    Category(const Category &) = delete;
+    const Category & operator=(const Category &) = delete;
+
+    // Define move operations for sort
+    Category(Category&& that) = default;
+    Category& operator=(Category&&) = default;
     
     // Return true if code is (lexicographically) contained
     // in the range specified by the index of this Cat
@@ -185,6 +194,10 @@ std::string preprocess(const std::string & code);
 class TopLevelCategory {
 public:
     TopLevelCategory(const YAML::Node & top_level_category);
+
+    // Do not allow copies -- there is a huge tree in this class
+    TopLevelCategory(const TopLevelCategory &) = delete;
+    const TopLevelCategory & operator=(const TopLevelCategory &) = delete;
     
     std::size_t cache_size() const {
 	return parser_.cache_size();

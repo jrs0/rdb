@@ -2,7 +2,7 @@
 #define STMT_HANDLE_HPP
 
 #include "con_handle.hpp"
-
+#include "sql_types.hpp"
 
 void throw_unimpl_sql_type(const std::string & type) {
     std::stringstream ss;
@@ -10,7 +10,7 @@ void throw_unimpl_sql_type(const std::string & type) {
     throw std::runtime_error(ss.str());
 }
 
-/// An application buffer 
+/// An application buffer
 class Buffer {
 public:
     Buffer(std::size_t buffer_len)
@@ -22,7 +22,11 @@ public:
     char* get() {
 	return buffer_.get();
     }
+
+    /// Need bind col to be a member function here
+    
 private:
+    /// Buffer type is missing here
     std::size_t buffer_len_;
     std::unique_ptr<char[]> buffer_;    
 };
@@ -39,7 +43,8 @@ public:
 	// What type to pass instead of SQL_C_TCHAR?
 	// Buffer length is in bytes, but the column_length might be in chars
 	SQLRETURN r = SQLBindCol(hstmt.handle, col_index_, SQL_C_TCHAR,
-				 (SQLPOINTER)buffer_.get(), buffer_.len(), len_ind_.get());
+				 (SQLPOINTER)buffer_.get(),
+				 buffer_.len(), len_ind_.get());
 	ok_or_throw(hstmt, r, "Binding columns");	
     }
 
@@ -215,8 +220,13 @@ public:
 	ok_or_throw(get_handle(), r, "Getting column type length attribute");
 
 	std::string col_name{column_name(index)};
-	ColBinding col_binding{get_handle(), col_name, type, index, column_length};
+	ColBinding col_binding{get_handle(), col_name, type,
+			       index, column_length};
 
+	std::cout << col_binding.col_name() << " (";
+	col_binding.print_type();
+	std::cout << std::endl;
+	
 	return col_binding;
 	
     }

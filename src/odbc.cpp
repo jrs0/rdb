@@ -53,6 +53,25 @@ void test_random_code() {
 }
 
 
+// [[Rcpp::export]]
+void debug_sql(const Rcpp::CharacterVector & dsn_character,
+	       const Rcpp::CharacterVector & query_character) {
+    try {
+	std::string dsn = Rcpp::as<std::string>(dsn_character); 
+	std::string query = Rcpp::as<std::string>(query_character); 
+
+	// Make the connection
+	SQLConnection con(dsn);
+
+	// Fetch the row buffer (column names + allocated buffer
+	// space for one row)
+	con.execute_direct(query);
+
+    } catch (const std::runtime_error & e) {
+	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+    }
+}
+
 
 // [[Rcpp::export]]
 Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
