@@ -52,7 +52,6 @@ private:
     std::size_t col_index_;
     std::string col_name_;
     SQLLEN col_type_;
-    std::unique_ptr<SQLLEN> len_ind_;
     Buffer buffer_;
 };
 
