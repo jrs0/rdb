@@ -34,17 +34,16 @@ std::vector<std::string> source_columns(const YAML::Node & config) {
 /// (in the same order as the column order). A code is considered invalid
 /// (and not included) if the parser throws a runtime error during
 /// parsing. Look at the TopLevelcategory to see what is covered.
-std::vector<std::string> all_codes(const std::vector<std::string> & columns,
-				   const RowBuffer auto & row,
-				   TopLevelCategory & parser) {
-    std::vector<std::string> result;
+std::set<std::string>
+merge_groups_from_columns(const std::vector<std::string> & columns,
+			  const RowBuffer auto & row,
+			  TopLevelCategory & parser) {
+    std::set<std::string> result;
     for (const auto & column : columns) {
 	try {
 	    auto raw_code{row.at(column)};
 	    auto groups{parser.code_groups(raw_code)};
-	    for (const auto & group : groups) {
-		result.push_back(group);
-	    }
+	    result.insert(groups.begin(), groups.end());
 	} catch (const std::runtime_error & /* invalid or not found */) {
 	    // Continue
 	} catch (const std::out_of_range & e) {
@@ -65,7 +64,8 @@ std::vector<std::string> all_codes(const std::vector<std::string> & columns,
 class CodeParser {
 public:
     CodeParser(const YAML::Node & parser_config)
-	: procedures_{load_codes_helper(parser_config["procedures"])},
+	: include_all_{parser_config["all"].as<bool>()},
+	  procedures_{load_codes_helper(parser_config["procedures"])},
 	  diagnoses_{load_codes_helper(parser_config["diagnoses"])},
 	  procedure_columns_{source_columns(parser_config["procedures"])},
 	  diagnosis_columns_{source_columns(parser_config["diagnoses"])}
@@ -77,18 +77,34 @@ public:
     }
     
     /// Parse all the procedure codes into a flat list, omitting
-    /// any codes that are invalid.
-    std::vector<std::string> all_procedures(const RowBuffer auto & row) {
-	return all_codes(procedure_columns_, row, procedures_);
+    /// any codes that are invalid.  If the
+    /// "all" key is enabled, then all codes are placed into a group called
+    /// "_all", which will be included in the output in addition to the other
+    /// groups.
+    std::set<std::string> all_procedures(const RowBuffer auto & row) {
+	auto all_groups{merge_groups_from_columns(procedure_columns_,
+						  row, procedures_)};
+	if (include_all_) {
+	    all_groups.insert("_all");
+	}
+	return all_groups;
     }
-
+    
     /// Parse all the diagnosis codes
-    std::vector<std::string> all_diagnoses(const RowBuffer auto & row) {
-	return all_codes(diagnosis_columns_, row, diagnoses_);
+    std::set<std::string> all_diagnoses(const RowBuffer auto & row) {
+	auto all_groups{merge_groups_from_columns(diagnosis_columns_,
+						  row, diagnoses_)};
+	if (include_all_) {
+	    all_groups.insert("_all");
+	}
+	return all_groups;
     }
     
 private:
     
+    /// Whether to include _all group
+    bool include_all_;
+
     TopLevelCategory procedures_;
     TopLevelCategory diagnoses_;
 
@@ -102,7 +118,12 @@ private:
 /// The purpose of the Episode class is to parse all the
 /// primary and secondary diagnosis and procedure fields
 /// and expose them as flat lists of groups (defined by
-/// the ICD and OPCS code group files)
+/// the ICD and OPCS code group files). Codes are only
+/// included by group, as defined in the groups file. Codes
+/// outside any group are not included in the diagnoses and
+/// procedures of this episode. Note that all codes can be
+/// included in a catch all "_all" group by enabling the "all"
+/// key in the codes file.
 class Episode {
 public:
 
@@ -135,14 +156,20 @@ public:
 	row.fetch_next_row();
     }
 
-    std::vector<std::string> procedures() const {
+    std::set<std::string> procedures() const {
 	return procedures_;
     }
 
-    std::vector<std::string> diagnoses() const {
+    std::set<std::string> diagnoses() const {
 	return diagnoses_;
     }
 
+    /// Returns true if there are no diagnosis or procedure
+    /// groups associated with this episode.
+    bool empty() const {
+	return procedures_.empty() and diagnoses_.empty();
+    }
+    
     void print() const {
 	std::cout << "  Episode: D(";
 	for (const auto & diagnosis : diagnoses_) {
@@ -161,10 +188,10 @@ private:
     std::string episode_id_;
 
     /// Parsed procedures from any procedure field
-    std::vector<std::string> procedures_;
+    std::set<std::string> procedures_;
 
     /// Parsed diagnoses from any diagnosis field
-    std::vector<std::string> diagnoses_;
+    std::set<std::string> diagnoses_;
 };
 
 
@@ -193,8 +220,14 @@ public:
 
 	    /// Note this will consume a row and fetch the
 	    /// next row
-	    episodes_.emplace_back(row, code_parser);
-	    episodes_.back().print();
+	    Episode episode{row, code_parser};
+
+	    // Only include this episode in the list if it
+	    // contains some diagnoses or procedures
+	    if (not episode.empty()) {
+		episodes_.emplace_back(episode);
+		episodes_.back().print();
+	    }
 	}
     }
 
