@@ -21,20 +21,7 @@ public:
     char* get() {
 	return buffer_.get();
     }
-    SQLSMALLINT type() const {
-	return target_type_;
-    }
-    
-    // /// Need bind col to be a member function here
-    // void bind_column(Handle hstmt, const std::string & column_name,
-    // 		     std::size_t column_index, SQLSMALLINT target_type) {
-	
-    // }
-    
 private:
-    /// Type to which data will be converted by the ODBC driver
-    SQLSMALLINT target_type_;
-
     /// The buffer length in bytes
     std::size_t buffer_length_;
 
@@ -108,6 +95,19 @@ ColBinding make_varchar_binding(std::size_t index,
     return col_binding;
 }
 
+/// Make a column binding for an INTEGER column
+ColBinding make_integer_binding(std::size_t index,
+				const std::string & col_name,
+				Handle hstmt) {
+    
+    /// Use SQL_C_LONG
+    ColBinding col_binding{hstmt, col_name, SQL_C_LONG,
+			   index, sizeof(long int)};
+
+    std::cout << col_name << std::endl;
+    return col_binding;
+}
+
 class StmtHandle {
 public:
     StmtHandle(std::shared_ptr<ConHandle> hdbc)
@@ -170,22 +170,21 @@ public:
 	std::string col_name{column_name(index)};
 	
 	/// Get the column type
-	SQLSMALLINT type{column_type(index)};
+	SQLLEN type{column_type(index)};
 	switch (type) {
 	case SQL_VARCHAR:
 	    /// Store a varchar in a std::string. Convert to
 	    /// a char string
 	    return make_varchar_binding(index, col_name, get_handle());
-	// case SQL_INTEGER:
-	//     // 32-bit signed or unsigned integer -> map to SqlInteger
-	//     // Map
-	//     //target_type = 
-	//     break;
-	// case SQL_BIGINT:
-	//     // 64-bit signed or unsigned int -> map to SqlInteger
-	//     std::cout << "SQL_BIGINT";
-	//     break;
-	// case SQL_TYPE_TIMESTAMP:
+	case SQL_INTEGER:
+	    // 32-bit signed or unsigned integer -> map to SqlInteger
+	    // Map
+	    //target_type = 
+	    return make_integer_binding(index, col_name, get_handle());    
+	case SQL_BIGINT:
+	    // 64-bit signed or unsigned int -> map to SqlInteger
+	    return make_integer_binding(index, col_name, get_handle());    
+	    // case SQL_TYPE_TIMESTAMP:
 	//     // Year, month, day, hour, minute, and second
 	//     // -> map to SqlDatetime
 	//     std::cout << "SQL_TYPE_TIMESTAMP";

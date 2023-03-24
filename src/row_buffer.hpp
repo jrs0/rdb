@@ -12,7 +12,7 @@
 /// rows to be fetched one at a time.
 class SqlRowBuffer {
 public:
-    /// Make sure you only do this after executing the stam
+    /// Make sure you only do this after executing the statement
     SqlRowBuffer(const std::shared_ptr<StmtHandle> & stmt)
 	: stmt_{stmt}
     {

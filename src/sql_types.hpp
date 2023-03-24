@@ -3,7 +3,7 @@
 
 #include <variant>
 
-class SqlVarchar {
+class Varchar {
 public:
     
 private:
@@ -12,7 +12,7 @@ private:
 };
 
 
-class SqlDatetime {
+class Datetime {
 public:
     SqlDatetime() {}
 private:
@@ -21,8 +21,8 @@ private:
 };
 
 
-using SqlType = std::variant<SqlVarchar, SqlDatetime>;
-    
+using SqlType = std::variant<Varchar, Datetime>;
+
 
 
 #endif
