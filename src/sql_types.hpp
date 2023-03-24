@@ -5,19 +5,24 @@
 
 class Varchar {
 public:
-    
+    // Will default construct to a null varchar
+    Varchar() = default;
+    Varchar(const std::string & string)
+	: null_{false}, string_{string} {}
 private:
-    bool null_;
-    std::string string_;
+    bool null_{true};
+    std::string string_{""};
 };
 
-
+// Will default construct to a null integer
 class Integer {
 public:
-    Integer() {}
+    // Will default construct to a null integer
+    Integer() = default;
+    Integer(long value) : null_{false}, value_{value} {}
 private:
-    bool null_;
-    long value_;
+    bool null_{true};
+    long value_{0};
 };
 
 using SqlType = std::variant<Varchar, Datetime>;
@@ -27,8 +32,7 @@ public:
     VarcharBuffer(Handle hstmt, const std::string & col_name,
 		  std::size_t col_index, std::size_t buffer_len)
 	: buffer_len_{buffer_len}, buffer_{new char[buffer_len_]}
-	  col_index_{col_index}, col_name_{col_name},  col_type_{col_type},
-	  len_ind_{std::make_unique<SQLLEN>(0)} {
+	  col_name_{col_name}, len_ind_{std::make_unique<SQLLEN>(0)} {
 	// Buffer length is in bytes, but the column_length might be in chars
 	// Here, the type is specified in the SQL_C_CHAR position.
 	SQLRETURN r = SQLBindCol(hstmt.handle(), col_index_, SQL_C_CHAR,
@@ -36,6 +40,23 @@ public:
 				 buffer_.length(), len_ind_.get());
 	ok_or_throw(hstmt, r, "Binding varchar column");
     }
+
+    Varchar read() {
+	switch (*len_ind_) {
+	case SQL_NO_TOTAL:
+	    throw_unimpl_sql_type("SQL_NO_TOTAL");
+	    break;
+	case SQL_NULL_DATA:
+	    return Varchar{};
+	default:
+	    return Varchar{buffer_};
+	}
+    }
+
+    std::string col_name() const {
+	return col_name_;
+    }
+
 private:
     /// The buffer length in bytes
     std::size_t buffer_length_;
@@ -43,25 +64,53 @@ private:
     /// The buffer area
     std::unique_ptr<char[]> buffer_;    
 
+    std::string col_name_;
+    
     /// Where the output data length with
     /// be written
     std::unique_ptr<SQLLEN> len_ind_;
-
-    
 };
 
 class IntegerBuffer {
 public:
-    IntegerBuffer()
-	: buffer_{std::make_unique<long>}
-    {
-	
+    IntegerBuffer(Handle hstmt, const std::string & col_name,
+		  std::size_t col_index)
+	: buffer_{std::make_unique<long>(0)}, col_name_{col_name},
+	  len_ind_{std::make_unique<SQLLEN>(0)} {
+	// Note: because integer is a fixed length type, the buffer length
+	// field is ignored. 
+	SQLRETURN r = SQLBindCol(hstmt.handle(), col_index_, SQL_C_LONG,
+				 (SQLPOINTER)buffer_.get(), NULL,
+				 len_ind_.get());
+	ok_or_throw(hstmt, r, "Binding integer column");
     }
+
+    Integer read() {
+	switch (*len_ind_) {
+	case SQL_NO_TOTAL:
+	    throw_unimpl_sql_type("SQL_NO_TOTAL");
+	    break;
+	case SQL_NULL_DATA:
+	    return Integer{};
+	default:
+	    return Integer{*buffer_};
+	}
+    }
+
+    std::string col_name() const {
+	return col_name_;
+    }
+
+    
 private:
     std::unique_ptr<long> buffer_;
+
+    /// Where the output data length with
+    /// be written
+    std::unique_ptr<SQLLEN> len_ind_;    
 };
 
-using ColBufferType = std::variant<VarcharBuffer, IntegerBuffer>;
+using ColBinding = std::variant<VarcharBuffer, IntegerBuffer>;
 
 
 #endif

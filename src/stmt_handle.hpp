@@ -68,8 +68,7 @@ ColBinding make_varchar_binding(std::size_t index,
     ok_or_throw(hstmt, r, "Getting column type length attribute");
 
     /// Oass SQL_C_CHAR type for VARCHAR
-    ColBinding col_binding{hstmt, col_name, SQL_C_CHAR,
-			   index, varchar_length};
+    VarcharBuffer varchar_buffer{hstmt, col_name, index, varchar_length};
 
     std::cout << col_name << std::endl;
     return col_binding;
@@ -81,8 +80,7 @@ ColBinding make_integer_binding(std::size_t index,
 				Handle hstmt) {
     
     /// Use SQL_C_LONG
-    ColBinding col_binding{hstmt, col_name, SQL_C_LONG,
-			   index, sizeof(long int)};
+    IntegerBuffer col_binding{hstmt, col_name, index};
 
     std::cout << col_name << std::endl;
     return col_binding;
