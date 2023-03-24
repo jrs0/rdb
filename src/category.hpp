@@ -169,7 +169,8 @@ private:
 class CachingParser {
 public:
     CacheEntry parse(const std::string & code,
-		     const std::vector<Category> & categories);
+		     const std::vector<Category> & categories,
+		     const std::set<std::string> & all_groups);
     std::size_t cache_size() const { return cache_.size(); }
 private:
     std::map<std::string, CacheEntry> cache_;
@@ -198,18 +199,18 @@ public:
     /// call to the function.
     std::string code_name(const std::string & code) {	
 	auto code_alphanum{preprocess(code)};
-	return parser_.parse(code_alphanum, categories_).name();
+	return parser_.parse(code_alphanum, categories_, groups_).name();
     }
 
     /// Return the docs
     std::string code_docs(const std::string & code) {	
 	auto code_alphanum{preprocess(code)};
-	return parser_.parse(code_alphanum, categories_).docs();
+	return parser_.parse(code_alphanum, categories_, groups_).docs();
     }
 
     std::set<std::string> code_groups(const std::string & code) {	
 	auto code_alphanum{preprocess(code)};
-	return parser_.parse(code_alphanum, categories_).groups();
+	return parser_.parse(code_alphanum, categories_, groups_).groups();
     }
 
     /// Get a uniformly randomly chosen code from the tree.

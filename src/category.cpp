@@ -155,10 +155,13 @@ locate_code_in_categories(const std::string & code,
 }
 
 /// Return the name or docs field of a code (depending on the bool argument)
-/// if it exists in the categories tree, or throw a runtime error for an invalid code
+/// if it exists in the categories tree, or throw a runtime error for an
+/// invalid code. The final argument is the set of groups that might contains
+/// this code. Groups are dropped as exclude tags are encountered while
+/// descending through the tree. 
 CacheEntry get_code_prop(const std::string code,
 			 const std::vector<Category> & categories,
-			 std::set<std::string> groups = std::set<std::string>{}) {
+			 std::set<std::string> groups) {
     
     // Locate the category containing the code at the current level
     auto & cat{locate_code_in_categories(code, categories)};
@@ -187,11 +190,12 @@ CacheEntry get_code_prop(const std::string code,
 }
 
 CacheEntry CachingParser::parse(const std::string & code,
-				const std::vector<Category> & categories) {
+				const std::vector<Category> & categories,
+				const std::set<std::string> & all_groups) {
     try {
 	return cache_.at(code);
     } catch (const std::out_of_range &) {
-	auto result{get_code_prop(code, categories)};
+	auto result{get_code_prop(code, categories, all_groups)};
 	cache_.insert({code, result});
 	return result;
     }   

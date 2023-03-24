@@ -147,27 +147,6 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
     }
 }
 
-/*
-void parse_code(const Rcpp::CharacterVector & icd10_file_character,
-		const Rcpp::CharacterVector & code_character) {
-
-    std::string icd10_file = Rcpp::as<std::string>(icd10_file_character);     
-    std::string code = Rcpp::as<std::string>(code_character);
-    
-    try {
-	YAML::Node top_level_category_yaml = YAML::LoadFile(icd10_file);
-	TopLevelCategory top_level_category{top_level_category_yaml};
-	std::cout << top_level_category.code_docs(code) << std::endl;;
-    } catch(const YAML::BadFile& e) {
-	throw std::runtime_error("Bad YAML file");
-    } catch(const YAML::ParserException& e) {
-	throw std::runtime_error("YAML parsing error");
-    } catch(const std::runtime_error & e) {
-	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
-    }
-}
-*/
-
 /// Parse a single code. Return the name (what == 0), the docs
 /// (what == 2) or the groups that contain this code. This function
 /// is just for testing purposes. Call as follows:
@@ -194,6 +173,9 @@ Rcpp::CharacterVector parse_code(const Rcpp::CharacterVector & file,
 	    return Rcpp::CharacterVector(top_level_category.code_docs(code_));
 	case 2: {
 	    auto groups{top_level_category.code_groups(code_)};
+	    for (const auto & group : groups) {
+		std::cout << group << std::endl;
+	    }
 	    return Rcpp::CharacterVector(groups.begin(), groups.end());
 	}
 	default:
