@@ -1,5 +1,6 @@
 #include <iostream>
 #include "category.hpp"
+#include <ranges>
 
 // Expect a key called field_name containing a string (else throw runtime error
 // if it is not present or cannot be converted). 
@@ -133,7 +134,9 @@ locate_code_in_categories(const std::string & code,
     // and find the position of the code. Inside the codes
     // structure, the index keys provide an array to search
     // (using binary search) for the ICD code in str.
-    auto position = std::upper_bound(categories.begin(), categories.end(), code);
+    auto position = std::upper_bound(categories.begin(),
+				     categories.end(),
+				     code);
     const bool found = (position != std::begin(categories)) &&
 	((position-1)->contains(code));
 	
@@ -154,7 +157,34 @@ locate_code_in_categories(const std::string & code,
     return *position;
 }
 
-/// Return the name or docs field of a code (depending on the bool argument)
+std::vector<std::pair<std::string, std::string>>
+get_codes_in_group(const std::string & group,
+		   const std::vector<Category> & categories) {
+
+    std::vector<std::pair<std::string, std::string>> codes_in_group;
+
+    auto is_excluded = [&](const Category & cat) {
+	return cat.exclude().contains(group);
+    };
+    
+    // Filter out the categories that exclude the group
+    auto categories_left{categories | std::views::filter(is_excluded)};
+    
+    // Loop over the remaining categories. For all the leaf
+    // categories, if there is no exclude for this group,
+    // include it in the results. For non-leaf categories,
+    // call this function again and append the resulting
+    for (const auto & category : categories_left) {
+	
+    }
+
+    // Return the current list of codes
+    return codes_in_group;
+
+    
+}
+
+/// Return the name and docs field of a code (depending on the bool argument)
 /// if it exists in the categories tree, or throw a runtime error for an
 /// invalid code. The final argument is the set of groups that might contains
 /// this code. Groups are dropped as exclude tags are encountered while
@@ -167,8 +197,7 @@ CacheEntry get_code_prop(const std::string code,
     auto & cat{locate_code_in_categories(code, categories)};
 
     // Check for any group exclusions at this level and remove
-    // them from the current group list (note that if exclude
-    // is not present, NULL is returned, which works fine).
+    // them from the current group list
     for (const auto & excluded_group : cat.exclude()) {
 	groups.erase(excluded_group);
     }

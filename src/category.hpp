@@ -227,7 +227,7 @@ public:
 	    throw std::runtime_error("Group " + group + " does not exist");
 	}
 
-	return {{"xyz", "rst"}};
+	return {{"xyz1", "rst2"}, {"xyz1", "rst2"}, {"xyz1", "rst2"}};
     }
     
     /// Get a uniformly randomly chosen code from the tree.
