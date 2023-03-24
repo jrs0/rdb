@@ -213,6 +213,23 @@ public:
 	return parser_.parse(code_alphanum, categories_, groups_).groups();
     }
 
+    /// Return all groups defined in the config file
+    std::set<std::string> all_groups() const {
+	return groups_;
+    }
+
+    /// Return all the codes in a particular group. Throws
+    /// std::runtime_error if the group does not exist.
+    std::vector<std::pair<std::string, std::string>>
+    codes_in_group(const std::string & group) {
+
+	if (not groups_.contains(group)) {
+	    throw std::runtime_error("Group " + group + " does not exist");
+	}
+
+	return {{"xyz", "rst"}};
+    }
+    
     /// Get a uniformly randomly chosen code from the tree.
     std::string
     random_code(std::uniform_random_bit_generator auto & gen) const {

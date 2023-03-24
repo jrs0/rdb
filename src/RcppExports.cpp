@@ -65,6 +65,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// dump_groups
+Rcpp::List dump_groups(const Rcpp::CharacterVector& file);
+RcppExport SEXP _rdb_dump_groups(SEXP fileSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type file(fileSEXP);
+    rcpp_result_gen = Rcpp::wrap(dump_groups(file));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_cpp", (DL_FUNC) &_rdb_test_cpp, 1},
@@ -72,6 +83,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_random_code", (DL_FUNC) &_rdb_test_random_code, 0},
     {"_rdb_try_connect", (DL_FUNC) &_rdb_try_connect, 2},
     {"_rdb_parse_code", (DL_FUNC) &_rdb_parse_code, 3},
+    {"_rdb_dump_groups", (DL_FUNC) &_rdb_dump_groups, 1},
     {NULL, NULL, 0}
 };
 
