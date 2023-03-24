@@ -10,24 +10,35 @@ void throw_unimpl_sql_type(const std::string & type) {
     throw std::runtime_error(ss.str());
 }
 
-/// An application buffer
 class Buffer {
 public:
-    Buffer(std::size_t buffer_len)
-	: buffer_len_{buffer_len}, buffer_{new char[buffer_len_]}
+    Buffer(std::size_t buffer_length)
+	: buffer_length_{buffer_length}, buffer_{new char[buffer_length_]}
     { }
-    std::size_t len() const {
-	return buffer_len_;
+    std::size_t length() const {
+	return buffer_length_;
     }
     char* get() {
 	return buffer_.get();
     }
-
-    /// Need bind col to be a member function here
+    SQLSMALLINT type() const {
+	return target_type_;
+    }
+    
+    // /// Need bind col to be a member function here
+    // void bind_column(Handle hstmt, const std::string & column_name,
+    // 		     std::size_t column_index, SQLSMALLINT target_type) {
+	
+    // }
     
 private:
-    /// Buffer type is missing here
-    std::size_t buffer_len_;
+    /// Type to which data will be converted by the ODBC driver
+    SQLSMALLINT target_type_;
+
+    /// The buffer length in bytes
+    std::size_t buffer_length_;
+
+    /// The buffer area
     std::unique_ptr<char[]> buffer_;    
 };
 
@@ -39,94 +50,13 @@ public:
 	: col_index_{col_index}, col_name_{col_name},  col_type_{col_type},
 	  len_ind_{std::make_unique<SQLLEN>(0)},
 	  buffer_{buffer_len}
-    {
-	// What type to pass instead of SQL_C_TCHAR?
+    {	
 	// Buffer length is in bytes, but the column_length might be in chars
-	SQLRETURN r = SQLBindCol(hstmt.handle, col_index_, SQL_C_TCHAR,
+	// Here, the type is specified in the SQL_C_CHAR position.
+	SQLRETURN r = SQLBindCol(hstmt.handle, col_index_, col_type,
 				 (SQLPOINTER)buffer_.get(),
-				 buffer_.len(), len_ind_.get());
+				 buffer_.length(), len_ind_.get());
 	ok_or_throw(hstmt, r, "Binding columns");	
-    }
-
-    void print_type() {
-	switch (col_type_) {
-	case SQL_CHAR:
-	    throw_unimpl_sql_type("SQL_CHAR");
-	    break;
-	case SQL_VARCHAR:
-	    /// Store a varchar in a std::string
-	    std::cout << "SQL_VARCHAR";
-	    break;
-	case SQL_LONGVARCHAR:
-	    throw_unimpl_sql_type("SQL_LONGVARCHAR");
-	    break;
-	case SQL_WCHAR:
-	    throw_unimpl_sql_type("SQL_WCHAR");
-	    break;
-	case SQL_WVARCHAR:
-	    throw_unimpl_sql_type("SQL_WVARCHAR");
-	    break;
-	case SQL_WLONGVARCHAR:
-	    throw_unimpl_sql_type("SQL_WLONGVARCHAR");
-	    break;
-
-	case SQL_DECIMAL:
-	    throw_unimpl_sql_type("SQL_DECIMAL");
-	    break;
-	case SQL_NUMERIC:
-	    throw_unimpl_sql_type("SQL_NUMERIC");
-	    break;
-	case SQL_SMALLINT:
-	    throw_unimpl_sql_type("SQL_SMALLINT");
-	    break;
-	case SQL_INTEGER:
-	    /// 32-bit signed or unsigned integer -> map to SqlInteger
-	    std::cout << "SQL_INTEGER";
-	    break;
-
-	case SQL_REAL:
-	    throw_unimpl_sql_type("SQL_REAL");
-	    break;
-	case SQL_FLOAT:
-	    throw_unimpl_sql_type("SQL_FLOAT");
-	    break;
-	case SQL_DOUBLE:
-	    throw_unimpl_sql_type("SQL_DOUBLE");
-	    break;
-
-	case SQL_BIT:
-	    throw_unimpl_sql_type("SQL_BIT");
-	    break;
-	case SQL_BIGINT:
-	    // 64-bit signed or unsigned int -> map to SqlInteger
-	    std::cout << "SQL_BIGINT";
-	    break;
-	case SQL_BINARY:
-	    throw_unimpl_sql_type("SQL_BINARY");
-	    break;
-	case SQL_VARBINARY:
-	    throw_unimpl_sql_type("SQL_VARBINARY");
-	    break;
-	case SQL_LONGVARBINARY:
-	    throw_unimpl_sql_type("SQL_LONGVARBINARY");
-	    break;
-
-	case SQL_TYPE_DATE:
-	    throw_unimpl_sql_type("SQL_TYPE_DATE");
-	    break;
-	case SQL_TYPE_TIME:
-	    throw_unimpl_sql_type("SQL_TYPE_TIME");
-	    break;
-	case SQL_TYPE_TIMESTAMP:
-	    // Year, month, day, hour, minute, and second
-	    // -> map to SqlDatetime
-	    std::cout << "SQL_TYPE_TIMESTAMP";
-	    break;
-	    
-	default: {
-	    throw_unimpl_sql_type("Unknown: " + std::to_string(col_type_));	    
-	}
-	}
     }
     
     std::string read_buffer() {
@@ -138,7 +68,10 @@ public:
 	    throw std::logic_error("NULL value");
 	    break;
 	default:
-	    // Length of data returned
+	    // Length of data returned. Here, converting
+	    // raw data to string -- this is where the
+	    // cast/interpretation as correct type should
+	    // happen
 	    return std::string{buffer_.get()};
 	}
     }
@@ -154,6 +87,26 @@ private:
     std::unique_ptr<SQLLEN> len_ind_;
     Buffer buffer_;
 };
+
+
+/// Make a column binding for a VARCHAR column
+ColBinding make_varchar_binding(std::size_t index,
+				const std::string & col_name,
+				Handle hstmt) {
+    
+    /// Get length of the character
+    std::size_t varchar_length{0};
+    SQLRETURN r = SQLColAttribute(hstmt.handle, index, SQL_DESC_LENGTH,
+				  NULL, 0, NULL, (SQLLEN*)&varchar_length);
+    ok_or_throw(hstmt, r, "Getting column type length attribute");
+
+    /// Oass SQL_C_CHAR type for VARCHAR
+    ColBinding col_binding{hstmt, col_name, SQL_C_CHAR,
+			   index, varchar_length};
+
+    std::cout << col_name << std::endl;
+    return col_binding;
+}
 
 class StmtHandle {
 public:
@@ -213,26 +166,34 @@ public:
 
     /// Binding to column index (numbered from 1)
     ColBinding make_binding(std::size_t index) {
-	
-	/// Get the column type
-	SQLLEN type = column_type(index);
-	
-	/// Get length of data type
-	std::size_t column_length{0};
-	SQLRETURN r = SQLColAttribute(hstmt_, index, SQL_DESC_LENGTH,
-				      NULL, 0, NULL, (SQLLEN*)&column_length);
-	ok_or_throw(get_handle(), r, "Getting column type length attribute");
 
 	std::string col_name{column_name(index)};
-	ColBinding col_binding{get_handle(), col_name, type,
-			       index, column_length};
-
-	std::cout << col_binding.col_name() << " (";
-	col_binding.print_type();
-	std::cout << std::endl;
 	
-	return col_binding;
-	
+	/// Get the column type
+	SQLSMALLINT type{column_type(index)};
+	switch (type) {
+	case SQL_VARCHAR:
+	    /// Store a varchar in a std::string. Convert to
+	    /// a char string
+	    return make_varchar_binding(index, col_name, get_handle());
+	// case SQL_INTEGER:
+	//     // 32-bit signed or unsigned integer -> map to SqlInteger
+	//     // Map
+	//     //target_type = 
+	//     break;
+	// case SQL_BIGINT:
+	//     // 64-bit signed or unsigned int -> map to SqlInteger
+	//     std::cout << "SQL_BIGINT";
+	//     break;
+	// case SQL_TYPE_TIMESTAMP:
+	//     // Year, month, day, hour, minute, and second
+	//     // -> map to SqlDatetime
+	//     std::cout << "SQL_TYPE_TIMESTAMP";
+	//     break;   
+	default: {
+	    throw_unimpl_sql_type("Unknown: " + std::to_string(type));
+	}
+	}	
     }
 
     /// Fetch a single row into the column bindings. Returns false
