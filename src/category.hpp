@@ -144,6 +144,35 @@ private:
     std::set<std::string> exclude_;
 };
 
+/// Identifies which code property is requested in
+enum class CodeProperty {
+    /// The name of the code or category
+    Name,
+    /// The documentation string for the code or category
+    Docs
+};
+
+template<typename ReturnType>
+class CachingParser {
+public:
+    using Parser = std::function<ReturnType(const std::string &)>;
+    CachingParser(const Parser & parser)
+	: parser_{parser} {}
+    ReturnType parse(const std::string & input) {
+	try {
+	    return cache_.at(input);
+	} catch (const std::out_of_range &) {
+	    // TODO -- scope issue here (same name function in scope)
+	    auto result{parser_(code_alphanum, categories_)};
+	    cache_[input] = result;
+	    return result;
+	}   
+    }
+private:
+    Parser parser_;
+    std::map<std::string, ReturnType> cache_;
+};
+    
 /// Special case top level (contains a groups key)
 class TopLevelCategory {
 public:
@@ -160,8 +189,14 @@ public:
     /// Throw a runtime error if the code is invalid or not found.
     /// Query results are cached and used to speed up the next
     /// call to the function.
-    std::string get_code_prop(const std::string & code, bool docs);
+    template<CodeProperty P>
+    std::string code_prop(const std::string & code);
 
+    /// Get the set of groups associated with the code, or throw a
+    /// runtime error if the code is invalid or not found. Results
+    /// are cached
+    std::set<std::string> code_groups(const std::string & code);
+    
     /// Get a uniformly randomly chosen code from the tree.
     std::string
     random_code(std::uniform_random_bit_generator auto & gen) const {
@@ -175,6 +210,8 @@ private:
     std::vector<Category> categories_;
     /// Cached parsed code names
     std::map<std::string, std::string> code_name_cache_;
+    std::map<std::string, std::set<std::string>> code_groups_cache_;
+
 };
 
 

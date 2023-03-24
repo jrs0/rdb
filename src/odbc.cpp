@@ -33,8 +33,6 @@ void in_mem_test() {
     // }
 }
 
-#include "acs.hpp"
-
 */
 
 // [[Rcpp::export]]

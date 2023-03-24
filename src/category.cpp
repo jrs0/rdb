@@ -154,12 +154,30 @@ locate_code_in_categories(const std::string & code,
     return *position;
 }
 
+template<CodeProperty P>
+struct CodePropReturn;
+
+template<>
+struct CodePropReturn<CodeProperty::Name> {
+    using Return = std::string;
+};
+
+template<>
+struct CodePropReturn<CodeProperty::Docs> {
+    using Return = std::string;
+};
+
+template<>
+struct CodePropReturn<CodeProperty::Docs> {
+    using Return = std::set<std::string>;
+};
+
 /// Return the name or docs field of a code (depending on the bool argument)
 /// if it exists in the categories tree, or throw a runtime error for an invalid code
-std::string get_code_prop(const std::string code,
-			  const std::vector<Category> & categories,
-			  bool docs,
-			  std::set<std::string> groups = std::set<std::string>{}) {
+template<CodeProperty P>
+P::Return get_code_prop(const std::string code,
+			const std::vector<Category> & categories,
+			std::set<std::string> groups = std::set<std::string>{}) {
     
     // Locate the category containing the code at the current level
     auto & cat{locate_code_in_categories(code, categories)};
@@ -183,10 +201,13 @@ std::string get_code_prop(const std::string code,
 	// down isn't better)
 	return get_code_prop(code, cat.categories(), docs, groups);
     } else {
-	if (docs) {
+	if constexpr (P == CodeProperty::Name) {
+	    return cat.name();	    
+	} else if constexpr (P == CodeProperty::Docs){
 	    return cat.docs();
 	} else {
-	    return cat.name();
+	    // Treat default case as groups
+	    return groups;
 	}
     }
 }
@@ -222,7 +243,8 @@ std::string remove_non_alphanum(const std::string & code) {
     return s;
 }
 
-std::string TopLevelCategory::get_code_prop(const std::string & code, bool docs) {
+template<CodeProperty P>
+std::string TopLevelCategory::code_prop(const std::string & code) {
 
     // Check for the empty string
     if(std::ranges::all_of(code, isspace)) {
@@ -244,7 +266,7 @@ std::string TopLevelCategory::get_code_prop(const std::string & code, bool docs)
 	return code_name_cache_.at(code_alphanum);
     } catch (const std::out_of_range &) {
 	// TODO -- scope issue here (same name function in scope)
-	auto code_name{::get_code_prop(code_alphanum, categories_, docs)};
+	auto code_name{get_code_prop<P>(code_alphanum, categories_)};
 	code_name_cache_.insert({code_alphanum, code_name});
 	return code_name;
     }   

@@ -75,7 +75,7 @@ public:
     }
     
     /// Parse all the procedure codes into a flat list, omitting
-    /// any codes that are invalid. In addition, map the parsed
+    /// any codes that are invalid.
     std::vector<std::string> all_procedures(const RowBuffer auto & row) {
 	return all_codes(procedure_columns_, row, procedures_);
     }
@@ -275,7 +275,7 @@ private:
 const std::string episodes_query{
     R"raw_sql(
 
-select top 500
+select top 5000
 	episodes.*,
 	mort.REG_DATE_OF_DEATH as date_of_death,
 	mort.S_UNDERLYING_COD_ICD10 as cause_of_death,
@@ -307,6 +307,7 @@ order by nhs_number, spell_id;
 
     )raw_sql"
 };
+
 
 class Acs {
 public:
@@ -347,6 +348,7 @@ public:
 		break;
 	    }
 	}
+	std::cout << "Total patients = " << patients_.size() << std::endl;
 	
 	// While true, keep fetching into Record, push back results
 	// Record constructor takes reference to results, and uses

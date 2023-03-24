@@ -2,8 +2,8 @@
 # of information rleating to patients who have had acute coronary syndromes
 # or PCI procedures. The script generates a dataset where each row is a
 # patient, and the columns contain characteristics of the index event
-# (either ACS or PCI) and other diagnostic episodes that happened either
-# before or after the index event.
+# (either ACS or PCI) and other diagnostic/procedural episodes that
+# happened either before or after the index event.
 #
 # output columns:
 #  index_spell_date: The date of the spell containing the index episode.
@@ -27,10 +27,6 @@
 #      ICD code (NA if no death_after)
 #  
 
-index_event:
-  start_date: "2015-1-1" 
-  end_date: "2023-1-1"  
-
 parser_config:
   # Defines how diagnoses are processed
   diagnoses:
@@ -41,9 +37,10 @@ parser_config:
     source_columns:
     - diagnosisprimary_icd
     - diagnosis1stsecondary_icd
-    groups:
-      acs: acs
-      diabetes: [type_1_diabetes, type_2_diabetes]
+    # If the all key is specified, then codes that
+    # are not in any group are still included, and
+    # marked as being in a group called "_all".
+    all: yes
   # Defines how procedures are processed
   procedures:
     # Where to get the low-level groups
@@ -52,20 +49,24 @@ parser_config:
     source_columns:
     - primaryprocedure_opcs
     - procedure2nd_opcs      
-    groups:
+    all: yes
+    
+index_event:
+  start_date: "2015-1-1" 
+  end_date: "2023-1-1"
 
+code_groups:
+  acs: acs
+  diabetes: [type_1_diabetes, type_2_diabetes]
+  
+  
 data_sources:
   dsn: xsw
   hospital_episodes:
     table: abi.dbo.vw_apc_sem_001
     nhs_number: aimtc_pseudo_nhs
     spell_id: pbrspellid
-    diagnosis:
-      - diagnosisprimary_icd
-      - diagnosis1stsecondary_icd
-    procedures:
-      - primary_procedure_opcs
-      - procedure2nd_opcs
+
   mortality:
       table: abi.civil_registration.mortality
       nhs_number: Derived_Pseudo_NHS
