@@ -163,26 +163,42 @@ get_codes_in_group(const std::string & group,
 
     std::vector<std::pair<std::string, std::string>> codes_in_group;
 
-    auto is_excluded = [&](const Category & cat) {
-	return cat.exclude().contains(group);
+    auto included = [&](const Category & cat) {
+	return not cat.exclude().contains(group);
     };
     
     // Filter out the categories that exclude the group
-    auto categories_left{categories | std::views::filter(is_excluded)};
+    auto categories_left{categories | std::views::filter(included)};
     
     // Loop over the remaining categories. For all the leaf
     // categories, if there is no exclude for this group,
     // include it in the results. For non-leaf categories,
     // call this function again and append the resulting
     for (const auto & category : categories_left) {
-	
+	if (category.is_leaf() and included(category)) {
+	    codes_in_group.push_back({category.name(), category.docs()});
+	} else {
+	    auto new_codes{get_codes_in_group(group, category.categories())};
+	    codes_in_group.insert(codes_in_group.end(),
+				  new_codes.begin(),
+				  new_codes.end());
+	}
     }
 
     // Return the current list of codes
     return codes_in_group;
-
-    
 }
+
+std::vector<std::pair<std::string, std::string>>
+TopLevelCategory::codes_in_group(const std::string & group) {
+
+    if (not groups_.contains(group)) {
+	throw std::runtime_error("Group " + group + " does not exist");
+    }
+
+    return get_codes_in_group(group, categories_);
+}
+
 
 /// Return the name and docs field of a code (depending on the bool argument)
 /// if it exists in the categories tree, or throw a runtime error for an

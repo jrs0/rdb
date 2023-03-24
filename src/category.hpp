@@ -221,14 +221,7 @@ public:
     /// Return all the codes in a particular group. Throws
     /// std::runtime_error if the group does not exist.
     std::vector<std::pair<std::string, std::string>>
-    codes_in_group(const std::string & group) {
-
-	if (not groups_.contains(group)) {
-	    throw std::runtime_error("Group " + group + " does not exist");
-	}
-
-	return {{"xyz1", "rst2"}, {"xyz1", "rst2"}, {"xyz1", "rst2"}};
-    }
+    codes_in_group(const std::string & group);
     
     /// Get a uniformly randomly chosen code from the tree.
     std::string
