@@ -41,6 +41,7 @@ public:
 	return names;
     }
 
+    template<typename T>
     const std::string & at(std::string column_name) const {
 	return current_row_.at(column_name);
     }
@@ -72,7 +73,7 @@ public:
 private:
     std::shared_ptr<StmtHandle> stmt_;
     std::vector<ColBinding> col_bindings_;
-    std::map<std::string, std::string> current_row_;
+    std::map<std::string, std::variant<std::string, NullValue>> current_row_;
 };
 
 #endif

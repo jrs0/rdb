@@ -1,8 +1,11 @@
 #ifndef STMT_HANDLE_HPP
 #define STMT_HANDLE_HPP
 
+#include <variant>
+
 #include "con_handle.hpp"
 
+struct NullValue {};
 
 void throw_unimpl_sql_type(const std::string & type) {
     std::stringstream ss;
@@ -39,7 +42,8 @@ public:
 	// What type to pass instead of SQL_C_TCHAR?
 	// Buffer length is in bytes, but the column_length might be in chars
 	SQLRETURN r = SQLBindCol(hstmt.handle, col_index_, SQL_C_TCHAR,
-				 (SQLPOINTER)buffer_.get(), buffer_.len(), len_ind_.get());
+				 (SQLPOINTER)buffer_.get(),
+				 buffer_.len(), len_ind_.get());
 	ok_or_throw(hstmt, r, "Binding columns");	
     }
 
@@ -120,14 +124,13 @@ public:
 	}
     }
     
-    std::string read_buffer() {
+    std::variant<std::string, NullValue> read_buffer() {
 	switch (*len_ind_) {
 	case SQL_NO_TOTAL:
 	    throw_unimpl_sql_type("SQL_NO_TOTAL");
 	    break;
 	case SQL_NULL_DATA:
-	    throw std::logic_error("NULL value");
-	    break;
+	    return NullValue{};
 	default:
 	    // Length of data returned
 	    return std::string{buffer_.get()};
