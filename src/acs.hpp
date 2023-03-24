@@ -211,7 +211,6 @@ public:
 	    throw std::runtime_error("Column not found");
 	}
 
-       	std::cout << " Spell " << spell_id_ << std::endl;
 	while (row.at("spell_id") == spell_id_) {
 
 	    // If you get here, then the current row
@@ -225,12 +224,23 @@ public:
 	    // Only include this episode in the list if it
 	    // contains some diagnoses or procedures
 	    if (not episode.empty()) {
-		episodes_.emplace_back(episode);
+		episodes_.push_back(episode);
 		episodes_.back().print();
 	    }
 	}
     }
 
+    /// If the spell contains no episodes, then it is
+    /// considered empty
+    bool empty() const {
+	return episodes_.empty();
+    }
+
+    void print() const {
+	std::cout << " Spell:" << std::endl;
+    }
+
+    
 private:
     std::string spell_id_;
     std::string spell_start_;
@@ -295,16 +305,28 @@ public:
 	    // If you get here, then the current row
 	    // contains valid data for this patient
 
-	    // Store the patient info. Note that this
-	    // will leave row pointing to the start of
-	    // the next spell block
-	    spells_.emplace_back(row, code_parser);
+	    // Collect a block of rows into a spell.
+	    // Note that this will leave row pointing
+	    // to the start of the next spell block
+	    Spell spell{row, code_parser};
+
+	    // If the spell is not empty, include it in
+	    // the list of spells
+	    if (not spell.empty()) {
+		spells_.push_back(spell);
+		spells_.back().print();
+	    }
 	}
     }
 
 private:
     std::string nhs_number_;
     std::vector<Spell> spells_;
+
+    /// ICD code group for cause of death, or _all for
+    /// a cause of death which is not covered by a group.
+    /// Empty string for death not occured
+    std::string cause_of_death_;
 };
 
 const std::string episodes_query{
