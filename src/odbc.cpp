@@ -35,6 +35,8 @@ void in_mem_test() {
 
 */
 
+
+
 // [[Rcpp::export]]
 void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
 
@@ -155,7 +157,7 @@ void parse_code(const Rcpp::CharacterVector & icd10_file_character,
     try {
 	YAML::Node top_level_category_yaml = YAML::LoadFile(icd10_file);
 	TopLevelCategory top_level_category{top_level_category_yaml};
-	std::cout << top_level_category.get_code_prop(code, true) << std::endl;;
+	std::cout << top_level_category.code_docs(code) << std::endl;;
     } catch(const YAML::BadFile& e) {
 	throw std::runtime_error("Bad YAML file");
     } catch(const YAML::ParserException& e) {

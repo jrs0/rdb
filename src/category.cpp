@@ -180,7 +180,7 @@ CacheEntry get_code_prop(const std::string code,
 	// There are sub-categories -- parse the code at the next level
 	// down (put a try catch here for the case where the next level
 	// down isn't better)
-	return get_code_prop(code, cat.categories(), docs, groups);
+	return get_code_prop(code, cat.categories(), groups);
     } else {
 	return CacheEntry{cat, groups};
     }
@@ -192,7 +192,7 @@ CacheEntry CachingParser::parse(const std::string & code,
 	return cache_.at(code);
     } catch (const std::out_of_range &) {
 	auto result{get_code_prop(code, categories)};
-	cache_[input] = result;
+	cache_.insert({code, result});
 	return result;
     }   
 }
@@ -203,7 +203,7 @@ TopLevelCategory::TopLevelCategory(const YAML::Node & top_level_category)
     if (not top_level_category["categories"]) {
 	throw std::runtime_error("Missing required 'categories' key at top level");
     } else {
-	return make_sub_categories(top_level_category);
+	categories_ = make_sub_categories(top_level_category);
     }
 }
 
@@ -218,30 +218,37 @@ void TopLevelCategory::print() const {
     }
 }
 
-template<CodeProperty P>
-std::string TopLevelCategory::code_prop(const std::string & code) {
 
-    // Check for the empty string
-    if(std::ranges::all_of(code, isspace)) {
+/// Remove non-alphanumeric characters from code (e.g. dots)
+std::string remove_non_alphanum(const std::string & code) {
+    std::string s{code};
+    s.erase(std::remove_if(s.begin(), s.end(), 
+			   []( auto const& c ) -> bool {
+			       return !std::isalnum(c);
+			   }), s.end());
+    return s;
+}
+
+std::string preprocess(const std::string & code) {
+    // Cover two common cases of invalid codes here
+    if (std::ranges::all_of(code, isspace)) {
 	throw std::runtime_error("Code is empty");
     }
+    if (code == "NULL") {
+	throw std::runtime_error("Code is NULL");
+    }
 
-    // Inspect the cache.
-    //
-    // For procedure codes (OPCS), there are about 1800 unique
-    // codes in 50,000; 2400 in 100,000; 3100 in 200,000; 3800 in 400,000.
-    // 400,000 rows takes about 180 seconds.
-    //
-    // For diagnosis codes (ICD), there are about 90 unique codes in
-    // 50,000; 300 codes in 100,000; 600 codes in 200,000; 1100 codes
-    // in 400,000. 400,000 rows takes about 6 seconds. 
-    try {
-	return code_name_cache_.at(code_alphanum);
-    } catch (const std::out_of_range &) {
-	// TODO -- scope issue here (same name function in scope)
-	auto code_name{};
-	code_name_cache_.insert({code_alphanum, code_name});
-	return code_name;
-    }   
+    /// Strip alphanumeric for the parser
+    return remove_non_alphanum(code);
 }
-    
+
+
+// Some legacy performance (before fixing the copying error):
+//
+// For procedure codes (OPCS), there are about 1800 unique
+// codes in 50,000; 2400 in 100,000; 3100 in 200,000; 3800 in 400,000.
+// 400,000 rows takes about 180 seconds.
+//
+// For diagnosis codes (ICD), there are about 90 unique codes in
+// 50,000; 300 codes in 100,000; 600 codes in 200,000; 1100 codes
+// in 400,000. 400,000 rows takes about 6 seconds. 

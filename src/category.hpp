@@ -154,7 +154,7 @@ public:
 	  docs_{category.docs()},
 	  groups_{groups}
     { }
-    const std::string & entry() const { return name_; }
+    const std::string & name() const { return name_; }
     const std::string & docs() const { return docs_; }
     const std::set<std::string> & groups() const { return groups_; }
 private:
@@ -170,36 +170,15 @@ class CachingParser {
 public:
     CacheEntry parse(const std::string & code,
 		     const std::vector<Category> & categories);
+    std::size_t cache_size() const { return cache_.size(); }
 private:
     std::map<std::string, CacheEntry> cache_;
 };
 
-/// Remove non-alphanumeric characters from code (e.g. dots)
-std::string remove_non_alphanum(const std::string & code) {
-    std::string s{code};
-    s.erase(std::remove_if(s.begin(), s.end(), 
-			   []( auto const& c ) -> bool {
-			       return !std::isalnum(c);
-			   }), s.end());
-    return s;
-}
-
 /// Do some initial checks on the code (remove whitespace
 /// and non-alphanumeric characters). Throw runtime error
 /// if the string is all whitespace or "NULL"
-std::string preprocess(const std::string & code) {
-    // Cover two common cases of invalid codes here
-    if (std::ranges::all_of(code, isspace)) {
-	throw std::runtime_error("Code is empty");
-    }
-    if (code == "NULL") {
-	throw std::runtime_error("Code is NULL");
-    }
-
-    /// Strip alphanumeric for the parser
-    return remove_non_alphanum(code);
-}
-
+std::string preprocess(const std::string & code);
 
 /// Special case top level (contains a groups key)
 class TopLevelCategory {
@@ -207,7 +186,7 @@ public:
     TopLevelCategory(const YAML::Node & top_level_category);
     
     std::size_t cache_size() const {
-	return code_name_cache_.size();
+	return parser_.cache_size();
     }
     
     void print() const;
@@ -219,18 +198,18 @@ public:
     /// call to the function.
     std::string code_name(const std::string & code) {	
 	auto code_alphanum{preprocess(code)};
-	parser_.parse(code_alphanum).name()
+	return parser_.parse(code_alphanum, categories_).name();
     }
 
     /// Return the docs
     std::string code_docs(const std::string & code) {	
 	auto code_alphanum{preprocess(code)};
-	parser_.parse(code_alphanum).docs()
+	return parser_.parse(code_alphanum, categories_).docs();
     }
 
     std::set<std::string> code_groups(const std::string & code) {	
 	auto code_alphanum{preprocess(code)};
-	parser_.parse(code_alphanum).groups()
+	return parser_.parse(code_alphanum, categories_).groups();
     }
 
     /// Get a uniformly randomly chosen code from the tree.

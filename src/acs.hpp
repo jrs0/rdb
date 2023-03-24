@@ -41,7 +41,7 @@ std::vector<std::string> all_codes(const std::vector<std::string> & columns,
     for (const auto & column : columns) {
 	try {
 	    auto value{row.at(column)};
-	    auto parsed{parser.get_code_prop(value, false)};
+	    auto parsed{parser.code_name(value)};
 	    result.push_back(parsed);
 	} catch (const std::runtime_error & /* invalid or not found */) {
 	    // Continue
