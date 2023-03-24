@@ -212,15 +212,31 @@ P::Return get_code_prop(const std::string code,
     }
 }
 
-TopLevelCategory::TopLevelCategory(const YAML::Node & top_level_category)
-    : groups_{expect_string_set(top_level_category, "groups")}
-{	
+template<CodeProperty P>
+CachingParser<std::string>
+make_parser(const std::vector<Category> & categories) {
+    auto parser_fn = [&](const std::string & code_alphanum) {
+	return get_code_prop<P>(code_alphanum, categories);
+    };
+    return CachingParser{parser_fn};
+}
+
+/// TODO Maybe this can be combined with the make_sub_categories above
+std::vector<Category> read_categories(const YAML::Node & top_level_category) {
     if (not top_level_category["categories"]) {
 	throw std::runtime_error("Missing required 'categories' key at top level");
     } else {
-	categories_ = make_sub_categories(top_level_category);
+	return make_sub_categories(top_level_category);
     }
 }
+
+TopLevelCategory::TopLevelCategory(const YAML::Node & top_level_category)
+    : groups_{expect_string_set(top_level_category, "groups")},
+      categories_{read_categories(top_level_category)},
+      name_parser_{make_parser<CodeProperty::Name>(categories_)},
+      docs_parser_{make_parser<CodeProperty::Docs>(categories_)}
+      groups_parser_{make_parser<CodeProperty::Groups>(categories_)}
+{ }
 
 void TopLevelCategory::print() const {
     std::cout << "TopLevelCategory:" << std::endl;
@@ -233,16 +249,6 @@ void TopLevelCategory::print() const {
     }
 }
 
-/// Remove non-alphanumeric characters from code (e.g. dots)
-std::string remove_non_alphanum(const std::string & code) {
-    std::string s{code};
-    s.erase(std::remove_if(s.begin(), s.end(), 
-			   []( auto const& c ) -> bool {
-			       return !std::isalnum(c);
-			   }), s.end());
-    return s;
-}
-
 template<CodeProperty P>
 std::string TopLevelCategory::code_prop(const std::string & code) {
 
@@ -250,8 +256,6 @@ std::string TopLevelCategory::code_prop(const std::string & code) {
     if(std::ranges::all_of(code, isspace)) {
 	throw std::runtime_error("Code is empty");
     }
-
-    auto code_alphanum{remove_non_alphanum(code)};
 
     // Inspect the cache.
     //
@@ -266,7 +270,7 @@ std::string TopLevelCategory::code_prop(const std::string & code) {
 	return code_name_cache_.at(code_alphanum);
     } catch (const std::out_of_range &) {
 	// TODO -- scope issue here (same name function in scope)
-	auto code_name{get_code_prop<P>(code_alphanum, categories_)};
+	auto code_name{};
 	code_name_cache_.insert({code_alphanum, code_name});
 	return code_name;
     }   

@@ -149,7 +149,9 @@ enum class CodeProperty {
     /// The name of the code or category
     Name,
     /// The documentation string for the code or category
-    Docs
+    Docs,
+    /// The groups that contain the code
+    Groups
 };
 
 template<typename ReturnType>
@@ -163,7 +165,7 @@ public:
 	    return cache_.at(input);
 	} catch (const std::out_of_range &) {
 	    // TODO -- scope issue here (same name function in scope)
-	    auto result{parser_(code_alphanum, categories_)};
+	    auto result{parser_(input)};
 	    cache_[input] = result;
 	    return result;
 	}   
@@ -172,7 +174,17 @@ private:
     Parser parser_;
     std::map<std::string, ReturnType> cache_;
 };
-    
+
+/// Remove non-alphanumeric characters from code (e.g. dots)
+std::string remove_non_alphanum(const std::string & code) {
+    std::string s{code};
+    s.erase(std::remove_if(s.begin(), s.end(), 
+			   []( auto const& c ) -> bool {
+			       return !std::isalnum(c);
+			   }), s.end());
+    return s;
+}
+
 /// Special case top level (contains a groups key)
 class TopLevelCategory {
 public:
@@ -190,7 +202,25 @@ public:
     /// Query results are cached and used to speed up the next
     /// call to the function.
     template<CodeProperty P>
-    std::string code_prop(const std::string & code);
+    std::string code_prop(const std::string & code) {
+	
+	// Cover two common cases of invalid codes here
+	if (std::ranges::all_of(code, isspace)) {
+	    throw std::runtime_error("Code is empty");
+	}
+	if (code == "NULL") {
+	    throw std::runtime_error("Code is NULL");
+	}
+
+	/// Strip alphanumeric for the parser
+	auto code_alphanum{remove_non_alphanum(code)};
+
+	if constexpr (P == CodeProperty::Name) {
+	    return name_parser_.parse(code_alphanum);
+	} else {
+	    return docs_parser_.parse(code_alphanum);
+	}
+    }
 
     /// Get the set of groups associated with the code, or throw a
     /// runtime error if the code is invalid or not found. Results
@@ -208,10 +238,15 @@ private:
     std::set<std::string> groups_;
     /// The list of sub-categories
     std::vector<Category> categories_;
-    /// Cached parsed code names
-    std::map<std::string, std::string> code_name_cache_;
-    std::map<std::string, std::set<std::string>> code_groups_cache_;
 
+    /// Parses a code name and stores the result
+    CachingParser<std::string> name_parser_;
+
+    /// TODO: this is quite a bit of cache duplication
+    /// potentially -- should really cache all three of the
+    /// name, code and docs all at once.
+    CachingParser<std::string> docs_parser_;
+    CachingParser<std::set<std::string>> groups_parser_;
 };
 
 
