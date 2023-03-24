@@ -10,25 +10,6 @@ void throw_unimpl_sql_type(const std::string & type) {
     throw std::runtime_error(ss.str());
 }
 
-class Buffer {
-public:
-    Buffer(std::size_t buffer_length)
-	: buffer_length_{buffer_length}, buffer_{new char[buffer_length_]}
-    { }
-    std::size_t length() const {
-	return buffer_length_;
-    }
-    char* get() {
-	return buffer_.get();
-    }
-private:
-    /// The buffer length in bytes
-    std::size_t buffer_length_;
-
-    /// The buffer area
-    std::unique_ptr<char[]> buffer_;    
-};
-
 /// 
 class ColBinding {
 public:
@@ -154,6 +135,7 @@ public:
 	return std::string((char*)column_name_buf);
     }
 
+    
     SQLLEN column_type(std::size_t index) {
 	/// Get column type
 	SQLLEN column_type{0};

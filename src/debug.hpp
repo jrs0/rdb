@@ -53,11 +53,15 @@ void handle_diagnostic_record(SQLHANDLE handle, SQLSMALLINT type, RETCODE ret_co
     throw std::runtime_error(ss.str());
 }
 
-struct Handle {
-    SQLHANDLE handle;
-    SQLSMALLINT type;
+class Handle {
+public:
     Handle(SQLHANDLE handle, SQLSMALLINT type)
-	: handle{handle}, type{type} {}
+	: handle_{handle}, type_{type} {}
+    SQLHANDLE handle() const { return handle_; }
+    SQLSMALLING type() const { return type_; }
+private:
+    SQLHANDLE handle_;
+    SQLSMALLINT type_;
 };
 
 /// Test an ODBC return code, return
@@ -74,7 +78,7 @@ bool result_ok(const Handle & handle, SQLRETURN ret_code) {
 	throw std::runtime_error("SQLRETURN No data found");
     case SQL_ERROR:
 	// Throws runtime_error
-	handle_diagnostic_record(handle.handle, handle.type, ret_code);
+	handle_diagnostic_record(handle.handle(), handle.type(), ret_code);
 	
     default:
 	std::stringstream ss;
