@@ -10,7 +10,7 @@ CXX_STD=CXX20
 # define for pushing to main (also comment out the
 # -lprofiler library too)
 #
-PKG_LIBS = -lyaml-cpp -pg # -lodbc32 -lprofiler #$(SHLIB_OPENMP_CFLAGS)
+PKG_LIBS = -lyaml-cpp -lodbc32 -pg #-lprofiler #$(SHLIB_OPENMP_CFLAGS)
 PKG_CXXFLAGS = -pg -g #-gdwarf-2 -DNO_GPERFTOOLS
 
 ## This flag is important to override the -s from

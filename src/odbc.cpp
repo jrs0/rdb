@@ -12,8 +12,11 @@
 //
 
 #include "random.hpp"
-#include "mem_row_buffer.hpp" 
+#include "mem_row_buffer.hpp"
+#include "acs.hpp"
 
+
+/*
 // [[Rcpp::export]]
 void in_mem_test() {
 
@@ -32,11 +35,13 @@ void in_mem_test() {
 
 #include "acs.hpp"
 
+*/
+
 // [[Rcpp::export]]
-void make_acs_dataset() {
+void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
 
     //auto config_path{Rcpp::as<std::string>(config_path_chr)};
-    auto config_path{"config.yaml"};
+    auto config_path{Rcpp::as<std::string>(config_path_chr)};
     try {
 	YAML::Node config = YAML::LoadFile(config_path);
 	Acs acs{config};
@@ -49,8 +54,6 @@ void make_acs_dataset() {
 	std::cout << "Failed with error "  << e.what() << std::endl;
     }
 }
-
-/*
 
 #include "acs.hpp"
 #include "random.hpp"
@@ -163,5 +166,3 @@ void parse_code(const Rcpp::CharacterVector & icd10_file_character,
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
     }
 }
-
-*/
