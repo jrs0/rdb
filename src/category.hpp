@@ -144,35 +144,34 @@ private:
     std::set<std::string> exclude_;
 };
 
-/// Identifies which code property is requested in
-enum class CodeProperty {
-    /// The name of the code or category
-    Name,
-    /// The documentation string for the code or category
-    Docs,
-    /// The groups that contain the code
-    Groups
+/// The triple of information returned about each code
+/// by the parser and stored in the cache
+struct CacheEntry {
+public:
+    CacheEntry(const Category & category,
+	       const std::set<std::string> & groups)
+	: name_{category.name()},
+	  docs_{category.docs()},
+	  groups_{groups}
+    { }
+    const std::string & entry() const { return name_; }
+    const std::string & docs() const { return docs_; }
+    const std::set<std::string> & groups() const { return groups_; }
+private:
+    std::string name_;
+    std::string docs_;
+    std::set<std::string> groups_;
 };
 
-template<typename ReturnType>
+/// Parses a code and caches the name, docs and groups. Make sure
+/// you do some preprocessing on the code before parsing it (i.e.
+/// remove whitespace etc.) to reduce the cache size.
 class CachingParser {
 public:
-    using Parser = std::function<ReturnType(const std::string &)>;
-    CachingParser(const Parser & parser)
-	: parser_{parser} {}
-    ReturnType parse(const std::string & input) {
-	try {
-	    return cache_.at(input);
-	} catch (const std::out_of_range &) {
-	    // TODO -- scope issue here (same name function in scope)
-	    auto result{parser_(input)};
-	    cache_[input] = result;
-	    return result;
-	}   
-    }
+    CacheEntry parse(const std::string & code,
+		     const std::vector<Category> & categories);
 private:
-    Parser parser_;
-    std::map<std::string, ReturnType> cache_;
+    std::map<std::string, CacheEntry> cache_;
 };
 
 /// Remove non-alphanumeric characters from code (e.g. dots)
@@ -184,6 +183,23 @@ std::string remove_non_alphanum(const std::string & code) {
 			   }), s.end());
     return s;
 }
+
+/// Do some initial checks on the code (remove whitespace
+/// and non-alphanumeric characters). Throw runtime error
+/// if the string is all whitespace or "NULL"
+std::string preprocess(const std::string & code) {
+    // Cover two common cases of invalid codes here
+    if (std::ranges::all_of(code, isspace)) {
+	throw std::runtime_error("Code is empty");
+    }
+    if (code == "NULL") {
+	throw std::runtime_error("Code is NULL");
+    }
+
+    /// Strip alphanumeric for the parser
+    return remove_non_alphanum(code);
+}
+
 
 /// Special case top level (contains a groups key)
 class TopLevelCategory {
@@ -201,32 +217,22 @@ public:
     /// Throw a runtime error if the code is invalid or not found.
     /// Query results are cached and used to speed up the next
     /// call to the function.
-    template<CodeProperty P>
-    std::string code_prop(const std::string & code) {
-	
-	// Cover two common cases of invalid codes here
-	if (std::ranges::all_of(code, isspace)) {
-	    throw std::runtime_error("Code is empty");
-	}
-	if (code == "NULL") {
-	    throw std::runtime_error("Code is NULL");
-	}
-
-	/// Strip alphanumeric for the parser
-	auto code_alphanum{remove_non_alphanum(code)};
-
-	if constexpr (P == CodeProperty::Name) {
-	    return name_parser_.parse(code_alphanum);
-	} else {
-	    return docs_parser_.parse(code_alphanum);
-	}
+    std::string code_name(const std::string & code) {	
+	auto code_alphanum{preprocess(code)};
+	parser_.parse(code_alphanum).name()
     }
 
-    /// Get the set of groups associated with the code, or throw a
-    /// runtime error if the code is invalid or not found. Results
-    /// are cached
-    std::set<std::string> code_groups(const std::string & code);
-    
+    /// Return the docs
+    std::string code_docs(const std::string & code) {	
+	auto code_alphanum{preprocess(code)};
+	parser_.parse(code_alphanum).docs()
+    }
+
+    std::set<std::string> code_groups(const std::string & code) {	
+	auto code_alphanum{preprocess(code)};
+	parser_.parse(code_alphanum).groups()
+    }
+
     /// Get a uniformly randomly chosen code from the tree.
     std::string
     random_code(std::uniform_random_bit_generator auto & gen) const {
@@ -240,13 +246,7 @@ private:
     std::vector<Category> categories_;
 
     /// Parses a code name and stores the result
-    CachingParser<std::string> name_parser_;
-
-    /// TODO: this is quite a bit of cache duplication
-    /// potentially -- should really cache all three of the
-    /// name, code and docs all at once.
-    CachingParser<std::string> docs_parser_;
-    CachingParser<std::set<std::string>> groups_parser_;
+    CachingParser parser_;
 };
 
 

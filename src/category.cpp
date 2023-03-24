@@ -154,30 +154,11 @@ locate_code_in_categories(const std::string & code,
     return *position;
 }
 
-template<CodeProperty P>
-struct CodePropReturn;
-
-template<>
-struct CodePropReturn<CodeProperty::Name> {
-    using Return = std::string;
-};
-
-template<>
-struct CodePropReturn<CodeProperty::Docs> {
-    using Return = std::string;
-};
-
-template<>
-struct CodePropReturn<CodeProperty::Docs> {
-    using Return = std::set<std::string>;
-};
-
 /// Return the name or docs field of a code (depending on the bool argument)
 /// if it exists in the categories tree, or throw a runtime error for an invalid code
-template<CodeProperty P>
-P::Return get_code_prop(const std::string code,
-			const std::vector<Category> & categories,
-			std::set<std::string> groups = std::set<std::string>{}) {
+CacheEntry get_code_prop(const std::string code,
+			 const std::vector<Category> & categories,
+			 std::set<std::string> groups = std::set<std::string>{}) {
     
     // Locate the category containing the code at the current level
     auto & cat{locate_code_in_categories(code, categories)};
@@ -201,42 +182,30 @@ P::Return get_code_prop(const std::string code,
 	// down isn't better)
 	return get_code_prop(code, cat.categories(), docs, groups);
     } else {
-	if constexpr (P == CodeProperty::Name) {
-	    return cat.name();	    
-	} else if constexpr (P == CodeProperty::Docs){
-	    return cat.docs();
-	} else {
-	    // Treat default case as groups
-	    return groups;
-	}
+	return CacheEntry{cat, groups};
     }
 }
 
-template<CodeProperty P>
-CachingParser<std::string>
-make_parser(const std::vector<Category> & categories) {
-    auto parser_fn = [&](const std::string & code_alphanum) {
-	return get_code_prop<P>(code_alphanum, categories);
-    };
-    return CachingParser{parser_fn};
+CacheEntry CachingParser::parse(const std::string & code,
+				const std::vector<Category> & categories) {
+    try {
+	return cache_.at(code);
+    } catch (const std::out_of_range &) {
+	auto result{get_code_prop(code, categories)};
+	cache_[input] = result;
+	return result;
+    }   
 }
 
-/// TODO Maybe this can be combined with the make_sub_categories above
-std::vector<Category> read_categories(const YAML::Node & top_level_category) {
+TopLevelCategory::TopLevelCategory(const YAML::Node & top_level_category)
+    : groups_{expect_string_set(top_level_category, "groups")}
+{
     if (not top_level_category["categories"]) {
 	throw std::runtime_error("Missing required 'categories' key at top level");
     } else {
 	return make_sub_categories(top_level_category);
     }
 }
-
-TopLevelCategory::TopLevelCategory(const YAML::Node & top_level_category)
-    : groups_{expect_string_set(top_level_category, "groups")},
-      categories_{read_categories(top_level_category)},
-      name_parser_{make_parser<CodeProperty::Name>(categories_)},
-      docs_parser_{make_parser<CodeProperty::Docs>(categories_)}
-      groups_parser_{make_parser<CodeProperty::Groups>(categories_)}
-{ }
 
 void TopLevelCategory::print() const {
     std::cout << "TopLevelCategory:" << std::endl;
