@@ -20,7 +20,7 @@ ColBinding make_varchar_binding(std::size_t index,
     VarcharBuffer varchar_buffer{hstmt, col_name, index, varchar_length};
 
     std::cout << col_name << std::endl;
-    return col_binding;
+    return varchar_buffer;
 }
 
 /// Make a column binding for an INTEGER column
@@ -29,10 +29,10 @@ ColBinding make_integer_binding(std::size_t index,
 				Handle hstmt) {
     
     /// Use SQL_C_LONG
-    IntegerBuffer col_binding{hstmt, col_name, index};
+    IntegerBuffer integer_buffer{hstmt, col_name, index};
 
     std::cout << col_name << std::endl;
-    return col_binding;
+    return integer_buffer;
 }
 
 class StmtHandle {
