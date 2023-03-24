@@ -49,6 +49,7 @@ merge_groups_from_columns(const std::vector<std::string> & columns,
 	} catch (const std::out_of_range & e) {
 	    throw std::runtime_error("Could not read from column "
 				     + column);
+
 	}
     }
     return result;
@@ -74,6 +75,27 @@ public:
 	// categories -- also store maps that group
 	// together categories into higher level groups,
 	// as defined by the parser_config
+    }
+
+    /// Returns the cause of death as a group, "_all_cause"
+    /// if the code is valid but is not in a group, or "_unknown"
+    /// if the code fails to parse
+    std::set<std::string> cause_of_death(const RowBuffer auto & row) {
+	try {
+	    auto raw_code{row.at("cause_of_death")};
+	    // Note that the cause of death is an ICD field
+	    auto groups{diagnoses_.code_groups(raw_code)};
+	    if (groups.size() == 0) {
+		// In this case, the code was valid but not in
+		// any group
+		groups.insert("_all_cause");
+	    }
+	    return groups;
+	} catch (const std::runtime_error & /* invalid or not found */) {
+	    return {"_unknown"};
+	} catch (const std::out_of_range & e) {
+	    throw std::runtime_error("Could not read from 'cause of death'");
+	}
     }
     
     /// Parse all the procedure codes into a flat list, omitting
@@ -225,7 +247,6 @@ public:
 	    // contains some diagnoses or procedures
 	    if (not episode.empty()) {
 		episodes_.push_back(episode);
-		episodes_.back().print();
 	    }
 	}
     }
@@ -238,6 +259,9 @@ public:
 
     void print() const {
 	std::cout << " Spell:" << std::endl;
+	for (const auto & episode : episodes_) {
+	    episode.print();
+	}
     }
 
     
@@ -284,13 +308,25 @@ private:
     
 };
 
+/// If all three of the mortality fields are NULL, then the
+/// patient is considered still alive.
+bool patient_alive(const RowBuffer auto & row) {
+    std::string date_of_death{row.at("date_of_death")};
+    std::string cause_of_death{row.at("cause_of_death")};
+    std::string age_at_death{row.at("age_of_death")};
+    return (date_of_death == "NULL")
+	and (cause_of_death == "NULL")
+	and (age_at_death == "NULL");
+}
+
 class Patient {
 public:
     /// The row object passed in has _already had the
     /// first row fetched_. At the other end, when it
     /// discovers a new patients, the row is left in
     /// the buffer for the next Patient object
-    Patient(RowBuffer auto & row, CodeParser & code_parser) {
+    Patient(RowBuffer auto & row, CodeParser & code_parser)
+	: alive_{patient_alive(row)} {
 
 	// The first row contains the nhs number
 	try {
@@ -299,7 +335,6 @@ public:
 	    throw std::runtime_error("Column not found");
 	}
 
-	std::cout << "Patient " << nhs_number_ << std::endl;
 	while(row.at("nhs_number") == nhs_number_) {
 
 	    // If you get here, then the current row
@@ -314,19 +349,41 @@ public:
 	    // the list of spells
 	    if (not spell.empty()) {
 		spells_.push_back(spell);
-		spells_.back().print();
+	    }
+
+	    if (not alive_) {
+		cause_of_death_ = code_parser.cause_of_death(row);
 	    }
 	}
     }
 
+    /// Returns true if none of the spells contain any
+    /// diagnoses or procedures in the code groups file 
+    bool empty() const {
+	return spells_.empty();
+    }
+
+    void print() const {
+	std::cout << "Patient:" << std::endl;
+	for (const auto & spell : spells_) {
+	    spell.print();
+	}
+	if (not alive_) {
+	    std::cout << " Cause of death: ";
+	    for (const auto & cause : cause_of_death_) {
+		std::cout << cause << ",";
+	    }
+	    std::cout << std::endl;
+	}
+    }    
+    
 private:
     std::string nhs_number_;
     std::vector<Spell> spells_;
-
-    /// ICD code group for cause of death, or _all for
-    /// a cause of death which is not covered by a group.
-    /// Empty string for death not occured
-    std::string cause_of_death_;
+   
+    bool alive_;
+    std::set<std::string> cause_of_death_;
+    
 };
 
 const std::string episodes_query{
@@ -398,7 +455,14 @@ public:
 	
 	while (true) {
 	    try {
-		patients_.emplace_back(row, code_parser_);
+
+		Patient patient{row, code_parser_};
+
+		if (not patient.empty()) {
+		    patients_.push_back(patient);
+		    patients_.back().print();
+		}
+
 	    } catch (const std::logic_error & e) {
 		// There are no more rows
 		std::cout << "No more rows -- finished" << std::endl;
