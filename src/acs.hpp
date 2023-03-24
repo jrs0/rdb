@@ -418,6 +418,4 @@ private:
     CodeParser code_parser_;
 };
 
-
-
 #endif
