@@ -40,9 +40,11 @@ std::vector<std::string> all_codes(const std::vector<std::string> & columns,
     std::vector<std::string> result;
     for (const auto & column : columns) {
 	try {
-	    auto value{row.at(column)};
-	    auto parsed{parser.code_name(value)};
-	    result.push_back(parsed);
+	    auto raw_code{row.at(column)};
+	    auto groups{parser.code_groups(raw_code)};
+	    for (const auto & group : groups) {
+		result.push_back(group);
+	    }
 	} catch (const std::runtime_error & /* invalid or not found */) {
 	    // Continue
 	} catch (const std::out_of_range & e) {

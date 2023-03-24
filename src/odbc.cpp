@@ -15,28 +15,6 @@
 #include "mem_row_buffer.hpp"
 #include "acs.hpp"
 
-
-/*
-// [[Rcpp::export]]
-void in_mem_test() {
-
-    
-    
-    // TopLevelCategory procedures{opcs4};
-    // std::cout << "Random OPCS: " << procedures.random_code(gen)
-    // 	      << std::endl; 
-    // YAML::Node icd10 = YAML::LoadFile("icd10.yaml");
-    // TopLevelCategory diagnoses{icd10};
-    // for (std::size_t n{0}; n < 10; n++) {
-    // 	std::cout << "Random ICD: " << diagnoses.random_code(gen)
-    // 		  << std::endl;
-    // }
-}
-
-*/
-
-
-
 // [[Rcpp::export]]
 void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
 
