@@ -22,7 +22,7 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
     auto config_path{Rcpp::as<std::string>(config_path_chr)};
     try {
 	YAML::Node config = YAML::LoadFile(config_path);
-	Acs acs{config};
+	auto records{get_acs_records(config)};
     } catch(const YAML::BadFile& e) {
 	throw std::runtime_error("Bad YAML file");
     } catch(const YAML::ParserException& e) {

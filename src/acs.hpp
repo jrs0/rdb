@@ -20,6 +20,7 @@
 #ifndef ACS_HPP
 #define ACS_HPP
 
+#include <optional>
 #include <yaml-cpp/yaml.h>
 #include "category.hpp"
 #include "sql_connection.hpp"
@@ -137,7 +138,7 @@ private:
 
     std::vector<std::string> procedure_columns_;
     std::vector<std::string> diagnosis_columns_;
-    
+
     //std::map<std::string, std::string> procedures_group_map_;
     //std::map<std::string, std::string> diagnoses_group_map_;
 };
@@ -182,6 +183,8 @@ public:
 	
 	procedures_ = code_parser.all_procedures(row);
 	diagnoses_ = code_parser.all_diagnoses(row);
+
+	age_at_episode_ = column<Integer>("age_at_episode", row);
 	
 	row.fetch_next_row();
     }
@@ -194,6 +197,14 @@ public:
 	return diagnoses_;
     }
 
+    Integer age_at_episode() const {
+	return age_at_episode_;
+    }
+
+    Timestamp episode_start() const {
+	return episode_start_;
+    }
+    
     /// Returns true if there are no diagnosis or procedure
     /// groups associated with this episode.
     bool empty() const {
@@ -226,6 +237,8 @@ private:
 
     /// Parsed diagnoses from any diagnosis field
     std::set<std::string> diagnoses_;
+
+    Integer age_at_episode_; 
 };
 
 
@@ -265,6 +278,10 @@ public:
     /// considered empty
     bool empty() const {
 	return episodes_.empty();
+    }
+
+    const auto & episodes() const {
+	return episodes_;
     }
 
     void print() const {
@@ -331,6 +348,10 @@ public:
 	}
     }
 
+    const auto & spells() const {
+	return spells_;
+    }
+    
     /// Returns true if none of the spells contain any
     /// diagnoses or procedures in the code groups file 
     bool empty() const {
@@ -373,23 +394,70 @@ private:
 /// age at that episode is recorded.
 class IndexEvent {
 public:
+
+    /// Thrown if not an index event
+    struct NotIndexEvent {};
+
+    /// Thrown if the event is an index event, but
+    /// the date is not known (and therefore cannot be
+    /// used to find previous and subsequent events).
+    struct NoEpisodeDate {};
+    
     /// The information for the index event comes from
     /// a single episode. This constructor throws an
     /// exception if the episode is not an index event.
     /// This keeps the logic for what is an index event
-    /// contained inside this constructor
-    IndexEvent(const Episode & episode, const YAML::Node & index_event) {
+    /// contained inside this constructor.
+    IndexEvent(const Episode & episode,
+	       const std::set<std::string> & index_diagnoses,
+	       const std::set<std::string> & index_procedures) {
 
-	bool include{false};
-	index_event["include"]["diagnoses"].as<>
-	
-	if (episode.)
-	
+	// To store the intersections between the episode
+	// diagnoses/procedures and the relevant index list
+	// in the config file
+ 	std::set<std::string> relevant_diagnoses;
+ 	std::set<std::string> relevant_procedures;
+	std::ranges::set_intersection(episode.diagnoses(),
+				      index_diagnoses,
+				      std::back_inserter(relevant_diagnoses));
+	std::ranges::set_intersection(episode.procedures(),
+				      index_procedures,
+				      std::back_inserter(relevant_procedures));
+
+	// Check whether the there are any relevant events
+	// in this episode
+	if (relevant_diagnoses.empty() and relevant_procedures.empty()) {
+	    throw NotIndexEvent{};
+	}
+
+	// Check if the index event is triggered by a diagnosis
+	// of procedure. Procedures take priority here.
+	procedure_triggered_ = (relevant_procedures.size() > 0);
+
+	// Store the age recorded in the episode
+	try {
+	    age_at_index_ = episode.age_at_episode().read();
+	} catch (const NullValue &) {
+	    // Leave empty value
+	}
+
+	// Store the episode start date as the index event date
+	date_ = episode.episode_start();
+	if (date_.null()) {
+	    throw NoEpisodeDate{};
+	}
+    }
+
+    /// Print the index event
+    void print() const {
+	std::cout << "Index: ";
+	date_.print();
     }
 private:
-    bool event_type_; ///< true for acs, false for pci
-    std::string date_;
-    std::size_t age_at_index_; ///< Age at the index event
+    /// True if a procedure generated the index event, false otherwise
+    bool procedure_triggered_;
+    Timestamp date_;
+    std::optional<std::size_t> age_at_index_; ///< Age at the index event
 
 };
 
@@ -397,11 +465,14 @@ private:
 /// after
 class Record {
 public:
-    Record() {
+    Record(const Patient & patient,
+	   const IndexEvent & index_event)
+	: index_event_{index_event} {
 	
 
     }
 private:
+    IndexEvent index_event_;
     /// A map from a procedure or diagnosis group to the
     /// number of that event that occured in the window before
     /// or after the event.
@@ -420,6 +491,7 @@ select top 5000
 from (
 	select
 		AIMTC_Pseudo_NHS as nhs_number,
+                AIMTC_Age as age_at_episode,
 		PBRspellID as spell_id,
 		StartDate_ConsultantEpisode as episode_start,
 		EndDate_ConsultantEpisode as episode_end,
@@ -446,63 +518,91 @@ order by nhs_number, spell_id;
 };
 
 
-class Acs {
-public:
-    Acs(const YAML::Node & config)
-	: code_parser_{config["parser_config"]}
-    {
-	// Choose between in-memory or sql -- move this
-	// little bit into a function 
-	
-	// Fetch the database name and connect
-	auto dsn{config["data_sources"]["dsn"].as<std::string>()};
-	std::cout << "Connection to DSN " << dsn << std::endl;
-	SQLConnection con{dsn};
-	std::cout << "Executing statement" << std::endl;
-	auto row{con.execute_direct(episodes_query)};
-	
-	//InMemoryRowBuffer row{config};
+std::vector<Record> get_acs_records(const YAML::Node & config) {
 
-	std::cout << "Starting to fetch rows" << std::endl;
-
-	// sql statement that fetches all episodes for all patients
-	// ordered by nhs number, then spell id.
-	
-	// Make the first fetch
-	row.fetch_next_row();
-	
-	while (true) {
-	    try {
-
-		/// Parse a block of rows into a Patient,
-		/// which contains a list of Spells, each of
-		/// which contains a list of episodes. 
-		Patient patient{row, code_parser_};
-
-		if (not patient.empty()) {
-		    auto 
-		
-		
-		}
-
-	    } catch (const std::logic_error & e) {
-		// There are no more rows
-		std::cout << "No more rows -- finished" << std::endl;
-		std::cout << e.what() << std::endl;
-		break;
-	    }
-	}
-	std::cout << "Total patients = " << patients_.size() << std::endl;
-	
-	// While true, keep fetching into Record, push back results
-	// Record constructor takes reference to results, and uses
-	// up one patient block per record
-	
-    }
+    std::vector<Record> records;
     
-private:
-    std::vector<Record> records_;
-    CodeParser code_parser_;
-};
+    // Contains the parsers for OPCS and ICD codes
+    CodeParser code_parser{config["parser_config"]};
+
+    // Load the index diagnosis and procedures lists
+    auto include{config["index_event"]["include"]};
+    auto index_diagnoses{include["diagnoses"].as<std::set<std::string>>};
+    auto index_procedures{include["procedures"].as<std::set<std::string>>};
+	
+    // Fetch the database name and connect
+    auto dsn{config["data_sources"]["dsn"].as<std::string>()};
+    std::cout << "Connection to DSN " << dsn << std::endl;
+    SQLConnection con{dsn};
+    std::cout << "Executing statement" << std::endl;
+    auto row{con.execute_direct(episodes_query)};
+	
+    //InMemoryRowBuffer row{config};
+	
+    std::cout << "Starting to fetch rows" << std::endl;
+
+    // sql statement that fetches all episodes for all patients
+    // ordered by nhs number, then spell id.
+	
+    // Make the first fetch
+    row.fetch_next_row();
+
+    // Count the patients
+    std::Size_t patient_count{0};
+    
+    while (true) {
+	try {
+	    /// Parse a block of rows into a Patient,
+	    /// which contains a list of Spells, each of
+	    /// which contains a list of episodes.
+	    Patient patient{row, code_parser};
+	    patient_count++;
+	    
+	    if (not patient.empty()) {
+		
+		// Loop over all the spells for this patient
+		for (const auto & spell : patient.spells()) {
+
+		    // Loop over all the episodes in this spell
+		    for (const auto & episode : spell.episodes()) {
+			    
+			try {
+			    // Test if this episode is an index event
+			    IndexEvent index_event{episode,
+						   index_diagnoses,
+						   index_procedures}
+			    index_event.print();
+
+			    // For this index event, construct the
+			    // record by looking at at all episodes
+			    // before/after the index event for this
+			    // patient
+			    Record record{patient, index_event};
+				
+			    // Do not consider any episodes from this
+			    // spell as index event.
+			    break;
+				
+			} catch (const IndexEvent::NotIndexEvent &) {
+			    // Continue
+			    std::cout << "Not index event" << std::endl;
+			} catch (const IndexEvent::NoEpisodeDate &) {
+			    // Continue
+			    std::cout << "No Episode date" << std::endl;
+			}
+		    }
+		}
+	    }
+	} catch (const std::logic_error & e) {
+	    // There are no more rows
+	    std::cout << "No more rows -- finished" << std::endl;
+	    std::cout << e.what() << std::endl;
+	    break;
+	}
+    }
+    std::cout << "Total patients = " << patient_count << std::endl;
+
+    return records;
+}
 
 #endif

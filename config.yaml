@@ -49,8 +49,9 @@ parser_config:
   # are not in any group are still included, and
   # marked as being in a group called "_all". This
   # is for testing purposes
-  all: yes
-    
+  all: no
+
+  
 index_event:
   start_date: "2015-1-1" 
   end_date: "2023-1-1"
