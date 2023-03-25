@@ -63,17 +63,13 @@ void debug_sql(const Rcpp::CharacterVector & dsn_character,
 	// Make the connection
 	SQLConnection con(dsn);
 
-	// Fetch the row buffer (column names + allocated buffer
-	// space for one row)
-	con.execute_direct(query);
-
 	// Make the row buffer
 	auto row{con.execute_direct(query)};
 	
-	// Fetch a row
+	// // Fetch a row
 	row.fetch_next_row();
 
-	// Get results
+	// // Get results
 	std::cout << row.template at<Integer>("AIMTC_Pseudo_NHS").read()
 		  << std::endl;
 	
