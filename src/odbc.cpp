@@ -73,8 +73,12 @@ void debug_sql(const Rcpp::CharacterVector & dsn_character,
 		row.fetch_next_row();
 		
 		// Get results
-		std::cout << row.template at<Integer>("AIMTC_Pseudo_NHS").read()
-			  << std::endl;
+		auto nhs_num{column<Integer>("aimtc_pseudo_nhs", row).read()};
+		std::cout << nhs_num << std::endl;
+		auto id{column<Varchar>("pbrspellid", row).read()};
+		std::cout << id << std::endl;
+		auto icd{column<Varchar>("diagnosisprimary_icd", row).read()};
+		std::cout << icd << std::endl;
 		
 	    } catch (const std::logic_error & e) {
 		std::cout << e.what() << std::endl;

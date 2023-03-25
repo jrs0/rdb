@@ -101,6 +101,7 @@ public:
 	case SQL_VARCHAR:
 	    /// Store a varchar in a std::string. Convert to
 	    /// a char string
+	    std::cout << "Found varchar column " << col_name << std::endl;
 	    return make_varchar_binding(index, col_name, get_handle());
 	case SQL_INTEGER:
 	    // 32-bit signed or unsigned integer -> map to SqlInteger

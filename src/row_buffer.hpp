@@ -65,4 +65,9 @@ private:
     std::map<std::string, BufferType> column_buffers_;
 };
 
+template<typename T>
+T column(const std::string & column_name, RowBuffer auto & row) {
+    return row.template at<T>(column_name);
+}
+
 #endif
