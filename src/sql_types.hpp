@@ -41,7 +41,7 @@ public:
     using Buffer = class IntegerBuffer;
     // Will default construct to a null integer
     Integer() = default;
-    Integer(long value) : null_{false}, value_{value} {}
+    Integer(unsigned long long value) : null_{false}, value_{value} {}
     unsigned long long read() const {
 	if (not null_) {
 	    return value_;
@@ -52,7 +52,7 @@ public:
     bool null() const { return null_; }
 private:
     bool null_{true};
-    long value_{0};
+    unsigned long long value_{0};
 };
 
 using SqlType = std::variant<Varchar, Integer>;
@@ -110,12 +110,10 @@ public:
 	SQLRETURN r = SQLBindCol(hstmt.handle(), col_index, SQL_C_UBIGINT,
 				 (SQLPOINTER)buffer_.get(), 0,
 				 data_size_.get());
-	std::cout << "Pointer = " << data_size_.get() << std::endl;
 	ok_or_throw(hstmt, r, "Binding integer column");
     }
     
     Integer read() const {
-	std::cout << "Pointer = " << data_size_.get() << std::endl;
 	switch (*data_size_) {
 	case SQL_NULL_DATA:
 	    return Integer{};
