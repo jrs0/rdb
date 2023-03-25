@@ -311,7 +311,7 @@ private:
 /// If all three of the mortality fields are NULL, then the
 /// patient is considered still alive.
 bool patient_alive(const RowBuffer auto & row) {
-    auto date_of_death{column<Varchar>("date_of_death", row)};
+    auto date_of_death{column<Timestamp>("date_of_death", row)};
     auto cause_of_death{column<Varchar>("cause_of_death", row)};
     auto age_at_death{column<Integer>("age_at_death", row)};
 

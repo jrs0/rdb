@@ -45,8 +45,9 @@ public:
 				     "non-existent column "
 				     + column_name);
 	} catch (const std::bad_variant_access & e) {
-	    throw std::runtime_error("Error trying to access a column "
-				     "using the wrong type");
+	    throw std::runtime_error("Error trying to access column "
+				     + column_name + 
+				     " using the wrong type");
 	}
     }
     
