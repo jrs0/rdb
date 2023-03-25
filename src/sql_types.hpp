@@ -42,7 +42,7 @@ public:
     // Will default construct to a null integer
     Integer() = default;
     Integer(long value) : null_{false}, value_{value} {}
-    unsigned long read() const {
+    unsigned long long read() const {
 	if (not null_) {
 	    return value_;
 	} else {
@@ -103,11 +103,11 @@ struct FixedSizeOverrun {};
 class IntegerBuffer {
 public:
     IntegerBuffer(Handle hstmt, std::size_t col_index)
-	: buffer_{std::make_unique<unsigned long>(0)},
+	: buffer_{std::make_unique<unsigned long long>(0)},
 	  data_size_{std::make_unique<SQLLEN>(0)} {
 	// Note: because integer is a fixed length type, the buffer length
 	// field is ignored. 
-	SQLRETURN r = SQLBindCol(hstmt.handle(), col_index, SQL_C_ULONG,
+	SQLRETURN r = SQLBindCol(hstmt.handle(), col_index, SQL_C_UBIGINT,
 				 (SQLPOINTER)buffer_.get(), 0,
 				 data_size_.get());
 	std::cout << "Pointer = " << data_size_.get() << std::endl;
@@ -125,14 +125,14 @@ public:
 					 "type. Returned size = "
 					 + std::to_string(*data_size_) +
 					 " but size of long = "
-					 + std::to_string(sizeof(long)));
+					 + std::to_string(sizeof(unsigned long long)));
 	    }
 	    return Integer{*buffer_};
 	}
     }
 
 private:
-    std::unique_ptr<unsigned long> buffer_;
+    std::unique_ptr<unsigned long long> buffer_;
     
     /// For a fixed size type, this is the size of the
     /// type written by the driver. Must be less than
