@@ -2,156 +2,50 @@
 #define STMT_HANDLE_HPP
 
 #include "con_handle.hpp"
+#include "sql_types.hpp"
 
 
-void throw_unimpl_sql_type(const std::string & type) {
-    std::stringstream ss;
-    ss << "Type '" << type << "' not yet implemented";
-    throw std::runtime_error(ss.str());
+/// Make a column binding for a VARCHAR column
+BufferType make_varchar_binding(std::size_t index,
+				const std::string & col_name,
+				Handle hstmt) {
+    
+    /// Get length of the character
+    std::size_t varchar_length{0};
+    SQLRETURN r = SQLColAttribute(hstmt.handle(), index, SQL_DESC_LENGTH,
+				  NULL, 0, NULL, (SQLLEN*)&varchar_length);
+    ok_or_throw(hstmt, r, "Getting column type length attribute");
+
+    /// Pass SQL_C_CHAR type for VARCHAR
+    return VarcharBuffer{hstmt, index, varchar_length};
 }
 
-/// An application buffer 
-class Buffer {
-public:
-    Buffer(std::size_t buffer_len)
-	: buffer_len_{buffer_len}, buffer_{new char[buffer_len_]}
-    { }
-    std::size_t len() const {
-	return buffer_len_;
-    }
-    char* get() {
-	return buffer_.get();
-    }
-private:
-    std::size_t buffer_len_;
-    std::unique_ptr<char[]> buffer_;    
-};
-
-/// 
-class ColBinding {
-public:
-    ColBinding(Handle hstmt, const std::string & col_name, SQLLEN col_type,
-	       std::size_t col_index, std::size_t buffer_len)
-	: col_index_{col_index}, col_name_{col_name},  col_type_{col_type},
-	  len_ind_{std::make_unique<SQLLEN>(0)},
-	  buffer_{buffer_len}
-    {
-	// What type to pass instead of SQL_C_TCHAR?
-	// Buffer length is in bytes, but the column_length might be in chars
-	SQLRETURN r = SQLBindCol(hstmt.handle, col_index_, SQL_C_TCHAR,
-				 (SQLPOINTER)buffer_.get(), buffer_.len(), len_ind_.get());
-	ok_or_throw(hstmt, r, "Binding columns");	
-    }
-
-    void print_type() {
-	switch (col_type_) {
-	case SQL_CHAR:
-	    throw_unimpl_sql_type("SQL_CHAR");
-	    break;
-	case SQL_VARCHAR:
-	    ///
-	    std::cout << "SQL_VARCHAR";
-	    break;
-	case SQL_LONGVARCHAR:
-	    throw_unimpl_sql_type("SQL_LONGVARCHAR");
-	    break;
-	case SQL_WCHAR:
-	    throw_unimpl_sql_type("SQL_WCHAR");
-	    break;
-	case SQL_WVARCHAR:
-	    throw_unimpl_sql_type("SQL_WVARCHAR");
-	    break;
-	case SQL_WLONGVARCHAR:
-	    throw_unimpl_sql_type("SQL_WLONGVARCHAR");
-	    break;
-
-	case SQL_DECIMAL:
-	    throw_unimpl_sql_type("SQL_DECIMAL");
-	    break;
-	case SQL_NUMERIC:
-	    throw_unimpl_sql_type("SQL_NUMERIC");
-	    break;
-	case SQL_SMALLINT:
-	    throw_unimpl_sql_type("SQL_SMALLINT");
-	    break;
-	case SQL_INTEGER:
-	    std::cout << "SQL_INTEGER";
-	    break;
-
-	case SQL_REAL:
-	    throw_unimpl_sql_type("SQL_REAL");
-	    break;
-	case SQL_FLOAT:
-	    throw_unimpl_sql_type("SQL_FLOAT");
-	    break;
-	case SQL_DOUBLE:
-	    throw_unimpl_sql_type("SQL_DOUBLE");
-	    break;
-
-	case SQL_BIT:
-	    throw_unimpl_sql_type("SQL_BIT");
-	    break;
-	case SQL_BIGINT:
-	    std::cout << "SQL_BIGINT";
-	    break;
-	case SQL_BINARY:
-	    throw_unimpl_sql_type("SQL_BINARY");
-	    break;
-	case SQL_VARBINARY:
-	    throw_unimpl_sql_type("SQL_VARBINARY");
-	    break;
-	case SQL_LONGVARBINARY:
-	    throw_unimpl_sql_type("SQL_LONGVARBINARY");
-	    break;
-
-	case SQL_TYPE_DATE:
-	    throw_unimpl_sql_type("SQL_TYPE_DATE");
-	    break;
-	case SQL_TYPE_TIME:
-	    throw_unimpl_sql_type("SQL_TYPE_TIME");
-	    break;
-	case SQL_TYPE_TIMESTAMP:
-	    std::cout << "SQL_TYPE_TIMESTAMP";
-	    break;
-	    
-	default: {
-	    throw_unimpl_sql_type("Unknown: " + std::to_string(col_type_));	    
-	}
-	}
-    }
+/// Make a column binding for an INTEGER column
+BufferType make_integer_binding(std::size_t index,
+				 const std::string & col_name,
+				 Handle hstmt) {
     
-    std::string read_buffer() {
-	switch (*len_ind_) {
-	case SQL_NO_TOTAL:
-	    throw_unimpl_sql_type("SQL_NO_TOTAL");
-	    break;
-	case SQL_NULL_DATA:
-	    throw std::logic_error("NULL value");
-	    break;
-	default:
-	    // Length of data returned
-	    return std::string{buffer_.get()};
-	}
-    }
+    /// Use SQL_C_LONG
+    return IntegerBuffer{hstmt, index};
+}
 
-    std::string col_name() const {
-	return col_name_;
-    }
+/// Make a column binding for a date/datetime/timestamp column
+BufferType make_timestamp_binding(std::size_t index,
+				  const std::string & col_name,
+				  Handle hstmt) {
     
-private:
-    std::size_t col_index_;
-    std::string col_name_;
-    SQLLEN col_type_;
-    std::unique_ptr<SQLLEN> len_ind_;
-    Buffer buffer_;
-};
+    /// Use SQL_C_LONG
+    return TimestampBuffer{hstmt, index};
+}
+
 
 class StmtHandle {
 public:
     StmtHandle(std::shared_ptr<ConHandle> hdbc)
 	: hdbc_{hdbc}
     {
-	SQLRETURN r = SQLAllocHandle(SQL_HANDLE_STMT, hdbc_->get_handle().handle, &hstmt_);
+	SQLRETURN r = SQLAllocHandle(SQL_HANDLE_STMT,
+				     hdbc_->get_handle().handle(), &hstmt_);
 	ok_or_throw(hdbc_->get_handle(), r, "Allocating statement handle");
     }
     Handle get_handle() {
@@ -192,6 +86,7 @@ public:
 	return std::string((char*)column_name_buf);
     }
 
+    
     SQLLEN column_type(std::size_t index) {
 	/// Get column type
 	SQLLEN column_type{0};
@@ -203,22 +98,38 @@ public:
     }
 
     /// Binding to column index (numbered from 1)
-    ColBinding make_binding(std::size_t index) {
-	
-	/// Get the column type
-	SQLLEN type = column_type(index);
-	
-	/// Get length of data type
-	std::size_t column_length{0};
-	SQLRETURN r = SQLColAttribute(hstmt_, index, SQL_DESC_LENGTH,
-				      NULL, 0, NULL, (SQLLEN*)&column_length);
-	ok_or_throw(get_handle(), r, "Getting column type length attribute");
+    BufferType make_buffer(std::size_t index) {
 
 	std::string col_name{column_name(index)};
-	ColBinding col_binding{get_handle(), col_name, type, index, column_length};
-
-	return col_binding;
 	
+	/// Get the column type
+	SQLLEN type{column_type(index)};
+	switch (type) {
+	case SQL_VARCHAR:
+	    /// Store a varchar in a std::string. Convert to
+	    /// a char string
+	    std::cout << "Found varchar column " << col_name << std::endl;
+	    return make_varchar_binding(index, col_name, get_handle());
+	case SQL_INTEGER:
+	    // 32-bit signed or unsigned integer -> map to SqlInteger
+	    // Map
+	    //target_type =
+	    std::cout << "Found integer column " << col_name << std::endl;
+	    return make_integer_binding(index, col_name, get_handle());    
+	case SQL_BIGINT:
+	    // 64-bit signed or unsigned int -> map to SqlInteger
+	    std::cout << "Found big integer column " << col_name << std::endl;
+	    return make_integer_binding(index, col_name, get_handle());    
+	case SQL_TYPE_TIMESTAMP:
+	    // Year, month, day, hour, minute, and second
+	    // -> map to SqlDatetime
+	    std::cout << "Found timestamp column " << col_name << std::endl;
+	    return make_timestamp_binding(index, col_name, get_handle());
+	    break;   
+	default: {
+	    throw_unimpl_sql_type("Unknown: " + std::to_string(type));
+	}
+	}	
     }
 
     /// Fetch a single row into the column bindings. Returns false

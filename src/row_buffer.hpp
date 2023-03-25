@@ -12,7 +12,7 @@
 /// rows to be fetched one at a time.
 class SqlRowBuffer {
 public:
-    /// Make sure you only do this after executing the stam
+    /// Make sure you only do this after executing the statement
     SqlRowBuffer(const std::shared_ptr<StmtHandle> & stmt)
 	: stmt_{stmt}
     {
@@ -23,26 +23,31 @@ public:
 	// Get all the column names. This is where you might do
 	// column name remapping.
 	for (std::size_t n = 1; n <= num_columns; n++) {
-	    std::string colname{stmt_->column_name(n)};
-	    col_bindings_.push_back(stmt_->make_binding(n));
+	    auto column_name{stmt_->column_name(n)};
+	    column_buffers_.insert({column_name, stmt_->make_buffer(n)});
 	}
     }
 
     // Get the number of columns
     std::size_t size() const {
-	return col_bindings_.size();
+	return column_buffers_.size();
     }
 
-    std::vector<std::string> column_names() const {
-	std::vector<std::string> names;
-	for (const auto & bind : col_bindings_) {
-	    names.push_back(bind.col_name());
+    template<typename T>
+    T at(std::string column_name) const {
+	try {    
+	    auto & buffer {
+		std::get<typename T::Buffer>(column_buffers_.at(column_name))
+	    };
+	    return buffer.read();
+	} catch (const std::out_of_range &) {
+	    throw std::runtime_error("Error trying to access "
+				     "non-existent column "
+				     + column_name);
+	} catch (const std::bad_variant_access & e) {
+	    throw std::runtime_error("Error trying to access a column "
+				     "using the wrong type");
 	}
-	return names;
-    }
-
-    const std::string & at(std::string column_name) const {
-	return current_row_.at(column_name);
     }
     
     /// Fetch the next row of data into an internal state
@@ -53,26 +58,16 @@ public:
 	if(not stmt_->fetch()) {
 	    throw std::logic_error("No more rows");
 	}
-	for (auto & bind : col_bindings_) {
-	    std::string value;
-	    try {
-		value = bind.read_buffer();
-	    } catch (const std::logic_error &) {
-		value = "NULL";
-	    }
-	    auto column_name{bind.col_name()};
-
-	    // We are assuming here that the column names
-	    // are not changing from one row fetch to the next.
-	    // First time will insert, next will update.
-	    current_row_[column_name] = value;
-	}
     }
 	
 private:
     std::shared_ptr<StmtHandle> stmt_;
-    std::vector<ColBinding> col_bindings_;
-    std::map<std::string, std::string> current_row_;
+    std::map<std::string, BufferType> column_buffers_;
 };
+
+template<typename T>
+T column(const std::string & column_name, const RowBuffer auto & row) {
+    return row.template at<T>(column_name);
+}
 
 #endif

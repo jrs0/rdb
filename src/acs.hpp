@@ -23,6 +23,8 @@
 #include <yaml-cpp/yaml.h>
 #include "category.hpp"
 #include "sql_connection.hpp"
+#include "sql_types.hpp"
+#include "row_buffer.hpp"
 
 /// Get the vector of source columns from the config file node
 std::vector<std::string> source_columns(const YAML::Node & config) {
@@ -34,20 +36,23 @@ std::vector<std::string> source_columns(const YAML::Node & config) {
 /// (in the same order as the column order). A code is considered invalid
 /// (and not included) if the parser throws a runtime error during
 /// parsing. Look at the TopLevelcategory to see what is covered.
-std::vector<std::string> all_codes(const std::vector<std::string> & columns,
-				   const RowBuffer auto & row,
-				   TopLevelCategory & parser) {
-    std::vector<std::string> result;
-    for (const auto & column : columns) {
+std::set<std::string>
+merge_groups_from_columns(const std::vector<std::string> & columns,
+			  const RowBuffer auto & row,
+			  TopLevelCategory & parser) {
+    std::set<std::string> result;
+    for (const auto & column_name : columns) {
 	try {
-	    auto value{row.at(column)};
-	    auto parsed{parser.code_name(value)};
-	    result.push_back(parsed);
+	    auto raw_code{column<Varchar>(column_name, row).read()};
+	    auto groups{parser.code_groups(raw_code)};
+	    result.insert(groups.begin(), groups.end());
+	} catch (const NullValue & /* NULL in column */) {
+	    // Continue
 	} catch (const std::runtime_error & /* invalid or not found */) {
 	    // Continue
 	} catch (const std::out_of_range & e) {
 	    throw std::runtime_error("Could not read from column "
-				     + column);
+				     + column_name);
 	}
     }
     return result;
@@ -63,7 +68,8 @@ std::vector<std::string> all_codes(const std::vector<std::string> & columns,
 class CodeParser {
 public:
     CodeParser(const YAML::Node & parser_config)
-	: procedures_{load_codes_helper(parser_config["procedures"])},
+	: include_all_{parser_config["all"].as<bool>()},
+	  procedures_{load_codes_helper(parser_config["procedures"])},
 	  diagnoses_{load_codes_helper(parser_config["diagnoses"])},
 	  procedure_columns_{source_columns(parser_config["procedures"])},
 	  diagnosis_columns_{source_columns(parser_config["diagnoses"])}
@@ -73,20 +79,59 @@ public:
 	// together categories into higher level groups,
 	// as defined by the parser_config
     }
+
+    /// Returns the cause of death as a group, "_all_cause"
+    /// if the code is valid but is not in a group, or "_unknown"
+    /// if the code fails to parse
+    std::set<std::string> cause_of_death(const RowBuffer auto & row) {
+	try {
+	    auto raw_code{column<Varchar>("cause_of_death", row).read()};
+	    // Note that the cause of death is an ICD field
+	    auto groups{diagnoses_.code_groups(raw_code)};
+	    if (groups.size() == 0) {
+		// In this case, the code was valid but not in
+		// any group
+		groups.insert("_all_cause");
+	    }
+	    return groups;
+	} catch (const NullValue & /* SQL NULL value */) {	    
+	    return {"_unknown"};
+	} catch (const std::runtime_error & /* invalid or not found */) {
+	    return {"_unknown"};
+	} catch (const std::out_of_range & e) {
+	    throw std::runtime_error("Could not read from 'cause of death'");
+	}
+    }
     
     /// Parse all the procedure codes into a flat list, omitting
-    /// any codes that are invalid.
-    std::vector<std::string> all_procedures(const RowBuffer auto & row) {
-	return all_codes(procedure_columns_, row, procedures_);
+    /// any codes that are invalid.  If the
+    /// "all" key is enabled, then all codes are placed into a group called
+    /// "_all", which will be included in the output in addition to the other
+    /// groups.
+    std::set<std::string> all_procedures(const RowBuffer auto & row) {
+	auto all_groups{merge_groups_from_columns(procedure_columns_,
+						  row, procedures_)};
+	if (include_all_) {
+	    all_groups.insert("_all");
+	}
+	return all_groups;
     }
-
+    
     /// Parse all the diagnosis codes
-    std::vector<std::string> all_diagnoses(const RowBuffer auto & row) {
-	return all_codes(diagnosis_columns_, row, diagnoses_);
+    std::set<std::string> all_diagnoses(const RowBuffer auto & row) {
+	auto all_groups{merge_groups_from_columns(diagnosis_columns_,
+						  row, diagnoses_)};
+	if (include_all_) {
+	    all_groups.insert("_all");
+	}
+	return all_groups;
     }
     
 private:
     
+    /// Whether to include _all group
+    bool include_all_;
+
     TopLevelCategory procedures_;
     TopLevelCategory diagnoses_;
 
@@ -100,7 +145,12 @@ private:
 /// The purpose of the Episode class is to parse all the
 /// primary and secondary diagnosis and procedure fields
 /// and expose them as flat lists of groups (defined by
-/// the ICD and OPCS code group files)
+/// the ICD and OPCS code group files). Codes are only
+/// included by group, as defined in the groups file. Codes
+/// outside any group are not included in the diagnoses and
+/// procedures of this episode. Note that all codes can be
+/// included in a catch all "_all" group by enabling the "all"
+/// key in the codes file.
 class Episode {
 public:
 
@@ -133,14 +183,20 @@ public:
 	row.fetch_next_row();
     }
 
-    std::vector<std::string> procedures() const {
+    std::set<std::string> procedures() const {
 	return procedures_;
     }
 
-    std::vector<std::string> diagnoses() const {
+    std::set<std::string> diagnoses() const {
 	return diagnoses_;
     }
 
+    /// Returns true if there are no diagnosis or procedure
+    /// groups associated with this episode.
+    bool empty() const {
+	return procedures_.empty() and diagnoses_.empty();
+    }
+    
     void print() const {
 	std::cout << "  Episode: D(";
 	for (const auto & diagnosis : diagnoses_) {
@@ -159,10 +215,10 @@ private:
     std::string episode_id_;
 
     /// Parsed procedures from any procedure field
-    std::vector<std::string> procedures_;
+    std::set<std::string> procedures_;
 
     /// Parsed diagnoses from any diagnosis field
-    std::vector<std::string> diagnoses_;
+    std::set<std::string> diagnoses_;
 };
 
 
@@ -176,14 +232,9 @@ public:
 	// per episode.
 
 	// The first row contains the spell id
-	try {
-	    spell_id_ = row.at("spell_id");
-	} catch (const std::out_of_range & e) {
-	    throw std::runtime_error("Column not found");
-	}
+	spell_id_ = column<Varchar>("spell_id", row).read();
 
-       	std::cout << " Spell " << spell_id_ << std::endl;
-	while (row.at("spell_id") == spell_id_) {
+	while (column<Varchar>("spell_id", row).read() == spell_id_) {
 
 	    // If you get here, then the current row
 	    // contains an episode that is part of this
@@ -191,11 +242,29 @@ public:
 
 	    /// Note this will consume a row and fetch the
 	    /// next row
-	    episodes_.emplace_back(row, code_parser);
-	    episodes_.back().print();
+	    Episode episode{row, code_parser};
+
+	    // Only include this episode in the list if it
+	    // contains some diagnoses or procedures
+	    if (not episode.empty()) {
+		episodes_.push_back(episode);
+	    }
 	}
     }
 
+    /// If the spell contains no episodes, then it is
+    /// considered empty
+    bool empty() const {
+	return episodes_.empty();
+    }
+
+    void print() const {
+	std::cout << " Spell:" << std::endl;
+	for (const auto & episode : episodes_) {
+	    episode.print();
+	}
+    }
+ 
 private:
     std::string spell_id_;
     std::string spell_start_;
@@ -239,37 +308,80 @@ private:
     
 };
 
+/// If all three of the mortality fields are NULL, then the
+/// patient is considered still alive.
+bool patient_alive(const RowBuffer auto & row) {
+    auto date_of_death{column<Varchar>("date_of_death", row)};
+    auto cause_of_death{column<Varchar>("cause_of_death", row)};
+    auto age_at_death{column<Integer>("age_at_death", row)};
+
+    return date_of_death.null()
+	and cause_of_death.null()
+	and age_at_death.null();
+}
+    
+
 class Patient {
 public:
     /// The row object passed in has _already had the
     /// first row fetched_. At the other end, when it
     /// discovers a new patients, the row is left in
     /// the buffer for the next Patient object
-    Patient(RowBuffer auto & row, CodeParser & code_parser) {
+    Patient(RowBuffer auto & row, CodeParser & code_parser)
+	: alive_{patient_alive(row)} {
 
 	// The first row contains the nhs number
-	try {
-	    nhs_number_ = row.at("nhs_number");
-	} catch (const std::out_of_range & e) {
-	    throw std::runtime_error("Column not found");
-	}
-
-	std::cout << "Patient " << nhs_number_ << std::endl;
-	while(row.at("nhs_number") == nhs_number_) {
+	nhs_number_ = column<Integer>("nhs_number", row).read();
+	
+	while(row.template at<Integer>("nhs_number").read() == nhs_number_) {
 
 	    // If you get here, then the current row
 	    // contains valid data for this patient
 
-	    // Store the patient info. Note that this
-	    // will leave row pointing to the start of
-	    // the next spell block
-	    spells_.emplace_back(row, code_parser);
+	    // Collect a block of rows into a spell.
+	    // Note that this will leave row pointing
+	    // to the start of the next spell block
+	    Spell spell{row, code_parser};
+
+	    // If the spell is not empty, include it in
+	    // the list of spells
+	    if (not spell.empty()) {
+		spells_.push_back(spell);
+	    }
+
+	    if (not alive_) {
+		cause_of_death_ = code_parser.cause_of_death(row);
+	    }
 	}
     }
 
+    /// Returns true if none of the spells contain any
+    /// diagnoses or procedures in the code groups file 
+    bool empty() const {
+	return spells_.empty();
+    }
+
+    void print() const {
+	std::cout << "Patient:" << std::endl;
+	for (const auto & spell : spells_) {
+	    spell.print();
+	}
+	if (not alive_) {
+	    std::cout << " Cause of death: ";
+	    for (const auto & cause : cause_of_death_) {
+		std::cout << cause << ",";
+	    }
+	    std::cout << std::endl;
+	}
+    }    
+    
 private:
-    std::string nhs_number_;
+    long long unsigned nhs_number_;
     std::vector<Spell> spells_;
+   
+    bool alive_;
+    std::set<std::string> cause_of_death_;
+    
 };
 
 const std::string episodes_query{
@@ -330,21 +442,24 @@ public:
 
 	// sql statement that fetches all episodes for all patients
 	// ordered by nhs number, then spell id.
-
-	// Print the returned rows
-	for (const auto & column_name : row.column_names()) {
-	    std::cout << column_name << std::endl;
-	}
 	
 	// Make the first fetch
 	row.fetch_next_row();
 	
 	while (true) {
 	    try {
-		patients_.emplace_back(row, code_parser_);
+
+		Patient patient{row, code_parser_};
+
+		if (not patient.empty()) {
+		    patients_.push_back(patient);
+		    patients_.back().print();
+		}
+
 	    } catch (const std::logic_error & e) {
 		// There are no more rows
 		std::cout << "No more rows -- finished" << std::endl;
+		std::cout << e.what() << std::endl;
 		break;
 	    }
 	}
@@ -360,7 +475,5 @@ private:
     std::vector<Patient> patients_;
     CodeParser code_parser_;
 };
-
-
 
 #endif

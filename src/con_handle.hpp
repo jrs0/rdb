@@ -8,7 +8,8 @@ public:
     ConHandle(std::shared_ptr<EnvHandle> henv, const std::string & dsn)
 	: henv_{henv}
     {
-	SQLRETURN r = SQLAllocHandle(SQL_HANDLE_DBC, henv_->get_handle().handle, &hdbc_);
+	SQLRETURN r = SQLAllocHandle(SQL_HANDLE_DBC,
+				     henv_->get_handle().handle(), &hdbc_);
 	ok_or_throw(henv_->get_handle(), r, "Allocating the connection handle");
 
 	// Make the connection

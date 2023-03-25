@@ -15,28 +15,6 @@
 #include "mem_row_buffer.hpp"
 #include "acs.hpp"
 
-
-/*
-// [[Rcpp::export]]
-void in_mem_test() {
-
-    
-    
-    // TopLevelCategory procedures{opcs4};
-    // std::cout << "Random OPCS: " << procedures.random_code(gen)
-    // 	      << std::endl; 
-    // YAML::Node icd10 = YAML::LoadFile("icd10.yaml");
-    // TopLevelCategory diagnoses{icd10};
-    // for (std::size_t n{0}; n < 10; n++) {
-    // 	std::cout << "Random ICD: " << diagnoses.random_code(gen)
-    // 		  << std::endl;
-    // }
-}
-
-*/
-
-
-
 // [[Rcpp::export]]
 void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
 
@@ -52,6 +30,9 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
     } catch (const std::runtime_error & e) {
 	//Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
 	std::cout << "Failed with error "  << e.what() << std::endl;
+    } catch (const NullValue & ) {
+	Rcpp::Rcout << "An unhandled NULL value occured"
+		    << std::endl;	
     }
 }
 
@@ -75,7 +56,46 @@ void test_random_code() {
 }
 
 
+// [[Rcpp::export]]
+void debug_sql(const Rcpp::CharacterVector & dsn_character,
+	       const Rcpp::CharacterVector & query_character) {
+    try {
+	std::string dsn = Rcpp::as<std::string>(dsn_character); 
+	std::string query = Rcpp::as<std::string>(query_character); 
 
+	// Make the connection
+	SQLConnection con(dsn);
+
+	// Make the row buffer
+	auto row{con.execute_direct(query)};
+
+	int c{0};
+	while (true) {
+	    try {
+		// Fetch a row
+		row.fetch_next_row();
+		
+		// Get results
+		// column<Integer>("aimtc_pseudo_nhs", row).print();
+		// column<Varchar>("pbrspellid", row).print();
+		// column<Varchar>("diagnosisprimary_icd", row).print();
+		std::cout << c++ << " ";
+		column<Timestamp>("enddate_consultantepisode", row).print();
+		
+	    } catch (const std::logic_error & e) {
+		std::cout << e.what() << std::endl;
+		break;
+	    }
+	}
+    } catch (const std::runtime_error & e) {
+	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+    } catch (const NullValue & ) {
+	Rcpp::Rcout << "An unhandled NULL value occured"
+		    << std::endl;	
+    }
+}
+
+/*
 // [[Rcpp::export]]
 Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 		       const Rcpp::CharacterVector & query_character) {
@@ -88,7 +108,6 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 
 	// Fetch the row buffer (column names + allocated buffer space for one row)
 	auto row_buffer{con.execute_direct(query)};
-	auto column_names{row_buffer.column_names()};
 	
 	// Make a (column-major) table to store the fetched rows
 	std::map<std::string, std::vector<std::string>> table;
@@ -146,6 +165,7 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 	return Rcpp::List{};
     }
 }
+*/
 
 /// Parse a single code. Return the name (what == 0), the docs
 /// (what == 2) or the groups that contain this code. This function
