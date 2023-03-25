@@ -75,6 +75,7 @@ void debug_sql(const Rcpp::CharacterVector & dsn_character,
 		// Get results
 		std::cout << row.template at<Integer>("AIMTC_Pseudo_NHS").read()
 			  << std::endl;
+		
 	    } catch (const std::logic_error & e) {
 		std::cout << e.what() << std::endl;
 		break;

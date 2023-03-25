@@ -120,7 +120,7 @@ public:
 	case SQL_NULL_DATA:
 	    return Integer{};
 	default:
-	    if (*data_size_ != sizeof(long)) {
+	    if (*data_size_ != sizeof(unsigned long long)) {
 		throw std::runtime_error("Fixed type size not equal to C "
 					 "type. Returned size = "
 					 + std::to_string(*data_size_) +
