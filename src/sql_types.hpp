@@ -12,6 +12,9 @@ void throw_unimpl_sql_type(const std::string & type) {
 // Exception thrown on NULL value
 struct NullValue{};
 
+// Could not determine the returned data length
+struct SqlNoTotal{};
+
 class Varchar {
 public:
     using Buffer = class VarcharBuffer;
@@ -59,20 +62,21 @@ public:
     VarcharBuffer(Handle hstmt, std::size_t col_index,
 		  std::size_t buffer_length)
 	: buffer_length_{buffer_length}, buffer_{new char[buffer_length_]},
-	  len_ind_{std::make_unique<SQLLEN>(0)} {
+	  data_length_{std::make_unique<SQLLEN>(0)} {
 	// Buffer length is in bytes, but the column_length might be in chars
 	// Here, the type is specified in the SQL_C_CHAR position.
 	SQLRETURN r = SQLBindCol(hstmt.handle(), col_index, SQL_C_CHAR,
 				 (SQLPOINTER)buffer_.get(),
-				 buffer_length_, len_ind_.get());
+				 buffer_length_, data_length_.get());
 	ok_or_throw(hstmt, r, "Binding varchar column");
     }
 
     Varchar read() const {
-	switch (*len_ind_) {
+	switch (*data_length_) {
 	case SQL_NO_TOTAL:
-	    throw_unimpl_sql_type("SQL_NO_TOTAL");
-	    break;
+	    /// Could not determine the data length
+	    /// after conversion
+	    throw SqlNoTotal{};
 	case SQL_NULL_DATA:
 	    return Varchar{};
 	default:
@@ -87,29 +91,35 @@ private:
     /// The buffer area
     std::unique_ptr<char[]> buffer_;    
     
-    /// Where the output data length with
-    /// be written
-    std::unique_ptr<SQLLEN> len_ind_;
+    /// The length of the data, in bytes, after conversion
+    /// but before truncation to the buffer length
+    std::unique_ptr<SQLLEN> data_length_;
 };
+
+/// Thrown when the driver writes a fixed size type
+/// that is too long
+struct FixedSizeOverrun {};
 
 class IntegerBuffer {
 public:
     IntegerBuffer(Handle hstmt, std::size_t col_index)
 	: buffer_{std::make_unique<long>(0)},
-	  len_ind_{std::make_unique<SQLLEN>(0)} {
+	  data_size_{std::make_unique<SQLLEN>(0)} {
 	// Note: because integer is a fixed length type, the buffer length
 	// field is ignored. 
 	SQLRETURN r = SQLBindCol(hstmt.handle(), col_index, SQL_C_LONG,
 				 (SQLPOINTER)buffer_.get(), 0,
-				 len_ind_.get());
+				 data_size_.get());
 	ok_or_throw(hstmt, r, "Binding integer column");
     }
 
     Integer read() const {
-	switch (*len_ind_) {
-	case SQL_NO_TOTAL:
-	    throw_unimpl_sql_type("SQL_NO_TOTAL");
-	    break;
+	
+	if (*data_size_ > sizeof(long)) {
+	    throw FixedSizeOverrun{};
+	}
+	
+	switch (*data_size_) {
 	case SQL_NULL_DATA:
 	    return Integer{};
 	default:
@@ -120,9 +130,10 @@ public:
 private:
     std::unique_ptr<long> buffer_;
     
-    /// Where the output data length with
-    /// be written
-    std::unique_ptr<SQLLEN> len_ind_;    
+    /// For a fixed size type, this is the size of the
+    /// type written by the driver. Must be less than
+    /// or equal to the buffer size to avoid memory errors.
+    std::unique_ptr<SQLLEN> data_size_;
 };
 
 using BufferType = std::variant<VarcharBuffer, IntegerBuffer>;
