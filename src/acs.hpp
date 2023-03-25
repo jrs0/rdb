@@ -23,6 +23,7 @@
 #include <yaml-cpp/yaml.h>
 #include "category.hpp"
 #include "sql_connection.hpp"
+#include "sql_types.hpp"
 
 /// Get the vector of source columns from the config file node
 std::vector<std::string> source_columns(const YAML::Node & config) {
@@ -41,9 +42,11 @@ merge_groups_from_columns(const std::vector<std::string> & columns,
     std::set<std::string> result;
     for (const auto & column : columns) {
 	try {
-	    auto raw_code{row.at(column)};
+	    auto raw_code{row.template at<Varchar>(column).read()};
 	    auto groups{parser.code_groups(raw_code)};
 	    result.insert(groups.begin(), groups.end());
+	} catch (const NullValue & /* NULL in column */) {
+	    // Continue
 	} catch (const std::runtime_error & /* invalid or not found */) {
 	    // Continue
 	} catch (const std::out_of_range & e) {
@@ -82,7 +85,7 @@ public:
     /// if the code fails to parse
     std::set<std::string> cause_of_death(const RowBuffer auto & row) {
 	try {
-	    auto raw_code{row.at("cause_of_death")};
+	    auto raw_code{row.template at<Varchar>("cause_of_death").read()};
 	    // Note that the cause of death is an ICD field
 	    auto groups{diagnoses_.code_groups(raw_code)};
 	    if (groups.size() == 0) {
@@ -91,6 +94,8 @@ public:
 		groups.insert("_all_cause");
 	    }
 	    return groups;
+	} catch (const NullValue & /* SQL NULL value */) {	    
+	    return {"_unknown"};
 	} catch (const std::runtime_error & /* invalid or not found */) {
 	    return {"_unknown"};
 	} catch (const std::out_of_range & e) {
@@ -227,13 +232,9 @@ public:
 	// per episode.
 
 	// The first row contains the spell id
-	try {
-	    spell_id_ = row.at("spell_id");
-	} catch (const std::out_of_range & e) {
-	    throw std::runtime_error("Column not found");
-	}
+	spell_id_ = row.template at<Integer>("spell_id").read();
 
-	while (row.at("spell_id") == spell_id_) {
+	while (row.template at<Integer>("spell_id").read() == spell_id_) {
 
 	    // If you get here, then the current row
 	    // contains an episode that is part of this
@@ -266,7 +267,7 @@ public:
 
     
 private:
-    std::string spell_id_;
+    long spell_id_;
     std::string spell_start_;
     std::string spell_end_;
     std::vector<Episode> episodes_;
@@ -311,16 +312,13 @@ private:
 /// If all three of the mortality fields are NULL, then the
 /// patient is considered still alive.
 bool patient_alive(const RowBuffer auto & row) {
-    try {
-	std::string date_of_death{row.at("date_of_death")};
-	std::string cause_of_death{row.at("cause_of_death")};
-	std::string age_at_death{row.at("age_at_death")};
-	return (date_of_death == "NULL")
-	    and (cause_of_death == "NULL")
-	    and (age_at_death == "NULL");
-    } catch (const std::out_of_range &) {
-	throw std::runtime_error("Missing mortality columns");
-    }
+    auto date_of_death{row.template at<Varchar>("date_of_death")};
+    auto cause_of_death{row.template at<Varchar>("cause_of_death")};
+    auto age_at_death{row.template at<Integer>("age_at_death")};
+
+    return date_of_death.null()
+	and cause_of_death.null()
+	and age_at_death.null();
 }
     
 
@@ -334,13 +332,9 @@ public:
 	: alive_{patient_alive(row)} {
 
 	// The first row contains the nhs number
-	try {
-	    nhs_number_ = row.at("nhs_number");
-	} catch (const std::out_of_range & e) {
-	    throw std::runtime_error("Column not found");
-	}
-
-	while(row.at("nhs_number") == nhs_number_) {
+	nhs_number_ = row.template at<Integer>("nhs_number").read();
+	
+	while(row.template at<Integer>("nhs_number").read() == nhs_number_) {
 
 	    // If you get here, then the current row
 	    // contains valid data for this patient
@@ -383,7 +377,7 @@ public:
     }    
     
 private:
-    std::string nhs_number_;
+    long nhs_number_;
     std::vector<Spell> spells_;
    
     bool alive_;

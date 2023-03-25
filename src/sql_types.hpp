@@ -9,6 +9,9 @@ void throw_unimpl_sql_type(const std::string & type) {
     throw std::runtime_error(ss.str());
 }
 
+// Exception thrown on NULL value
+struct NullValue{};
+
 class Varchar {
 public:
     using Buffer = class VarcharBuffer;
@@ -16,6 +19,14 @@ public:
     Varchar() = default;
     Varchar(const std::string & string)
 	: null_{false}, string_{string} {}
+    std::string read() const {
+	if (not null_) {
+	    return string_;
+	} else {
+	    throw NullValue{};
+	}
+    }
+    bool null() const { return null_; }
 private:
     bool null_{true};
     std::string string_{""};
@@ -28,6 +39,14 @@ public:
     // Will default construct to a null integer
     Integer() = default;
     Integer(long value) : null_{false}, value_{value} {}
+    long read() const {
+	if (not null_) {
+	    return value_;
+	} else {
+	    throw NullValue{};
+	}
+    }
+    bool null() const { return null_; }
 private:
     bool null_{true};
     long value_{0};
@@ -49,7 +68,7 @@ public:
 	ok_or_throw(hstmt, r, "Binding varchar column");
     }
 
-    Varchar read() {
+    Varchar read() const {
 	switch (*len_ind_) {
 	case SQL_NO_TOTAL:
 	    throw_unimpl_sql_type("SQL_NO_TOTAL");
@@ -86,7 +105,7 @@ public:
 	ok_or_throw(hstmt, r, "Binding integer column");
     }
 
-    Integer read() {
+    Integer read() const {
 	switch (*len_ind_) {
 	case SQL_NO_TOTAL:
 	    throw_unimpl_sql_type("SQL_NO_TOTAL");

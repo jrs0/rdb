@@ -34,10 +34,11 @@ public:
     }
 
     template<typename T>
-    const T & at(std::string column_name) const {
-	try {
-	    
-	    auto buffer{std::get<T::Buffer>(column_buffers_.at(column_name))};
+    T at(std::string column_name) const {
+	try {    
+	    auto & buffer {
+		std::get<typename T::Buffer>(column_buffers_.at(column_name))
+	    };
 	    return buffer.read();
 	} catch (const std::out_of_range &) {
 	    throw std::runtime_error("Error trying to access "
