@@ -87,6 +87,9 @@ void debug_sql(const Rcpp::CharacterVector & dsn_character,
 	}
     } catch (const std::runtime_error & e) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+    } catch (const NullValue & ) {
+	Rcpp::Rcout << "An unhandled NULL value occured"
+		    << std::endl;	
     }
 }
 
