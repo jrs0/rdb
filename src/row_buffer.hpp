@@ -66,7 +66,7 @@ private:
 };
 
 template<typename T>
-T column(const std::string & column_name, RowBuffer auto & row) {
+T column(const std::string & column_name, const RowBuffer auto & row) {
     return row.template at<T>(column_name);
 }
 

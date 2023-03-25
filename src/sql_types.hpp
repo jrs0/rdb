@@ -133,11 +133,10 @@ public:
 	if (null_) {
 	    std::cout << "NULL" << std::endl;
 	} else {
-	    std::cout << unix_timestamp_ << std::endl;
+	    std::cout << unix_timestamp_;
+	    std::cout << " (";
 	    auto t{static_cast<std::time_t>(unix_timestamp_)};
-	    std::tm *tm{std::localtime(&t)};
-	    std::cout << "(";
-	    std::put_time(tm, "%c %Z");
+	    std::cout << std::put_time(std::localtime(&t), "%F %T %Z");
 	    std::cout << ")" << std::endl;
 	}
     }
