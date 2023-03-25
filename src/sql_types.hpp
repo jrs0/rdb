@@ -108,7 +108,10 @@ public:
 	
 	// Pass -1 to assume that the the times are recorded according
 	// to the wall clock in the UK. This is most likely what is
-	// being recorded in the HES data (TODO)
+	// being recorded in the HES data. This appears to match the
+	// default assumption of POSIXct, which assumes BST. This is
+	// a valid interpretation of the database times if they are
+	// wall-clock time as recorded in the UK.
 	datetime_.tm_isdst = -1;
 	    
 	// Convert to timestamp
