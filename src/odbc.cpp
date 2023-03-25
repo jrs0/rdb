@@ -73,7 +73,7 @@ void debug_sql(const Rcpp::CharacterVector & dsn_character,
 		row.fetch_next_row();
 		
 		// Get results
-		std::cout << row.template at<Varchar>("AIMTC_Pseudo_NHS").read()
+		std::cout << row.template at<Integer>("AIMTC_Pseudo_NHS").read()
 			  << std::endl;
 	    } catch (const std::logic_error & e) {
 		std::cout << e.what() << std::endl;

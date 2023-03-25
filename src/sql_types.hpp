@@ -108,7 +108,7 @@ public:
 	// Note: because integer is a fixed length type, the buffer length
 	// field is ignored. 
 	SQLRETURN r = SQLBindCol(hstmt.handle(), col_index, SQL_C_LONG,
-				 (SQLPOINTER)buffer_.get(), 0,
+				 (SQLPOINTER)buffer_.get(), 0),
 				 data_size_.get());
 	ok_or_throw(hstmt, r, "Binding integer column");
     }
