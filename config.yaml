@@ -1,9 +1,9 @@
 # This file controls the behaviour of a routine that generates a dataset
-# of information rleating to patients who have had acute coronary syndromes
-# or PCI procedures. The script generates a dataset where each row is a
-# patient, and the columns contain characteristics of the index event
-# (either ACS or PCI) and other diagnostic/procedural episodes that
-# happened either before or after the index event.
+# of information relating to patients who have had acute coronary syndromes
+# or PCI procedures. The script generates a dataset where each row is an
+# index acs/pci, and the columns contain characteristics of the index event
+# and other diagnostic/procedural episodes that happened either before or
+# after the index event.
 #
 # output columns:
 #  index_spell_date: The date of the spell containing the index episode.

@@ -177,6 +177,9 @@ public:
 	// episode is not of interest (it is then not included
 	// in the spell).
 
+	episode_start_ = column<Timestamp>("episode_start", row);
+	episode_end_ = column<Timestamp>("episode_end", row);
+	
 	procedures_ = code_parser.all_procedures(row);
 	diagnoses_ = code_parser.all_diagnoses(row);
 	
@@ -198,7 +201,12 @@ public:
     }
     
     void print() const {
-	std::cout << "  Episode: D(";
+	std::cout << "  Episode: ";
+	episode_start_.print();
+	std::cout << " - ";
+	episode_end_.print();
+	std::cout << std::endl;
+	std::cout << "    D(";
 	for (const auto & diagnosis : diagnoses_) {
 	    std::cout << diagnosis << ",";
 	}
@@ -260,11 +268,9 @@ public:
     }
 
     void print() const {
-	std::cout << " Spell: " << std::endl;
-	std::cout << "  Start: ";
+	std::cout << " Spell " << spell_id_ << std::endl << "  ";
 	spell_start_.print();
-	std::cout << std::endl;
-	std::cout << "  End: ";
+	std::cout << " - ";
 	spell_end_.print();
 	std::cout << std::endl;
 	for (const auto & episode : episodes_) {
@@ -279,42 +285,6 @@ private:
     std::vector<Episode> episodes_;
 };
 
-class IndexEvent {
-public:
-    IndexEvent() {}
-private:
-    bool event_type_; ///< true for acs, false for pci
-    std::string date_;
-    std::size_t age_at_index_; ///< Age at the index event
-};
-
-/// An index event along with events before and
-/// after
-class Record {
-public:
-    Record() {
-	// Assume rows ordered by patient. Loop over rows
-	// until next patient is found (needs a count of
-	// some kind, otherwise will use up first row of
-	// next patient.	
-
-	// Make a vector of spells. Pass results object by
-	// reference to spells constructor and allow it to
-	// consume all the episodes in the spell.
-	std::vector<Spell> spells;
-
-	// Process the list of spells. The target information
-	// is the identification of index events, which will
-	// be one to one with Records, and counting before
-	// and after events. 
-    }
-private:
-    IndexEvent index_event_;
-    std::map<std::string, std::size_t> num_events_before_;
-    std::map<std::string, std::size_t> num_events_after_;
-    
-};
-
 /// If all three of the mortality fields are NULL, then the
 /// patient is considered still alive.
 bool patient_alive(const RowBuffer auto & row) {
@@ -327,7 +297,6 @@ bool patient_alive(const RowBuffer auto & row) {
 	and age_at_death.null();
 }
     
-
 class Patient {
 public:
     /// The row object passed in has _already had the
@@ -388,6 +357,42 @@ private:
    
     bool alive_;
     std::set<std::string> cause_of_death_;
+    
+};
+
+class IndexEvent {
+public:
+    IndexEvent() {}
+private:
+    bool event_type_; ///< true for acs, false for pci
+    std::string date_;
+    std::size_t age_at_index_; ///< Age at the index event
+};
+
+/// An index event along with events before and
+/// after
+class Record {
+public:
+    Record() {
+	// Assume rows ordered by patient. Loop over rows
+	// until next patient is found (needs a count of
+	// some kind, otherwise will use up first row of
+	// next patient.	
+
+	// Make a vector of spells. Pass results object by
+	// reference to spells constructor and allow it to
+	// consume all the episodes in the spell.
+	std::vector<Spell> spells;
+
+	// Process the list of spells. The target information
+	// is the identification of index events, which will
+	// be one to one with Records, and counting before
+	// and after events. 
+    }
+private:
+    IndexEvent index_event_;
+    std::map<std::string, std::size_t> num_events_before_;
+    std::map<std::string, std::size_t> num_events_after_;
     
 };
 

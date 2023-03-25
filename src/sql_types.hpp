@@ -73,7 +73,8 @@ private:
     unsigned long long value_{0};
 };
 
-// Will default construct to a null integer
+// Stores an absolute time as a unix timestamp, constructed from
+// date components assuming that BST may be in effect.
 class Timestamp {
 public:
     using Buffer = class TimestampBuffer;
@@ -129,15 +130,11 @@ public:
 	}
     }
     void print() const {
-	std::cout << "Timestamp: ";
 	if (null_) {
-	    std::cout << "NULL" << std::endl;
+	    std::cout << "NULL";
 	} else {
-	    std::cout << unix_timestamp_;
-	    std::cout << " (";
 	    auto t{static_cast<std::time_t>(unix_timestamp_)};
-	    std::cout << std::put_time(std::localtime(&t), "%F %T %Z");
-	    std::cout << ")" << std::endl;
+	    std::cout << std::put_time(std::localtime(&t), "%F %T");
 	}
     }
     bool null() const { return null_; }
