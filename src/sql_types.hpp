@@ -11,7 +11,7 @@ void throw_unimpl_sql_type(const std::string & type) {
 
 class Varchar {
 public:
-    using Buffer = typename VarcharBuffer;
+    using Buffer = class VarcharBuffer;
     // Will default construct to a null varchar
     Varchar() = default;
     Varchar(const std::string & string)
@@ -24,7 +24,7 @@ private:
 // Will default construct to a null integer
 class Integer {
 public:
-    using Buffer = typename IntegerBuffer;
+    using Buffer = class IntegerBuffer;
     // Will default construct to a null integer
     Integer() = default;
     Integer(long value) : null_{false}, value_{value} {}
