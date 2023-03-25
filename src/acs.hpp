@@ -360,13 +360,37 @@ private:
     
 };
 
+/// Index episode are those that contain
+/// an ACS or a PCI diagnosis. There is at most
+/// one index event from every spell -- this is
+/// supposed to avoid double counting (especially)
+/// diagnoses from the same spell, that may
+/// correspond to the same underlying event.
+///
+/// The start date of the index episode is used as
+/// the index date. A flag records whether the triggering
+/// event was a diagnosis or a procedure. The patient
+/// age at that episode is recorded.
 class IndexEvent {
 public:
-    IndexEvent() {}
+    /// The information for the index event comes from
+    /// a single episode. This constructor throws an
+    /// exception if the episode is not an index event.
+    /// This keeps the logic for what is an index event
+    /// contained inside this constructor
+    IndexEvent(const Episode & episode, const YAML::Node & index_event) {
+
+	bool include{false};
+	index_event["include"]["diagnoses"].as<>
+	
+	if (episode.)
+	
+    }
 private:
     bool event_type_; ///< true for acs, false for pci
     std::string date_;
     std::size_t age_at_index_; ///< Age at the index event
+
 };
 
 /// An index event along with events before and
@@ -374,26 +398,15 @@ private:
 class Record {
 public:
     Record() {
-	// Assume rows ordered by patient. Loop over rows
-	// until next patient is found (needs a count of
-	// some kind, otherwise will use up first row of
-	// next patient.	
+	
 
-	// Make a vector of spells. Pass results object by
-	// reference to spells constructor and allow it to
-	// consume all the episodes in the spell.
-	std::vector<Spell> spells;
-
-	// Process the list of spells. The target information
-	// is the identification of index events, which will
-	// be one to one with Records, and counting before
-	// and after events. 
     }
 private:
-    IndexEvent index_event_;
+    /// A map from a procedure or diagnosis group to the
+    /// number of that event that occured in the window before
+    /// or after the event.
     std::map<std::string, std::size_t> num_events_before_;
     std::map<std::string, std::size_t> num_events_after_;
-    
 };
 
 const std::string episodes_query{
@@ -461,11 +474,15 @@ public:
 	while (true) {
 	    try {
 
+		/// Parse a block of rows into a Patient,
+		/// which contains a list of Spells, each of
+		/// which contains a list of episodes. 
 		Patient patient{row, code_parser_};
 
 		if (not patient.empty()) {
-		    patients_.push_back(patient);
-		    patients_.back().print();
+		    auto 
+		
+		
 		}
 
 	    } catch (const std::logic_error & e) {
@@ -484,7 +501,7 @@ public:
     }
     
 private:
-    std::vector<Patient> patients_;
+    std::vector<Record> records_;
     CodeParser code_parser_;
 };
 

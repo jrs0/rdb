@@ -23,6 +23,10 @@ Hospital episodes group episodes into spells. A spell defines one in-patient hos
 
 # Dataset definition and characteristics
 
+Each row of the dataset corresponds to an episode with either an ACS or PCI code in any of the primary or secondary columns in the HES data. At most one index event is selected from each spell -- this is intended to avoid double counting the same underlying event (if, for example, two episodes are marked ACS in a single spell corresponding to one emergency admission due to a heart attack).
+
+The start date of the index episode is used as the index date. A flag records whether the triggering event was a diagnosis or a procedure. The patient age at that episode is recorded.
+
 Describe how the dataset is produced (what columns, what they are etc.). Do some simple descriptive stats.
 
 # Classification models

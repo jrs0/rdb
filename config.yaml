@@ -54,7 +54,10 @@ parser_config:
 index_event:
   start_date: "2015-1-1" 
   end_date: "2023-1-1"
-
+  include:
+    diagnoses: [acs]
+    procedures: [pci]
+  
 code_groups:
   acs: acs
   diabetes: [type_1_diabetes, type_2_diabetes]
