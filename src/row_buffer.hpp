@@ -24,7 +24,7 @@ public:
 	// column name remapping.
 	for (std::size_t n = 1; n <= num_columns; n++) {
 	    auto column_name{stmt_->column_name(n)};
-	    column_buffers_[column_name] = stmt_->make_buffer(n);
+	    column_buffers_.insert({column_name, stmt_->make_buffer(n)});
 	}
     }
 
