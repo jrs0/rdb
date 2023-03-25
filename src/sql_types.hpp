@@ -3,6 +3,7 @@
 
 #include <variant>
 #include <ctime>
+#include <iomanip>
 
 void throw_unimpl_sql_type(const std::string & type) {
     std::stringstream ss;
@@ -133,6 +134,11 @@ public:
 	    std::cout << "NULL" << std::endl;
 	} else {
 	    std::cout << unix_timestamp_ << std::endl;
+	    auto t{static_cast<std::time_t>(unix_timestamp_)};
+	    std::tm *tm{std::localtime(&t)};
+	    std::cout << "(";
+	    std::put_time(tm, "%c %Z");
+	    std::cout << ")" << std::endl;
 	}
     }
     bool null() const { return null_; }

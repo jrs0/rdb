@@ -30,6 +30,9 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
     } catch (const std::runtime_error & e) {
 	//Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
 	std::cout << "Failed with error "  << e.what() << std::endl;
+    } catch (const NullValue & ) {
+	Rcpp::Rcout << "An unhandled NULL value occured"
+		    << std::endl;	
     }
 }
 

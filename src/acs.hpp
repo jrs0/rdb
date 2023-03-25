@@ -24,6 +24,7 @@
 #include "category.hpp"
 #include "sql_connection.hpp"
 #include "sql_types.hpp"
+#include "row_buffer.hpp"
 
 /// Get the vector of source columns from the config file node
 std::vector<std::string> source_columns(const YAML::Node & config) {
@@ -40,9 +41,9 @@ merge_groups_from_columns(const std::vector<std::string> & columns,
 			  const RowBuffer auto & row,
 			  TopLevelCategory & parser) {
     std::set<std::string> result;
-    for (const auto & column : columns) {
+    for (const auto & column_name : columns) {
 	try {
-	    auto raw_code{row.template at<Varchar>(column).read()};
+	    auto raw_code{column<Varchar>(column_name, row).read()};
 	    auto groups{parser.code_groups(raw_code)};
 	    result.insert(groups.begin(), groups.end());
 	} catch (const NullValue & /* NULL in column */) {
@@ -51,8 +52,7 @@ merge_groups_from_columns(const std::vector<std::string> & columns,
 	    // Continue
 	} catch (const std::out_of_range & e) {
 	    throw std::runtime_error("Could not read from column "
-				     + column);
-
+				     + column_name);
 	}
     }
     return result;
@@ -85,7 +85,7 @@ public:
     /// if the code fails to parse
     std::set<std::string> cause_of_death(const RowBuffer auto & row) {
 	try {
-	    auto raw_code{row.template at<Varchar>("cause_of_death").read()};
+	    auto raw_code{column<Varchar>("cause_of_death", row).read()};
 	    // Note that the cause of death is an ICD field
 	    auto groups{diagnoses_.code_groups(raw_code)};
 	    if (groups.size() == 0) {
@@ -232,9 +232,9 @@ public:
 	// per episode.
 
 	// The first row contains the spell id
-	spell_id_ = row.template at<Integer>("spell_id").read();
+	spell_id_ = column<Varchar>("spell_id", row).read();
 
-	while (row.template at<Integer>("spell_id").read() == spell_id_) {
+	while (column<Varchar>("spell_id", row).read() == spell_id_) {
 
 	    // If you get here, then the current row
 	    // contains an episode that is part of this
@@ -264,10 +264,9 @@ public:
 	    episode.print();
 	}
     }
-
-    
+ 
 private:
-    long spell_id_;
+    std::string spell_id_;
     std::string spell_start_;
     std::string spell_end_;
     std::vector<Episode> episodes_;
@@ -312,9 +311,9 @@ private:
 /// If all three of the mortality fields are NULL, then the
 /// patient is considered still alive.
 bool patient_alive(const RowBuffer auto & row) {
-    auto date_of_death{row.template at<Varchar>("date_of_death")};
-    auto cause_of_death{row.template at<Varchar>("cause_of_death")};
-    auto age_at_death{row.template at<Integer>("age_at_death")};
+    auto date_of_death{column<Varchar>("date_of_death", row)};
+    auto cause_of_death{column<Varchar>("cause_of_death", row)};
+    auto age_at_death{column<Integer>("age_at_death", row)};
 
     return date_of_death.null()
 	and cause_of_death.null()
@@ -332,7 +331,7 @@ public:
 	: alive_{patient_alive(row)} {
 
 	// The first row contains the nhs number
-	nhs_number_ = row.template at<Integer>("nhs_number").read();
+	nhs_number_ = column<Integer>("nhs_number", row).read();
 	
 	while(row.template at<Integer>("nhs_number").read() == nhs_number_) {
 
@@ -377,7 +376,7 @@ public:
     }    
     
 private:
-    long nhs_number_;
+    long long unsigned nhs_number_;
     std::vector<Spell> spells_;
    
     bool alive_;
