@@ -210,9 +210,8 @@ public:
     }
     
 private:
-    std::string episode_start_;
-    std::string episode_end_;
-    std::string episode_id_;
+    Timestamp episode_start_;
+    Timestamp episode_end_;
 
     /// Parsed procedures from any procedure field
     std::set<std::string> procedures_;
@@ -233,7 +232,9 @@ public:
 
 	// The first row contains the spell id
 	spell_id_ = column<Varchar>("spell_id", row).read();
-
+	spell_start_ = column<Timestamp>("spell_start", row);
+	spell_end_ = column<Timestamp>("spell_end", row);
+	
 	while (column<Varchar>("spell_id", row).read() == spell_id_) {
 
 	    // If you get here, then the current row
@@ -259,7 +260,13 @@ public:
     }
 
     void print() const {
-	std::cout << " Spell:" << std::endl;
+	std::cout << " Spell: " << std::endl;
+	std::cout << "  Start: ";
+	spell_start_.print();
+	std::cout << std::endl;
+	std::cout << "  End: ";
+	spell_end_.print();
+	std::cout << std::endl;
 	for (const auto & episode : episodes_) {
 	    episode.print();
 	}
@@ -267,8 +274,8 @@ public:
  
 private:
     std::string spell_id_;
-    std::string spell_start_;
-    std::string spell_end_;
+    Timestamp spell_start_;
+    Timestamp spell_end_;
     std::vector<Episode> episodes_;
 };
 
@@ -333,7 +340,7 @@ public:
 	// The first row contains the nhs number
 	nhs_number_ = column<Integer>("nhs_number", row).read();
 	
-	while(row.template at<Integer>("nhs_number").read() == nhs_number_) {
+	while(column<Integer>("nhs_number", row).read() == nhs_number_) {
 
 	    // If you get here, then the current row
 	    // contains valid data for this patient
@@ -362,7 +369,7 @@ public:
     }
 
     void print() const {
-	std::cout << "Patient:" << std::endl;
+	std::cout << "Patient: " << nhs_number_ << std::endl;
 	for (const auto & spell : spells_) {
 	    spell.print();
 	}
