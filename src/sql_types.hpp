@@ -78,8 +78,11 @@ private:
 class Timestamp {
 public:
     using Buffer = class TimestampBuffer;
+
     // Will default construct to a null timestamp
     Timestamp() = default;
+    Timestamp(unsigned long long timestamp)
+	: null_{false}, unix_timestamp_{timestamp} { }
     Timestamp(const SQL_TIMESTAMP_STRUCT & datetime)
 	: null_{false} {
 
@@ -122,6 +125,10 @@ public:
 	unix_timestamp_
 	    = static_cast<unsigned long long>(std::mktime(&tm));
     }
+
+    friend auto operator<=>(const Timestamp &, const Timestamp &) = default;
+    friend bool operator==(const Timestamp &, const Timestamp &) = default;
+    
     unsigned long long read() const {
 	if (not null_) {
 	    return unix_timestamp_;
@@ -143,6 +150,10 @@ private:
     unsigned long long unix_timestamp_{0};
 };
 
+template<std::integral T>
+Timestamp operator+(const Timestamp & time, T offset_seconds) {
+    return Timestamp{time.read() + offset_seconds};
+}
 
 using SqlType = std::variant<Varchar,
 			     Integer,

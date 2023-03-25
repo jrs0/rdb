@@ -448,6 +448,10 @@ public:
 	}
     }
 
+    Timestamp date() const {
+	return date_;
+    }
+
     /// Print the index event
     void print() const {
 	std::cout << "Index: ";
@@ -462,15 +466,48 @@ private:
 };
 
 /// An index event along with events before and
-/// after
+/// after.
 class Record {
 public:
+
+    /// Pass a patient, containing a set of spells to search, and
+    /// an index event, defining the base date for the search.
     Record(const Patient & patient,
 	   const IndexEvent & index_event)
 	: index_event_{index_event} {
-	
 
+	// Get the date of the index event
+	Timestamp base_date{index_event_.date()};
+
+	// Make the start and end dates within which to search
+	auto start_date{base_date + -356*24*60*60};
+	auto end_date{base_date + 356*24*60*60};
+
+	// Loop over all the spells in the patient
+	for (const auto & spell : patient.spells()) {
+
+	    // Loop over all episodes in the spell
+	    for (const auto & episode : spell.episodes()) {
+
+		auto date{episode.episode_start()};
+		
+		// Loop at spells before
+		if ((date < base_date) and (date > start_date)) {
+		    // Accumulate all the diagnosis and procedure
+		    // codes from this episode into the count for
+		    // before
+		}
+
+		// Look at spells after
+		if ((date > base_date) and (date < end_date)) {
+		    // Accumulate all the diagnosis and procedure
+		    // codes from this episode into the count for
+		    // after
+		}
+	    }
+	}
     }
+    
 private:
     IndexEvent index_event_;
     /// A map from a procedure or diagnosis group to the
@@ -527,8 +564,8 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 
     // Load the index diagnosis and procedures lists
     auto include{config["index_event"]["include"]};
-    auto index_diagnoses{include["diagnoses"].as<std::set<std::string>>};
-    auto index_procedures{include["procedures"].as<std::set<std::string>>};
+    auto index_diagnoses{include["diagnoses"].as<std::set<std::string>>()};
+    auto index_procedures{include["procedures"].as<std::set<std::string>>()};
 	
     // Fetch the database name and connect
     auto dsn{config["data_sources"]["dsn"].as<std::string>()};
@@ -536,9 +573,7 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
     SQLConnection con{dsn};
     std::cout << "Executing statement" << std::endl;
     auto row{con.execute_direct(episodes_query)};
-	
-    //InMemoryRowBuffer row{config};
-	
+        
     std::cout << "Starting to fetch rows" << std::endl;
 
     // sql statement that fetches all episodes for all patients
@@ -548,7 +583,7 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
     row.fetch_next_row();
 
     // Count the patients
-    std::Size_t patient_count{0};
+    std::size_t patient_count{0};
     
     while (true) {
 	try {
@@ -570,7 +605,7 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 			    // Test if this episode is an index event
 			    IndexEvent index_event{episode,
 						   index_diagnoses,
-						   index_procedures}
+						   index_procedures};
 			    index_event.print();
 
 			    // For this index event, construct the
