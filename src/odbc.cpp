@@ -65,14 +65,21 @@ void debug_sql(const Rcpp::CharacterVector & dsn_character,
 
 	// Make the row buffer
 	auto row{con.execute_direct(query)};
-	
-	// // Fetch a row
-	row.fetch_next_row();
 
-	// // Get results
-	std::cout << row.template at<Integer>("AIMTC_Pseudo_NHS").read()
-		  << std::endl;
-	
+
+	while (true) {
+	    try {
+		// Fetch a row
+		row.fetch_next_row();
+		
+		// Get results
+		std::cout << row.template at<Varchar>("AIMTC_Pseudo_NHS").read()
+			  << std::endl;
+	    } catch (const std::logic_error & e) {
+		std::cout << e.what() << std::endl;
+		break;
+	    }
+	}
     } catch (const std::runtime_error & e) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
     }
