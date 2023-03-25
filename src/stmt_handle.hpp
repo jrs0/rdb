@@ -7,8 +7,8 @@
 
 /// Make a column binding for a VARCHAR column
 BufferType make_varchar_binding(std::size_t index,
-				 const std::string & col_name,
-				 Handle hstmt) {
+				const std::string & col_name,
+				Handle hstmt) {
     
     /// Get length of the character
     std::size_t varchar_length{0};
@@ -16,9 +16,8 @@ BufferType make_varchar_binding(std::size_t index,
 				  NULL, 0, NULL, (SQLLEN*)&varchar_length);
     ok_or_throw(hstmt, r, "Getting column type length attribute");
 
-    /// Oass SQL_C_CHAR type for VARCHAR
-    VarcharBuffer varchar_buffer{hstmt, index, varchar_length};
-    return varchar_buffer;
+    /// Pass SQL_C_CHAR type for VARCHAR
+    return VarcharBuffer{hstmt, index, varchar_length};
 }
 
 /// Make a column binding for an INTEGER column
@@ -27,10 +26,18 @@ BufferType make_integer_binding(std::size_t index,
 				 Handle hstmt) {
     
     /// Use SQL_C_LONG
-    IntegerBuffer integer_buffer{hstmt, index};
-
-    return integer_buffer;
+    return IntegerBuffer{hstmt, index};
 }
+
+/// Make a column binding for a date/datetime/timestamp column
+BufferType make_timestamp_binding(std::size_t index,
+				  const std::string & col_name,
+				  Handle hstmt) {
+    
+    /// Use SQL_C_LONG
+    return TimestampBuffer{hstmt, index};
+}
+
 
 class StmtHandle {
 public:
@@ -113,11 +120,12 @@ public:
 	    // 64-bit signed or unsigned int -> map to SqlInteger
 	    std::cout << "Found big integer column " << col_name << std::endl;
 	    return make_integer_binding(index, col_name, get_handle());    
-	    // case SQL_TYPE_TIMESTAMP:
-	//     // Year, month, day, hour, minute, and second
-	//     // -> map to SqlDatetime
-	//     std::cout << "SQL_TYPE_TIMESTAMP";
-	//     break;   
+	case SQL_TYPE_TIMESTAMP:
+	    // Year, month, day, hour, minute, and second
+	    // -> map to SqlDatetime
+	    std::cout << "Found timestamp column " << col_name << std::endl;
+	    return make_timestamp_binding(index, col_name, get_handle());
+	    break;   
 	default: {
 	    throw_unimpl_sql_type("Unknown: " + std::to_string(type));
 	}

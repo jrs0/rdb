@@ -2,6 +2,7 @@
 #define SQL_TYPES
 
 #include <variant>
+#include <ctime>
 
 void throw_unimpl_sql_type(const std::string & type) {
     std::stringstream ss;
@@ -20,19 +21,27 @@ public:
     using Buffer = class VarcharBuffer;
     // Will default construct to a null varchar
     Varchar() = default;
-    Varchar(const std::string & string)
-	: null_{false}, string_{string} {}
+    Varchar(const std::string & value)
+	: null_{false}, value_{value} {}
     std::string read() const {
 	if (not null_) {
-	    return string_;
+	    return value_;
 	} else {
 	    throw NullValue{};
+	}
+    }
+    void print() const {
+	std::cout << "Integer: ";
+	if (null_) {
+	    std::cout << "NULL" << std::endl;
+	} else {
+	    std::cout << value_ << std::endl;	    
 	}
     }
     bool null() const { return null_; }
 private:
     bool null_{true};
-    std::string string_{""};
+    std::string value_{""};
 };
 
 // Will default construct to a null integer
@@ -49,13 +58,95 @@ public:
 	    throw NullValue{};
 	}
     }
+    void print() const {
+	std::cout << "Integer: ";
+	if (null_) {
+	    std::cout << "NULL" << std::endl;
+	} else {
+	    std::cout << value_ << std::endl;	    
+	}
+    }
     bool null() const { return null_; }
 private:
     bool null_{true};
     unsigned long long value_{0};
 };
 
-using SqlType = std::variant<Varchar, Integer>;
+// Will default construct to a null integer
+class Timestamp {
+public:
+    using Buffer = class TimestampBuffer;
+    // Will default construct to a null timestamp
+    Timestamp() = default;
+    Timestamp(const SQL_TIMESTAMP_STRUCT & datetime)
+	: null_{false} {
+
+	// Set the year field
+	if (datetime.year < 1900) {
+	    throw std::runtime_error("Encountered invalid year for unix "
+				     "timestamp comversion (before 1900)");
+	} else {
+	    datetime_.tm_year = datetime.year - 1900;
+	}
+
+	// // Set the month
+	if ((datetime.month > 0) and (datetime.month < 13)) {
+	    datetime_.tm_mon = datetime.month - 1;
+	} else {
+	    throw std::runtime_error("Encountered invalid month for unix "
+				     "timestamp comversion");
+	}
+	
+	datetime_.tm_mday = datetime.day;
+	datetime_.tm_hour = datetime.hour;
+	datetime_.tm_min = datetime.minute;
+	datetime_.tm_sec = datetime.second;
+
+	// Pass 0 to assume that the timestamp is recorded in the UTC
+	// (GMT) timezone
+	//datetime_.tm_isdst = 0;
+	
+	// Pass -1 to assume that the the times are recorded according
+	// to the wall clock in the UK. This is most likely what is
+	// being recorded in the HES data (TODO)
+	datetime_.tm_isdst = -1;
+	    
+	// Convert to timestamp
+	unix_timestamp_
+	    = static_cast<unsigned long long>(std::mktime(&datetime_));
+    }
+    unsigned long long read() const {
+	if (not null_) {
+	    return unix_timestamp_;
+	} else {
+	    throw NullValue{};
+	}
+    }
+    void print() const {
+	std::cout << "Timestamp: ";
+	if (null_) {
+	    std::cout << "NULL" << std::endl;
+	} else {
+	    std::cout << unix_timestamp_
+		      << " ("
+		      << datetime_.tm_year << "-"
+		      << datetime_.tm_mon << "-"
+		      << datetime_.tm_mday
+		      << ")"
+		      << std::endl;	    
+	}
+    }
+    bool null() const { return null_; }
+private:
+    bool null_{true};
+    std::tm datetime_;
+    unsigned long long unix_timestamp_{0};
+};
+
+
+using SqlType = std::variant<Varchar,
+			     Integer,
+			     Timestamp>;
 
 class VarcharBuffer {
 public:
@@ -138,7 +229,51 @@ private:
     std::unique_ptr<SQLLEN> data_size_;
 };
 
-using BufferType = std::variant<VarcharBuffer, IntegerBuffer>;
+class TimestampBuffer {
+public:
+    TimestampBuffer(Handle hstmt, std::size_t col_index)
+	: buffer_{std::make_unique<SQL_TIMESTAMP_STRUCT>()},
+	  data_size_{std::make_unique<SQLLEN>(0)} {
+	// Note: because integer is a fixed length type, the buffer length
+	// field is ignored. 
+	SQLRETURN r = SQLBindCol(hstmt.handle(), col_index,
+				 SQL_C_TYPE_TIMESTAMP,
+				 (SQLPOINTER)buffer_.get(), 0,
+				 data_size_.get());
+	ok_or_throw(hstmt, r, "Binding timestamp");
+    }
+    
+    Timestamp read() const {
+	switch (*data_size_) {
+	case SQL_NULL_DATA:
+	    return Timestamp{};
+	default:
+	    if (*data_size_ != sizeof(SQL_TIMESTAMP_STRUCT)) {
+		throw std::runtime_error("Fixed type size not equal to C "
+					 "type. Returned size = "
+					 + std::to_string(*data_size_) +
+					 " but size of long = "
+					 + std::to_string(sizeof(SQL_TIMESTAMP_STRUCT)));
+	    }
+
+	    // Convert datetime fields to unix timestamp here
+	    
+	    return Timestamp{*buffer_};
+	}
+    }
+
+private:
+    std::unique_ptr<SQL_TIMESTAMP_STRUCT> buffer_;
+    
+    /// For a fixed size type, this is the size of the
+    /// type written by the driver. Must be less than
+    /// or equal to the buffer size to avoid memory errors.
+    std::unique_ptr<SQLLEN> data_size_;
+};
+
+using BufferType = std::variant<VarcharBuffer,
+				IntegerBuffer,
+				TimestampBuffer>;
 
 #endif
 

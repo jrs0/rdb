@@ -73,12 +73,11 @@ void debug_sql(const Rcpp::CharacterVector & dsn_character,
 		row.fetch_next_row();
 		
 		// Get results
-		auto nhs_num{column<Integer>("aimtc_pseudo_nhs", row).read()};
-		std::cout << nhs_num << std::endl;
-		auto id{column<Varchar>("pbrspellid", row).read()};
-		std::cout << id << std::endl;
-		auto icd{column<Varchar>("diagnosisprimary_icd", row).read()};
-		std::cout << icd << std::endl;
+		// column<Integer>("aimtc_pseudo_nhs", row).print();
+		// column<Varchar>("pbrspellid", row).print();
+		// column<Varchar>("diagnosisprimary_icd", row).print();
+		column<Timestamp>("enddate_consultantepisode", row).print();
+		
 		
 	    } catch (const std::logic_error & e) {
 		std::cout << e.what() << std::endl;
