@@ -35,14 +35,29 @@ private:
     std::string string_{""};
 };
 
+template<std::integral T>
+struct IntegerSqlType;
+
+template<>
+struct IntegerSqlType<std::int64_t> {
+    static constexpr c_type = SQL_C_UBIGINT;
+};
+
+template<>
+struct IntegerSqlType<std::int64_t> {
+    static constexpr c_type = SQL_C_UBIGINT;
+};
+
+
 // Will default construct to a null integer
+template<std::integral T>
 class Integer {
 public:
-    using Buffer = class IntegerBuffer;
+    using Buffer = class IntegerBuffer<T>;
     // Will default construct to a null integer
     Integer() = default;
-    Integer(unsigned long long value) : null_{false}, value_{value} {}
-    unsigned long long read() const {
+    Integer(T value) : null_{false}, value_{value} {}
+    T read() const {
 	if (not null_) {
 	    return value_;
 	} else {
@@ -52,10 +67,8 @@ public:
     bool null() const { return null_; }
 private:
     bool null_{true};
-    unsigned long long value_{0};
+    T value_{0};
 };
-
-using SqlType = std::variant<Varchar, Integer>;
 
 class VarcharBuffer {
 public:
@@ -100,10 +113,11 @@ private:
 /// that is too long
 struct FixedSizeOverrun {};
 
+template<std::integral T>
 class IntegerBuffer {
 public:
     IntegerBuffer(Handle hstmt, std::size_t col_index)
-	: buffer_{std::make_unique<unsigned long long>(0)},
+	: buffer_{std::make_unique<T>(0)},
 	  data_size_{std::make_unique<SQLLEN>(0)} {
 	// Note: because integer is a fixed length type, the buffer length
 	// field is ignored. 
@@ -118,19 +132,19 @@ public:
 	case SQL_NULL_DATA:
 	    return Integer{};
 	default:
-	    if (*data_size_ != sizeof(unsigned long long)) {
+	    if (*data_size_ != sizeof(T)) {
 		throw std::runtime_error("Fixed type size not equal to C "
 					 "type. Returned size = "
 					 + std::to_string(*data_size_) +
-					 " but size of long = "
-					 + std::to_string(sizeof(unsigned long long)));
+					 " but size of C type = "
+					 + std::to_string(sizeof(T)));
 	    }
 	    return Integer{*buffer_};
 	}
     }
 
 private:
-    std::unique_ptr<unsigned long long> buffer_;
+    std::unique_ptr<T> buffer_;
     
     /// For a fixed size type, this is the size of the
     /// type written by the driver. Must be less than
@@ -138,6 +152,7 @@ private:
     std::unique_ptr<SQLLEN> data_size_;
 };
 
+using SqlType = std::variant<Varchar, Integer>;
 using BufferType = std::variant<VarcharBuffer, IntegerBuffer>;
 
 #endif
