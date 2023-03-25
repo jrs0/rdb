@@ -7,8 +7,7 @@
 template<class T>
 concept RowBuffer = requires(T t, const std::string & s) {
     t.size();
-    t.at(s);
-    t.column_names();
+    //t.at(s);
     t.fetch_next_row();   
 };
 

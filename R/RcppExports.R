@@ -17,10 +17,6 @@ debug_sql <- function(dsn_character, query_character) {
     invisible(.Call(`_rdb_debug_sql`, dsn_character, query_character))
 }
 
-try_connect <- function(dsn_character, query_character) {
-    .Call(`_rdb_try_connect`, dsn_character, query_character)
-}
-
 parse_code <- function(file, code, what) {
     .Call(`_rdb_parse_code`, file, code, what)
 }

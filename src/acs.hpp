@@ -449,11 +449,6 @@ public:
 
 	// sql statement that fetches all episodes for all patients
 	// ordered by nhs number, then spell id.
-
-	// Print the returned rows
-	for (const auto & column_name : row.column_names()) {
-	    std::cout << column_name << std::endl;
-	}
 	
 	// Make the first fetch
 	row.fetch_next_row();

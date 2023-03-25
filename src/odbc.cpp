@@ -72,7 +72,7 @@ void debug_sql(const Rcpp::CharacterVector & dsn_character,
     }
 }
 
-
+/*
 // [[Rcpp::export]]
 Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 		       const Rcpp::CharacterVector & query_character) {
@@ -85,7 +85,6 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 
 	// Fetch the row buffer (column names + allocated buffer space for one row)
 	auto row_buffer{con.execute_direct(query)};
-	auto column_names{row_buffer.column_names()};
 	
 	// Make a (column-major) table to store the fetched rows
 	std::map<std::string, std::vector<std::string>> table;
@@ -143,6 +142,7 @@ Rcpp::List try_connect(const Rcpp::CharacterVector & dsn_character,
 	return Rcpp::List{};
     }
 }
+*/
 
 /// Parse a single code. Return the name (what == 0), the docs
 /// (what == 2) or the groups that contain this code. This function
