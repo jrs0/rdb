@@ -66,7 +66,7 @@ void debug_sql(const Rcpp::CharacterVector & dsn_character,
 	// Make the row buffer
 	auto row{con.execute_direct(query)};
 
-
+	int c{0};
 	while (true) {
 	    try {
 		// Fetch a row
@@ -76,8 +76,8 @@ void debug_sql(const Rcpp::CharacterVector & dsn_character,
 		// column<Integer>("aimtc_pseudo_nhs", row).print();
 		// column<Varchar>("pbrspellid", row).print();
 		// column<Varchar>("diagnosisprimary_icd", row).print();
+		std::cout << c++ << " ";
 		column<Timestamp>("enddate_consultantepisode", row).print();
-		
 		
 	    } catch (const std::logic_error & e) {
 		std::cout << e.what() << std::endl;

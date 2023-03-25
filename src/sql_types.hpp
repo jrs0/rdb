@@ -81,30 +81,32 @@ public:
     Timestamp(const SQL_TIMESTAMP_STRUCT & datetime)
 	: null_{false} {
 
+	std::tm tm;
+	
 	// Set the year field
 	if (datetime.year < 1900) {
 	    throw std::runtime_error("Encountered invalid year for unix "
 				     "timestamp comversion (before 1900)");
 	} else {
-	    datetime_.tm_year = datetime.year - 1900;
+	    tm.tm_year = datetime.year - 1900;
 	}
 
 	// // Set the month
 	if ((datetime.month > 0) and (datetime.month < 13)) {
-	    datetime_.tm_mon = datetime.month - 1;
+	    tm.tm_mon = datetime.month - 1;
 	} else {
 	    throw std::runtime_error("Encountered invalid month for unix "
 				     "timestamp comversion");
 	}
 	
-	datetime_.tm_mday = datetime.day;
-	datetime_.tm_hour = datetime.hour;
-	datetime_.tm_min = datetime.minute;
-	datetime_.tm_sec = datetime.second;
+	tm.tm_mday = datetime.day;
+	tm.tm_hour = datetime.hour;
+	tm.tm_min = datetime.minute;
+	tm.tm_sec = datetime.second;
 
 	// Pass 0 to assume that the timestamp is recorded in the UTC
 	// (GMT) timezone
-	//datetime_.tm_isdst = 0;
+	//tm.tm_isdst = 0;
 	
 	// Pass -1 to assume that the the times are recorded according
 	// to the wall clock in the UK. This is most likely what is
@@ -112,11 +114,11 @@ public:
 	// default assumption of POSIXct, which assumes BST. This is
 	// a valid interpretation of the database times if they are
 	// wall-clock time as recorded in the UK.
-	datetime_.tm_isdst = -1;
+	tm.tm_isdst = -1;
 	    
 	// Convert to timestamp
 	unix_timestamp_
-	    = static_cast<unsigned long long>(std::mktime(&datetime_));
+	    = static_cast<unsigned long long>(std::mktime(&tm));
     }
     unsigned long long read() const {
 	if (not null_) {
@@ -130,19 +132,12 @@ public:
 	if (null_) {
 	    std::cout << "NULL" << std::endl;
 	} else {
-	    std::cout << unix_timestamp_
-		      << " ("
-		      << datetime_.tm_year << "-"
-		      << datetime_.tm_mon << "-"
-		      << datetime_.tm_mday
-		      << ")"
-		      << std::endl;	    
+	    std::cout << unix_timestamp_ << std::endl;
 	}
     }
     bool null() const { return null_; }
 private:
     bool null_{true};
-    std::tm datetime_;
     unsigned long long unix_timestamp_{0};
 };
 
