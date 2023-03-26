@@ -45,5 +45,17 @@ All the technical stuff. Short description of how the code works. Where are the 
 
 ## OPCS 4 and ICD 10 codes in the dataset
 
+The groups of ICD 10 diagnosis codes used in the analysis are shown below:
+
+```{r}
+code_groups("../../icd10.yaml")
+```
+
+The groups of OPCS 4 procedure  codes used in the analysis are shown below:
+
+```{r}
+code_groups("../../opcs4.yaml")
+```
+
 ## Parsing clinical codes
 
