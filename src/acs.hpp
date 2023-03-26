@@ -57,10 +57,12 @@ merge_groups_from_columns(const std::vector<std::string> & columns,
 			  const RowBuffer auto & row,
 			  TopLevelCategory & parser) {
     std::set<std::string> result;
+    std::cout << "LKOOP" << std::endl;
     for (const auto & column_name : columns) {
+	std::cout << column_name << std::endl;
 	try {
 	    auto raw_code{column<Varchar>(column_name, row).read()};
-	    auto groups{parser.code_groups(raw_code)};
+	    std::set<std::string> groups{"hello"};//{parser.code_groups(raw_code)};
 	    result.insert(groups.begin(), groups.end());
 	} catch (const NullValue & /* NULL in column */) {
 	    // If a null is found, assume that all the other values
@@ -639,7 +641,7 @@ private:
 const std::string episodes_query{
     R"raw_sql(
 
-select top 50000
+select top 50
 	episodes.*,
 	mort.REG_DATE_OF_DEATH as date_of_death,
 	mort.S_UNDERLYING_COD_ICD10 as cause_of_death,
