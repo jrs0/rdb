@@ -346,6 +346,8 @@ public:
 	    // If you get here, then the current row
 	    // contains valid data for this patient
 
+	    /*
+	      
 	    // Collect a block of rows into a spell.
 	    // Note that this will leave row pointing
 	    // to the start of the next spell block
@@ -356,6 +358,7 @@ public:
 	    if (not spell.empty()) {
 		spells_.push_back(spell);
 	    }
+	    */
 
 	    if (not alive_) {
 		cause_of_death_ = code_parser.cause_of_death(row);
@@ -795,7 +798,9 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
     }
     std::cout << "Total patients = " << patient_count << std::endl;
     std::cout << "Number of index event = " << records.size() << std::endl;
-
+    std::cout << "Traversed " << row.current_row_number() << " rows"
+	      << std::endl;
+    
     return records;
 }
 
