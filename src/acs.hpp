@@ -21,11 +21,18 @@
 #define ACS_HPP
 
 #include <optional>
-#include <yaml-cpp/yaml.h>
+#include "yaml.hpp"
 #include "category.hpp"
 #include "sql_connection.hpp"
 #include "sql_types.hpp"
 #include "row_buffer.hpp"
+
+template<typename T>
+std::set<T> intersection(const std::set<T> s1, const std::set<T> s2) {
+    std::set<T> out;
+    std::ranges::set_intersection(s1, s2, std::inserter(out, out.begin()));
+    return out;
+}
 
 /// Get the vector of source columns from the config file node
 std::vector<std::string> source_columns(const YAML::Node & config) {
@@ -415,14 +422,10 @@ public:
 	// To store the intersections between the episode
 	// diagnoses/procedures and the relevant index list
 	// in the config file
- 	std::set<std::string> relevant_diagnoses;
- 	std::set<std::string> relevant_procedures;
-	std::ranges::set_intersection(episode.diagnoses(),
-				      index_diagnoses,
-				      std::back_inserter(relevant_diagnoses));
-	std::ranges::set_intersection(episode.procedures(),
-				      index_procedures,
-				      std::back_inserter(relevant_procedures));
+	auto relevant_diagnoses{intersection(index_diagnoses,
+					     episode.diagnoses())};
+	auto relevant_procedures{intersection(index_procedures,
+					      episode.procedures())};
 
 	// Check whether the there are any relevant events
 	// in this episode
@@ -491,11 +494,18 @@ public:
 
 		auto date{episode.episode_start()};
 		
-		// Loop at spells before
+		// Loop at spells before. Note that the strict inequality
+		// will also reject the index episode
 		if ((date < base_date) and (date > start_date)) {
 		    // Accumulate all the diagnosis and procedure
 		    // codes from this episode into the count for
 		    // before
+		    for (const auto & diagnosis : episode.diagnoses()) {
+			num_events_before_[diagnosis]++;
+		    }
+		    for (const auto & procedure : episode.procedures()) {
+			num_events_before_[procedure]++;
+		    }
 		}
 
 		// Look at spells after
@@ -503,6 +513,12 @@ public:
 		    // Accumulate all the diagnosis and procedure
 		    // codes from this episode into the count for
 		    // after
+		    for (const auto & diagnosis : episode.diagnoses()) {
+			num_events_after_[diagnosis]++;
+		    }
+		    for (const auto & procedure : episode.procedures()) {
+			num_events_after_[procedure]++;
+		    }
 		}
 	    }
 	}
@@ -564,8 +580,8 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 
     // Load the index diagnosis and procedures lists
     auto include{config["index_event"]["include"]};
-    auto index_diagnoses{include["diagnoses"].as<std::set<std::string>>()};
-    auto index_procedures{include["procedures"].as<std::set<std::string>>()};
+    auto index_diagnoses{expect_string_set(include, "diagnoses")};
+    auto index_procedures{expect_string_set(include, "procedure")};
 	
     // Fetch the database name and connect
     auto dsn{config["data_sources"]["dsn"].as<std::string>()};

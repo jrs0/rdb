@@ -3,30 +3,17 @@
 
 #include <yaml-cpp/yaml.h>
 
+// Expect a key called field_name containing a string (else throw runtime error
+// if it is not present or cannot be converted). 
+std::string expect_string(const YAML::Node & node, const std::string & field_name);
 
-
-void parse_child(const YAML::Node & child) {
-    for (const auto & cat : child) {
-	std::cout << cat["category"] << ":" << std::endl;
-	if (cat["child"]) {
-	    parse_child(cat["child"]);
-	}
-    }
-}
-
-void foo(const std::string & icd10_file ) {
-
-    try {
-	YAML::Node config = YAML::LoadFile(icd10_file);
-
-	auto child = config["child"];
-	parse_child(child);
-	
-    } catch(const YAML::BadFile& e) {
-	throw std::runtime_error("Bad YAML file");
-    } catch(const YAML::ParserException& e) {
-	throw std::runtime_error("YAML parsing error");
-    }
-}
+/// Expect a field called field_name which is a list of strings (else throw
+/// a runtime error
+std::vector<std::string> expect_string_vector(const YAML::Node & node,
+					      const std::string & field_name);
+/// Expect a field called field_name which is a list of strings (else throw
+/// a runtime error
+std::set<std::string> expect_string_set(const YAML::Node & node,
+					const std::string & field_name);
 
 #endif
