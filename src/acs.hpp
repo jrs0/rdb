@@ -575,6 +575,8 @@ private:
 // - Query takes 26 seconds
 // - Row fetching/processing takes 13 seconds
 //
+// Printing does not add any overhead.
+// 
 // The query fetch time is a function of the number
 // of rows, but not the optimisation level because
 // it happens on the server side.
@@ -593,7 +595,7 @@ private:
 const std::string episodes_query{
     R"raw_sql(
 
-select top 50000
+select top 500000
 	episodes.*,
 	mort.REG_DATE_OF_DEATH as date_of_death,
 	mort.S_UNDERLYING_COD_ICD10 as cause_of_death,
@@ -684,8 +686,8 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 			    // before/after the index event for this
 			    // patient
 			    Record record{patient, index_event};
-			    record.print();
-
+			    //record.print();
+			    
 			    // Do not consider any episodes from this
 			    // spell as index event.
 			    break;
@@ -708,6 +710,7 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 	}
     }
     std::cout << "Total patients = " << patient_count << std::endl;
+    std::cout << "Number of index event = " << records.size() << std::endl;
 
     return records;
 }
