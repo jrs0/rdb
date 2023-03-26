@@ -28,14 +28,14 @@
 #include "row_buffer.hpp"
 
 template<typename T>
-std::set<T> intersection(const std::set<T> s1, const std::set<T> s2) {
+std::set<T> intersection(const std::set<T> & s1, const std::set<T> & s2) {
     std::set<T> out;
     std::ranges::set_intersection(s1, s2, std::inserter(out, out.begin()));
     return out;
 }
 
 template<typename T>
-std::set<T> set_union(const std::set<T> s1, const std::set<T> s2) {
+std::set<T> set_union(const std::set<T> & s1, const std::set<T> & s2) {
     std::set<T> out;
     std::ranges::set_union(s1, s2, std::inserter(out, out.begin()));
     return out;
@@ -63,7 +63,12 @@ merge_groups_from_columns(const std::vector<std::string> & columns,
 	    auto groups{parser.code_groups(raw_code)};
 	    result.insert(groups.begin(), groups.end());
 	} catch (const NullValue & /* NULL in column */) {
-	    // Continue
+	    // If a null is found, assume that all the other values
+	    // are null. This assumption can be relaxed later after
+	    // the code is optimised. Note also that the procedure
+	    // and diagnosis columns must be ordered for this to
+	    // make sense.
+	    //break;
 	} catch (const std::runtime_error & /* invalid or not found */) {
 	    // Continue
 	} catch (const std::out_of_range & e) {
@@ -195,20 +200,20 @@ public:
 
 	episode_start_ = column<Timestamp>("episode_start", row);
 	episode_end_ = column<Timestamp>("episode_end", row);
-	
+        
 	procedures_ = code_parser.all_procedures(row);
 	diagnoses_ = code_parser.all_diagnoses(row);
-
+        
 	age_at_episode_ = column<Integer>("age_at_episode", row);
 	
 	row.fetch_next_row();
     }
 
-    std::set<std::string> procedures() const {
+    const auto & procedures() const {
 	return procedures_;
     }
 
-    std::set<std::string> diagnoses() const {
+    const auto & diagnoses() const {
 	return diagnoses_;
     }
 
@@ -346,8 +351,6 @@ public:
 	    // If you get here, then the current row
 	    // contains valid data for this patient
 
-	    /*
-	      
 	    // Collect a block of rows into a spell.
 	    // Note that this will leave row pointing
 	    // to the start of the next spell block
@@ -358,7 +361,6 @@ public:
 	    if (not spell.empty()) {
 		spells_.push_back(spell);
 	    }
-	    */
 
 	    if (not alive_) {
 		cause_of_death_ = code_parser.cause_of_death(row);
@@ -625,6 +627,14 @@ private:
 // columns (for 50,000 rows, with optimisations)
 // - Query takes 34 seconds
 // - Row fetching/processing takes 21 seconds
+//
+// After short-circuiting the diagnosis and procedure
+// columns:
+// - Query takes 34 seconds
+// - Row fetching/processing takes 26 seconds.
+//
+//
+//
 
 const std::string episodes_query{
     R"raw_sql(
@@ -705,7 +715,6 @@ order by nhs_number, spell_id;
     )raw_sql"
 };
 
-
 std::vector<Record> get_acs_records(const YAML::Node & config) {
 
     std::vector<Record> records;
@@ -748,7 +757,6 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 	    /// time (the runtime is not affected at all by
 	    /// commenting out the if statement below):
 
-	    /*
 	    if (not patient.empty()) {
 		
 		// Loop over all the spells for this patient
@@ -788,7 +796,6 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 		    }
 		}
 	    }
-	    */
 	} catch (const std::logic_error & e) {
 	    // There are no more rows
 	    std::cout << "No more rows -- finished" << std::endl;
