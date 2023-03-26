@@ -188,10 +188,8 @@ public:
 	episode_start_ = column<Timestamp>("episode_start", row);
 	episode_end_ = column<Timestamp>("episode_end", row);
 
-	// With these lines -- 21 seconds
-	// Without these lines -- 7 seconds.
-	// procedures_ = code_parser.all_procedures(row);
-	// diagnoses_ = code_parser.all_diagnoses(row);
+	procedures_ = code_parser.all_procedures(row);
+	diagnoses_ = code_parser.all_diagnoses(row);
         
 	age_at_episode_ = column<Integer>("age_at_episode", row);
 	
@@ -372,6 +370,10 @@ public:
 	return spells_.empty();
     }
 
+    bool alive() const {
+	return alive_;
+    }
+    
     void print() const {
 	std::cout << "Patient: " << nhs_number_ << std::endl;
 	for (const auto & spell : spells_) {
@@ -458,10 +460,22 @@ public:
 	}
     }
 
+    auto age_at_index() const {
+	return age_at_index_;
+    }
+    
     Timestamp date() const {
 	return date_;
     }
 
+    std::string type() const {
+	if (procedure_triggered_) {
+	    return "procedure";
+	} else {
+	    return "diagnosis";
+	}
+    }
+    
     /// Print the index event
     void print() const {
 	std::cout << "Index: ";
@@ -475,7 +489,6 @@ private:
     bool stemi_presentation_;
     Timestamp date_;
     std::optional<std::size_t> age_at_index_; ///< Age at the index event
-    
 };
 
 /// Print a map of key values. Both T and V need << overloads
@@ -559,7 +572,15 @@ public:
     auto index_date() const {
 	return index_event_.date().read();
     }
-    
+
+    auto index_type() const {
+	return index_event_.type();
+    }
+
+    auto age_at_index() const {
+	return index_event_.age_at_index();
+    }
+
     void print() const {
 	std::cout << "Record: Patient " << nhs_number_
 		  << ""
@@ -648,51 +669,51 @@ from (
                 diagnosis1stsecondary_icd,
 		diagnosis2ndsecondary_icd,
 		diagnosis3rdsecondary_icd,
-		diagnosis4thsecondary_icd,
-		diagnosis5thsecondary_icd,
-		diagnosis6thsecondary_icd,
-		diagnosis7thsecondary_icd,
-		diagnosis8thsecondary_icd,
-		diagnosis9thsecondary_icd,
-		diagnosis10thsecondary_icd,
-		diagnosis11thsecondary_icd,
-		diagnosis12thsecondary_icd,
-		diagnosis13thsecondary_icd,
-		diagnosis14thsecondary_icd,
-		diagnosis15thsecondary_icd,
-		diagnosis16thsecondary_icd,
-		diagnosis17thsecondary_icd,
-		diagnosis18thsecondary_icd,
-		diagnosis19thsecondary_icd,
-		diagnosis20thsecondary_icd,
-		diagnosis21stsecondary_icd,
-		diagnosis22ndsecondary_icd,
-		diagnosis23rdsecondary_icd,
+		--diagnosis4thsecondary_icd,
+		--diagnosis5thsecondary_icd,
+		--diagnosis6thsecondary_icd,
+		--diagnosis7thsecondary_icd,
+		--diagnosis8thsecondary_icd,
+		--diagnosis9thsecondary_icd,
+		--diagnosis10thsecondary_icd,
+		--diagnosis11thsecondary_icd,
+		--diagnosis12thsecondary_icd,
+		--diagnosis13thsecondary_icd,
+		--diagnosis14thsecondary_icd,
+		--diagnosis15thsecondary_icd,
+		--diagnosis16thsecondary_icd,
+		--diagnosis17thsecondary_icd,
+		--diagnosis18thsecondary_icd,
+		--diagnosis19thsecondary_icd,
+		--diagnosis20thsecondary_icd,
+		--diagnosis21stsecondary_icd,
+		--diagnosis22ndsecondary_icd,
+		--diagnosis23rdsecondary_icd,
 
 		primaryprocedure_opcs,
 		procedure2nd_opcs,
 		procedure3rd_opcs,
-		procedure4th_opcs,
-		procedure5th_opcs,
-		procedure6th_opcs,
-		procedure7th_opcs,
-		procedure8th_opcs,
-		procedure9th_opcs,
-		procedure10th_opcs,
-		procedure11th_opcs,
-		procedure12th_opcs,
-		procedure13th_opcs,
-		procedure14th_opcs,
-		procedure15th_opcs,
-		procedure16th_opcs,
-		procedure17th_opcs,
-		procedure18th_opcs,
-		procedure19th_opcs,
-		procedure20th_opcs,
-		procedure21st_opcs,
-		procedure22nd_opcs,
-		procedure23rd_opcs,
-		procedure24th_opcs
+		procedure4th_opcs
+		--procedure5th_opcs,
+		--procedure6th_opcs,
+		--procedure7th_opcs,
+		--procedure8th_opcs,
+		--procedure9th_opcs,
+		--procedure10th_opcs,
+		--procedure11th_opcs,
+		--procedure12th_opcs,
+		--procedure13th_opcs,
+		--procedure14th_opcs,
+		--procedure15th_opcs,
+		--procedure16th_opcs,
+		--procedure17th_opcs,
+		--procedure18th_opcs,
+		--procedure19th_opcs,
+		--procedure20th_opcs,
+		--procedure21st_opcs,
+		--procedure22nd_opcs,
+		--procedure23rd_opcs,
+		--procedure24th_opcs
 
 	from abi.dbo.vw_apc_sem_001
 	where datalength(AIMTC_Pseudo_NHS) > 0
