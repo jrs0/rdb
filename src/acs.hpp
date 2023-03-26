@@ -616,11 +616,12 @@ private:
 //
 // So the speedup is (35/50000) / (13/500000)
 // = 25 times.
+//
 
 const std::string episodes_query{
     R"raw_sql(
 
-select top 5000
+select top 500000
 	episodes.*,
 	mort.REG_DATE_OF_DEATH as date_of_death,
 	mort.S_UNDERLYING_COD_ICD10 as cause_of_death,
