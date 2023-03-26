@@ -7,6 +7,11 @@ output:
     toc: true
 ---
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(knitr)
+```
+
 # Overview of the problem
 
 Patients on dual antiplatelet therapy (following percutaneous coronary intervention or other procedures) to reduce their ischaemic risk are at increased risk of bleeding. 
@@ -29,8 +34,6 @@ The start date of the index episode is used as the index date. A flag records wh
 
 For each patient, all other diagnoses and procedures in all primary and secondary fields of all other episodes are retrieved. The number of occurances of diagnosis and procedure code groups (as defined in the codes definition file; see the appendix) are counted up in a defined period before and after the index event. The results of this tally form the majority of the columns of the dataset; there are two columns for each diagnosis and procedure group.
 
-
-
 # Classification models
 
 Run the multi models script here
@@ -47,14 +50,23 @@ All the technical stuff. Short description of how the code works. Where are the 
 
 The groups of ICD 10 diagnosis codes used in the analysis are shown below:
 
-```{r}
-code_groups("../../icd10.yaml")
+```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
+groups <- code_groups("../../icd10.yaml")
+list(name = names(groups), groups = groups) %>%
+    purrr::pmap(function(name, groups) {
+        kable(groups, caption = name)
+    })
 ```
 
-The groups of OPCS 4 procedure  codes used in the analysis are shown below:
+The groups of OPCS 4 procedure codes used in the analysis are shown below:
 
-```{r}
-code_groups("../../opcs4.yaml")
+```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
+groups <- code_groups("../../opcs4.yaml")
+x <- list(name = names(groups), groups = groups) %>%
+    purrr::pmap(function(name, groups) {
+        print(kable(groups, caption = name))
+        NULL
+    })
 ```
 
 ## Parsing clinical codes

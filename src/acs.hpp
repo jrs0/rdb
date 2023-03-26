@@ -650,7 +650,7 @@ private:
 const std::string episodes_query{
     R"raw_sql(
 
-select top 50000
+select
 	episodes.*,
 	mort.REG_DATE_OF_DEATH as date_of_death,
 	mort.S_UNDERLYING_COD_ICD10 as cause_of_death,
