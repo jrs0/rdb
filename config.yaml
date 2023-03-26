@@ -58,6 +58,7 @@ index_event:
   include:
     diagnoses: [acs]
     procedures: [pci]
+    stemi_flag: acs_stemi
   
 code_groups:
   acs: acs

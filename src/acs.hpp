@@ -440,7 +440,7 @@ public:
 	// Check if the index event is triggered by a diagnosis
 	// of procedure. Procedures take priority here.
 	procedure_triggered_ = (relevant_procedures.size() > 0);
-
+	
 	// Store the age recorded in the episode
 	try {
 	    age_at_index_ = episode.age_at_episode().read();
@@ -469,6 +469,7 @@ public:
 private:
     /// True if a procedure generated the index event, false otherwise
     bool procedure_triggered_;
+    bool stemi_presentation_;
     Timestamp date_;
     std::optional<std::size_t> age_at_index_; ///< Age at the index event
     
