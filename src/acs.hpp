@@ -741,6 +741,10 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 	    Patient patient{row, code_parser};
 	    patient_count++;
 
+	    /// In this try block, the part above takes all the
+	    /// time (the runtime is not affected at all by
+	    /// commenting out the if statement below):
+
 	    /*
 	    if (not patient.empty()) {
 		
@@ -759,6 +763,7 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 			    // record by looking at at all episodes
 			    // before/after the index event for this
 			    // patient
+
 			    Record record{patient, index_event};
 			    std::cout << "Up to row "
 				      << row.current_row_number()
