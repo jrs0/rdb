@@ -313,6 +313,18 @@ Risk factors for both bleeding and ischaemia have been previously investigated i
 
 More detailed relevant information is available from other data sources -- for example, the record of blood test results stored in hospital systems. However, a trade-off exists between finding data sources that are generic enough that they are likely available everywhere, vs. data sources that may not be easily generalised. HES data is the simplest data sources that is guaranteed to be present for all hospitals in the UK.
 
+A summary of the modelling results is shown in the table below.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
+## Summarise the AUC (should add primary AUC here)
+roc_auc %>%
+    group_by(outcome_name, model_name) %>%
+    summarise("Mean AUC" = mean(auc), "SD" = sd(auc)) %>%
+    rename("Outcome Name" = outcome_name,
+           "Model Name" = model_name) %>%
+    kable(caption = "Summary of model performance")
+```
+
 ## Hospital episode statistics
 
 Hospital episodes statistics (HES) contain diagnosis and procedure information from consultant episodes in secondary care. Each episode contains one or multiple diagnoses or procedures, which may be used to identify patients of interest, and track subsequent diagnoses and procedures in a follow-up period.
