@@ -617,11 +617,16 @@ private:
 // So the speedup is (35/50000) / (13/500000)
 // = 25 times.
 //
+//
+// After adding in all the diagnosis/procedure
+// columns (for 50,000 rows, with optimisations)
+// - Query takes 34 seconds
+// - Row fetching/processing takes 21 seconds
 
 const std::string episodes_query{
     R"raw_sql(
 
-select top 500000
+select top 50000
 	episodes.*,
 	mort.REG_DATE_OF_DEATH as date_of_death,
 	mort.S_UNDERLYING_COD_ICD10 as cause_of_death,
@@ -735,7 +740,8 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 	    /// which contains a list of episodes.
 	    Patient patient{row, code_parser};
 	    patient_count++;
-	    
+
+	    /*
 	    if (not patient.empty()) {
 		
 		// Loop over all the spells for this patient
@@ -754,6 +760,9 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 			    // before/after the index event for this
 			    // patient
 			    Record record{patient, index_event};
+			    std::cout << "Up to row "
+				      << row.current_row_number()
+				      << std::endl;
 			    record.print();
 			    records.push_back(record);
 			    
@@ -771,6 +780,7 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 		    }
 		}
 	    }
+	    */
 	} catch (const std::logic_error & e) {
 	    // There are no more rows
 	    std::cout << "No more rows -- finished" << std::endl;
