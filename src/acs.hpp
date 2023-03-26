@@ -563,10 +563,37 @@ private:
     std::map<std::string, std::size_t> num_events_after_;
 };
 
+// Quick benchmarks:
+//
+// For 500,000 rows:
+//
+// Without optimisations:
+// - Query takes 24 seconds
+// - Row fetching/processing takes 38 seconds
+//
+// With optimisations:
+// - Query takes 26 seconds
+// - Row fetching/processing takes 13 seconds
+//
+// The query fetch time is a function of the number
+// of rows, but not the optimisation level because
+// it happens on the server side.
+//
+// Projected processing time for 10,000,000 rows
+// is 25 + 20 * 13 = 285 seconds.
+//
+// For interest, prior to fixing the tree-copying
+// bug, for 50,000 rows, optimisations enabled:
+// - Query takes 24 seconds
+// - Row fetching/processing takes 35 seconds
+//
+// So the speedup is (35/50000) / (13/500000)
+// = 25 times.
+
 const std::string episodes_query{
     R"raw_sql(
 
-select top 5000
+select top 50000
 	episodes.*,
 	mort.REG_DATE_OF_DEATH as date_of_death,
 	mort.S_UNDERLYING_COD_ICD10 as cause_of_death,
