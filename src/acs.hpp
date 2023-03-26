@@ -557,6 +557,13 @@ public:
 	return num_events_after_;
     }
 
+    auto nhs_number() const {
+	return nhs_number_;
+    }
+    
+    auto index_date() const {
+	return index_event_.date().read();
+    }
     
     void print() const {
 	std::cout << "Record: Patient " << nhs_number_

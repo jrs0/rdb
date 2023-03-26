@@ -40,7 +40,16 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
 				  diagnoses.all_groups())};
 	
 	// Make a table to store the counts.
-	std::map<std::string, Rcpp::NumericVector> counts;
+	std::map<std::string, Rcpp::NumericVector> event_counts;
+
+	// Make a vector to store the nhs numbers. Convert back
+	// to characters so there are no overflow issues with 64
+	// bit ints in R
+	Rcpp::CharacterVector nhs_numbers;
+
+	// Make a vector of timestamps for the date of each index
+	// event
+	Rcpp::NumericVector index_dates;
 	
 	// Loop over all the diagnosis and procedure groups and
 	// create columns
@@ -52,16 +61,30 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
 	    
 	    // Add all the counts columns 
 	    for (const auto & group : all_groups) {
-		counts[group + "_before"].push_back(before[group]);
-		counts[group + "_after"].push_back(before[group]);
+		event_counts[group + "_before"].push_back(before[group]);
+		event_counts[group + "_after"].push_back(before[group]);
 	    }
+
+	    // Get the nhs number
+	    nhs_numbers.push_back(std::to_string(record.nhs_number()));
+
+	    // Get the index event date
+	    index_dates.push_back(record.index_date());
 	}
+
+	
+	// Make the final R dataset
+	Rcpp::List table_r;
+
+	// Put the nhs number and index date in the list
+	table_r["nhs_number"] = nhs_numbers;
+	table_r["index_date"] = index_dates;
 	
 	// Put all the columns in an R table
-	Rcpp::List table_r;
-	for (const auto [column_name, event_counts] : counts) {
-	    table_r[column_name] = event_counts;
+	for (const auto [column_name, counts] : event_counts) {
+	    table_r[column_name] = counts;
 	}
+
 
 	return table_r;
 	
