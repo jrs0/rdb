@@ -355,6 +355,10 @@ public:
 	}
     }
 
+    auto nhs_number() const {
+	return nhs_number_;
+    }
+    
     const auto & spells() const {
 	return spells_;
     }
@@ -459,14 +463,26 @@ public:
     void print() const {
 	std::cout << "Index: ";
 	date_.print();
+	std::cout << " Procedure? " << procedure_triggered_;
+	std::cout << "; Age: " << age_at_index_.value_or(-1);
     }
 private:
     /// True if a procedure generated the index event, false otherwise
     bool procedure_triggered_;
     Timestamp date_;
     std::optional<std::size_t> age_at_index_; ///< Age at the index event
-
+    
 };
+
+/// Print a map of key values. Both T and V need << overloads
+template<typename K, typename V>
+void print_map(const std::map<K, V> & map, std::size_t pad = 0) {
+    for (const auto & [key, value] : map) {
+	std::cout << std::string(pad, ' ')
+		  << key << ": " << value
+		  << std::endl; 
+    }
+}
 
 /// An index event along with events before and
 /// after.
@@ -477,8 +493,8 @@ public:
     /// an index event, defining the base date for the search.
     Record(const Patient & patient,
 	   const IndexEvent & index_event)
-	: index_event_{index_event} {
-
+	: nhs_number_{patient.nhs_number()}, index_event_{index_event} {
+	
 	// Get the date of the index event
 	Timestamp base_date{index_event_.date()};
 
@@ -523,8 +539,21 @@ public:
 	    }
 	}
     }
+
+    void print() const {
+	std::cout << "Record: Patient " << nhs_number_
+		  << ""
+		  << std::endl << " ";
+	index_event_.print();
+	std::cout << std::endl;
+	std::cout << " Count before:" << std::endl;
+	print_map(num_events_before_, 3);
+	std::cout << " Count after:" << std::endl;
+	print_map(num_events_after_, 3);
+    }
     
 private:
+    long long unsigned nhs_number_;
     IndexEvent index_event_;
     /// A map from a procedure or diagnosis group to the
     /// number of that event that occured in the window before
@@ -581,7 +610,7 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
     // Load the index diagnosis and procedures lists
     auto include{config["index_event"]["include"]};
     auto index_diagnoses{expect_string_set(include, "diagnoses")};
-    auto index_procedures{expect_string_set(include, "procedure")};
+    auto index_procedures{expect_string_set(include, "procedures")};
 	
     // Fetch the database name and connect
     auto dsn{config["data_sources"]["dsn"].as<std::string>()};
@@ -622,21 +651,20 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 			    IndexEvent index_event{episode,
 						   index_diagnoses,
 						   index_procedures};
-			    index_event.print();
-
 			    // For this index event, construct the
 			    // record by looking at at all episodes
 			    // before/after the index event for this
 			    // patient
 			    Record record{patient, index_event};
-				
+			    record.print();
+
 			    // Do not consider any episodes from this
 			    // spell as index event.
 			    break;
 				
 			} catch (const IndexEvent::NotIndexEvent &) {
 			    // Continue
-			    std::cout << "Not index event" << std::endl;
+			    //std::cout << "Not index event" << std::endl;
 			} catch (const IndexEvent::NoEpisodeDate &) {
 			    // Continue
 			    std::cout << "No Episode date" << std::endl;
