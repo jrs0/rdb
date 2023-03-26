@@ -6,7 +6,7 @@ test_cpp <- function(thing) {
 }
 
 make_acs_dataset <- function(config_path_chr) {
-    invisible(.Call(`_rdb_make_acs_dataset`, config_path_chr))
+    .Call(`_rdb_make_acs_dataset`, config_path_chr)
 }
 
 test_random_code <- function() {

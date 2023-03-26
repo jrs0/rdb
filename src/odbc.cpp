@@ -16,13 +16,55 @@
 #include "acs.hpp"
 
 // [[Rcpp::export]]
-void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
+Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
 
     //auto config_path{Rcpp::as<std::string>(config_path_chr)};
     auto config_path{Rcpp::as<std::string>(config_path_chr)};
     try {
+
 	YAML::Node config = YAML::LoadFile(config_path);
+
+	// Get the records, one per index event, along with
+	// procedures/diagnoses before and after
 	auto records{get_acs_records(config)};
+
+	// Use the codes files to obtain the full list of
+	// diagnosis/procedure columns names
+	TopLevelCategory procedures {
+	    load_codes_helper(config["parser_config"]["procedures"])
+	};
+	TopLevelCategory diagnoses {
+	    load_codes_helper(config["parser_config"]["diagnoses"])
+	};
+	auto all_groups{set_union(procedures.all_groups(),
+				  diagnoses.all_groups())};
+	
+	// Make a table to store the counts.
+	std::map<std::string, Rcpp::NumericVector> counts;
+	
+	// Loop over all the diagnosis and procedure groups and
+	// create columns
+	for (const auto & record : records) {
+
+	    // Get the counts before and after for this record
+	    auto before{record.counts_before()};
+	    auto after{record.counts_after()};
+	    
+	    // Add all the counts columns 
+	    for (const auto & group : all_groups) {
+		counts[group + "_before"].push_back(before[group]);
+		counts[group + "_after"].push_back(before[group]);
+	    }
+	}
+	
+	// Put all the columns in an R table
+	Rcpp::List table_r;
+	for (const auto [column_name, event_counts] : counts) {
+	    table_r[column_name] = event_counts;
+	}
+
+	return table_r;
+	
     } catch(const YAML::BadFile& e) {
 	throw std::runtime_error("Bad YAML file");
     } catch(const YAML::ParserException& e) {
@@ -30,9 +72,11 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
     } catch (const std::runtime_error & e) {
 	//Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
 	std::cout << "Failed with error "  << e.what() << std::endl;
+	return Rcpp::List{};
     } catch (const NullValue & ) {
 	Rcpp::Rcout << "An unhandled NULL value occured"
-		    << std::endl;	
+		    << std::endl;
+	return Rcpp::List{};
     }
 }
 

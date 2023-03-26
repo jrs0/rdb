@@ -34,6 +34,14 @@ std::set<T> intersection(const std::set<T> s1, const std::set<T> s2) {
     return out;
 }
 
+template<typename T>
+std::set<T> set_union(const std::set<T> s1, const std::set<T> s2) {
+    std::set<T> out;
+    std::ranges::set_union(s1, s2, std::inserter(out, out.begin()));
+    return out;
+}
+
+
 /// Get the vector of source columns from the config file node
 std::vector<std::string> source_columns(const YAML::Node & config) {
     return config["source_columns"].as<std::vector<std::string>>();
@@ -541,6 +549,15 @@ public:
 	}
     }
 
+    const auto & counts_before() const {
+	return num_events_before_;
+    }
+
+    const auto & counts_after() const {
+	return num_events_after_;
+    }
+
+    
     void print() const {
 	std::cout << "Record: Patient " << nhs_number_
 		  << ""
@@ -582,7 +599,8 @@ private:
 // it happens on the server side.
 //
 // Projected processing time for 10,000,000 rows
-// is 25 + 20 * 13 = 285 seconds.
+// is 25 + 20 * 13 = 285 seconds. Tested on full
+// query -- takes 288 seconds.
 //
 // For interest, prior to fixing the tree-copying
 // bug, for 50,000 rows, optimisations enabled:
@@ -595,7 +613,7 @@ private:
 const std::string episodes_query{
     R"raw_sql(
 
-select top 500000
+select top 5000
 	episodes.*,
 	mort.REG_DATE_OF_DEATH as date_of_death,
 	mort.S_UNDERLYING_COD_ICD10 as cause_of_death,
@@ -675,7 +693,7 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 
 		    // Loop over all the episodes in this spell
 		    for (const auto & episode : spell.episodes()) {
-			    
+
 			try {
 			    // Test if this episode is an index event
 			    IndexEvent index_event{episode,
@@ -686,7 +704,8 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 			    // before/after the index event for this
 			    // patient
 			    Record record{patient, index_event};
-			    //record.print();
+			    record.print();
+			    records.push_back(record);
 			    
 			    // Do not consider any episodes from this
 			    // spell as index event.
