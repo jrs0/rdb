@@ -57,12 +57,10 @@ merge_groups_from_columns(const std::vector<std::string> & columns,
 			  const RowBuffer auto & row,
 			  TopLevelCategory & parser) {
     std::set<std::string> result;
-    std::cout << "LKOOP" << std::endl;
     for (const auto & column_name : columns) {
-	std::cout << column_name << std::endl;
 	try {
 	    auto raw_code{column<Varchar>(column_name, row).read()};
-	    std::set<std::string> groups{"hello"};//{parser.code_groups(raw_code)};
+	    auto groups{parser.code_groups(raw_code)};
 	    result.insert(groups.begin(), groups.end());
 	} catch (const NullValue & /* NULL in column */) {
 	    // If a null is found, assume that all the other values
@@ -187,30 +185,20 @@ public:
 	// episode relates to what happened under one attending
 	// consultant.
 
-	// Need to parse all the primary and secondary fields
-	// here using the codes files, so there needs to be
-	// a reference to a top_level_category for ICD and OPCS,
-	// and also the config file for further grouping. This
-	// can probably be abstracted into a wrapper which
-	// handles the parsing and mapping
-
-	// Currently just pushes the raw code, need to parse it
-	// which also means having the CodeParser around here.
-	// This episode should also throw an exception if the
-	// episode is not of interest (it is then not included
-	// in the spell).
-
 	episode_start_ = column<Timestamp>("episode_start", row);
 	episode_end_ = column<Timestamp>("episode_end", row);
-        
-	procedures_ = code_parser.all_procedures(row);
-	diagnoses_ = code_parser.all_diagnoses(row);
+
+	// With these lines -- 21 seconds
+	// Without these lines -- 7 seconds.
+	// procedures_ = code_parser.all_procedures(row);
+	// diagnoses_ = code_parser.all_diagnoses(row);
         
 	age_at_episode_ = column<Integer>("age_at_episode", row);
 	
 	row.fetch_next_row();
     }
 
+    
     const auto & procedures() const {
 	return procedures_;
     }
@@ -641,7 +629,7 @@ private:
 const std::string episodes_query{
     R"raw_sql(
 
-select top 50
+select top 50000
 	episodes.*,
 	mort.REG_DATE_OF_DEATH as date_of_death,
 	mort.S_UNDERLYING_COD_ICD10 as cause_of_death,
