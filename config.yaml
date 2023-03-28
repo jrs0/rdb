@@ -127,3 +127,5 @@ in_memory:
   num_patients: 500
   seed: 47
       
+# Sql query result limit
+result_limit: 5000

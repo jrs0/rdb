@@ -20,6 +20,7 @@
 #ifndef ACS_HPP
 #define ACS_HPP
 
+#include <sstream>
 #include <optional>
 #include "yaml.hpp"
 #include "category.hpp"
@@ -647,86 +648,135 @@ private:
 //
 //
 
+// std::string episodes_query{
+//     R"raw_sql(
 
 
-const std::string episodes_query{
-    R"raw_sql(
 
-select top 5000 
-	episodes.*,
-	mort.REG_DATE_OF_DEATH as date_of_death,
-	mort.S_UNDERLYING_COD_ICD10 as cause_of_death,
-	mort.Dec_Age_At_Death as age_at_death
-from (
-	select
-		AIMTC_Pseudo_NHS as nhs_number,
-                AIMTC_Age as age_at_episode,
-		PBRspellID as spell_id,
-		StartDate_ConsultantEpisode as episode_start,
-		EndDate_ConsultantEpisode as episode_end,
-		AIMTC_ProviderSpell_Start_Date as spell_start,
-		AIMTC_ProviderSpell_End_Date as spell_end,
+// select top 5000 
+// 	episodes.*,
+// 	mort.REG_DATE_OF_DEATH as date_of_death,
+// 	mort.S_UNDERLYING_COD_ICD10 as cause_of_death,
+// 	mort.Dec_Age_At_Death as age_at_death
+// from (
+// 	select
+// 		AIMTC_Pseudo_NHS as nhs_number,
+//                 AIMTC_Age as age_at_episode,
+// 		PBRspellID as spell_id,
+// 		StartDate_ConsultantEpisode as episode_start,
+// 		EndDate_ConsultantEpisode as episode_end,
+// 		AIMTC_ProviderSpell_Start_Date as spell_start,
+// 		AIMTC_ProviderSpell_End_Date as spell_end,
 
-		diagnosisprimary_icd,
-                diagnosis1stsecondary_icd,
-		diagnosis2ndsecondary_icd,
-		diagnosis3rdsecondary_icd,
-		--diagnosis4thsecondary_icd,
-		--diagnosis5thsecondary_icd,
-		--diagnosis6thsecondary_icd,
-		--diagnosis7thsecondary_icd,
-		--diagnosis8thsecondary_icd,
-		--diagnosis9thsecondary_icd,
-		--diagnosis10thsecondary_icd,
-		--diagnosis11thsecondary_icd,
-		--diagnosis12thsecondary_icd,
-		--diagnosis13thsecondary_icd,
-		--diagnosis14thsecondary_icd,
-		--diagnosis15thsecondary_icd,
-		--diagnosis16thsecondary_icd,
-		--diagnosis17thsecondary_icd,
-		--diagnosis18thsecondary_icd,
-		--diagnosis19thsecondary_icd,
-		--diagnosis20thsecondary_icd,
-		--diagnosis21stsecondary_icd,
-		--diagnosis22ndsecondary_icd,
-		--diagnosis23rdsecondary_icd,
+// 		diagnosisprimary_icd,
+//                 diagnosis1stsecondary_icd,
+// 		diagnosis2ndsecondary_icd,
+// 		diagnosis3rdsecondary_icd,
+// 		--diagnosis4thsecondary_icd,
+// 		--diagnosis5thsecondary_icd,
+// 		--diagnosis6thsecondary_icd,
+// 		--diagnosis7thsecondary_icd,
+// 		--diagnosis8thsecondary_icd,
+// 		--diagnosis9thsecondary_icd,
+// 		--diagnosis10thsecondary_icd,
+// 		--diagnosis11thsecondary_icd,
+// 		--diagnosis12thsecondary_icd,
+// 		--diagnosis13thsecondary_icd,
+// 		--diagnosis14thsecondary_icd,
+// 		--diagnosis15thsecondary_icd,
+// 		--diagnosis16thsecondary_icd,
+// 		--diagnosis17thsecondary_icd,
+// 		--diagnosis18thsecondary_icd,
+// 		--diagnosis19thsecondary_icd,
+// 		--diagnosis20thsecondary_icd,
+// 		--diagnosis21stsecondary_icd,
+// 		--diagnosis22ndsecondary_icd,
+// 		--diagnosis23rdsecondary_icd,
 
-		primaryprocedure_opcs,
-		procedure2nd_opcs,
-		procedure3rd_opcs,
-		procedure4th_opcs
-		--procedure5th_opcs,
-		--procedure6th_opcs,
-		--procedure7th_opcs,
-		--procedure8th_opcs,
-		--procedure9th_opcs,
-		--procedure10th_opcs,
-		--procedure11th_opcs,
-		--procedure12th_opcs,
-		--procedure13th_opcs,
-		--procedure14th_opcs,
-		--procedure15th_opcs,
-		--procedure16th_opcs,
-		--procedure17th_opcs,
-		--procedure18th_opcs,
-		--procedure19th_opcs,
-		--procedure20th_opcs,
-		--procedure21st_opcs,
-		--procedure22nd_opcs,
-		--procedure23rd_opcs,
-		--procedure24th_opcs
+// 		primaryprocedure_opcs,
+// 		procedure2nd_opcs,
+// 		procedure3rd_opcs,
+// 		procedure4th_opcs
+// 		--procedure5th_opcs,
+// 		--procedure6th_opcs,
+// 		--procedure7th_opcs,
+// 		--procedure8th_opcs,
+// 		--procedure9th_opcs,
+// 		--procedure10th_opcs,
+// 		--procedure11th_opcs,
+// 		--procedure12th_opcs,
+// 		--procedure13th_opcs,
+// 		--procedure14th_opcs,
+// 		--procedure15th_opcs,
+// 		--procedure16th_opcs,
+// 		--procedure17th_opcs,
+// 		--procedure18th_opcs,
+// 		--procedure19th_opcs,
+// 		--procedure20th_opcs,
+// 		--procedure21st_opcs,
+// 		--procedure22nd_opcs,
+// 		--procedure23rd_opcs,
+// 		--procedure24th_opcs
 
-	from abi.dbo.vw_apc_sem_001
-	where datalength(AIMTC_Pseudo_NHS) > 0
-		and datalength(pbrspellid) > 0  
-) as episodes
-left join abi.civil_registration.mortality as mort
-on episodes.nhs_number = mort.derived_pseudo_nhs
-order by nhs_number, spell_id;
+// 	from abi.dbo.vw_apc_sem_001
+// 	where datalength(AIMTC_Pseudo_NHS) > 0
+// 		and datalength(pbrspellid) > 0  
+// ) as episodes
+// left join abi.civil_registration.mortality as mort
+// on episodes.nhs_number = mort.derived_pseudo_nhs
+// order by nhs_number, spell_id;
 
-    )raw_sql"
-};
+//     )raw_sql"
+// };
+
+
+std::string make_acs_sql_query(const YAML::Node & config) {
+
+    std::stringstream query;
+
+    query << "select";
+	
+    try {
+	std::size_t result_limit{config["result_limit"].as<std::size_t>()};
+	std::cout << "Using result limit" << result_limit << std::endl;
+	query << "top " << result_limit;
+    } catch(const YAML::ParserException& e) {
+	throw std::runtime_error("Not using a result limit in query");
+    }
+
+    query << "episodes.*,"
+	  << "mort.REG_DATE_OF_DEATH as date_of_death,"
+	  << "mort.S_UNDERLYING_COD_ICD10 as cause_of_death,"
+	  << "mort.Dec_Age_At_Death as age_at_death "
+	  << "from (select " 
+	  << "AIMTC_Pseudo_NHS as nhs_number,"
+	  << "AIMTC_Age as age_at_episode,"
+	  << "PBRspellID as spell_id,"
+	  << "StartDate_ConsultantEpisode as episode_start,"
+	  << "EndDate_ConsultantEpisode as episode_end,"
+	  << "AIMTC_ProviderSpell_Start_Date as spell_start,"
+	  << "AIMTC_ProviderSpell_End_Date as spell_end,";
+
+    // Add all the diagnosis columns
+    auto diagnoses{expect_string_vector(config["parser_config"]["diagnoses"], "source_columns")};
+    for (const auto & diagnosis : diagnoses) {
+	query << diagnosis << ",";
+    }
+    auto procedures{expect_string_vector(config["parser_config"]["procedures"], "source_columns")};
+    for (const auto & procedure : procedures) {
+	query << procedure << ",";
+    }
+
+    query << "from abi.dbo.vw_apc_sem_001 "
+	  << "where datalength(AIMTC_Pseudo_NHS) > 0 "
+	  << "and datalength(pbrspellid) > 0 "
+	  << ") as episodes "
+	  << "left join abi.civil_registration.mortality as mort "
+	  << "on episodes.nhs_number = mort.derived_pseudo_nhs "
+	  << "order by nhs_number, spell_id; ";
+    
+    return query.str();
+}
 
 std::vector<Record> get_acs_records(const YAML::Node & config) {
 
@@ -745,7 +795,7 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
     std::cout << "Connection to DSN " << dsn << std::endl;
     SQLConnection con{dsn};
     std::cout << "Executing statement" << std::endl;
-    auto row{con.execute_direct(episodes_query)};
+    auto row{con.execute_direct(make_acs_sql_query(config))};
         
     std::cout << "Starting to fetch rows" << std::endl;
 
@@ -765,10 +815,6 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 	    /// which contains a list of episodes.
 	    Patient patient{row, code_parser};
 	    patient_count++;
-
-	    /// In this try block, the part above takes all the
-	    /// time (the runtime is not affected at all by
-	    /// commenting out the if statement below):
 
 	    if (not patient.empty()) {
 		
