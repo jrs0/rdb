@@ -428,8 +428,7 @@ public:
     IndexEvent(const Episode & episode,
 	       const std::set<std::string> & index_diagnoses,
 	       const std::set<std::string> & index_procedures,
-	       const std::string & stemi_flag)
-	: episode_{episode} {
+	       const std::string & stemi_flag) {
 
 	// To store the intersections between the episode
 	// diagnoses/procedures and the relevant index list
@@ -498,8 +497,6 @@ private:
     bool procedure_triggered_;
     bool stemi_presentation_;
     Timestamp date_;
-    std::set<std::string> other_diagnoses;
-    std::set<std::string> other_procedures;
     std::optional<std::size_t> age_at_index_; ///< Age at the index event
 };
 
@@ -531,8 +528,6 @@ public:
 	auto start_date{base_date + -356*24*60*60};
 	auto end_date{base_date + 356*24*60*60};
 
-	// Add the diagnoses 
-	
 	// Loop over all the spells in the patient
 	for (const auto & spell : patient.spells()) {
 
