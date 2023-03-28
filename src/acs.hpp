@@ -427,7 +427,8 @@ public:
     /// contained inside this constructor.
     IndexEvent(const Episode & episode,
 	       const std::set<std::string> & index_diagnoses,
-	       const std::set<std::string> & index_procedures) {
+	       const std::set<std::string> & index_procedures,
+	       const std::string & stemi_flag) {
 
 	// To store the intersections between the episode
 	// diagnoses/procedures and the relevant index list
@@ -443,6 +444,9 @@ public:
 	    throw NotIndexEvent{};
 	}
 
+	// Record stemi presentation
+	stemi_presentation_ = episode.diagnoses().contains(stemi_flag);
+	
 	// Check if the index event is triggered by a diagnosis
 	// of procedure. Procedures take priority here.
 	procedure_triggered_ = (relevant_procedures.size() > 0);
@@ -475,6 +479,10 @@ public:
 	} else {
 	    return "diagnosis";
 	}
+    }
+
+    auto stemi_presentation() const {
+	return stemi_presentation_;
     }
     
     /// Print the index event
@@ -582,6 +590,10 @@ public:
 	return index_event_.age_at_index();
     }
 
+    auto stemi_presentation() const {
+	return index_event_.stemi_presentation();
+    }
+
     void print() const {
 	std::cout << "Record: Patient " << nhs_number_
 		  << ""
@@ -648,88 +660,6 @@ private:
 //
 //
 
-// std::string episodes_query{
-//     R"raw_sql(
-
-
-
-// select top 5000 
-// 	episodes.*,
-// 	mort.REG_DATE_OF_DEATH as date_of_death,
-// 	mort.S_UNDERLYING_COD_ICD10 as cause_of_death,
-// 	mort.Dec_Age_At_Death as age_at_death
-// from (
-// 	select
-// 		AIMTC_Pseudo_NHS as nhs_number,
-//                 AIMTC_Age as age_at_episode,
-// 		PBRspellID as spell_id,
-// 		StartDate_ConsultantEpisode as episode_start,
-// 		EndDate_ConsultantEpisode as episode_end,
-// 		AIMTC_ProviderSpell_Start_Date as spell_start,
-// 		AIMTC_ProviderSpell_End_Date as spell_end,
-
-// 		diagnosisprimary_icd,
-//                 diagnosis1stsecondary_icd,
-// 		diagnosis2ndsecondary_icd,
-// 		diagnosis3rdsecondary_icd,
-// 		--diagnosis4thsecondary_icd,
-// 		--diagnosis5thsecondary_icd,
-// 		--diagnosis6thsecondary_icd,
-// 		--diagnosis7thsecondary_icd,
-// 		--diagnosis8thsecondary_icd,
-// 		--diagnosis9thsecondary_icd,
-// 		--diagnosis10thsecondary_icd,
-// 		--diagnosis11thsecondary_icd,
-// 		--diagnosis12thsecondary_icd,
-// 		--diagnosis13thsecondary_icd,
-// 		--diagnosis14thsecondary_icd,
-// 		--diagnosis15thsecondary_icd,
-// 		--diagnosis16thsecondary_icd,
-// 		--diagnosis17thsecondary_icd,
-// 		--diagnosis18thsecondary_icd,
-// 		--diagnosis19thsecondary_icd,
-// 		--diagnosis20thsecondary_icd,
-// 		--diagnosis21stsecondary_icd,
-// 		--diagnosis22ndsecondary_icd,
-// 		--diagnosis23rdsecondary_icd,
-
-// 		primaryprocedure_opcs,
-// 		procedure2nd_opcs,
-// 		procedure3rd_opcs,
-// 		procedure4th_opcs
-// 		--procedure5th_opcs,
-// 		--procedure6th_opcs,
-// 		--procedure7th_opcs,
-// 		--procedure8th_opcs,
-// 		--procedure9th_opcs,
-// 		--procedure10th_opcs,
-// 		--procedure11th_opcs,
-// 		--procedure12th_opcs,
-// 		--procedure13th_opcs,
-// 		--procedure14th_opcs,
-// 		--procedure15th_opcs,
-// 		--procedure16th_opcs,
-// 		--procedure17th_opcs,
-// 		--procedure18th_opcs,
-// 		--procedure19th_opcs,
-// 		--procedure20th_opcs,
-// 		--procedure21st_opcs,
-// 		--procedure22nd_opcs,
-// 		--procedure23rd_opcs,
-// 		--procedure24th_opcs
-
-// 	from abi.dbo.vw_apc_sem_001
-// 	where datalength(AIMTC_Pseudo_NHS) > 0
-// 		and datalength(pbrspellid) > 0  
-// ) as episodes
-// left join abi.civil_registration.mortality as mort
-// on episodes.nhs_number = mort.derived_pseudo_nhs
-// order by nhs_number, spell_id;
-
-//     )raw_sql"
-// };
-
-
 std::string make_acs_sql_query(const YAML::Node & config) {
 
     std::stringstream query;
@@ -789,7 +719,8 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
     auto include{config["index_event"]["include"]};
     auto index_diagnoses{expect_string_set(include, "diagnoses")};
     auto index_procedures{expect_string_set(include, "procedures")};
-	
+    auto stemi_flag{config["index_event"]["include"]["stemi_flag"].as<std::string>()};
+    
     // Fetch the database name and connect
     auto dsn{config["data_sources"]["dsn"].as<std::string>()};
     std::cout << "Connection to DSN " << dsn << std::endl;
@@ -830,7 +761,8 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
 			    // Test if this episode is an index event
 			    IndexEvent index_event{episode,
 						   index_diagnoses,
-						   index_procedures};
+						   index_procedures,
+						   stemi_flag};
 			    // For this index event, construct the
 			    // record by looking at at all episodes
 			    // before/after the index event for this

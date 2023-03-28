@@ -56,6 +56,9 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
 
 	// The event triggering inclusion as an index event
 	Rcpp::NumericVector age_at_index;
+	
+	// The event triggering inclusion as an index event
+	Rcpp::LogicalVector stemi_presentation;
 
 	// Whether death occured in the "after" period
 	//Rcpp::NumericVector death_after;
@@ -86,6 +89,9 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
 	    // Get the index event type
 	    index_type.push_back(record.index_type());
 
+	    // Get the stemi presentation flag
+	    stemi_presentation.push_back(record.stemi_presentation());
+
 	    // Age at the index event episode
 	    try {
 		age_at_index.push_back(record.age_at_index().value());
@@ -105,6 +111,7 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
 	table_r["index_date"] = index_dates;
 	table_r["index_type"] = index_type;
 	table_r["age_at_index"] = age_at_index;
+	table_r["stemi_presentation"] = stemi_presentation;
 	//table_r["death_after"] = death_after;
 	//table_r["cause_of_death"] = cause_of_death;
 	
@@ -131,7 +138,6 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
     }
 }
 
-#include "acs.hpp"
 #include "random.hpp"
 
 // [[Rcpp::export]]
