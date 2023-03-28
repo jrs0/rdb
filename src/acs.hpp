@@ -473,6 +473,14 @@ public:
 	return date_;
     }
 
+    const auto & other_diagnoses() const {
+	return other_diagnoses_;
+    }
+
+    const auto & other_procedures() const {
+	return other_diagnoses_;
+    }
+
     std::string type() const {
 	if (procedure_triggered_) {
 	    return "procedure";
@@ -493,6 +501,13 @@ public:
 	std::cout << "; Age: " << age_at_index_.value_or(-1);
     }
 private:
+
+    // List of other diagnoses and procedures, not involved in
+    // triggering inclusion as an index event, that will be taken
+    // as prior conditions
+    std::set<std::string> other_procedures;
+    std::set<std::string> other_diagnoses;
+    
     /// True if a procedure generated the index event, false otherwise
     bool procedure_triggered_;
     bool stemi_presentation_;
@@ -528,6 +543,13 @@ public:
 	auto start_date{base_date + -356*24*60*60};
 	auto end_date{base_date + 356*24*60*60};
 
+	// Incorporate all the other diagnoses/procedures (not
+	// involved in triggering the index event) into the
+	// counts for previous conditions.
+	
+
+	
+	
 	// Check if death occured in the after window, and if
 	// so, add the cause of death 
 

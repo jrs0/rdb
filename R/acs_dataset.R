@@ -26,20 +26,14 @@ acs_dataset <- function(config_file = "config.yaml") {
                              ischaemia_after = acs_stemi_after
                              + acs_nstemi_after
                              + ischaemic_stroke_after)
-    
+
+    ## Reduce the output columns to simple factors
+    dataset <- dplyr::mutate(dataset,
+                             bleeding_after = factor(bleeding_after == 0,
+                                                     labels = c("bleed_occured",
+                                                                "no_bleed")))
+    dataset <- dplyr::mutate(dataset,
+                             ischaemia_after = factor(ischaemia_after == 0,
+                                                      labels = c("ischaemia_occured",
+                                                                 "no_ischaemia")))
 }
-
-##' @title Plot the distribution of index events with time
-##'
-##' The plot breaks down the results by stemi/nstemi presentation.
-##'
-##' @param dataset The dataset produced with acs_dataset()
-##' @return A ggplot object
-##' 
-plot_index_with_time <- function(dataset) {
-    ggplot2::ggplot(dataset) +
-        geom_histogram(aes(x = index_date, fill = stemi_presentation),
-                       bins = 75)
-}
-
-

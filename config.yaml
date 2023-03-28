@@ -126,4 +126,4 @@ in_memory:
   seed: 47
 
 # Set a limit on the number of returned rows
-#result_limit: 5000
+result_limit: 500000
