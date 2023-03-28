@@ -26,14 +26,5 @@ acs_dataset <- function(config_file = "config.yaml") {
                              ischaemia_after = acs_stemi_after
                              + acs_nstemi_after
                              + ischaemic_stroke_after)
-
-    ## Reduce the output columns to simple factors
-    dataset <- dplyr::mutate(dataset,
-                             bleeding_after = factor(bleeding_after == 0,
-                                                     labels = c("bleed_occured",
-                                                                "no_bleed")))
-    dataset <- dplyr::mutate(dataset,
-                             ischaemia_after = factor(ischaemia_after == 0,
-                                                      labels = c("ischaemia_occured",
-                                                                 "no_ischaemia")))
 }
+

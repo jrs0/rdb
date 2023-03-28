@@ -42,6 +42,15 @@ std::set<T> set_union(const std::set<T> & s1, const std::set<T> & s2) {
     return out;
 }
 
+// Remove anything in s2 from s1
+template<typename T>
+std::set<T> set_difference(std::set<T> s1, const std::set<T> & s2) {
+    for (const auto & item : s2) {
+	s1.erase(item);
+    }
+    return s1;
+}
+
 
 /// Get the vector of source columns from the config file node
 std::vector<std::string> source_columns(const YAML::Node & config) {
@@ -444,6 +453,15 @@ public:
 	    throw NotIndexEvent{};
 	}
 
+	// The other diagnosis and procedures are the ones present in the
+	// episode but which are not the triggering ones -- they are
+	// supposed to be a proxy for underlying conditions (TODO fix this
+	// logic)
+	other_diagnoses_ = set_difference(episode.diagnoses(),
+					  relevant_diagnoses);
+	other_procedures_ = set_difference(episode.procedures(),
+					   relevant_procedures);
+        
 	// Record stemi presentation
 	stemi_presentation_ = episode.diagnoses().contains(stemi_flag);
 	
@@ -478,7 +496,7 @@ public:
     }
 
     const auto & other_procedures() const {
-	return other_diagnoses_;
+	return other_procedures_;
     }
 
     std::string type() const {
@@ -505,8 +523,8 @@ private:
     // List of other diagnoses and procedures, not involved in
     // triggering inclusion as an index event, that will be taken
     // as prior conditions
-    std::set<std::string> other_procedures;
-    std::set<std::string> other_diagnoses;
+    std::set<std::string> other_procedures_;
+    std::set<std::string> other_diagnoses_;
     
     /// True if a procedure generated the index event, false otherwise
     bool procedure_triggered_;
@@ -545,10 +563,20 @@ public:
 
 	// Incorporate all the other diagnoses/procedures (not
 	// involved in triggering the index event) into the
-	// counts for previous conditions.
-	
-
-	
+	// counts for previous conditions. For diagnoses, this logic
+	// is OK, especially if they are secondary diagnoses. This is
+	// most important for index events coming from the first episode
+	// in a spell (otherwise it is likely that patient history
+	// would be picked up in a previous episode in the loops below).
+	// There is a flag in the database for whether the diagnosis was
+	// present on admission -- it would be much better to use this,
+	// ion conjunction with primary/secondary diagnosis logic.
+	for (const auto & diagnosis : index_event.other_diagnoses()) {
+	    num_events_before_[diagnosis]++;
+	}
+	for (const auto & procedure : index_event.other_procedures()) {
+	    num_events_before_[procedure]++;
+	}
 	
 	// Check if death occured in the after window, and if
 	// so, add the cause of death 
