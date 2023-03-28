@@ -734,12 +734,12 @@ std::string make_acs_sql_query(const YAML::Node & config) {
 
     std::stringstream query;
 
-    query << "select";
+    query << "select ";
 	
     try {
 	std::size_t result_limit{config["result_limit"].as<std::size_t>()};
 	std::cout << "Using result limit" << result_limit << std::endl;
-	query << "top " << result_limit;
+	query << "top " << result_limit << " ";
     } catch(const YAML::ParserException& e) {
 	throw std::runtime_error("Not using a result limit in query");
     }
@@ -755,19 +755,19 @@ std::string make_acs_sql_query(const YAML::Node & config) {
 	  << "StartDate_ConsultantEpisode as episode_start,"
 	  << "EndDate_ConsultantEpisode as episode_end,"
 	  << "AIMTC_ProviderSpell_Start_Date as spell_start,"
-	  << "AIMTC_ProviderSpell_End_Date as spell_end,";
+	  << "AIMTC_ProviderSpell_End_Date as spell_end ";
 
     // Add all the diagnosis columns
     auto diagnoses{expect_string_vector(config["parser_config"]["diagnoses"], "source_columns")};
     for (const auto & diagnosis : diagnoses) {
-	query << diagnosis << ",";
+	query <<  "," << diagnosis;
     }
     auto procedures{expect_string_vector(config["parser_config"]["procedures"], "source_columns")};
     for (const auto & procedure : procedures) {
-	query << procedure << ",";
+	query << "," << procedure;
     }
 
-    query << "from abi.dbo.vw_apc_sem_001 "
+    query << " from abi.dbo.vw_apc_sem_001 "
 	  << "where datalength(AIMTC_Pseudo_NHS) > 0 "
 	  << "and datalength(pbrspellid) > 0 "
 	  << ") as episodes "
@@ -795,7 +795,9 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
     std::cout << "Connection to DSN " << dsn << std::endl;
     SQLConnection con{dsn};
     std::cout << "Executing statement" << std::endl;
-    auto row{con.execute_direct(make_acs_sql_query(config))};
+    auto query{make_acs_sql_query(config)};
+    std::cout << query << std::endl;
+    auto row{con.execute_direct(query)};
         
     std::cout << "Starting to fetch rows" << std::endl;
 

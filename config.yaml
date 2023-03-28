@@ -37,7 +37,7 @@ parser_config:
     source_columns:
     - diagnosisprimary_icd
     - diagnosis1stsecondary_icd
-    - diagnosis2ndsecondary_icd,
+    - diagnosis2ndsecondary_icd
     - diagnosis3rdsecondary_icd
     # - diagnosis4thsecondary_icd
     # - diagnosis5thsecondary_icd
