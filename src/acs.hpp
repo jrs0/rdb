@@ -738,7 +738,7 @@ std::string make_acs_sql_query(const YAML::Node & config) {
 	
     try {
 	std::size_t result_limit{config["result_limit"].as<std::size_t>()};
-	std::cout << "Using result limit" << result_limit << std::endl;
+	std::cout << "Using result limit " << result_limit << std::endl;
 	query << "top " << result_limit << " ";
     } catch(const YAML::ParserException& e) {
 	throw std::runtime_error("Not using a result limit in query");
@@ -796,7 +796,7 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
     SQLConnection con{dsn};
     std::cout << "Executing statement" << std::endl;
     auto query{make_acs_sql_query(config)};
-    std::cout << query << std::endl;
+    std::cout << std::endl << "Query: " << query << std::endl << std::endl;
     auto row{con.execute_direct(query)};
         
     std::cout << "Starting to fetch rows" << std::endl;

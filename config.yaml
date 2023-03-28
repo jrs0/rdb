@@ -128,4 +128,4 @@ in_memory:
   seed: 47
       
 # Sql query result limit
-result_limit: 5000
+result_limit: 500000
