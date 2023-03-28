@@ -21,8 +21,10 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
     //auto config_path{Rcpp::as<std::string>(config_path_chr)};
     auto config_path{Rcpp::as<std::string>(config_path_chr)};
     try {
-
 	YAML::Node config = YAML::LoadFile(config_path);
+
+	std::cout << "Configuration: " << std::endl
+		  << config << std::endl << std::endl;
 
 	// Get the records, one per index event, along with
 	// procedures/diagnoses before and after

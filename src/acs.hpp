@@ -528,6 +528,9 @@ public:
 	auto start_date{base_date + -356*24*60*60};
 	auto end_date{base_date + 356*24*60*60};
 
+	// Check if death occured in the after window, and if
+	// so, add the cause of death 
+
 	// Loop over all the spells in the patient
 	for (const auto & spell : patient.spells()) {
 
@@ -665,15 +668,13 @@ std::string make_acs_sql_query(const YAML::Node & config) {
     std::stringstream query;
 
     query << "select ";
-	
-    try {
+
+    if (config["result_limit"]) {
 	std::size_t result_limit{config["result_limit"].as<std::size_t>()};
 	std::cout << "Using result limit " << result_limit << std::endl;
 	query << "top " << result_limit << " ";
-    } catch(const YAML::ParserException& e) {
-	throw std::runtime_error("Not using a result limit in query");
     }
-
+    
     query << "episodes.*,"
 	  << "mort.REG_DATE_OF_DEATH as date_of_death,"
 	  << "mort.S_UNDERLYING_COD_ICD10 as cause_of_death,"
@@ -709,7 +710,7 @@ std::string make_acs_sql_query(const YAML::Node & config) {
 }
 
 std::vector<Record> get_acs_records(const YAML::Node & config) {
-
+        
     std::vector<Record> records;
     
     // Contains the parsers for OPCS and ICD codes

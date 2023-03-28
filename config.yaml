@@ -96,7 +96,6 @@ parser_config:
   # is for testing purposes
   all: no
 
-  
 index_event:
   start_date: "2015-1-1" 
   end_date: "2023-1-1"
@@ -107,8 +106,7 @@ index_event:
   
 code_groups:
   acs: acs
-  diabetes: [type_1_diabetes, type_2_diabetes]
-  
+  diabetes: [type_1_diabetes, type_2_diabetes]  
   
 data_sources:
   dsn: xsw
@@ -122,10 +120,10 @@ data_sources:
       nhs_number: Derived_Pseudo_NHS
       date_of_death: REG_DATE_OF_DEATH
       cause_of_death: S_UNDERLYING_COD_ICD10
-      
+
 in_memory:
   num_patients: 500
   seed: 47
-      
-# Sql query result limit
-result_limit: 500000
+
+# Set a limit on the number of returned rows
+#result_limit: 5000
