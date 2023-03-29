@@ -65,7 +65,7 @@ apt install linux-tools-generic linux-tools-5.15.0-60-generic
 Then run the following command to profile the program:
 
 ```bash
-perf record -g /srv/build/main
+perf record -g /src/build/main
 perf script > out.perf
 ```
 
@@ -74,7 +74,7 @@ perf script > out.perf
 
 ```bash
 ./stackcollapse-perf.pl out.perf > out.folded
-./flamegraph.pl out.kern_folded > kernel.svg
+./flamegraph.pl out.folded > kernel.svg
 ```
 
 
