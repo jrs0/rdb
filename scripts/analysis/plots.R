@@ -62,3 +62,34 @@ plot_predictors_distributions <- function(dataset) {
         theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))    
 }
 
+##' Plot the distribution of age in each of the four bleeding/ischaemia
+##' groups
+##'
+##' @param dataset The dataset produced with acs_dataset()
+##' @return A ggplot object
+##' 
+plot_age_distributions <- function(dataset) {
+    ## Collapse the columns into broader groups
+    reduced <- dataset %>%
+        ## Keep the predictors
+        mutate(Age = age_at_index) %>%
+        ## Keep the outcomes
+        mutate(`Bleeding Outcome` = factor(bleeding_after > 0,
+                                           labels = c("No Bleed",
+                                                      "Bleed After")),
+               `Ischaemia Outcome` = factor(ischaemia_after > 0,
+                                            labels = c("No Ischaemia",
+                                                       "Ischaemia After"))) %>%
+        select(- matches("(before|after)"))
+
+    reduced %>%
+        drop_na() %>%
+        ## Use capital letter to identify predictor
+        group_by(`Bleeding Outcome`, `Ischaemia Outcome`) %>%
+        ggplot(aes(x = Age)) +
+        geom_histogram(fill = 'deepskyblue4') +
+        facet_grid(`Bleeding Outcome` ~ `Ischaemia Outcome`) +
+        labs(x = 'Predictor class', y = 'Count in bin') +
+        theme_minimal(base_size = 16) +
+        theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))    
+}

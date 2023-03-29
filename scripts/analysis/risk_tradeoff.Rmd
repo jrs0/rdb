@@ -11,7 +11,6 @@ output:
 library(tidyverse)
 library(knitr)
 
-library(tidymodels)
 library(probably)
 library(discrim)
 library(probably)
@@ -21,112 +20,43 @@ library(pROC)
 library(lubridate)
 library(knitr)
 
-##' Using the bootstrap resamples to obtain multiple models
-##' and thereby obtain a spectrum of predicted class scores for each
-##' element of the test set. This indicates the variability in the
-##' model fitting process.
-##'
-##' @param model The tidymodels model to use for the fit
-##' @param train The training data on which to perform the fits
-##' @param test The test set, where each model (from the bootstrap resamples)
-##' is used to make a prediction for the items in the test set
-##' @param resamples_from_train The bootstrap resamples object used to specify
-##' which subsets of train are used to train the models.
-##' @param recipe The recipe (preprocessing steps) to apply before training
-##' _any_ of the models. (i.e. the same preprocessing steps are applied before
-##' fitting the models in the bootstrap resamples.
-##' @return A list of two items. The first ("results") is a tibble with
-##' the test set, containing predictors along with a model_id column
-##' indicating which bootstrap resample was used to fit that model. The
-##' second ("removals") is a list of predictors removed due to near-zero
-##' variance in the primary fit.
-predict_resample <- function(model, train, test, resamples_from_train, recipe)
-{
-    ## Create the workflow for this model
-    workflow <- workflow() %>%
-        add_model(model) %>%
-        add_recipe(recipe)
+## Set the working directory to the location of this script
 
-    ## Set the control to extract the fitted model for each resample
-    ## Turns out you don't need to run extract_fit_parsnip. Surely
-    ## there is a way not to call the identity function!
-    ctrl_rs <- control_resamples(
-        extract = function (x) x
-    )
-
-    ## Perform an independent fit on each bootstrapped resample,
-    ## extracting the fit objects
-    bootstrap_fits <- workflow %>%
-        fit_resamples(resamples_from_train, control = ctrl_rs) %>%
-        pull(.extracts) %>%
-        map(~ .x %>% pluck(".extracts", 1))
-    
-    ## Perform one fit on the entire training dataset. This is the
-    ## single (no cross-validation here) main fit of the model on the
-    ## entire training set.
-    primary_fit <- workflow %>%
-        fit(data = train)
-
-    ## Use the primary model to predict the test set
-    primary_pred <- primary_fit %>%
-        augment(new_data = test) %>%
-        mutate(model_id = as.factor("primary"))
-
-    primary_removals <- primary_fit %>%
-        extract_recipe() %>%
-        pluck("steps", 2, "removals")
-    
-    ## For each bleeding model, predict the probabilities for
-    ## the test set and record the model used to make the
-    ## prediction in model_id
-    bootstrap_pred <- list(
-        n = seq_along(bootstrap_fits),
-        f = bootstrap_fits
-    ) %>%
-        pmap(function(n, f)
-        {
-            f %>%
-                augment(new_data = test) %>%
-                mutate(model_id = as.factor(n))
-        }) %>%
-        list_rbind()
-
-    ## Bind together the primary and bootstrap fits
-    pred <- bind_rows(primary_pred, bootstrap_pred)
-
-    list(results = pred, removals = primary_removals) 
-}
+source("model.R")
+source("plots.R")
         
 ## Load the data and convert the bleeding outcome to a factor
 ## (levels no_bleed, bleed_occured). The result is a dataset with age and
 ## all the ICD <code>_before columns, and a response variable bleed.
 
 #data_input <- "gendata/spells_primary.rds"
-data_input <- "gendata/episodes_secondary.rds"
+#data_input <- "gendata/episodes_secondary.rds"
+raw_dataset <- readRDS("gendata/medium_dataset.rds")
 
-risk_tradeoff_minimal_dataset <- readRDS(data_input)
-dataset <- risk_tradeoff_minimal_dataset %>%
-    mutate(bleed_after = factor(bleed_after == 0, labels = c("bleed_occured", "no_bleed"))) %>%
+dataset <- raw_dataset %>%
+    mutate(bleeding_after = factor(bleeding_after == 0, labels = c("bleed_occured", "no_bleed"))) %>%
     mutate(ischaemia_after = factor(ischaemia_after == 0, labels = c("ischaemia_occured", "no_ischaemia"))) %>%
     drop_na() %>%
+    ## Remove the after columns
+    select(- (matches("after") & !matches("(bleeding_after|ischaemia_after)")), - nhs_number) %>%
     ## Add an ID to link up patients between bleeding and ischaemia predictions
     mutate(patient_id = as.factor(row_number()))
 
 ## Get number of acs patients
 num_acs_patients <- dataset %>% nrow()
-start <- min(dataset$date)
-end <- max(dataset$date)
+start <- min(dataset$index_date)
+end <- max(dataset$index_date)
 
 set.seed(47)
 
 ## Get a test training split stratified by bleeding (the
 ## less common outcome)
-split <- initial_split(dataset, prop = 0.75, strata = bleed_after)
+split <- initial_split(dataset, prop = 0.75, strata = bleeding_after)
 train <- training(split)
 test <- testing(split)
 
 ## Create cross-validation folds
-resamples_from_train <- bootstraps(train, times = 5)
+resamples_from_train <- bootstraps(train, times = 3)
 
 ## Create the model list
 models <- list(
@@ -153,9 +83,9 @@ models <- list(
 )
 
 ## Create the recipe for the bleed models
-bleed_recipe <- recipe(bleed_after ~ ., data = train) %>%
+bleeding_recipe <- recipe(bleeding_after ~ ., data = train) %>%
     update_role(patient_id, new_role = "id") %>%
-    update_role(date, new_role = "date") %>%
+    update_role(index_date, new_role = "date") %>%
     update_role(ischaemia_after, new_role = "ischaemic_after") %>%
     step_integer(stemi_presentation) %>%
     step_nzv(all_predictors()) %>%
@@ -165,8 +95,8 @@ bleed_recipe <- recipe(bleed_after ~ ., data = train) %>%
 ## Create the ischaemia recipe
 ischaemia_recipe <- recipe(ischaemia_after ~ ., data = train) %>%
     update_role(patient_id, new_role = "id") %>%
-    update_role(date, new_role = "date") %>%
-    update_role(bleed_after, new_role = "bleed_after") %>%
+    update_role(index_date, new_role = "date") %>%
+    update_role(bleeding_after, new_role = "bleeding_after") %>%
     step_integer(stemi_presentation) %>%
     step_nzv(all_predictors()) %>%
     step_center(all_predictors()) %>%
@@ -178,14 +108,14 @@ pred_bleed <- list(names(models), models) %>%
     {
         ## x is a list of result and removals
         x <- predict_resample(model, train, test,
-                              resamples_from_train, bleed_recipe)
+                              resamples_from_train, bleeding_recipe)
         results <- x$results
         removals <- x$removals
         results %>%
             mutate(model_name = model_name) %>%
             mutate(outcome_name = "bleed") %>%
             mutate(outcome_result =
-                       recode_factor(bleed_after,
+                       recode_factor(bleeding_after,
                                      "bleed_occured" = "occured",
                                      "no_bleed" = "none")) %>%
             rename(.pred_occured = .pred_bleed_occured) %>%
@@ -211,9 +141,9 @@ pred_ischaemia <- list(names(models), models) %>%
                                      "ischaemia_occured" = "occured",
                                      "no_ischaemia" = "none")) %>%
             rename(.pred_occured = .pred_ischaemia_occured) %>%
-        mutate(removals = if_else(model_id == "primary",
-                                  list(removals = removals),
-                                  list(removals = NULL)))
+            mutate(removals = if_else(model_id == "primary",
+                                      list(removals = removals),
+                                      list(removals = NULL)))
     }) %>%
     list_rbind()
 
@@ -249,7 +179,6 @@ predictors <- dataset %>%
 remaining_predictors <- setdiff(predictors, removals_by_models[[1]][[1]])
 remaining_predictors
 
-2
 ## Plot a few example probabilities in the predicted data
 ## pred %>%
 ##     ## Uncomment to view one model for all patients
