@@ -32,6 +32,23 @@ uid: "username"
 pwd: "password"
 ```
 
+To compile the project, run the following from the src/ directory
+
+```bash
+mkdir build/
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake --build . 
+```
+
+You will now have a main executable in the build folder. After running main, you will have gmon.out. To get the profile information, run (from the top level of the repository)
+ 
+
+```bash
+./src/build/main
+gprof -b ./src/build/main gmon.out > profile.txt
+```
+
 ## Notes
 
 You might need to install some packages using MSYS2 -- here is the cheat sheet (so far). Open Rtools42Bash (MSYS2) and use the following commands:
