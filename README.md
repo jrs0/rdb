@@ -32,6 +32,8 @@ uid: "username"
 pwd: "password"
 ```
 
+### Building 
+
 To compile the project, run the following from the src/ directory
 
 ```bash
@@ -41,13 +43,33 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build . 
 ```
 
-You will now have a main executable in the build folder. After running main, you will have gmon.out. To get the profile information, run (from the top level of the repository)
+You will now have a main executable in the build folder. 
+
+### Profiling
+
+To get the profile information from gprof, run (from the top level of the repository)
  
 
 ```bash
 ./src/build/main
 gprof -b ./src/build/main gmon.out > profile.txt
 ```
+
+To use perf, follow these steps
+
+```bash
+# Pick the package for your kernel
+apt install linux-tools-generic linux-tools-5.15.0-60-generic
+```
+
+Then run the following command to profile the program:
+
+```bash
+perf record -g /srv/build/main
+```
+
+(Note: if you are using a docker container, you will need to make sure you pass --privileged when you create it. If you already have a container, commit the container to an image and recreate it with the --privileged flag.) This will create a file called perf.data.
+
 
 ## Notes
 

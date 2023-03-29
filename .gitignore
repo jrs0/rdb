@@ -22,5 +22,6 @@ inst/doc
 callgrind.out*
 gmon.out
 profile.txt
+perf.data
 
 build/
