@@ -714,7 +714,7 @@ private:
 //
 //
 
-std::string make_acs_sql_query(const YAML::Node & config) {
+std::string make_acs_sql_query(const YAML::Node & config, bool with_mortality = true) {
 
     std::stringstream query;
 
@@ -726,11 +726,13 @@ std::string make_acs_sql_query(const YAML::Node & config) {
 	query << "top " << result_limit << " ";
     }
     
-    query << "episodes.*,"
-	  << "mort.REG_DATE_OF_DEATH as date_of_death,"
-	  << "mort.S_UNDERLYING_COD_ICD10 as cause_of_death,"
-	  << "mort.Dec_Age_At_Death as age_at_death "
-	  << "from (select " 
+    query << "episodes.* ";
+    if (with_mortality) {
+	query << ", mort.REG_DATE_OF_DEATH as date_of_death,"
+	      << ", mort.S_UNDERLYING_COD_ICD10 as cause_of_death,"
+	      << ", mort.Dec_Age_At_Death as age_at_death ";
+    }
+    query << "from (select " 
 	  << "AIMTC_Pseudo_NHS as nhs_number,"
 	  << "AIMTC_Age as age_at_episode,"
 	  << "PBRspellID as spell_id,"
@@ -752,10 +754,12 @@ std::string make_acs_sql_query(const YAML::Node & config) {
     query << " from abi.dbo.vw_apc_sem_001 "
 	  << "where datalength(AIMTC_Pseudo_NHS) > 0 "
 	  << "and datalength(pbrspellid) > 0 "
-	  << ") as episodes "
-	  << "left join abi.civil_registration.mortality as mort "
-	  << "on episodes.nhs_number = mort.derived_pseudo_nhs "
-	  << "order by nhs_number, spell_id; ";
+	  << ") as episodes ";
+    if (with_mortality) {
+	query << "left join abi.civil_registration.mortality as mort "
+	      << "on episodes.nhs_number = mort.derived_pseudo_nhs ";
+    }
+    query << "order by nhs_number, spell_id; ";
     
     return query.str();
 }
@@ -793,7 +797,7 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
     auto con{make_sql_connection(config)};
     
     std::cout << "Executing statement" << std::endl;
-    auto query{make_acs_sql_query(config)};
+    auto query{make_acs_sql_query(config, false)};
     std::cout << std::endl << "Query: " << query << std::endl << std::endl;
     auto row{con.execute_direct(query)};
         
