@@ -79,7 +79,7 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
 	    // Add all the counts columns 
 	    for (const auto & group : all_groups) {
 		event_counts[group + "_before"].push_back(before[group]);
-		event_counts[group + "_after"].push_back(before[group]);
+		event_counts[group + "_after"].push_back(after[group]);
 	    }
 
 	    // Get the nhs number
