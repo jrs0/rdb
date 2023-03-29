@@ -6,29 +6,31 @@
 #include "env_handle.hpp"
 #include "yaml.hpp"
 
+/// Throws runtime error if not present, adds to connection
+/// string in correct format
+void check_and_append_key(std::stringstream & ss,
+			  const std::string & key,
+			  const YAML::Node & cred) {
+    if(cred[key]) {
+	ss << key << "=" << cred[key] << ";";
+    } else {
+	throw std::runtime_error("Missing '" + key + "' in credentials file");
+    }
+}
+
 std::string make_connection_string(const YAML::Node & cred) {
-    std::stringstream con_string;
-    if(cred["driver"]) {
-	con_string << "driver:" << cred["driver"] << ";";
-    } else {
-	throw std::runtime_error("Missing 'driver' in credentials file");
-    }
-    if(cred["server"]) {
-	con_string << "server:" << cred["server"] << ";";
-    } else {
-	throw std::runtime_error("Missing 'server' in credentials file");
-    }
-    if(cred["uid"]) {
-	con_string << "uid:" << cred["uid"] << ";";
-    } else {
-	throw std::runtime_error("Missing 'uid' in credentials file");
-    }
-    if(cred["pwd"]) {
-	con_string << "pwd:" << cred["pwd"] << ";";
-    } else {
-	throw std::runtime_error("Missing 'pwd' in credentials file");
-    }
-    return con_string.str();
+    std::stringstream ss;
+    check_and_append_key(ss, "driver", cred);
+    check_and_append_key(ss, "server", cred);
+    check_and_append_key(ss, "uid", cred);
+    check_and_append_key(ss, "pwd", cred);
+
+    // For ODBC Driver 18 for SQL Server, SSL is turned on by
+    // default (see https://stackoverflow.com/questions/71732117/
+    // laravel-sql-server-error-odbc-driver-18-for-sql-serverssl
+    // -provider-error141). You 
+    check_and_append_key(ss, "TrustServerCertificate", cred);
+    return ss.str();
 }
 
 class ConHandle {
@@ -54,7 +56,7 @@ public:
 
 	// Get the connection information
 	auto con_string{make_connection_string(cred)};
-
+	std::cout << "COnnection string: " << con_string << std::endl;
 	r = SQLDriverConnect(hdbc_, NULL, (SQLCHAR*)con_string.c_str(), SQL_NTS,
 			     NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
 	ok_or_throw(get_handle(), r, "Attempting to connect to the server");

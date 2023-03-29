@@ -7,8 +7,8 @@ int main() {
 	    "pbrspellid,enddate_consultantepisode from abi.dbo.vw_apc_sem_001"}; 
 
 	// Make the connection
-        auto db_secret{YAML::LoadFile("/root/db.secret.yaml")};
-        SQLConnection con(db_secret);
+        auto cred{YAML::LoadFile("/root/db.secret.yaml")};
+        SQLConnection con(cred);
 
 	// Make the row buffer
 	auto row{con.execute_direct(query)};

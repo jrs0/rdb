@@ -13,10 +13,20 @@ On a blank Ubuntu 22.04 operating system (e.g. `docker run -it ubuntu`), install
 sudo apt install gcc g++ cmake odbcinst unixodbc unixodbc-dev libyamlcpp-dev
 ```
 
+Install ODBC Driver 18 as described [here](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server?view=sql-server-ver15&tabs=ubuntu18-install%2Calpine17-install%2Cdebian8-install%2Credhat7-13-install%2Crhel7-offline):
+
+```bash
+sudo apt install curl gnupg
+curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
+sudo apt-get update
+sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
+```
+
 Make a file of credentials `db.secret.yaml` with the following format:
 
 ```yaml
-driver: "ODBC Driver 17 for SQL Server"
+driver: "ODBC Driver 18 for SQL Server"
 server: "server_hostname"
 uid: "username"
 pwd: "password"
