@@ -40,7 +40,7 @@ void test_query() {
 }
 
 int main() {
-    auto config_path{"../../config.yaml"};
+    auto config_path{"config.yaml"};
     try {
 	YAML::Node config = YAML::LoadFile(config_path);
 

@@ -109,7 +109,9 @@ code_groups:
   diabetes: [type_1_diabetes, type_2_diabetes]  
   
 data_sources:
-  dsn: xsw
+  connection: 
+    #dsn: xsw
+    cred: /root/db.secret.yaml
   hospital_episodes:
     table: abi.dbo.vw_apc_sem_001
     nhs_number: aimtc_pseudo_nhs
@@ -126,5 +128,5 @@ in_memory:
   seed: 47
 
 # Set a limit on the number of returned rows
-result_limit: 4000000
+result_limit: 4000
 #result_limit: 500000

@@ -760,10 +760,27 @@ std::string make_acs_sql_query(const YAML::Node & config) {
     return query.str();
 }
 
+SQLConnection make_sql_connection(const YAML::Node & config) {
+    // Connect to DSN or with credential file
+    if (config["data_sources"]["connection"]["dsn"]) {
+	auto dsn{config["data_sources"]["connection"]["dsn"].as<std::string>()};
+	std::cout << "Connection to DSN " << dsn << std::endl;
+	return SQLConnection{dsn};
+    } else if (config["data_sources"]["connection"]["cred"]) {
+	auto cred_path{config["data_sources"]["connection"]["cred"].as<std::string>()};
+	auto cred{YAML::LoadFile(cred_path)};
+        return SQLConnection{cred};
+    } else {
+	throw std::runtime_error("You need either dsn or cred in the connection "
+				 "block for data_sources");
+    }
+
+}
+
 std::vector<Record> get_acs_records(const YAML::Node & config) {
         
     std::vector<Record> records;
-    
+
     // Contains the parsers for OPCS and ICD codes
     CodeParser code_parser{config["parser_config"]};
 
@@ -773,10 +790,8 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
     auto index_procedures{expect_string_set(include, "procedures")};
     auto stemi_flag{config["index_event"]["include"]["stemi_flag"].as<std::string>()};
     
-    // Fetch the database name and connect
-    auto dsn{config["data_sources"]["dsn"].as<std::string>()};
-    std::cout << "Connection to DSN " << dsn << std::endl;
-    SQLConnection con{dsn};
+    auto con{make_sql_connection(config)};
+    
     std::cout << "Executing statement" << std::endl;
     auto query{make_acs_sql_query(config)};
     std::cout << std::endl << "Query: " << query << std::endl << std::endl;
