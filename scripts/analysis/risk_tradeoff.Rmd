@@ -7,6 +7,236 @@ output:
     toc: true
 ---
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(knitr)
+
+library(probably)
+library(discrim)
+library(probably)
+
+## For attempt to find optimal threshold
+library(pROC)
+library(lubridate)
+library(knitr)
+
+library(corrplot)
+
+## Set the working directory to the location of this script
+
+source("model.R")
+source("plots.R")
+        
+## Load the data and convert the bleeding outcome to a factor
+## (levels no_bleed, bleed_occured). The result is a dataset with age and
+## all the ICD <code>_before columns, and a response variable bleed.
+
+raw_dataset <- readRDS("gendata/medium_dataset.rds")
+
+dataset <- raw_dataset %>%
+    mutate(bleeding_after = factor(bleeding_after == 0, labels = c("bleed_occured", "no_bleed"))) %>%
+    mutate(ischaemia_after = factor(ischaemia_after == 0, labels = c("ischaemia_occured", "no_ischaemia"))) %>%
+    drop_na() %>%
+    ## Remove the after columns
+    dplyr::select(- (matches("after") & !matches("(bleeding_after|ischaemia_after)")), - nhs_number) %>%
+    ## Add an ID to link up patients between bleeding and ischaemia predictions
+    mutate(patient_id = as.factor(row_number()))
+
+## Get number of acs patients
+num_acs_patients <- dataset %>% nrow()
+start <- min(dataset$index_date)
+end <- max(dataset$index_date)
+
+set.seed(47)
+
+train_prop <- 0.75
+
+## Get a test training split stratified by bleeding (the
+## less common outcome)
+split <- initial_split(dataset, prop = 0.75, strata = bleeding_after)
+train <- training(split)
+test <- testing(split)
+
+num_resamples <- 15
+
+## Create cross-validation folds
+resamples_from_train <- bootstraps(train, times = num_resamples)
+
+## Create the model list
+models <- list(
+    ## Logistic regression
+    log_reg = logistic_reg() %>% 
+        set_engine('glm') %>% 
+        set_mode('classification'),
+    ## Linear discriminant analysis
+    lin_disc = discrim_linear(
+        mode = "classification",
+        penalty = NULL,
+        regularization_method = NULL,
+        engine = "MASS"),
+    ## Naive Bayes
+    naive_bayes = naive_Bayes(
+        mode = "classification",
+        smoothness = NULL,
+        Laplace = NULL,
+        engine = "klaR"),
+    ## Decision tree
+    decision_tree = decision_tree() %>% 
+        set_engine("rpart") %>% 
+        set_mode("classification")
+)
+
+## Create the recipe for the bleed models
+bleeding_recipe <- recipe(bleeding_after ~ ., data = train) %>%
+    update_role(patient_id, new_role = "id") %>%
+    update_role(index_date, new_role = "date") %>%
+    update_role(ischaemia_after, new_role = "ischaemic_after") %>%
+    step_integer(stemi_presentation) %>%
+    step_nzv(all_predictors()) %>%
+    step_center(all_predictors()) %>%
+    step_scale(all_predictors())
+
+## Create the ischaemia recipe
+ischaemia_recipe <- recipe(ischaemia_after ~ ., data = train) %>%
+    update_role(patient_id, new_role = "id") %>%
+    update_role(index_date, new_role = "date") %>%
+    update_role(bleeding_after, new_role = "bleeding_after") %>%
+    step_integer(stemi_presentation) %>%
+    step_nzv(all_predictors()) %>%
+    step_center(all_predictors()) %>%
+    step_scale(all_predictors())
+
+## Perform the resampling predictions for all the models for bleeding
+pred_bleed <- list(names(models), models) %>%
+    purrr::pmap(function(model_name, model)
+    {
+        ## x is a list of result and removals
+        x <- predict_resample(model, train, test,
+                              resamples_from_train, bleeding_recipe)
+        results <- x$results
+        removals <- x$removals
+        results %>%
+            mutate(model_name = model_name) %>%
+            mutate(outcome_name = "bleed") %>%
+            mutate(outcome_result =
+                       recode_factor(bleeding_after,
+                                     "bleed_occured" = "occured",
+                                     "no_bleed" = "none")) %>%
+            rename(.pred_occured = .pred_bleed_occured) %>%
+            mutate(removals = if_else(model_id == "primary",
+                                      list(removals = removals),
+                                      list(removals = NULL)))
+    }) %>%
+    list_rbind()
+
+
+## Perform the resampling predictions for all the models for ischaemia
+pred_ischaemia <- list(names(models), models) %>%
+    purrr::pmap(function(model_name, model)
+    {
+        x <- predict_resample(model, train, test,
+                              resamples_from_train, ischaemia_recipe)
+        results <- x$results
+        removals <- x$removals        
+        results %>% mutate(model_name = model_name) %>%
+            mutate(outcome_name = "ischaemia") %>%
+            mutate(outcome_result =
+                       recode_factor(ischaemia_after,
+                                     "ischaemia_occured" = "occured",
+                                     "no_ischaemia" = "none")) %>%
+            rename(.pred_occured = .pred_ischaemia_occured) %>%
+            mutate(removals = if_else(model_id == "primary",
+                                      list(removals = removals),
+                                      list(removals = NULL)))
+    }) %>%
+    list_rbind()
+
+## Predict using the test set. Data needs to be in long
+## format to be able to get at the individual ROC curves
+## later
+pred <- bind_rows(pred_bleed, pred_ischaemia) %>%
+    mutate(primary = case_when(model_id == "primary" ~ "primary",
+                               TRUE ~ "bootstrap"))
+
+## For each model, get the predictors that were removed in the
+## primary fit due to near zero variance
+models <- pred %>%
+    dplyr::select(model_name) %>%
+    unique()
+
+## Get a named list mapping models and outcomes to lists of
+## the predictors that were removed in the primary fit
+removals_by_models <- pred %>%
+    filter(primary == "primary") %>%
+    dplyr::select(model_name, outcome_name, removals) %>%
+    tidyr::unite(model, c("model_name", "outcome_name")) %>%
+    unique() %>%
+    pivot_wider(names_from = model, values_from = removals) %>%
+    as.list()
+
+predictors <- dataset %>%
+    names() %>%
+    grep("(present|age|before$)",.,value=TRUE)
+
+## This assumes that all the models remove the same predictors
+## (they all use the same preprocessing steps
+remaining_predictors <- setdiff(predictors, removals_by_models[[1]][[1]])
+
+## Plot a few example probabilities in the predicted data
+## pred %>%
+##     ## Uncomment to view one model for all patients
+##     ##filter(model_name == "log_reg") %>%
+##     ## Pick a single patients
+##     filter(id == 3) %>%
+##     ## Uncomment to view all models for some patients
+##     filter(id %in% c(3,5,12)) %>%
+##     ggplot(aes(x = .pred_bleed_occured,
+##                y = .pred_ischaemia_occured,
+##                color = model_name,
+##                shape = primary)) +
+##     geom_point() +
+##     scale_y_log10() +
+##     scale_x_log10()
+
+## What do we want
+## - Table containing: AUC of primary model; mean AUC of bootstrapped models
+##   variance of AUC of bootstrapped models. Positive and negative predictive
+##   value for each primary model, and mean and variance for bootstrap models.
+##   Summary of the variance in the predictions for bleeding and ischaemia
+##   risk for each model. Summary of the variance between the models for
+##   the bleeding and ischaemia risk.
+##
+## - Two ROC curves for each model (one for bleeding, one for ischaemia).
+##   Curves should show the primary model, and all the curves for the
+##   bootstrapped models
+##
+## - Two plots per model (one for bleeding, one for ischaemia), showing
+##   centered variance of all predicted probabilities
+##
+## - Several plots, with a few randomly selected patients, showing what
+##   all the models predict for bleeding and ischaemia risk
+##
+## - Risk-tradeoff-style plots, one for each model, showing the distribution
+##   of all the risk predictions
+##
+##
+
+## Group data by the model, bootstrap rerun, and outcome
+grouped_pred <- pred %>%
+    group_by(model_name, outcome_name, primary, model_id)
+
+## Compute the ROC curves
+roc_curves <- grouped_pred %>%
+    roc_curve(outcome_result, .pred_occured)
+
+## Compute the AUC
+roc_auc <- grouped_pred %>%
+    roc_auc(outcome_result, .pred_occured) %>%
+    rename(auc = .estimate) %>%
+    dplyr::select(model_name, outcome_name, model_id, primary, auc) %>%
+    group_by(model_name, outcome_name)
+```
+
 # Overview of the problem
 
 Patients on dual antiplatelet therapy (following percutaneous coronary intervention or other procedures) to reduce their ischaemic risk are at increased risk of bleeding. 
@@ -14,6 +244,18 @@ Patients on dual antiplatelet therapy (following percutaneous coronary intervent
 Risk factors for both bleeding and ischaemia have been previously investigated in several studies, and several qualitative risk scores exist. These are often based on a mixture of patient characteristics at the time of the intervention (such as current comorbidities), and patient history of related diagnoses and procedures. The purpose of this report is to try to extract this information, or proxies for this information, from hospital episodes statistics (HES) data.
 
 More detailed relevant information is available from other data sources -- for example, the record of blood test results stored in hospital systems. However, a trade-off exists between finding data sources that are generic enough that they are likely available everywhere, vs. data sources that may not be easily generalised. HES data is the simplest data sources that is guaranteed to be present for all hospitals in the UK.
+
+A summary of the modelling results is shown in the table below. For more information, see [Classification models].
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
+## Summarise the AUC (should add primary AUC here)
+roc_auc %>%
+    group_by(outcome_name, model_name) %>%
+    summarise("Mean AUC" = mean(auc), "AUC Error" = 1.96*sd(auc)) %>%
+    rename("Outcome Name" = outcome_name,
+           "Model Name" = model_name) %>%
+    kable(caption = "Summary of model performance. The mean area under the ROC curve was obtained by averaging bootstrapped resamples. The 95% error on this estimate is also shown.")
+```
 
 ## Hospital episode statistics
 
@@ -23,21 +265,189 @@ Hospital episodes group episodes into spells. A spell defines one in-patient hos
 
 # Dataset definition and characteristics
 
-Describe how the dataset is produced (what columns, what they are etc.). Do some simple descriptive stats.
+Each row of the dataset corresponds to an episode with either an ACS or PCI code in any of the primary or secondary columns in the HES data. At most one index event is selected from each spell -- this is intended to avoid double counting the same underlying event (if, for example, two episodes are marked ACS in a single spell corresponding to one emergency admission due to a heart attack).
 
+The start date of the index episode is used as the index date. A flag records whether the triggering event was a diagnosis or a procedure. The patient age at that episode is recorded.
+
+For each patient, all other diagnoses and procedures in all primary and secondary fields of all other episodes are retrieved. The number of occurances of diagnosis and procedure code groups (as defined in the codes definition file; see the appendix) are counted up in a defined period before and after the index event. The results of this tally form the majority of the columns of the dataset; there are two columns for each diagnosis and procedure group.
+
+\newpage
+## ACS event over time
+
+The graph below shows the volume of index events (any ACS or PCI) as a function of time, broken down by STEMI vs. NSTEMI presentation.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+plot_index_with_time(raw_dataset)
+```
+
+There are `r num_acs_patients` index events in the dataset, between the dates `r start` and `r end`.
+
+\newpage
+## Distribution of predictors by outcome
+
+The four quadrants show the four possible bleeding/ischaemia outcomes, along with the mean number of occurances of the event on the x-axis before the ACS event. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
+plot_predictors_distributions(raw_dataset)
+```
+
+\newpage
+## Other subsequent events
+
+This is a plot of the distribution of counts of other subsequent events (not just bleeding and ischaemia), broken down by the bleeding and ischaemia endpoints.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
+plot_outcome_distributions(raw_dataset)
+```
+
+\newpage
+## Age distributions by outcome
+
+The plots show the distribution of age in each of the outcome groups.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
+plot_age_distributions(raw_dataset)
+```
+
+\newpage
 # Classification models
 
-Run the multi models script here
+Four classification models were fitted to the data: logistic regression; linear discriminant analysis; a basic decision tree; and naive Bayes.
 
-# Discussion
+The data was split into a training and a test set with `r 100*train_prop`% of the data in the training set. The training data was then resampled with replacement (bootstrapping) `r num_resamples` times, and each model was fitted on each bootstrap resample, in order to simulate variability in the model fitting process. A primary model was also fitted on the full training set.
 
-Maybe this is not needed 
+Before fitting the models, near-zero variance predictors were removed as described in the section below.
 
+## Variables selected in preprocessing
+
+The full set of predictors input into the modelling process were:
+
+```{r echo=FALSE}
+predictors
+```
+
+The preprocessing steps filter out variables that do not have enough variability to contribute to model performance. The remaining predictors after the preprocessing steps are listed below.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+##for_correlations <- raw_dataset %>%
+##    dplyr::select(bleeding_after, ischaemia_after, all_of(remaining_predictors))
+##correlations = cor(for_correlations)
+##corrplot(correlations)
+remaining_predictors
+```
+
+\newpage
+## ROC curves for the bleeding risk models
+
+The model predictions were compared against the test set to produce ROC curves, which are shown below for the bleeding models.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
+## Plot the ROC curves
+roc_curves %>%
+    filter(outcome_name == "bleed") %>%
+    ggplot(aes(x = 1 - specificity, y = sensitivity,
+               color = primary,
+               group = interaction(model_name, outcome_name, model_id))) +
+    geom_line() +
+    geom_abline(slope = 1, intercept = 0, size = 0.4) +
+    coord_fixed() +
+    theme_minimal(base_size = 16) +
+    labs(title = "ROC curves for the bleeding risk models") +
+    facet_wrap( ~ model_name, ncol=2)
+```
+
+\newpage
+## ROC curves for the ischaemia risk models
+
+The ROC curves for the ischaemia prediction models are shown below.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
+## Plot the ROC curves
+roc_curves %>%
+    filter(outcome_name == "ischaemia") %>%
+    ggplot(aes(x = 1 - specificity, y = sensitivity,
+               color = primary,
+               group = interaction(model_name, outcome_name, model_id))) +
+    geom_line() +
+    geom_abline(slope = 1, intercept = 0, size = 0.4) +
+    coord_fixed() +
+    theme_minimal(base_size = 16) +
+    labs(title = "ROC curves for the ischaemia risk models") +
+    facet_wrap( ~ model_name, ncol=2)
+```
+
+\newpage
+## Variability in risk predictions by model
+
+The purpose of this plot is to assess the variability inherent in fitting eahc model, and the variability between models. Each model has a small cluster (from bootstrap resampling), and the proximity of the clusters shows how well the models agree.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
+## For one patient, plot all the model predictions. This graph is supposed
+## to test how well the models agree with one another. The bootstrap models
+## and the primary model are all plotted as dots (not distinguished).
+grouped_pred %>%
+    ungroup() %>%
+    dplyr::select(patient_id, model_name, outcome_name,
+                  primary, model_id, .pred_occured) %>%
+    pivot_wider(names_from = "outcome_name",
+                values_from = ".pred_occured") %>%
+    ## Pick only one patient. The idea is to plot all the predictions for just
+    ## that one patient
+    filter(patient_id %in% sample(patient_id, size = 4)) %>%
+    ## Uncomment to view all models for some patients
+    ##filter(id %in% c(1,20,23,43, 100, 101, 102)) %>%
+    ggplot(aes(x = bleed, y = ischaemia, color=model_name, shape = primary)) +
+    geom_point() +
+    scale_y_log10() +
+    scale_x_log10() +
+    labs(title = "Plot of risk predictions from all models for some patients") +
+    facet_wrap( ~ patient_id, ncol=2) +
+    theme_minimal(base_size = 16)
+```
+
+\newpage
+## Risk trade-off plots for each model
+
+Plots of risk tradeoff for each model. The plot includes the model predictions corresponding to STEMI presentations explicitly.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
+## Plot of the risk trade-off graph for each model (using the primary model)
+grouped_pred %>%
+    ungroup() %>%
+    filter(primary == "primary") %>%
+    dplyr::select(stemi_presentation, patient_id, outcome_name, model_name, .pred_occured) %>%
+    pivot_wider(names_from = outcome_name, values_from = .pred_occured) %>%
+    ggplot(aes(x = bleed, y = ischaemia, color = stemi_presentation)) +
+    geom_point() +
+    facet_wrap( ~ model_name, ncol=2) +
+    theme_minimal(base_size = 16)
+```
+
+\newpage
 # Appendix
 
-All the technical stuff. Short description of how the code works. Where are the repositories. What commits to reproduce the results, etc.
+A bespoke program reads the ICD and OPCS codes in the HES database and parses them into code groups, shown in the sections below. In important feature of the program is its ability (after a certain amount of further development) to offer 100% discrimination between different codes and reject invalid codes with no false positives.
 
-## OPCS 4 and ICD 10 codes in the dataset
+## ICD 10 codes in the dataset
 
-## Parsing clinical codes
+The groups of ICD 10 diagnosis codes used in the analysis are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
+groups <- code_groups("../../icd10.yaml")
+for (n in seq_along(groups)) {
+    print(kable(groups[[n]], caption = paste("Diagnosis group", names(groups)[[n]])))
+}
+```
+
+## OPCS 4 codes in the dataset
+
+The groups of OPCS 4 procedure codes used in the analysis are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
+groups <- code_groups("../../opcs4.yaml")
+for (n in seq_along(groups)) {
+    print(kable(groups[[n]], caption = paste("Procedure group", names(groups)[[n]])))
+}
+```
+
 

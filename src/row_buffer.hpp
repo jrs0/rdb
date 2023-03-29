@@ -45,8 +45,9 @@ public:
 				     "non-existent column "
 				     + column_name);
 	} catch (const std::bad_variant_access & e) {
-	    throw std::runtime_error("Error trying to access a column "
-				     "using the wrong type");
+	    throw std::runtime_error("Error trying to access column "
+				     + column_name + 
+				     " using the wrong type");
 	}
     }
     
@@ -58,9 +59,15 @@ public:
 	if(not stmt_->fetch()) {
 	    throw std::logic_error("No more rows");
 	}
+	current_row_++;
     }
-	
+
+    auto current_row_number() const {
+	return current_row_;
+    }
+    
 private:
+    std::size_t current_row_{0};
     std::shared_ptr<StmtHandle> stmt_;
     std::map<std::string, BufferType> column_buffers_;
 };

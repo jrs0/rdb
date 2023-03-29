@@ -73,12 +73,16 @@ private:
     unsigned long long value_{0};
 };
 
-// Will default construct to a null integer
+// Stores an absolute time as a unix timestamp, constructed from
+// date components assuming that BST may be in effect.
 class Timestamp {
 public:
     using Buffer = class TimestampBuffer;
+
     // Will default construct to a null timestamp
     Timestamp() = default;
+    Timestamp(unsigned long long timestamp)
+	: null_{false}, unix_timestamp_{timestamp} { }
     Timestamp(const SQL_TIMESTAMP_STRUCT & datetime)
 	: null_{false} {
 
@@ -121,6 +125,10 @@ public:
 	unix_timestamp_
 	    = static_cast<unsigned long long>(std::mktime(&tm));
     }
+
+    friend auto operator<=>(const Timestamp &, const Timestamp &) = default;
+    friend bool operator==(const Timestamp &, const Timestamp &) = default;
+    
     unsigned long long read() const {
 	if (not null_) {
 	    return unix_timestamp_;
@@ -129,15 +137,11 @@ public:
 	}
     }
     void print() const {
-	std::cout << "Timestamp: ";
 	if (null_) {
-	    std::cout << "NULL" << std::endl;
+	    std::cout << "NULL";
 	} else {
-	    std::cout << unix_timestamp_;
-	    std::cout << " (";
 	    auto t{static_cast<std::time_t>(unix_timestamp_)};
-	    std::cout << std::put_time(std::localtime(&t), "%F %T %Z");
-	    std::cout << ")" << std::endl;
+	    std::cout << std::put_time(std::localtime(&t), "%F %T");
 	}
     }
     bool null() const { return null_; }
@@ -146,6 +150,10 @@ private:
     unsigned long long unix_timestamp_{0};
 };
 
+template<std::integral T>
+Timestamp operator+(const Timestamp & time, T offset_seconds) {
+    return Timestamp{time.read() + offset_seconds};
+}
 
 using SqlType = std::variant<Varchar,
 			     Integer,
