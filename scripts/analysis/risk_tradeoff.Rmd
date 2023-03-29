@@ -20,6 +20,8 @@ library(pROC)
 library(lubridate)
 library(knitr)
 
+library(corrplot)
+
 ## Set the working directory to the location of this script
 
 source("model.R")
@@ -179,6 +181,13 @@ predictors <- dataset %>%
 remaining_predictors <- setdiff(predictors, removals_by_models[[1]][[1]])
 remaining_predictors
 
+## View correlations
+for_correlations <- raw_dataset %>%
+    dplyr::select(bleeding_after, ischaemia_after, all_of(remaining_predictors))
+correlations = cor(for_correlations)
+corrplot(correlations)
+
+2
 ## Plot a few example probabilities in the predicted data
 ## pred %>%
 ##     ## Uncomment to view one model for all patients
