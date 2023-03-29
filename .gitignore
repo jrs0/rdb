@@ -17,5 +17,6 @@ inst/doc
 *.pdf
 *.doc*
 *.rds
+*.html
 
 callgrind.out*

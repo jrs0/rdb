@@ -127,3 +127,4 @@ in_memory:
 
 # Set a limit on the number of returned rows
 result_limit: 4000000
+#result_limit: 500000

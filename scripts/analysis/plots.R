@@ -15,7 +15,8 @@ plot_index_with_time <- function(dataset) {
 }
 
 ##' Plot the distribution of predictor counts with the four possible outcomes
-##' of bleeding/ischaemia
+##' of bleeding/ischaemia. These are the counts of events before the index
+##' event
 ##'
 ##' @param dataset The dataset produced with acs_dataset()
 ##' @return A ggplot object
@@ -61,6 +62,55 @@ plot_predictors_distributions <- function(dataset) {
         theme_minimal(base_size = 16) +
         theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))    
 }
+
+##' Plot the distribution of all outcomes with the four possible outcomes
+##' of bleeding/ischaemia. These are the counts of events happening after
+##' the index event.
+##'
+##' @param dataset The dataset produced with acs_dataset()
+##' @return A ggplot object
+##' 
+plot_outcome_distributions <- function(dataset) {
+
+    ## Collapse the columns into broader groups
+    reduced <- dataset %>%
+        ## Keep the predictors
+        mutate(`STEMI ACS` = acs_stemi_after,
+               `NSTEMI ACS` = acs_nstemi_after + acs_unstable_angina_after,
+               `Renal` = rowSums(across(matches("ckd.*_after"))),
+               `Anaemia` = anaemia_after,
+               `Atrial Fib.` = atrial_fib_after,
+               `Diabetes` = rowSums(across(matches("diabetes.*_after"))),
+               `Blood Transfusion` = blood_transfusion_after,
+               `CAGB` = cabg_after,
+               `Cancer` = cancer_after,
+               `COPD` = copd_after,
+               `PCI` = pci_after,
+               `Smoking` = smoking_after,
+               `Liver disease` = portal_hypertension_after + cirrhosis_after,
+               `Low Platelets` = thrombocytopenia_after) %>%
+        ## Keep the outcomes
+        mutate(`Bleeding Outcome` = factor(bleeding_after > 0,
+                                           labels = c("No Bleed",
+                                                      "Bleed After")),
+               `Ischaemia Outcome` = factor(ischaemia_after > 0,
+                                            labels = c("No Ischaemia",
+                                                       "Ischaemia After"))) %>%
+        dplyr::select(- matches("(before|after)"))
+    
+    reduced %>%
+        ## Use capital letter to identify predictor
+        pivot_longer(matches("[A-Z]", ignore.case = FALSE) & !matches("Outcome")) %>%
+        group_by(`Bleeding Outcome`, `Ischaemia Outcome`, name) %>%
+        summarise(value = mean(value)) %>%
+        ggplot(aes(name, value)) +
+        geom_col(fill = 'deepskyblue4') +
+        facet_grid(`Bleeding Outcome` ~ `Ischaemia Outcome`) +
+        labs(x = 'Predictor class', y = 'Average count') +
+        theme_minimal(base_size = 16) +
+        theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))    
+}
+
 
 ##' Plot the distribution of age in each of the four bleeding/ischaemia
 ##' groups
