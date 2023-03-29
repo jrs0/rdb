@@ -10,10 +10,20 @@ On a blank Ubuntu 22.04 operating system (e.g. `docker run -it ubuntu`), install
 
 ```bash
 ## Leave out the sudo on docker
-sudo apt install gcc g++ cmake unixodbc-dev libyamlcpp-dev
+sudo apt install gcc g++ cmake odbcinst unixodbc unixodbc-dev libyamlcpp-dev
 ```
 
-Make a data source name as follows. 
+Make a data source name as follows. Open `~/.odbc.ini` and add the following contents
+
+```ini
+[xsw]
+Driver = ODBC Driver 18 for SQL Server
+Server = server_name
+UID = username
+PWD = password
+```
+
+To test that the data source name is working, run `isql -v xsw`.
 
 ## Notes
 
