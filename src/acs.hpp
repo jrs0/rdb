@@ -324,13 +324,20 @@ private:
 /// If all three of the mortality fields are NULL, then the
 /// patient is considered still alive.
 bool patient_alive(const RowBuffer auto & row) {
-    auto date_of_death{column<Timestamp>("date_of_death", row)};
-    auto cause_of_death{column<Varchar>("cause_of_death", row)};
-    auto age_at_death{column<Integer>("age_at_death", row)};
 
-    return date_of_death.null()
-	and cause_of_death.null()
-	and age_at_death.null();
+    /*
+      auto date_of_death{column<Timestamp>("date_of_death", row)};
+      auto cause_of_death{column<Varchar>("cause_of_death", row)};
+      auto age_at_death{column<Integer>("age_at_death", row)};
+
+      return date_of_death.null()
+      and cause_of_death.null()
+      and age_at_death.null();
+
+    */
+
+    // For now not using mortality
+    return true;
 }
     
 class Patient {
@@ -795,7 +802,10 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
     auto stemi_flag{config["index_event"]["include"]["stemi_flag"].as<std::string>()};
     
     auto con{make_sql_connection(config)};
-    
+
+    // Whether to join the mortality table or not
+    bool with_mortality{false};
+	
     std::cout << "Executing statement" << std::endl;
     auto query{make_acs_sql_query(config, false)};
     std::cout << std::endl << "Query: " << query << std::endl << std::endl;
