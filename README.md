@@ -13,17 +13,14 @@ On a blank Ubuntu 22.04 operating system (e.g. `docker run -it ubuntu`), install
 sudo apt install gcc g++ cmake odbcinst unixodbc unixodbc-dev libyamlcpp-dev
 ```
 
-Make a data source name as follows. Open `~/.odbc.ini` and add the following contents
+Make a file of credentials `db.secret.yaml` with the following format:
 
-```ini
-[xsw]
-Driver = ODBC Driver 18 for SQL Server
-Server = server_name
-UID = username
-PWD = password
+```yaml
+driver: "ODBC Driver 17 for SQL Server"
+server: "server_hostname"
+uid: "username"
+pwd: "password"
 ```
-
-To test that the data source name is working, run `isql -v xsw`.
 
 ## Notes
 

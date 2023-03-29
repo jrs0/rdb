@@ -3,12 +3,12 @@
 
 int main() {
     try {
-	std::string dsn{"xsw"}; 
 	std::string query{"select top 10 diagnosisprimary_icd,aimtc_pseudo_nhs,"
 	    "pbrspellid,enddate_consultantepisode from abi.dbo.vw_apc_sem_001"}; 
 
 	// Make the connection
-	SQLConnection con(dsn);
+        auto db_secret{YAML::LoadFile("/root/db.secret.yaml")};
+        SQLConnection con(db_secret);
 
 	// Make the row buffer
 	auto row{con.execute_direct(query)};
