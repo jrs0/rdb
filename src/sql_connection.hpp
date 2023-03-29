@@ -4,11 +4,8 @@
 #include <vector>
 #include <map>
 
-#include "row_buffer.hpp"
+#include "sql_row_buffer.hpp"
 #include "acs.hpp"
-
-// To be moved out of here
-#include <Rcpp.h>
 
 /// A simple SQL
 class SQLConnection {

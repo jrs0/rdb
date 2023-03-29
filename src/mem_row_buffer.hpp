@@ -3,13 +3,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include "category.hpp"
-
-template<class T>
-concept RowBuffer = requires(T t, const std::string & s) {
-    t.size();
-    //t.at(s);
-    t.fetch_next_row();   
-};
+#include "row_buffer.hpp"
 
 /// Load a top_level_category YAML Node from file
 YAML::Node load_codes_helper(const YAML::Node & config) {

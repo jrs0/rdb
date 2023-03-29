@@ -27,6 +27,7 @@
 #include "sql_connection.hpp"
 #include "sql_types.hpp"
 #include "row_buffer.hpp"
+#include "mem_row_buffer.hpp"
 
 template<typename T>
 std::set<T> intersection(const std::set<T> & s1, const std::set<T> & s2) {
