@@ -2,6 +2,17 @@
 
 The goal of this repository is to test out the idea of loading data in C++, doing the preprocessing in C++, and then passing it to R for the rest.
 
+## Windows Development
+
+## Linux Development
+
+On a blank Ubuntu 22.04 operating system (e.g. `docker run -it ubuntu`), install the following:
+
+```bash
+## Leave out the sudo on docker
+sudo apt install gcc g++ 
+```
+
 ## Notes
 
 You might need to install some packages using MSYS2 -- here is the cheat sheet (so far). Open Rtools42Bash (MSYS2) and use the following commands:
