@@ -66,9 +66,16 @@ Then run the following command to profile the program:
 
 ```bash
 perf record -g /srv/build/main
+perf script > out.perf
 ```
 
-(Note: if you are using a docker container, you will need to make sure you pass --privileged when you create it. If you already have a container, commit the container to an image and recreate it with the --privileged flag.) This will create a file called perf.data.
+(Note: if you are using a docker container, you will need to make sure you pass --privileged when you create it. If you already have a container, commit the container to an image and recreate it with the --privileged flag.), Next, create a flame graph by cloning [this](https://github.com/brendangregg/FlameGraph) repository, and follow the instructions:
+
+
+```bash
+./stackcollapse-perf.pl out.perf > out.folded
+./flamegraph.pl out.kern_folded > kernel.svg
+```
 
 
 ## Notes
