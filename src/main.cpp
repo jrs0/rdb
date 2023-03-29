@@ -1,7 +1,7 @@
 #include <iostream>
 #include "acs.hpp"
 
-int main() {
+void test_query() {
     try {
 	std::string query{"select top 10 diagnosisprimary_icd,aimtc_pseudo_nhs,"
 	    "pbrspellid,enddate_consultantepisode from abi.dbo.vw_apc_sem_001"}; 
@@ -37,5 +37,28 @@ int main() {
 	std::cout << "An unhandled NULL value occured"
 		  << std::endl;	
     }
+}
 
+int main() {
+    auto config_path{"../../config.yaml"};
+    try {
+	YAML::Node config = YAML::LoadFile(config_path);
+
+	std::cout << "Configuration: " << std::endl
+		  << config << std::endl << std::endl;
+
+	// Get the records, one per index event, along with
+	// procedures/diagnoses before and after
+	auto records{get_acs_records(config)};
+	
+    } catch(const YAML::BadFile& e) {
+	throw std::runtime_error("Bad YAML file");
+    } catch(const YAML::ParserException& e) {
+	throw std::runtime_error("YAML parsing error");
+    } catch (const std::runtime_error & e) {
+	std::cout << "Failed with error "  << e.what() << std::endl;
+    } catch (const NullValue & ) {
+	std::cout << "An unhandled NULL value occured"
+		  << std::endl;
+    }
 }
