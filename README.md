@@ -10,7 +10,9 @@ On a blank Ubuntu 22.04 operating system (e.g. `docker run -it ubuntu`), install
 
 ```bash
 ## Leave out the sudo on docker
-sudo apt install gcc g++ 
+sudo apt install gcc g++ cmake
+
+
 ```
 
 ## Notes
