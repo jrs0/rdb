@@ -47,7 +47,7 @@ plot_predictors_distributions <- function(dataset) {
                `Ischaemia Outcome` = factor(ischaemia_after > 0,
                                             labels = c("No Ischaemia",
                                                        "Ischaemia After"))) %>%
-        select(- matches("(before|after)"))
+        dplyr::select(- matches("(before|after)"))
     
     reduced %>%
         ## Use capital letter to identify predictor
@@ -80,7 +80,7 @@ plot_age_distributions <- function(dataset) {
                `Ischaemia Outcome` = factor(ischaemia_after > 0,
                                             labels = c("No Ischaemia",
                                                        "Ischaemia After"))) %>%
-        select(- matches("(before|after)"))
+        dplyr::select(- matches("(before|after)"))
 
     reduced %>%
         drop_na() %>%

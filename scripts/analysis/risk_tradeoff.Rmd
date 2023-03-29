@@ -1,4 +1,4 @@
----
+p---
 title: "Modelling Bleeding and Ischaemia Risk in patients prescribed dual antiplatelet therapy"
 subtitle: "Classification models based on diagnosis/procedures codes from HES data"
 date: "`r Sys.Date()`"
@@ -268,26 +268,25 @@ The start date of the index episode is used as the index date. A flag records wh
 
 For each patient, all other diagnoses and procedures in all primary and secondary fields of all other episodes are retrieved. The number of occurances of diagnosis and procedure code groups (as defined in the codes definition file; see the appendix) are counted up in a defined period before and after the index event. The results of this tally form the majority of the columns of the dataset; there are two columns for each diagnosis and procedure group.
 
+## ACS event over time
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
+plot_index_with_time(raw_dataset)
+```
+
 ## Distribution of predictors by outcome
 
 The four quadrants show the four possible bleeding/ischaemia outcomes, along with the mean number of occurances of the event on the x-axis before the ACS event. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
-dataset %>%
-    pivot_longer(matches("(after|before)") & !matches("(bleed_after|ischaemia_after)")) %>%
-    group_by(bleed_after, ischaemia_after, name) %>%
-    summarise(value = mean(value)) %>%
-    ggplot(aes(name, value)) +
-    geom_col(fill = 'deepskyblue4') +
-    facet_grid(bleed_after ~ fct_relevel(ischaemia_after,'no_ischaemia','ischaemia_occured')) +
-    labs(x = 'Predictor class', y = 'Average count') +
-    theme_minimal(base_size = 16) +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+plot_predictors_distributions(raw_dataset)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
+plot_age_distributions(raw_dataset)
 ```
 
 # Classification models
-
-Discuss the modelling methodology here.
 
 ## ROC curves for the bleeding risk models
 
