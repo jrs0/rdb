@@ -6,7 +6,10 @@
 #include <iostream>
 #include <stdexcept>
 
+#ifdef _WIN64
 #include <windows.h>
+#endif
+
 #include <sql.h>
 #include <sqlext.h>
 #include <memory>
