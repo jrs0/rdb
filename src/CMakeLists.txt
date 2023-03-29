@@ -8,5 +8,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_compile_options(-fmax-errors=5)
 
-add_executable(main main.cpp)
-target_link_libraries(main odbc)
+add_executable(main main.cpp yaml.cpp category.cpp)
+target_link_libraries(main odbc yaml-cpp)
