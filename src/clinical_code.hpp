@@ -61,7 +61,7 @@ public:
     
     /// Is the clinical code empty
     auto null() const {
-	return static_cast<bool>(data_);
+	return not data_.has_value();
     }
     
     void print(const ClinicalCodeParser & parser) const {

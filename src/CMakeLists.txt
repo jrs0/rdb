@@ -24,7 +24,7 @@ if(WITH_TESTS)
 
   enable_testing()
 
-  add_executable(run-gtest gtest/string_lookup.cpp)
+  add_executable(run-gtest gtest/string_lookup.cpp gtest/clinical_code.cpp)
   target_link_libraries(run-gtest gtest_main)
 
   include(GoogleTest)

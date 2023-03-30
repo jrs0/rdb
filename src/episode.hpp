@@ -195,10 +195,12 @@ public:
     }
     
     void print(const ClinicalCodeParser & parser) const {
-	std::cout << "  Episode: ";
+	std::cout << "Episode: ";
 	episode_start_.print();
 	std::cout << " - ";
 	episode_end_.print();
+	std::cout << "Primary diagnosis: ";
+	primary_diagnosis_.print(parser);
 	std::cout << std::endl;
 	for (const auto & diagnosis : secondary_diagnoses_) {
 	    diagnosis.print(parser);
