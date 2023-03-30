@@ -1,16 +1,14 @@
 #include <iostream>
 //#include "acs.hpp"
 #include "episode.hpp"
-
+#include "episode_row.hpp"
+#include "spell_rows.hpp"
+#include "spell.hpp"
 
 int main() {    
-    // EpisodeRowBuffer row;
-    // row.set_primary_diagnosis("I210");
-    // row.set_secondary_diagnoses({"  I200 ", "K231", "Z561"});
-    // row.set_primary_procedure("K231");
-    // row.set_secondary_procedures({"  K431 ", "K221", "   "});
+    SpellRows rows{Timestamp{0}, 10};
+    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml"};
+    Spell spell{rows, parser};
+    spell.print(parser);
     
-    // ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml"};
-    // Episode episode{row, parser};
-    // episode.print(parser, 3);
 }

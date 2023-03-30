@@ -11,10 +11,17 @@ public:
 	// per episode.
 
 	// The first row contains the spell id
-	spell_id_ = column<Varchar>("spell_id", row).read();
-	spell_start_ = column<Timestamp>("spell_start", row);
-	spell_end_ = column<Timestamp>("spell_end", row);
-	
+	try {
+	    spell_id_ = "ABCDE";//column<Varchar>("spell_id", row).read();
+	    spell_start_ = Timestamp{123};//column<Timestamp>("spell_start", row);
+	    spell_end_ = Timestamp{126};//column<Timestamp>("spell_end", row);
+	} catch (const std::out_of_range &) {
+	    throw std::runtime_error("Missing required column in Spell constructor");
+	} catch (const std::bad_variant_access &) {
+	    throw std::runtime_error("Column type errors in Spell constructor");
+	}
+
+	    
 	while (column<Varchar>("spell_id", row).read() == spell_id_) {
 	    episodes_.push_back(Episode{row, parser});
 	    row.fetch_next_row();	    

@@ -4,17 +4,30 @@
 #include <map>
 #include <vector>
 #include "sql_types.hpp"
+#include <random>
+#include "clinical_code.hpp"
 
 /// A mock row for testing the Episode row constructor
 class EpisodeRowBuffer {
 public:
     EpisodeRowBuffer() {
-	columns_["episode_start"] = Timestamp{156173245};
-	columns_["episode_end"] = Timestamp{156173280};
+	columns_["episode_start"] = Timestamp{0};
+	columns_["episode_end"] = Timestamp{0};
+    }
+
+    EpisodeRowBuffer(const Timestamp & start, const Timestamp & end) {
+	columns_["episode_start"] = start;
+	columns_["episode_end"] = end;	
     }
 
     std::size_t size() const {
 	return columns_.size();
+    }
+
+    void set_random_fields(const ClinicalCodeParser & parser,
+			   std::uniform_random_bit_generator auto & gen) {
+	set_primary_procedure(parser.random_procedure(gen));
+	set_primary_diagnosis(parser.random_diagnosis(gen));
     }
 
     void set_primary_diagnosis(const std::string & raw) {

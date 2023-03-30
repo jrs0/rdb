@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <optional>
+#include <random>
 
 #include "category.hpp"
 
@@ -123,7 +124,15 @@ public:
 	    return ClinicalCode{};
 	}
     }
-    
+
+    std::string random_procedure(std::uniform_random_bit_generator auto & gen) const {
+	return procedure_parser_.random_code(gen);
+    }
+
+    std::string random_diagnosis(std::uniform_random_bit_generator auto & gen) const {
+	return diagnosis_parser_.random_code(gen);
+    }
+
     const auto & string_lookup() const {
 	return string_lookup_;
     }
