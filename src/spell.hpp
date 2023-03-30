@@ -3,8 +3,6 @@
 
 #include "episode.hpp"
 
-// A spell is a hospital visit. The spell may contain multiple
-// episodes if the hospital stay involved multiple consultants.
 class Spell {
 public:
     Spell(RowBuffer auto & row, CodeParser & code_parser) {
@@ -55,7 +53,7 @@ public:
 	    episode.print();
 	}
     }
- 
+    
 private:
     std::string spell_id_;
     Timestamp spell_start_;
