@@ -7,6 +7,8 @@
 #include <random>
 #include "clinical_code.hpp"
 
+#include "random.hpp"
+
 /// A mock row for testing the Episode row constructor
 class EpisodeRowBuffer {
 public:
@@ -28,6 +30,16 @@ public:
 			   std::uniform_random_bit_generator auto & gen) {
 	set_primary_procedure(parser.random_procedure(gen));
 	set_primary_diagnosis(parser.random_diagnosis(gen));
+
+	Random<std::size_t> rnd{1, 10, Seed{}};
+	auto num_secondary_diagnoses{rnd()};
+	for (std::size_t n{0}; n < num_secondary_diagnoses; n++) {
+	    push_secondary_diagnosis(parser.random_diagnosis(gen));
+	}
+	auto num_secondary_procedures{rnd()};
+	for (std::size_t n{0}; n < num_secondary_procedures; n++) {
+	    push_secondary_procedure(parser.random_procedure(gen));
+	}
     }
 
     void set_primary_diagnosis(const std::string & raw) {
