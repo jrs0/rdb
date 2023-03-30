@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "../episode.hpp"
+#include "../episode_row.hpp"
 
 /// Note that this test uses the codes files in the top level of
 /// the repository. TODO move them somewhere accessible.
@@ -89,7 +90,7 @@ TEST(Episode, DiagnosesAndProceduresShortCircuit) {
 }
 
 /// Check that the Episodes constructor throws errors for missing
-/// 
+/// columns. 
 TEST(Episode, EpisodeRowColumnCheck) {
 
     ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml"};

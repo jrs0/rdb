@@ -5,7 +5,7 @@
 
 class Spell {
 public:
-    Spell(RowBuffer auto & row, CodeParser & code_parser) {
+    Spell(RowBuffer auto & row, ClinicalCodeParser & parser) {
 	// Assume the next row is the start of a new spell
 	// block. Push back to the episodes vector one row
 	// per episode.
@@ -16,20 +16,8 @@ public:
 	spell_end_ = column<Timestamp>("spell_end", row);
 	
 	while (column<Varchar>("spell_id", row).read() == spell_id_) {
-
-	    // If you get here, then the current row
-	    // contains an episode that is part of this
-	    // spell.
-
-	    /// Note this will consume a row and fetch the
-	    /// next row
-	    Episode episode{row, code_parser};
-
-	    // Only include this episode in the list if it
-	    // contains some diagnoses or procedures
-	    if (not episode.empty()) {
-		episodes_.push_back(episode);
-	    }
+	    episodes_.push_back(Episode{row, parser});
+	    row.fetch_next_row();	    
 	}
     }
 
@@ -43,14 +31,14 @@ public:
 	return episodes_;
     }
 
-    void print() const {
+    void print(const ClinicalCodeParser & parser, std::size_t pad = 0) const {
 	std::cout << " Spell " << spell_id_ << std::endl << "  ";
 	spell_start_.print();
 	std::cout << " - ";
 	spell_end_.print();
 	std::cout << std::endl;
 	for (const auto & episode : episodes_) {
-	    episode.print();
+	    episode.print(parser, pad + 2);
 	}
     }
     
