@@ -244,10 +244,7 @@ std::string remove_non_alphanum(const std::string & code) {
 std::string preprocess(const std::string & code) {
     // Cover two common cases of invalid codes here
     if (std::ranges::all_of(code, isspace)) {
-	throw std::runtime_error("Code is empty");
-    }
-    if (code == "NULL") {
-	throw std::runtime_error("Code is NULL");
+	throw TopLevelCategory::Empty{};
     }
 
     /// Strip alphanumeric for the parser

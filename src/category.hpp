@@ -187,13 +187,17 @@ private:
 };
 
 /// Do some initial checks on the code (remove whitespace
-/// and non-alphanumeric characters). Throw runtime error
-/// if the string is all whitespace or "NULL"
+/// and non-alphanumeric characters). Throw Empty for
+/// an all-whitespace or empty string. 
 std::string preprocess(const std::string & code);
 
 /// Special case top level (contains a groups key)
 class TopLevelCategory {
 public:
+
+    /// Thrown if the code is whitespace or empty
+    struct Empty {};
+    
     TopLevelCategory(const YAML::Node & top_level_category);
 
     // Do not allow copies -- there is a huge tree in this class

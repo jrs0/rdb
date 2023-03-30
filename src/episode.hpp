@@ -175,11 +175,6 @@ public:
     /// signals the end of the block of secondary columns. The function will
     /// short circuit on a NULL or empty (whitespace) secondary column.
     Episode(RowBuffer auto & row, ClinicalCodeParser & parser) {
-        // Expect a single row as argument, which will be the
-        // episode. The episode may contain either a procedure
-        // or a diagnosis (including secondaries), or both. The
-        // episode relates to what happened under one attending
-        // consultant.
 
         episode_start_ = column<Timestamp>("episode_start", row);
         episode_end_ = column<Timestamp>("episode_end", row);
