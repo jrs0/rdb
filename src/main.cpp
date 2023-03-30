@@ -64,5 +64,6 @@ void fetch_acs() {
 }
 
 int main() {
-    
+    Episode episode;
+    episode.print();
 }
