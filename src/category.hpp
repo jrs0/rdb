@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <set>
 #include <random>
+#include "string_lookup.hpp"
 
 #include <yaml-cpp/yaml.h>
 
@@ -155,7 +156,7 @@ private:
 
 /// The triple of information returned about each code
 /// by the parser and stored in the cache
-struct CacheEntry {
+class CacheEntry {
 public:
     CacheEntry(const Category & category,
 	       const std::set<std::string> & groups)
