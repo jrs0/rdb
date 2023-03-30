@@ -34,22 +34,14 @@ public:
 	return column_buffers_.size();
     }
 
+    /// Throws out_of_range if column does not exist, and
+    /// bad_variant_access if T is not this column's type
     template<typename T>
     T at(std::string column_name) const {
-	try {    
-	    auto & buffer {
-		std::get<typename T::Buffer>(column_buffers_.at(column_name))
-	    };
-	    return buffer.read();
-	} catch (const std::out_of_range &) {
-	    throw std::runtime_error("Error trying to access "
-				     "non-existent column "
-				     + column_name);
-	} catch (const std::bad_variant_access & e) {
-	    throw std::runtime_error("Error trying to access column "
-				     + column_name + 
-				     " using the wrong type");
-	}
+	auto & buffer {
+	    std::get<typename T::Buffer>(column_buffers_.at(column_name))
+		};
+	return buffer.read();
     }
     
     /// Fetch the next row of data into an internal state
@@ -72,10 +64,5 @@ private:
     std::shared_ptr<StmtHandle> stmt_;
     std::map<std::string, BufferType> column_buffers_;
 };
-
-template<typename T>
-T column(const std::string & column_name, const RowBuffer auto & row) {
-    return row.template at<T>(column_name);
-}
 
 #endif

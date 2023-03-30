@@ -15,14 +15,12 @@ void throw_unimpl_sql_type(const std::string & type) {
     throw std::runtime_error(ss.str());
 }
 
-// Exception thrown on NULL value
-struct NullValue{};
-
 // Could not determine the returned data length
 struct SqlNoTotal{};
 
 class Varchar {
 public:
+    struct Null {};
     using Buffer = class VarcharBuffer;
     // Will default construct to a null varchar
     Varchar() = default;
@@ -32,7 +30,7 @@ public:
 	if (not null_) {
 	    return value_;
 	} else {
-	    throw NullValue{};
+	    throw Null{};
 	}
     }
     void print() const {
@@ -52,6 +50,7 @@ private:
 // Will default construct to a null integer
 class Integer {
 public:
+    struct Null {};
     using Buffer = class IntegerBuffer;
     // Will default construct to a null integer
     Integer() = default;
@@ -60,7 +59,7 @@ public:
 	if (not null_) {
 	    return value_;
 	} else {
-	    throw NullValue{};
+	    throw Null{};
 	}
     }
     void print() const {
@@ -81,6 +80,7 @@ private:
 // date components assuming that BST may be in effect.
 class Timestamp {
 public:
+    struct Null {};
     using Buffer = class TimestampBuffer;
 
     // Will default construct to a null timestamp
@@ -137,7 +137,7 @@ public:
 	if (not null_) {
 	    return unix_timestamp_;
 	} else {
-	    throw NullValue{};
+	    throw Null{};
 	}
     }
     void print() const {

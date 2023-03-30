@@ -35,9 +35,6 @@ void test_query() {
 	}
     } catch (const std::runtime_error & e) {
 	std::cout << "Failed with error: " << e.what() << std::endl;
-    } catch (const NullValue & ) {
-	std::cout << "An unhandled NULL value occured"
-		  << std::endl;	
     }
 }
 
@@ -59,9 +56,6 @@ void fetch_acs() {
 	throw std::runtime_error("YAML parsing error");
     } catch (const std::runtime_error & e) {
 	std::cout << "Failed with error "  << e.what() << std::endl;
-    } catch (const NullValue & ) {
-	std::cout << "An unhandled NULL value occured"
-		  << std::endl;
     }
 }
 

@@ -1,13 +1,14 @@
 #ifndef EPISODE_HPP
 #define EPISODE_HPP
 
-//#include "row_buffer.hpp"
+#include "row_buffer.hpp"
 #include "sql_types.hpp"
 #include "category.hpp"
 
 #include "set_utils.hpp"
 #include "clinical_code.hpp"
 
+#include "sql_types.hpp"
 
 // /// Get the vector of source columns from the config file node
 // std::vector<std::string> source_columns(const YAML::Node & config) {
@@ -123,17 +124,57 @@
 //     //std::map<std::string, std::string> diagnoses_group_map_;
 // };
 
+/// A mock row for testing the Episode row constructor
+class EpisodeRowBuffer {
+public:
+    EpisodeRowBuffer() {
+	columns_["episode_start"] = Timestamp{156173245};
+	columns_["episode_end"] = Timestamp{156173280};
+
+	columns_["primary_procedure"] = Varchar{"K221 "};
+        columns_["primary_diagnosis"] = Varchar{"  I210 "};
+
+	columns_["secondary_procedure_0"] = Varchar{"K111"};
+	columns_["secondary_procedure_1"] = Varchar{"K221"};
+	columns_["secondary_procedure_2"] = Varchar{"K221"};
+	columns_["secondary_procedure_3"] = Varchar{"  "};
+    }
+
+    std::size_t size() const {
+	return columns_.size();
+    }
+    
+    /// Throws out_of_range if column does not exist, and
+    /// bad_variant_access if T is not this column's type
+    template<typename T>
+    T at(std::string column_name) const {
+        return std::get<T>(columns_.at(column_name));
+    }
+    
+private:
+    std::map<std::string, SqlType> columns_;
+};
+
 class Episode {
 public:
 
     /// Create an episode with all empty (null) fields
     Episode() = default;
-    
-    /// For consistency with the other functions, this constructor
-    /// will also fetch the next row after it is done (modifying
-    /// the row argument)
-    /*
-    Episode(RowBuffer auto & row, CodeParser & code_parser) {
+
+    /// Read the data in the row into the episode structue. Assume
+    /// that the following fields are present in the row:
+    ///
+    /// - episode_start (Timestamp) - contains the episode start time
+    /// - episode_end (Timestamp) - contains the episode end time
+    /// - primary_diagnosis (Varchar) - the primary diagnosis
+    /// - primary_procedure (Varchar) - the primary procedure
+    /// - secondary_diagnosis_<n> (Varchar) - the nth secondary diagnosis
+    /// - secondary_procedure_<n> (Varchar) - the nth secondary procedure
+    /// 
+    /// <n> is a non-negative integer. The first column that is not found
+    /// signals the end of the block of secondary columns. The function will
+    /// short circuit on a NULL or empty (whitespace) secondary column.
+    Episode(RowBuffer auto & row, ClinicalCodeParser & parser) {
         // Expect a single row as argument, which will be the
         // episode. The episode may contain either a procedure
         // or a diagnosis (including secondaries), or both. The
@@ -143,14 +184,54 @@ public:
         episode_start_ = column<Timestamp>("episode_start", row);
         episode_end_ = column<Timestamp>("episode_end", row);
 
-        procedures_ = code_parser.all_procedures(row);
-        diagnoses_ = code_parser.all_diagnoses(row);
+	// Get primary procedure
+	try {
+	    auto raw{column<Varchar>("primary_procedure", row).read()};
+	    primary_procedure_ = parser.parse_procedure(raw);
+	} catch (const std::out_of_range &) {
+	    throw std::runtime_error("Missing required 'primary_procedure' column in row");
+	} catch (const std::bad_variant_access &) {
+	    throw std::runtime_error("Column 'primary_procedure' must have type Varchar");
+	}
 
-        age_at_episode_ = column<Integer>("age_at_episode", row);
+	// Get primary diagnosis
+	try {
+	    auto raw{column<Varchar>("primary_diagnosis", row).read()};
+	    primary_diagnosis_ = parser.parse_diagnosis(raw);
+	} catch (const std::out_of_range &) {
+	    throw std::runtime_error("Missing required 'primary_diagnosis' column in row");
+	} catch (const std::bad_variant_access &) {
+	    throw std::runtime_error("Column 'primary_diagnosis' must have type Varchar");
+	}
 
-        row.fetch_next_row();
+	// Get secondary procedures
+	for (std::size_t n{0}; true; n++) {
+	    try {
+		auto column_name{"secondary_procedure_" + std::to_string(n)};
+		auto raw{column<Varchar>(column_name, row).read()};
+		secondary_procedures_.push_back(parser.parse_procedure(raw));
+	    } catch (const std::out_of_range &) {
+		// Reached first secondary column that does not exist, stop
+		break;
+	    } catch (const std::bad_variant_access &) {
+		throw std::runtime_error("Column 'secondary_diagnosis_<n>' must have type Varchar");
+	    }
+	}
+
+	// Get secondary procedures
+	for (std::size_t n{0}; true; n++) {
+	    try {
+		auto column_name{"secondary_procedure_" + std::to_string(n)};
+		auto raw{column<Varchar>(column_name, row).read()};
+		secondary_procedures_.push_back(parser.parse_procedure(raw));
+	    } catch (const std::out_of_range &) {
+		// Reached first secondary column that does not exist, stop
+		break;
+	    } catch (const std::bad_variant_access &) {
+		throw std::runtime_error("Column 'secondary_procedure_<n>' must have type Varchar");
+	    }
+	}
     }
-    */
 
     void set_primary_procedure(const ClinicalCode & clinical_code) {
 	primary_procedure_ = clinical_code;
@@ -229,7 +310,7 @@ public:
 		std::cout << std::endl;
 	    }
 	}	
-        }
+    }
     
 private:
     Timestamp episode_start_;
