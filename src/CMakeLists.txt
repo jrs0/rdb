@@ -9,8 +9,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_compile_options(-fmax-errors=5 -g -pg -fno-omit-frame-pointer)
 add_link_options(-pg -fno-omit-frame-pointer)
 
-add_executable(main main.cpp yaml.cpp category.cpp clinical_code.cpp)
-target_link_libraries(main odbc yaml-cpp)
+add_library(rdb SHARED yaml.cpp category.cpp clinical_code.cpp)
+
+add_executable(main main.cpp )
+target_link_libraries(main rdb odbc yaml-cpp)
 
 # Compile tests if they are enabled
 if(WITH_TESTS)
@@ -24,8 +26,8 @@ if(WITH_TESTS)
 
   enable_testing()
 
-  add_executable(run-gtest gtest/string_lookup.cpp gtest/clinical_code.cpp)
-  target_link_libraries(run-gtest gtest_main)
+  add_executable(run-gtest gtest/string_lookup.cpp gtest/clinical_code.cpp gtest/episode.cpp)
+  target_link_libraries(run-gtest gtest_main rdb yaml-cpp odbc)
 
   include(GoogleTest)
   gtest_discover_tests(run-gtest)

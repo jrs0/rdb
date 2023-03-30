@@ -173,7 +173,7 @@ public:
     }
 
     auto primary_diagnosis() const {
-	return primary_procedure_;
+	return primary_diagnosis_;
     }
 
     /// Note that the result is ordered, and not necessarily unique
