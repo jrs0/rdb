@@ -128,15 +128,6 @@ private:
     //std::map<std::string, std::string> diagnoses_group_map_;
 };
 
-/// The purpose of the Episode class is to parse all the
-/// primary and secondary diagnosis and procedure fields
-/// and expose them as flat lists of groups (defined by
-/// the ICD and OPCS code group files). Codes are only
-/// included by group, as defined in the groups file. Codes
-/// outside any group are not included in the diagnoses and
-/// procedures of this episode. Note that all codes can be
-/// included in a catch all "_all" group by enabling the "all"
-/// key in the codes file.
 class Episode {
 public:
 
