@@ -186,7 +186,7 @@ public:
 	    std::cout << diagnosis << ",";
 	}
 	std::cout << ") P(";
-	for (const auto &vv procedure : procedures_) {
+	for (const auto & procedure : procedures_) {
 	    std::cout << procedure << ",";
 	}
 	std::cout << ")" << std::endl;;
