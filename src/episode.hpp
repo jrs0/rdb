@@ -188,7 +188,7 @@ public:
 	} catch (const std::bad_variant_access &) {
 	    throw std::runtime_error("Column 'primary_procedure' must have type Varchar");
 	}
-
+	
 	// Get primary diagnosis
 	try {
 	    auto raw{column<Varchar>("primary_diagnosis", row).read()};
@@ -199,12 +199,20 @@ public:
 	    throw std::runtime_error("Column 'primary_diagnosis' must have type Varchar");
 	}
 
-	// Get secondary procedures
+	// Get secondary procedures -- needs refactoring, but need to fix parse_procedure/
+	// parse_diagnosis first (i.e. merge them)
 	for (std::size_t n{0}; true; n++) {
 	    try {
 		auto column_name{"secondary_procedure_" + std::to_string(n)};
 		auto raw{column<Varchar>(column_name, row).read()};
-		secondary_procedures_.push_back(parser.parse_procedure(raw));
+		auto procedure{parser.parse_procedure(raw)};
+		if (not procedure.null()) {
+		    secondary_procedures_.push_back(procedure);
+		} else {
+		    // Found a procedure that is empty (i.e. whitespace),
+		    // stop searching further columns
+		    break;
+		}
 	    } catch (const std::out_of_range &) {
 		// Reached first secondary column that does not exist, stop
 		break;
@@ -213,17 +221,24 @@ public:
 	    }
 	}
 
-	// Get secondary procedures
+	// Get secondary diagnoses
 	for (std::size_t n{0}; true; n++) {
 	    try {
-		auto column_name{"secondary_procedure_" + std::to_string(n)};
+		auto column_name{"secondary_diagnosis_" + std::to_string(n)};
 		auto raw{column<Varchar>(column_name, row).read()};
-		secondary_procedures_.push_back(parser.parse_procedure(raw));
+		auto diagnosis{parser.parse_diagnosis(raw)};
+		if (not diagnosis.null()) {
+		    secondary_diagnoses_.push_back(diagnosis);
+		} else {
+		    // Found a diagnosis that is empty (i.e. whitespace),
+		    // stop searching further columns
+		    break;
+		}
 	    } catch (const std::out_of_range &) {
 		// Reached first secondary column that does not exist, stop
 		break;
 	    } catch (const std::bad_variant_access &) {
-		throw std::runtime_error("Column 'secondary_procedure_<n>' must have type Varchar");
+		throw std::runtime_error("Column 'secondary_diagnosis_<n>' must have type Varchar");
 	    }
 	}
     }

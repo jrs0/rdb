@@ -102,15 +102,26 @@ public:
     /// inside this object with an id stored in the returned
     /// object. 
     ClinicalCode parse_procedure(const std::string & raw_code) {
-	auto cache_entry{procedure_parser_.parse(raw_code)};
-	ClinicalCodeData clinical_code_data{cache_entry, string_lookup_};
-	return ClinicalCode{clinical_code_data};
+	try {
+	    auto cache_entry{procedure_parser_.parse(raw_code)};
+	    ClinicalCodeData clinical_code_data{cache_entry, string_lookup_};
+	    return ClinicalCode{clinical_code_data};
+	} catch (const TopLevelCategory::Empty &) {
+	    // If the code is empty, return the null-clinical code
+	    return ClinicalCode{};
+	}
     }
+	
 
     ClinicalCode parse_diagnosis(const std::string & raw_code) {
-	auto cache_entry{diagnosis_parser_.parse(raw_code)};
-	ClinicalCodeData clinical_code_data{cache_entry, string_lookup_};
-	return ClinicalCode{clinical_code_data};
+	try {
+	    auto cache_entry{diagnosis_parser_.parse(raw_code)};
+	    ClinicalCodeData clinical_code_data{cache_entry, string_lookup_};
+	    return ClinicalCode{clinical_code_data};
+	} catch (const TopLevelCategory::Empty &) {
+	    // If the code is empty, return the null-clinical code
+	    return ClinicalCode{};
+	}
     }
     
     const auto & string_lookup() const {
