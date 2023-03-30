@@ -12,10 +12,11 @@ public:
 
 	// The first row contains the spell id
 	try {
-	    spell_id_ = "ABCDE";//column<Varchar>("spell_id", row).read();
-	    spell_start_ = Timestamp{123};//column<Timestamp>("spell_start", row);
-	    spell_end_ = Timestamp{126};//column<Timestamp>("spell_end", row);
-	} catch (const std::out_of_range &) {
+	    spell_id_ = column<Varchar>("spell_id", row).read();
+	    spell_start_ = column<Timestamp>("spell_start", row);
+	    spell_end_ = column<Timestamp>("spell_end", row);
+	} catch (const std::out_of_range & e) {
+	    std::cout << e.what() << std::endl;
 	    throw std::runtime_error("Missing required column in Spell constructor");
 	} catch (const std::bad_variant_access &) {
 	    throw std::runtime_error("Column type errors in Spell constructor");

@@ -25,6 +25,21 @@ public:
     /// bad_variant_access if T is not this column's type
     template<typename T>
     T at(std::string column_name) const {
+	if constexpr (std::is_same_v<T, Varchar>) {
+		if (column_name == "spell_id") {
+		    return spell_id_;
+		} else {
+		    std::out_of_range("spell_id is the only varchar");
+		}
+	    } else if constexpr ()std::is_same_v<T, Timestamp>{
+	    if (column_name == "spell_start") {
+		return spell_start_;
+	    } else if (column_name == "spell_end") {
+		return spell_end_;
+	    } else {
+		std::out_of_range("spell_id is the only varchar");
+	    }	    
+	}
 	return episode_rows_[current_row_].template at<T>(column_name);
     }
 
@@ -42,6 +57,9 @@ public:
 
 private:
     std::size_t current_row_{0};
+    Varchar spell_id_{"abc"};
+    Timestamp spell_start_{0};
+    Timestamp spell_end_{123};
     std::vector<EpisodeRowBuffer> episode_rows_;
 };
 
