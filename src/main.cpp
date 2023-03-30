@@ -2,8 +2,7 @@
 //#include "acs.hpp"
 #include "episode.hpp"
 
-int main() {
-    
+int main() {    
     EpisodeRowBuffer row;
     row.set_primary_diagnosis("I210");
     row.set_secondary_diagnoses({"  I200 ", "K231", "Z561"});
@@ -13,5 +12,4 @@ int main() {
     ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml"};
     Episode episode{row, parser};
     episode.print(parser);
-    
 }
