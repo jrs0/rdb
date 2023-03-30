@@ -6,6 +6,7 @@
 #include "category.hpp"
 
 #include "set_utils.hpp"
+#include "clinical_code.hpp"
 
 /// Get the vector of source columns from the config file node
 std::vector<std::string> source_columns(const YAML::Node & config) {
@@ -131,6 +132,9 @@ private:
 class Episode {
 public:
 
+    /// Create an episode with all empty (null) fields
+    Episode() = default;
+    
     /// For consistency with the other functions, this constructor
     /// will also fetch the next row after it is done (modifying
     /// the row argument)
@@ -152,57 +156,56 @@ public:
 	row.fetch_next_row();
     }
 
+    auto primary_procedure() const {
+	return primary_procedure_;
+    }
+
+    auto primary_diagnosis() const {
+	return primary_procedure_;
+    }
+
     
-    const auto & procedures() const {
+    const auto & secondary_procedures() const {
 	return procedures_;
     }
 
-    const auto & diagnoses() const {
+    const auto & secondary_diagnoses() const {
 	return diagnoses_;
     }
 
-    Integer age_at_episode() const {
-	return age_at_episode_;
+    auto episode_start() const {
+	return episode_start_;
     }
 
-    Timestamp episode_start() const {
+    auto episode_end() const {
 	return episode_start_;
     }
     
-    /// Returns true if there are no diagnosis or procedure
-    /// groups associated with this episode.
-    bool empty() const {
-	return procedures_.empty() and diagnoses_.empty();
-    }
-    
-    void print() const {
+    void print(const ClinicalCodeLookup & lookup) const {
 	std::cout << "  Episode: ";
 	episode_start_.print();
 	std::cout << " - ";
 	episode_end_.print();
 	std::cout << std::endl;
-	std::cout << "    D(";
-	for (const auto & diagnosis : diagnoses_) {
-	    std::cout << diagnosis << ",";
+	for (const auto & diagnosis : secondary_diagnoses_) {
+	    diagnosis.print(lookup);
+	    std::cout << std::endl;
 	}
-	std::cout << ") P(";
-	for (const auto & procedure : procedures_) {
-	    std::cout << procedure << ",";
+	for (const auto & procedure : secondary_procedures_) {
+	    procedure.print(lookup);
+	    std::cout << std::endl;
 	}
-	std::cout << ")" << std::endl;;
     }
     
 private:
     Timestamp episode_start_;
     Timestamp episode_end_;
 
-    /// Parsed procedures from any procedure field
-    std::set<std::string> procedures_;
-
-    /// Parsed diagnoses from any diagnosis field
-    std::set<std::string> diagnoses_;
-
-    Integer age_at_episode_; 
+    ClinicalCode primary_diagnosis_;
+    ClinicalCode primary_procedure_;
+    
+    std::set<ClinicalCode> secondary_procedures_;
+    std::set<ClinicalCode> dsecondary_iagnoses_;
 };
 
 #endif
