@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_compile_options(-fmax-errors=5 -g -pg -fno-omit-frame-pointer)
 add_link_options(-pg -fno-omit-frame-pointer)
 
-add_executable(main main.cpp yaml.cpp category.cpp)
+add_executable(main main.cpp yaml.cpp category.cpp clinical_code.cpp)
 target_link_libraries(main odbc yaml-cpp)
 
 # Compile tests if they are enabled

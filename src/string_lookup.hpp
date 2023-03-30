@@ -21,7 +21,7 @@ public:
 
     /// Get the string at the index passed as the argument, or
     /// throw out_of_range if not found
-    std::string at(std::size_t index) {
+    std::string at(std::size_t index) const {
 	return index_to_string_.at(index); 
     }
     
