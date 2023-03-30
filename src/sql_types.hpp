@@ -5,6 +5,10 @@
 #include <ctime>
 #include <iomanip>
 
+#include <sql.h>
+#include <sqlext.h>
+#include "debug.hpp"
+
 void throw_unimpl_sql_type(const std::string & type) {
     std::stringstream ss;
     ss << "Type '" << type << "' not yet implemented";
