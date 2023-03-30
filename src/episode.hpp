@@ -194,25 +194,42 @@ public:
 	return episode_start_;
     }
     
-    void print(const ClinicalCodeParser & parser) const {
+    void print(const ClinicalCodeParser & parser, std::size_t pad = 0) const {
+	std::cout << std::string(pad, ' ');
 	std::cout << "Episode: ";
 	episode_start_.print();
 	std::cout << " - ";
 	episode_end_.print();
 	std::cout << std::endl;
-	std::cout << "Primary diagnosis: ";
+	std::cout << std::string(' ', pad);
+	std::cout << std::string(pad, ' ');
+        std::cout << "Primary diagnosis: ";
 	primary_diagnosis_.print(parser);
-	std::cout << std::endl;
-	std::cout << std::endl;
-	for (const auto & diagnosis : secondary_diagnoses_) {
-	    diagnosis.print(parser);
-	    std::cout << std::endl;
+        std::cout << std::endl;
+	std::cout << std::string(' ', pad);
+	if (secondary_diagnoses_.size() > 0) {
+	    std::cout << std::string(pad, ' ');
+	    std::cout << "Secondary diagnoses: " << std::endl;
+	    for (const auto & diagnosis : secondary_diagnoses_) {
+		std::cout << std::string(pad, ' ') << "- ";
+		diagnosis.print(parser);
+		std::cout << std::endl;
+	    }
 	}
-	for (const auto & procedure : secondary_procedures_) {
-	    procedure.print(parser);
-	    std::cout << std::endl;
-	}
-    }
+	std::cout << std::string(pad, ' ');	
+        std::cout << "Primary procedure: ";
+	primary_procedure_.print(parser);
+        std::cout << std::endl;
+	if (secondary_procedures_.size() > 0) {
+	    std::cout << std::string(pad, ' ');
+	    std::cout << "Secondary procedures: " << std::endl;
+	    for (const auto & procedure : secondary_procedures_) {
+		std::cout << std::string(pad, ' ') << "- ";
+		procedure.print(parser);
+		std::cout << std::endl;
+	    }
+	}	
+        }
     
 private:
     Timestamp episode_start_;

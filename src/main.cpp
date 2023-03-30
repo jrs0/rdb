@@ -8,5 +8,7 @@ int main() {
     ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml"};
 
     episode.set_primary_diagnosis(parser.parse_diagnosis("I210"));
-    episode.print(parser);
+    episode.push_secondary_diagnosis(parser.parse_diagnosis("I220"));
+    episode.push_secondary_diagnosis(parser.parse_diagnosis("I240"));
+    episode.print(parser, 2);
 }
