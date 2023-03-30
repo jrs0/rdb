@@ -45,13 +45,6 @@ merge_groups_from_columns(const std::vector<std::string> & columns,
     return result;
 }
 
-/// This class has two jobs -- keep the diagnoses and
-/// procedure parsers close together; and map collections
-/// of groups as defined in the codes file into "meta" groups
-/// that will become the column names in the data frame.
-///
-/// This class owns its parser, so it will be thread safe
-/// at the cost of duplicated copies of the codes tree
 class CodeParser {
 public:
     CodeParser(const YAML::Node & parser_config)
@@ -166,11 +159,11 @@ public:
 
     
     const auto & secondary_procedures() const {
-	return procedures_;
+	return secondary_procedures_;
     }
 
     const auto & secondary_diagnoses() const {
-	return diagnoses_;
+	return secondary_diagnoses_;
     }
 
     auto episode_start() const {
@@ -181,7 +174,7 @@ public:
 	return episode_start_;
     }
     
-    void print(const ClinicalCodeLookup & lookup) const {
+    void print(const ClinicalCodeParser & lookup) const {
 	std::cout << "  Episode: ";
 	episode_start_.print();
 	std::cout << " - ";
@@ -205,7 +198,7 @@ private:
     ClinicalCode primary_procedure_;
     
     std::set<ClinicalCode> secondary_procedures_;
-    std::set<ClinicalCode> dsecondary_iagnoses_;
+    std::set<ClinicalCode> secondary_diagnoses_;
 };
 
 #endif

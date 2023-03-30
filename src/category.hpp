@@ -205,26 +205,12 @@ public:
     }
     
     void print() const;
-    
-    /// Parse a raw code. Return the standard name of the code,
-    /// or the docs of the code if the bool flag is true.
-    /// Throw a runtime error if the code is invalid or not found.
-    /// Query results are cached and used to speed up the next
-    /// call to the function.
-    std::string code_name(const std::string & code) {	
-	auto code_alphanum{preprocess(code)};
-	return parser_.parse(code_alphanum, categories_, groups_).name();
-    }
 
-    /// Return the docs
-    std::string code_docs(const std::string & code) {	
+    /// Parse a raw code and return the results (name, docs and
+    /// groups), or get the results directly from the cache
+    CacheEntry parse(const std::string & code) {	
 	auto code_alphanum{preprocess(code)};
-	return parser_.parse(code_alphanum, categories_, groups_).docs();
-    }
-
-    std::set<std::string> code_groups(const std::string & code) {	
-	auto code_alphanum{preprocess(code)};
-	return parser_.parse(code_alphanum, categories_, groups_).groups();
+	return parser_.parse(code_alphanum, categories_, groups_);
     }
 
     /// Return all groups defined in the config file
