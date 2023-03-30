@@ -39,7 +39,9 @@ TEST(Episode, SetDiagnosesAndProcedures) {
 
 }
 
-
+/// Check that the Episodes constructor from row reads the
+/// list of secondary columns correctly. In this case, all
+/// contain valid codes
 TEST(Episode, DiagnosesAndProceduresFromRow) {
     EpisodeRowBuffer row;
     row.set_primary_diagnosis("I210");
@@ -68,3 +70,42 @@ TEST(Episode, DiagnosesAndProceduresFromRow) {
     EXPECT_EQ(secondary_procedures[1].name(parser), "K22.1");
     EXPECT_EQ(secondary_procedures[2].name(parser), "K22.1");    
 }
+
+/// Check that the Episodes constructor short-circuits when it
+/// finds an empty column
+TEST(Episode, DiagnosesAndProceduresShortCircuit) {
+    EpisodeRowBuffer row;
+    row.set_primary_diagnosis("I210");
+    row.set_secondary_diagnoses({"  I220", "I240", ""});
+    row.set_primary_procedure("K432");    
+    row.set_secondary_procedures({"K221", "   " , "  "});
+    
+    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml"};
+    Episode episode{row, parser};
+
+    // Check the secondaries
+    EXPECT_EQ(episode.secondary_diagnoses().size(), 2);
+    EXPECT_EQ(episode.secondary_procedures().size(), 1);
+}
+
+/// Check that the Episodes constructor throws errors for missing
+/// 
+TEST(Episode, EpisodeRowColumnCheck) {
+
+    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml"};
+    
+    /// Missing primary diagnosis column
+    { 
+	EpisodeRowBuffer row;
+	row.set_primary_procedure("K432");
+	EXPECT_THROW((Episode{row, parser}), std::runtime_error); 
+    }
+
+    /// Missing primary procedure column
+    { 
+	EpisodeRowBuffer row;
+	row.set_primary_diagnosis("I210");
+	EXPECT_THROW((Episode{row, parser}), std::runtime_error); 
+    }
+}
+
