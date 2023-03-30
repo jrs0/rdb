@@ -21,14 +21,18 @@ public:
 	} catch (const std::bad_variant_access &) {
 	    throw std::runtime_error("Column type errors in Spell constructor");
 	}
-
-	    
+	
 	while (column<Varchar>("spell_id", row).read() == spell_id_) {
-	    episodes_.push_back(Episode{row, parser});
-	    row.fetch_next_row();	    
+	    try {
+		episodes_.push_back(Episode{row, parser});
+		row.fetch_next_row();
+	    } catch (std::logic_error & ) {
+		// No more rows
+		break;
+	    }
 	}
     }
-
+    
     /// If the spell contains no episodes, then it is
     /// considered empty
     bool empty() const {

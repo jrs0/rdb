@@ -25,20 +25,24 @@ public:
     /// bad_variant_access if T is not this column's type
     template<typename T>
     T at(std::string column_name) const {
-	if constexpr (std::is_same_v<T, Varchar>) {
-		if (column_name == "spell_id") {
-		    return spell_id_;
-		} else {
-		    std::out_of_range("spell_id is the only varchar");
-		}
-	    } else if constexpr ()std::is_same_v<T, Timestamp>{
-	    if (column_name == "spell_start") {
-		return spell_start_;
-	    } else if (column_name == "spell_end") {
-		return spell_end_;
+	if (column_name == "spell_id") {
+	    if constexpr (std::is_same_v<T, Varchar>) {
+return spell_id_;
 	    } else {
-		std::out_of_range("spell_id is the only varchar");
-	    }	    
+		throw std::runtime_error("spell_id is Varchar");
+	    }
+	} else if (column_name == "spell_start") {
+	    if constexpr (std::is_same_v<T, Timestamp>) {
+return spell_start_;
+	    } else {
+		throw std::runtime_error("spell_start is Timestamp");
+	    }
+	} else if (column_name == "spell_end") {
+	    if constexpr (std::is_same_v<T, Timestamp>) {
+return spell_end_;
+	    } else {
+		throw std::runtime_error("spell_end is Timestamp");
+	    }
 	}
 	return episode_rows_[current_row_].template at<T>(column_name);
     }
