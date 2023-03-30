@@ -39,7 +39,7 @@ void test_query() {
     }
 }
 
-int main() {
+void fetch_acs() {
     auto config_path{"config.yaml"};
     try {
 	YAML::Node config = YAML::LoadFile(config_path);
@@ -61,4 +61,8 @@ int main() {
 	std::cout << "An unhandled NULL value occured"
 		  << std::endl;
     }
+}
+
+int main() {
+    
 }
