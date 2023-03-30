@@ -13,7 +13,7 @@ class ClinicalCodeData {
 public:
     ClinicalCodeData(const CacheEntry & cache_entry, StringLookup & lookup) {
 	name_id_ = lookup.insert_string(cache_entry.name());
-	docs_id_ = lookup.insert_string(cache_entry.name());
+	docs_id_ = lookup.insert_string(cache_entry.docs());
 	for (const auto & group : cache_entry.groups()) {
 	    group_ids_.insert(lookup.insert_string(group));
 	}	
@@ -24,7 +24,7 @@ public:
     }
 
     auto docs_id() const {
-	return name_id_;
+	return docs_id_;
     }
 
     auto group_ids() const {
@@ -74,6 +74,7 @@ public:
 	    for (const auto & group : groups(parser)) {
 		std::cout << group << ",";
 	    }
+	    std::cout << "]";
 	}
     }
     

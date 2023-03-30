@@ -199,8 +199,10 @@ public:
 	episode_start_.print();
 	std::cout << " - ";
 	episode_end_.print();
+	std::cout << std::endl;
 	std::cout << "Primary diagnosis: ";
 	primary_diagnosis_.print(parser);
+	std::cout << std::endl;
 	std::cout << std::endl;
 	for (const auto & diagnosis : secondary_diagnoses_) {
 	    diagnosis.print(parser);
