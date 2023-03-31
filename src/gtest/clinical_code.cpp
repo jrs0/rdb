@@ -17,9 +17,6 @@ TEST(ClinicalCodeGroup, Contains) {
 
     {
 	auto code{parser.parse_diagnosis("I21.0")};
-	print(code, lookup);
-	print(group, lookup);
-	lookup->print();
         EXPECT_TRUE(group.contains(code));
     }
 
@@ -27,4 +24,7 @@ TEST(ClinicalCodeGroup, Contains) {
 	auto code{parser.parse_diagnosis("A000")};
 	EXPECT_FALSE(group.contains(code));
     }
+
+    // Check the null code is not in the group
+    EXPECT_FALSE(group.contains(ClinicalCode{}));
 }

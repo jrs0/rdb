@@ -103,7 +103,6 @@ public:
     std::string group(std::shared_ptr<StringLookup> lookup) const;
 
     bool contains(const ClinicalCode & code) const {
-	std::cout << "Group id = " << group_id_ << std::endl;
 	if (code.null()) {
 	    return false;
 	} else {
