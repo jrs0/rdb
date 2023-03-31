@@ -104,7 +104,7 @@ public:
 
     bool contains(const ClinicalCode & code) const {
 	std::cout << "Group id = " << group_id_ << std::endl;
-	if (not code.null()) {
+	if (code.null()) {
 	    return false;
 	} else {
 	    return code.group_ids().contains(group_id_);

@@ -5,6 +5,15 @@
 #include <map>
 #include <memory>
 
+/**
+ * \brief Map strings to unique IDs
+ *
+ * This class stores a bidirectional map from strings to
+ * unique non-negative number identifiers. All string data
+ * (such as clinical code names, groups, etc.) are manipulated
+ * using the unique ID. This lookup is then used to convert back
+ * to the string when required
+ */
 class StringLookup {
 public:
     /// Get the index of the string passed as argument, or
