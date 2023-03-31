@@ -28,13 +28,13 @@ public:
 
     void set_random_fields(const ClinicalCodeParser & parser,
 			   std::uniform_random_bit_generator auto & gen) {
-	set_primary_procedure(parser.random_procedure(gen));
-	set_primary_diagnosis(parser.random_diagnosis(gen));
+	set_primary_procedure(parser.random_code(CodeType::Procedure, gen));
+	set_primary_diagnosis(parser.random_code(CodeType::Diagnosis, gen));
 
 	Random<std::size_t> rnd{1, 10, Seed{}};	
 	auto num_secondary_diagnoses{rnd()};
 	for (std::size_t n{0}; n < num_secondary_diagnoses; n++) {
-	    push_secondary_diagnosis(parser.random_diagnosis(gen));
+	    push_secondary_diagnosis(parser.random_code(CodeType::Diagnosis, gen));
 	}
 	// auto num_secondary_procedures{rnd()};
 	// for (std::size_t n{0}; n < num_secondary_procedures; n++) {

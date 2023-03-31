@@ -12,15 +12,15 @@ TEST(Episode, SetDiagnosesAndProcedures) {
     ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml", lookup};
 
     // Add a selection of diagnoses
-    episode.set_primary_diagnosis(parser.parse_diagnosis("I210"));
-    episode.push_secondary_diagnosis(parser.parse_diagnosis("I220"));
-    episode.push_secondary_diagnosis(parser.parse_diagnosis("I240"));
+    episode.set_primary_diagnosis(parser.parse(CodeType::Diagnosis, "I210"));
+    episode.push_secondary_diagnosis(parser.parse(CodeType::Diagnosis, "I220"));
+    episode.push_secondary_diagnosis(parser.parse(CodeType::Diagnosis, "I240"));
 
     // Add a selection of procedures including a duplicate
-    episode.set_primary_procedure(parser.parse_procedure("K432"));
-    episode.push_secondary_procedure(parser.parse_procedure("K111"));
-    episode.push_secondary_procedure(parser.parse_procedure("K221"));
-    episode.push_secondary_procedure(parser.parse_procedure("K221"));
+    episode.set_primary_procedure(parser.parse(CodeType::Procedure, "K432"));
+    episode.push_secondary_procedure(parser.parse(CodeType::Procedure, "K111"));
+    episode.push_secondary_procedure(parser.parse(CodeType::Procedure, "K221"));
+    episode.push_secondary_procedure(parser.parse(CodeType::Procedure, "K221"));
 
     // Check the primaries
     EXPECT_EQ(episode.primary_diagnosis().name(lookup), "I21.0");

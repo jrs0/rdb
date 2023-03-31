@@ -118,6 +118,13 @@ inline void print(const ClinicalCodeGroup & group, std::shared_ptr<StringLookup>
     std::cout << group.group(lookup) << std::endl;
 }
 
+/// Choose whether to parse a raw code (string) as a diagnosis
+/// or a procedure
+enum class CodeType {
+    Diagnosis,
+    Procedure
+};
+
 /// Deals with both procedures and diagnoses, but stores
 /// all the results in the same string pool, so no ids will
 /// ever accidentally overlap. This means that you should not
@@ -139,35 +146,34 @@ public:
     /// code name, docs and group strings are stored in a pool
     /// inside this object with an id stored in the returned
     /// object. 
-    ClinicalCode parse_procedure(const std::string & raw_code) {
+    ClinicalCode parse(CodeType type, const std::string & raw_code) {
 	try {
-	    auto cache_entry{procedure_parser_.parse(raw_code)};
-	    ClinicalCodeData clinical_code_data{cache_entry, lookup_};
-	    return ClinicalCode{clinical_code_data};
+	    switch (type) {
+	    case CodeType::Procedure: {
+		auto cache_entry{procedure_parser_.parse(raw_code)};
+		ClinicalCodeData clinical_code_data{cache_entry, lookup_};
+		return ClinicalCode{clinical_code_data};
+	    }
+	    case CodeType::Diagnosis: {
+		auto cache_entry{procedure_parser_.parse(raw_code)};
+		ClinicalCodeData clinical_code_data{cache_entry, lookup_};
+		return ClinicalCode{clinical_code_data};
+	    }
+	    }
 	} catch (const TopLevelCategory::Empty &) {
 	    // If the code is empty, return the null-clinical code
 	    return ClinicalCode{};
 	}
     }
-	
 
-    ClinicalCode parse_diagnosis(const std::string & raw_code) {
-	try {
-	    auto cache_entry{diagnosis_parser_.parse(raw_code)};
-	    ClinicalCodeData clinical_code_data{cache_entry, lookup_};
-	    return ClinicalCode{clinical_code_data};
-	} catch (const TopLevelCategory::Empty &) {
-	    // If the code is empty, return the null-clinical code
-	    return ClinicalCode{};
+    std::string random_code(CodeType type,
+			    std::uniform_random_bit_generator auto & gen) const {
+	switch (type) {
+	case CodeType::Procedure:
+	    return procedure_parser_.random_code(gen);
+	case CodeType::Diagnosis:
+	    return diagnosis_parser_.random_code(gen);
 	}
-    }
-
-    std::string random_procedure(std::uniform_random_bit_generator auto & gen) const {
-	return procedure_parser_.random_code(gen);
-    }
-
-    std::string random_diagnosis(std::uniform_random_bit_generator auto & gen) const {
-	return diagnosis_parser_.random_code(gen);
     }
     
 private:

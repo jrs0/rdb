@@ -16,12 +16,12 @@ TEST(ClinicalCodeGroup, Contains) {
     ClinicalCodeGroup group{"acs_stemi", lookup};
 
     {
-	auto code{parser.parse_diagnosis("I21.0")};
+	auto code{parser.parse(CodeType::Diagnosis, "I21.0")};
         EXPECT_TRUE(group.contains(code));
     }
 
     {
-	auto code{parser.parse_diagnosis("A000")};
+	auto code{parser.parse(CodeType::Diagnosis, "A000")};
 	EXPECT_FALSE(group.contains(code));
     }
 
