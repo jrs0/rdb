@@ -191,12 +191,17 @@ private:
 /// an all-whitespace or empty string. 
 std::string preprocess(const std::string & code);
 
+namespace ParserException {
+    /// Thrown if the code is whitespace or empty
+    struct Empty {};
+
+    /// Thrown if the code is invalid
+    struct CodeNotFound {};    
+}
+
 /// Special case top level (contains a groups key)
 class TopLevelCategory {
 public:
-
-    /// Thrown if the code is whitespace or empty
-    struct Empty {};
     
     TopLevelCategory(const YAML::Node & top_level_category);
 

@@ -50,13 +50,18 @@ public:
     
     /// Make a null clinical code
     ClinicalCode() = default;
+
+    /// Make an invalid clinical code (prints as invalid,
+    /// stores the ID of the raw string)
+    ClinicalCode(std::size_t invalid_string_id)
+	: invalid_{invalid_string_id} {}
     
     /// Create a new clinical code identified
     /// by this id
     ClinicalCode(const ClinicalCodeData & data)
 	: data_{data} {}
 
-    /// Get the code name
+    /// Get the code name. Returns the raw string for an invalid code
     std::string name(std::shared_ptr<StringLookup> lookup) const;
     
     /// Get the code documentation string
@@ -73,13 +78,22 @@ public:
 	    return data_->group_ids();
 	}
     }
-
+    
     /// Is the clinical code empty
     auto null() const {
 	return not data_.has_value();
     }
+
+    /// Is the clinical code invalid? If
+    /// it is, it will still print and show
+    /// the code, but there will be no
+    /// description or groups
+    auto invalid() const {
+	return invalid_.has_value();
+    }
     
 private:
+    std::optional<std::size_t> invalid_;
     std::optional<ClinicalCodeData> data_;
 };
 
@@ -87,6 +101,8 @@ private:
 inline void print(const ClinicalCode & code, std::shared_ptr<StringLookup> lookup) {
     if (code.null()) {
 	std::cout << "Null";
+    } else if (code.invalid()) {
+	std::cout << code.name(lookup) << " (Invalid)";
     } else {
 	auto code_groups{code.groups(lookup)};
 	if (not code_groups.empty()) {
@@ -168,9 +184,14 @@ public:
 		return ClinicalCode{clinical_code_data};
 	    }
 	    }
-	} catch (const TopLevelCategory::Empty &) {
+	} catch (const ParserException::Empty &) {
 	    // If the code is empty, return the null-clinical code
 	    return ClinicalCode{};
+	} catch (const ParserException::CodeNotFound &) {
+	    // Store the invalid raw code in the lookup
+	    auto raw_string_id{lookup_->insert_string(raw_code)};
+	    // Makes an invalid code
+            return ClinicalCode{raw_string_id};
 	}
     }
 

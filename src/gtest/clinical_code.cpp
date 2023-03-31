@@ -7,6 +7,13 @@ TEST(ClinicalCode, NullOnDefaultConstruction) {
     EXPECT_TRUE(clinical_code.null());
 }
 
+TEST(ClinicalCode, ParseInvalidCode) {
+    auto lookup{new_string_lookup()};
+    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml", lookup};
+    auto code{parser.parse(CodeType::Diagnosis, "K85X")};
+    EXPECT_TRUE(code.invalid());
+}
+
 /// Note this test relies on the current version of
 /// the groups in the codes files
 TEST(ClinicalCodeGroup, Contains) {

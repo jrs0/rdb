@@ -108,8 +108,7 @@ locate_code_in_categories(const std::string & code,
     // may be possible to return the category above as a fuzzy
     // match -- consider implementing
     if (!found) {
-	throw std::runtime_error("Code " + code
-				 + " not found in any category");
+	throw ParserException::CodeNotFound {};
     }
 
     // Decrement the position to point to the largest category
@@ -244,7 +243,7 @@ std::string remove_non_alphanum(const std::string & code) {
 std::string preprocess(const std::string & code) {
     // Cover two common cases of invalid codes here
     if (std::ranges::all_of(code, isspace)) {
-	throw TopLevelCategory::Empty{};
+	throw ParserException::Empty{};
     }
 
     /// Strip alphanumeric for the parser
