@@ -155,7 +155,7 @@ public:
 		return ClinicalCode{clinical_code_data};
 	    }
 	    case CodeType::Diagnosis: {
-		auto cache_entry{procedure_parser_.parse(raw_code)};
+		auto cache_entry{diagnosis_parser_.parse(raw_code)};
 		ClinicalCodeData clinical_code_data{cache_entry, lookup_};
 		return ClinicalCode{clinical_code_data};
 	    }
