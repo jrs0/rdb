@@ -79,7 +79,11 @@ public:
     /// bad_variant_access if T is not this column's type
     template<typename T>
     T at(std::string column_name) const {
-        return std::get<T>(columns_.at(column_name));
+	try {
+	    return std::get<T>(columns_.at(column_name));
+	} catch (const std::out_of_range &) {
+	    throw RowBufferException::ColumnNotFound{};
+	}
     }
     
 private:
