@@ -5,10 +5,11 @@
 #include "spell_rows.hpp"
 #include "spell.hpp"
 
-int main() {    
-    SpellRows rows{Timestamp{0}, 10};
-    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml"};
-    Spell spell{rows, parser};
-    spell.print(parser);
+int main() {
+    auto lookup{new_string_lookup()};
+    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml", lookup};
+
+    // Spell spell{rows, parser};
+    // spell.print(parser);
     
 }

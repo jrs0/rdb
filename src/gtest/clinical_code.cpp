@@ -9,7 +9,7 @@ TEST(ClinicalCode, NullOnDefaultConstruction) {
 
 TEST(ClinicalCodeGroup, Contains) {
 
-    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml"};
+    auto lookup{new_string_lookup()};
+    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml", lookup};
     auto code{parser.parse_diagnosis("I21.0")};
-    ClinicalCodeGroup group{
 }

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <map>
+#include <memory>
 
 class StringLookup {
 public:
@@ -32,5 +33,7 @@ private:
     std::map<std::size_t, std::string> index_to_string_;
     std::map<std::string, std::size_t> string_to_index_;
 };
+
+std::shared_ptr<StringLookup> new_string_lookup();
 
 #endif

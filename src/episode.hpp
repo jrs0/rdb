@@ -139,7 +139,7 @@ public:
 	return episode_start_;
     }
     
-    void print(const ClinicalCodeParser & parser, std::size_t pad = 0) const {
+    void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
 	std::cout << std::string(pad, ' ');
 	std::cout << "Episode: ";
 	episode_start_.print();
@@ -149,7 +149,7 @@ public:
 	std::cout << std::string(' ', pad);
 	std::cout << std::string(pad, ' ');
         std::cout << "Primary diagnosis: ";
-	primary_diagnosis_.print(parser);
+	primary_diagnosis_.print(lookup);
         std::cout << std::endl;
 	std::cout << std::string(' ', pad);
 	if (secondary_diagnoses_.size() > 0) {
@@ -157,20 +157,20 @@ public:
 	    std::cout << "Secondary diagnoses: " << std::endl;
 	    for (const auto & diagnosis : secondary_diagnoses_) {
 		std::cout << std::string(pad, ' ') << "- ";
-		diagnosis.print(parser);
+		diagnosis.print(lookup);
 		std::cout << std::endl;
 	    }
 	}
 	std::cout << std::string(pad, ' ');	
         std::cout << "Primary procedure: ";
-	primary_procedure_.print(parser);
+	primary_procedure_.print(lookup);
         std::cout << std::endl;
 	if (secondary_procedures_.size() > 0) {
 	    std::cout << std::string(pad, ' ');
 	    std::cout << "Secondary procedures: " << std::endl;
 	    for (const auto & procedure : secondary_procedures_) {
 		std::cout << std::string(pad, ' ') << "- ";
-		procedure.print(parser);
+		procedure.print(lookup);
 		std::cout << std::endl;
 	    }
 	}	

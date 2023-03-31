@@ -43,14 +43,14 @@ public:
 	return episodes_;
     }
 
-    void print(const ClinicalCodeParser & parser, std::size_t pad = 0) const {
+    void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
 	std::cout << " Spell " << spell_id_ << std::endl << "  ";
 	spell_start_.print();
 	std::cout << " - ";
 	spell_end_.print();
 	std::cout << std::endl;
 	for (const auto & episode : episodes_) {
-	    episode.print(parser, pad + 2);
+	    episode.print(lookup, pad + 2);
 	}
     }
     
