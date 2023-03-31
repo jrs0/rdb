@@ -27,6 +27,10 @@
 #      ICD code (NA if no death_after)
 #  
 
+connection: 
+  #dsn: xsw
+  cred: /root/db.secret.yaml
+
 
 parser:
   diagnosis_file: ../../icd10.yaml
@@ -102,9 +106,6 @@ code_groups:
   diabetes: [type_1_diabetes, type_2_diabetes]  
   
 data_sources:
-  connection: 
-    #dsn: xsw
-    cred: /root/db.secret.yaml
   hospital_episodes:
     table: abi.dbo.vw_apc_sem_001
     nhs_number: aimtc_pseudo_nhs

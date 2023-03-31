@@ -7,14 +7,18 @@
 #include "spell.hpp"
 #include "config.hpp"
 #include "sql_query.hpp"
+#include "sql_connection.hpp"
 
 int main() {
     auto lookup{new_string_lookup()};
     auto config{load_config_file("../../config.yaml")};
     auto parser{new_clinical_code_parser(config["parser"], lookup)};
+    auto sql_connection{new_sql_connection(config["connection"])};
+    auto sql_query{make_acs_sql_query(config["sql_query"])};
 
-    std::cout << make_acs_sql_query(config["sql_query"]) << std::endl;
-
+    std::cout << sql_query << std::endl;
+    
+    auto row{sql_connection.execute_direct(sql_query)};
     
     // Spell spell{rows, parser};
     // spell.print(parser);    

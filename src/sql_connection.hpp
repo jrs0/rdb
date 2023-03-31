@@ -4,8 +4,10 @@
 #include <vector>
 #include <map>
 
+#include <string>
+#include <memory>
+#include "stmt_handle.hpp"
 #include "sql_row_buffer.hpp"
-#include "acs.hpp"
 
 /// A simple SQL
 class SQLConnection {
@@ -42,5 +44,16 @@ private:
     std::shared_ptr<StmtHandle> stmt_; ///< Statement handle
 
 };
+
+/// Make a connection from the "connection" block (passed as
+/// argument), which has either "dsn" (preferred) or "cred"
+/// (a path to a credentials file)
+SQLConnection new_sql_connection(const YAML::Node & config) {
+    if (config["dsn"]) {
+	return SQLConnection{config["dsn"].as<std::string>()};
+    } else {
+	return SQLConnection{config["cred"]};
+    }
+}
 
 #endif
