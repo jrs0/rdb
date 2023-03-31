@@ -16,5 +16,20 @@ T column(const std::string & column_name, const RowBuffer auto & row) {
     return row.template at<T>(column_name);
 }
 
+namespace RowBufferException {
+
+    /// Thrown by the constructor if there are no rows, or by
+    /// fetch_next_row if there are no more rows.
+    struct NoMoreRows {};
+
+    /// Throw by at() if the columns is not present
+    struct ColumnNotFound {};
+
+    /// Thrown if you try to all at() on a column but pass
+    /// the wrong column type
+    struct WrongColumnType {};
+
+}
+
 
 #endif

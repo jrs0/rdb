@@ -19,9 +19,7 @@ read_clinical_code_column(const std::string & column_name,
     } catch (const Varchar::Null &) {
 	// Column is null, record empty code
 	return ClinicalCode{};
-    } catch (const std::out_of_range &) {
-	throw std::runtime_error("Missing required column '" + column_name + "' in row");
-    } catch (const std::bad_variant_access &) {
+    } catch (const RowBufferException::WrongColumnType &) {
 	throw std::runtime_error("Column '" + column_name + "' must have type Varchar");
     }
 }
@@ -45,7 +43,7 @@ read_secondary_columns(const std::string & prefix, CodeType code_type,
 		// stop searching further columns
 		break;
 	    }
-	} catch (const std::out_of_range & ) {
+	} catch (const RowBufferException::ColumnNotFound & ) {
 	    // If you get here, then the column prefix<n> was not found. This means that
 	    // you have already visited all the secondary columns in the row, so break.
 	    // TODO Think about whether there should be a check to distinguish this case from
@@ -80,16 +78,20 @@ public:
         episode_start_ = column<Timestamp>("episode_start", row);
         episode_end_ = column<Timestamp>("episode_end", row);
 
-	// Get primary procedure
-	primary_procedure_ = read_clinical_code_column("primary_procedure",
-						       CodeType::Procedure,
-						       row, parser);
+	try {
+	    // Get primary procedure
+	    primary_procedure_ = read_clinical_code_column("primary_procedure",
+							   CodeType::Procedure,
+							   row, parser);
 	
-	// Get primary diagnosis
-	primary_diagnosis_ = read_clinical_code_column("primary_diagnosis",
-						       CodeType::Diagnosis,
-						       row, parser);	
-
+	    // Get primary diagnosis
+	    primary_diagnosis_ = read_clinical_code_column("primary_diagnosis",
+							   CodeType::Diagnosis,
+							   row, parser);	
+	} catch (const RowBufferException::ColumnNotFound &) {
+	    throw std::runtime_error("Missing required primary diagnosis or procedure column");
+	}
+	    
 	// Get secondary procedures -- needs refactoring, but need to fix parse_procedure/
 	// parse_diagnosis first (i.e. merge them)
 	secondary_procedures_ = read_secondary_columns("secondary_procedure_",

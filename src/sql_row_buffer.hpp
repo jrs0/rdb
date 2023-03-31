@@ -13,10 +13,6 @@
 /// rows to be fetched one at a time.
 class SqlRowBuffer {  
 public:
-
-    /// Thrown by the constructor if there are no rows, or by
-    /// fetch_next_row if there are no more rows.
-    struct NoMoreRows {};
     
     /// Make sure you only do this after executing the statement.
     /// This constructor also fetches the first row, which throws
@@ -51,11 +47,15 @@ public:
     /// bad_variant_access if T is not this column's type
     template<typename T>
     T at(std::string column_name) const {
-	auto & buffer {
-	    std::get<typename T::Buffer>(column_buffers_.at(column_name))
-		};
+
 	try {
+	    const auto & column_contents{column_buffers_.at(column_name)};
+	    auto & buffer {std::get<typename T::Buffer>(column_contents)};
 	    return buffer.read();
+	} catch (const std::out_of_range &) {
+	    throw RowBufferException::ColumnNotFound{};
+	} catch (const std::bad_variant_access &) {
+	    throw RowBufferException::WrongColumnType{};
 	} catch (const std::runtime_error & e) {
 	    throw std::runtime_error("Failed to read buffer for columns '"
 				     + column_name + "', error: " + e.what());
@@ -68,7 +68,7 @@ public:
     /// not more rows.
     void fetch_next_row() {
 	if(not stmt_->fetch()) {
-	    throw NoMoreRows{};
+	    throw RowBufferException::NoMoreRows{};
 	}
 	current_row_++;
     }

@@ -27,7 +27,7 @@ int main() {
 	    row.fetch_next_row();
 	}
 	    
-    } catch (const SqlRowBuffer::NoMoreRows &) {
+    } catch (const RowBufferException::NoMoreRows &) {
 	std::cout << "Finished fetching all rows" << std::endl;
     }
     
