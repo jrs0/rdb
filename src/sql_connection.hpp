@@ -6,6 +6,7 @@
 
 #include <string>
 #include <memory>
+#include "config.hpp"
 #include "stmt_handle.hpp"
 #include "sql_row_buffer.hpp"
 
@@ -52,7 +53,8 @@ SQLConnection new_sql_connection(const YAML::Node & config) {
     if (config["dsn"]) {
 	return SQLConnection{config["dsn"].as<std::string>()};
     } else {
-	return SQLConnection{config["cred"]};
+	auto cred{load_config_file(config["cred"].as<std::string>())};
+	return SQLConnection{cred};
     }
 }
 
