@@ -81,7 +81,7 @@ public:
     
     /// Is the clinical code empty
     auto null() const {
-	return not data_.has_value();
+	return (not data_.has_value()) and (not invalid_.has_value());
     }
 
     /// Is the clinical code invalid? If
