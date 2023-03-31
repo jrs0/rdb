@@ -267,7 +267,7 @@ public:
 		throw std::runtime_error("Fixed type size not equal to C "
 					 "type. Returned size = "
 					 + std::to_string(*data_size_) +
-					 " but size of long = "
+					 " but size of DATETIME = "
 					 + std::to_string(sizeof(SQL_TIMESTAMP_STRUCT)));
 	    }
 

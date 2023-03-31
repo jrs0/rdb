@@ -11,9 +11,16 @@
 
 /// Holds the column bindings for an in-progress query. Allows
 /// rows to be fetched one at a time.
-class SqlRowBuffer {
+class SqlRowBuffer {  
 public:
-    /// Make sure you only do this after executing the statement
+
+    /// Thrown by the constructor if there are no rows, or by
+    /// fetch_next_row if there are no more rows.
+    struct NoMoreRows {};
+    
+    /// Make sure you only do this after executing the statement.
+    /// This constructor also fetches the first row, which throws
+    /// std::logic_error if there are no rows
     SqlRowBuffer(const std::shared_ptr<StmtHandle> & stmt)
 	: stmt_{stmt}
     {
@@ -27,6 +34,12 @@ public:
 	    auto column_name{stmt_->column_name(n)};
 	    column_buffers_.insert({column_name, stmt_->make_buffer(n)});
 	}
+
+	/// Try to fetch the first row
+	fetch_next_row();
+	/// Special case, reset the current row to 0
+	/// TODO fix this
+	current_row_ = 0;
     }
 
     // Get the number of columns
@@ -41,7 +54,12 @@ public:
 	auto & buffer {
 	    std::get<typename T::Buffer>(column_buffers_.at(column_name))
 		};
-	return buffer.read();
+	try {
+	    return buffer.read();
+	} catch (const std::runtime_error & e) {
+	    throw std::runtime_error("Failed to read buffer for columns '"
+				     + column_name + "', error: " + e.what());
+	}
     }
     
     /// Fetch the next row of data into an internal state
@@ -50,7 +68,7 @@ public:
     /// not more rows.
     void fetch_next_row() {
 	if(not stmt_->fetch()) {
-	    throw std::logic_error("No more rows");
+	    throw NoMoreRows{};
 	}
 	current_row_++;
     }
