@@ -17,11 +17,19 @@ int main() {
     auto sql_query{make_acs_sql_query(config["sql_query"], false)};
 
     std::cout << sql_query << std::endl;
-    
-    auto row{sql_connection.execute_direct(sql_query)};
 
-    Episode episode{row, parser};
-    episode.print(lookup);
+    try {
+	auto row{sql_connection.execute_direct(sql_query)};
+	while (true) {
+	    Episode episode{row, parser};
+	    episode.print(lookup);
+	    std::cout << std::endl;
+	    row.fetch_next_row();
+	}
+	    
+    } catch (const SqlRowBuffer::NoMoreRows &) {
+	std::cout << "Finished fetching all rows" << std::endl;
+    }
     
     // Spell spell{rows, parser};
     // spell.print(parser);    
