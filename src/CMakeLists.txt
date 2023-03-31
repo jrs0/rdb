@@ -9,10 +9,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_compile_options(-Wall -Wextra -fmax-errors=5 -g -pg -fno-omit-frame-pointer)
 add_link_options(-pg -fno-omit-frame-pointer)
 
-add_library(rdb SHARED yaml.cpp category.cpp clinical_code.cpp random.cpp string_lookup.cpp config.cpp)
+add_library(rdb SHARED yaml.cpp category.cpp clinical_code.cpp random.cpp string_lookup.cpp config.cpp cmdline.cpp)
 
-add_executable(main main.cpp )
-target_link_libraries(main rdb odbc yaml-cpp)
+add_executable(spells spells.cpp)
+target_link_libraries(spells rdb odbc yaml-cpp)
 
 # Compile tests if they are enabled
 if(WITH_TESTS)
