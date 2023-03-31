@@ -176,5 +176,10 @@ private:
     TopLevelCategory diagnosis_parser_;
 };
 
+/// Make a new parser from a configuration block
+ClinicalCodeParser
+new_clinical_code_parser(const YAML::Node &config,
+                         std::shared_ptr<StringLookup> lookup);
+
 #endif
 

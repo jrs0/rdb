@@ -27,3 +27,11 @@ std::string ClinicalCodeGroup::group(std::shared_ptr<StringLookup> lookup) const
 ClinicalCodeGroup::ClinicalCodeGroup(const std::string & group, std::shared_ptr<StringLookup> lookup) {
     group_id_ = lookup->insert_string(group);
 }
+
+
+ClinicalCodeParser new_clinical_code_parser(const YAML::Node & config,
+					    std::shared_ptr<StringLookup> lookup) {
+    auto procedure_file{config["procedure_file"].as<std::string>()};
+    auto diagnosis_file{config["diagnosis_file"].as<std::string>()};
+    return {procedure_file, diagnosis_file, lookup};
+}
