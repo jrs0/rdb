@@ -34,7 +34,7 @@ read_secondary_columns(const std::string & prefix, CodeType code_type,
 		       RowBuffer auto & row, ClinicalCodeParser & parser) {
     std::vector<ClinicalCode> secondaries;
     for (std::size_t n{0}; true; n++) {
-	auto column_name{"secondary_procedure_" + std::to_string(n)};
+	auto column_name{prefix + std::to_string(n)};
 	auto secondary{read_clinical_code_column(column_name, code_type, row, parser)};
 	if (not secondary.null()) {
 	    secondaries.push_back(secondary);

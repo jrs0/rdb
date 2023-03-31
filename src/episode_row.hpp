@@ -36,10 +36,10 @@ public:
 	for (std::size_t n{0}; n < num_secondary_diagnoses; n++) {
 	    push_secondary_diagnosis(parser.random_code(CodeType::Diagnosis, gen));
 	}
-	// auto num_secondary_procedures{rnd()};
-	// for (std::size_t n{0}; n < num_secondary_procedures; n++) {
-	//     push_secondary_procedure(parser.random_procedure(gen));
-	// }
+	auto num_secondary_procedures{rnd()};
+	for (std::size_t n{0}; n < num_secondary_procedures; n++) {
+	    push_secondary_procedure(parser.random_code(CodeType::Procedure, gen));
+	}
     }
 
     void set_primary_diagnosis(const std::string & raw) {
