@@ -9,6 +9,41 @@
 
 #include "sql_types.hpp"
 
+ClinicalCode
+read_diagnosis_from_column(const std::string & column_name,
+			   RowBuffer auto & row,
+			   ClinicalCodeParser & parser) {
+    try {
+	auto raw{column<Varchar>(column_name, row).read()};
+	return parser.parse_diagnosis(raw);
+    } catch (const Varchar::Null &) {
+	// Column is null, record empty code
+	return ClinicalCode{};
+    } catch (const std::out_of_range &) {
+	throw std::runtime_error("Missing required column '" + column_name + "' in row");
+    } catch (const std::bad_variant_access &) {
+	throw std::runtime_error("Column '" + column_name + "' must have type Varchar");
+    }
+}
+
+ClinicalCode
+read_procedure_from_column(const std::string & column_name,
+			   RowBuffer auto & row,
+			   ClinicalCodeParser & parser) {
+    try {
+	auto raw{column<Varchar>(column_name, row).read()};
+	return parser.parse_diagnosis(raw);
+    } catch (const Varchar::Null &) {
+	// Column is null, record empty code
+	return ClinicalCode{};
+    } catch (const std::out_of_range &) {
+	throw std::runtime_error("Missing required column '" + column_name + "' in row");
+    } catch (const std::bad_variant_access &) {
+	throw std::runtime_error("Column '" + column_name + "' must have type Varchar");
+    }
+}
+
+
 class Episode {
 public:
 
@@ -34,65 +69,35 @@ public:
         episode_end_ = column<Timestamp>("episode_end", row);
 
 	// Get primary procedure
-	try {
-	    auto raw{column<Varchar>("primary_procedure", row).read()};
-	    primary_procedure_ = parser.parse_procedure(raw);
-	} catch (const std::out_of_range &) {
-	    throw std::runtime_error("Missing required 'primary_procedure' column in row");
-	} catch (const std::bad_variant_access &) {
-	    throw std::runtime_error("Column 'primary_procedure' must have type Varchar");
-	}
+	primary_procedure_ = read_procedure_from_column("primary_procedure", row, parser);
 	
 	// Get primary diagnosis
-	try {
-	    auto raw{column<Varchar>("primary_diagnosis", row).read()};
-	    primary_diagnosis_ = parser.parse_diagnosis(raw);
-	} catch (const std::out_of_range &) {
-	    throw std::runtime_error("Missing required 'primary_diagnosis' column in row");
-	} catch (const std::bad_variant_access &) {
-	    throw std::runtime_error("Column 'primary_diagnosis' must have type Varchar");
-	}
+	primary_diagnosis_ = read_diagnosis_from_column("primary_diagnosis", row, parser);	
 
 	// Get secondary procedures -- needs refactoring, but need to fix parse_procedure/
 	// parse_diagnosis first (i.e. merge them)
 	for (std::size_t n{0}; true; n++) {
-	    try {
-		auto column_name{"secondary_procedure_" + std::to_string(n)};
-		auto raw{column<Varchar>(column_name, row).read()};
-		auto procedure{parser.parse_procedure(raw)};
-		if (not procedure.null()) {
-		    secondary_procedures_.push_back(procedure);
-		} else {
-		    // Found a procedure that is empty (i.e. whitespace),
-		    // stop searching further columns
-		    break;
-		}
-	    } catch (const std::out_of_range &) {
-		// Reached first secondary column that does not exist, stop
+	    auto column_name{"secondary_procedure_" + std::to_string(n)};
+	    auto secondary_procedure{read_procedure_from_column(column_name, row, parser)};
+	    if (not secondary_procedure.null()) {
+		secondary_procedures_.push_back(secondary_procedure);
+	    } else {
+		// Found a procedure that is NULL or empty (i.e. whitespace),
+		// stop searching further columns
 		break;
-	    } catch (const std::bad_variant_access &) {
-		throw std::runtime_error("Column 'secondary_diagnosis_<n>' must have type Varchar");
 	    }
 	}
-
+	    
 	// Get secondary diagnoses
 	for (std::size_t n{0}; true; n++) {
-	    try {
-		auto column_name{"secondary_diagnosis_" + std::to_string(n)};
-		auto raw{column<Varchar>(column_name, row).read()};
-		auto diagnosis{parser.parse_diagnosis(raw)};
-		if (not diagnosis.null()) {
-		    secondary_diagnoses_.push_back(diagnosis);
-		} else {
-		    // Found a diagnosis that is empty (i.e. whitespace),
-		    // stop searching further columns
-		    break;
-		}
-	    } catch (const std::out_of_range &) {
-		// Reached first secondary column that does not exist, stop
+	    auto column_name{"secondary_diagnosis_" + std::to_string(n)};
+	    auto secondary_diagnosis{read_diagnosis_from_column(column_name, row, parser)};
+	    if (not secondary_diagnosis.null()) {
+		secondary_diagnoses_.push_back(secondary_diagnosis);
+	    } else {
+		// Found a procedure that is NULL or empty (i.e. whitespace),
+		// stop searching further columns
 		break;
-	    } catch (const std::bad_variant_access &) {
-		throw std::runtime_error("Column 'secondary_diagnosis_<n>' must have type Varchar");
 	    }
 	}
     }
