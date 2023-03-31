@@ -40,6 +40,20 @@ private:
 
 class ClinicalCodeParser;
 
+class ClinicalCodeGroup {
+public:
+    ClinicalCodeGroup(const std::string & group, StringLookup & lookup) {
+	group_id_ = lookup.insert_string(group);
+    }
+
+    std::string group(const ClinicalCodeParser & parser) const;
+    
+private:
+    std::size_t group_id_;
+};
+
+/// Note that this class can be NULL, which is why
+/// there is also ClinicalCodeData
 class ClinicalCode {
 public:
     /// Make a null clinical code

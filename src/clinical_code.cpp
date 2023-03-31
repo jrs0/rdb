@@ -21,3 +21,6 @@ std::set<std::string> ClinicalCode::groups(const ClinicalCodeParser & parser) co
     return groups;
 }
 
+std::string ClinicalCodeGroup::group(const ClinicalCodeParser & parser) const {
+    return parser.string_lookup().at(group_id_);
+}
