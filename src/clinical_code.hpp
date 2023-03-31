@@ -93,8 +93,8 @@ public:
     }
     
 private:
-    std::optional<std::size_t> invalid_;
-    std::optional<ClinicalCodeData> data_;
+    std::optional<std::size_t> invalid_{std::nullopt};
+    std::optional<ClinicalCodeData> data_{std::nullopt};
 };
 
 /// Print a clinical code using strings from the lookup
