@@ -8,6 +8,7 @@
 #include <random>
 
 #include "category.hpp"
+#include "colours.hpp"
 
 /// A wrapper for the set of IDs that describe a code
 class ClinicalCodeData {
@@ -87,13 +88,20 @@ inline void print(const ClinicalCode & code, std::shared_ptr<StringLookup> looku
     if (code.null()) {
 	std::cout << "Null";
     } else {
+	auto code_groups{code.groups(lookup)};
+	if (not code_groups.empty()) {
+	    std::cout << Colour::ORANGE;
+	}
 	std::cout << code.name(lookup)
 		  << " (" << code.docs(lookup) << ") "
 		  << " [";
-	for (const auto & group : code.groups(lookup)) {
+        for (const auto & group : code_groups) {
 	    std::cout << group << ",";
 	}
 	std::cout << "]";
+	if (not code_groups.empty()) {
+	    std::cout << Colour::RESET;
+	}
     }    
 }
 

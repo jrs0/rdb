@@ -2,6 +2,7 @@
 #define SQL_QUERY
 
 #include "yaml.hpp"
+#include <optional>
 
 /**
  * \brief Make the SQL query for the ACS dataset
@@ -11,7 +12,8 @@
  * lists. These are all column names, that will be mapped to the names used
  * by the Episode constructor
  */
-std::string make_acs_sql_query(const YAML::Node & config, bool with_mortality = true) {
+std::string make_acs_sql_query(const YAML::Node & config, bool with_mortality,
+			       const std::optional<std::string> & nhs_number) {
 
     std::stringstream query;
 
@@ -62,8 +64,13 @@ std::string make_acs_sql_query(const YAML::Node & config, bool with_mortality = 
 	query << "left join abi.civil_registration.mortality as mort "
 	      << "on episodes.nhs_number = mort.derived_pseudo_nhs ";
     }
-    query << "order by nhs_number, spell_id; ";
-    
+
+    if (nhs_number.has_value()) {
+	query << "where nhs_number = '" << *nhs_number << "' ";
+    }
+
+    query << "order by nhs_number, spell_id ";
+
     return query.str();
 }
 
