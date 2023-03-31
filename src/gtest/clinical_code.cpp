@@ -13,7 +13,47 @@ TEST(ClinicalCode, ParseInvalidCode) {
     auto code{parser.parse(CodeType::Diagnosis, "K85X")};
     EXPECT_FALSE(code.null());
     EXPECT_TRUE(code.invalid());
+    EXPECT_EQ(code.name(lookup), "K85X");
 }
+
+/// Parse a mixture of valid and invalid codes
+TEST(ClinicalCode, ParseValidInvalidCodes) {
+    auto lookup{new_string_lookup()};
+    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml", lookup};
+
+    /// Valid
+    {
+	auto code{parser.parse(CodeType::Diagnosis, "I210")};
+	EXPECT_FALSE(code.null());
+	EXPECT_FALSE(code.invalid());
+	EXPECT_EQ(code.name(lookup), "I21.0");
+    }
+    
+    /// Invalid
+    {
+	auto code{parser.parse(CodeType::Diagnosis, "K85X")};
+	EXPECT_FALSE(code.null());
+	EXPECT_TRUE(code.invalid());
+	EXPECT_EQ(code.name(lookup), "K85X");
+    }
+
+    /// Valid
+    {
+	auto code{parser.parse(CodeType::Diagnosis, "D73.1")};
+	EXPECT_FALSE(code.null());
+	EXPECT_FALSE(code.invalid());
+	EXPECT_EQ(code.name(lookup), "D37.1");
+    }
+    
+    /// Invalid
+    {
+	auto code{parser.parse(CodeType::Diagnosis, "abcd")};
+	EXPECT_FALSE(code.null());
+	EXPECT_TRUE(code.invalid());
+	EXPECT_EQ(code.name(lookup), "abcd");
+    }
+}
+
 
 /// Note this test relies on the current version of
 /// the groups in the codes files
