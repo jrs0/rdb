@@ -24,7 +24,7 @@ int main(int argc, char ** argv) {
 			       "The pseudo-NHS number of the patient to search");
 
     if(cmd.parse(argc, argv) != 0) {
-	std::cerr << "An error occured while parsing the command line arguments"
+	std::cerr << "An error occurred while parsing the command line arguments"
 		  << std::endl;
 	return 1;
     }
