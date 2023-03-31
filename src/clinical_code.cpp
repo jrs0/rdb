@@ -20,6 +20,10 @@ std::set<std::string> ClinicalCode::groups(std::shared_ptr<StringLookup> lookup)
     return groups;
 }
 
+std::string ClinicalCodeGroup::group(std::shared_ptr<StringLookup> lookup) const {
+    return lookup->at(group_id_);
+}
+
 ClinicalCodeGroup::ClinicalCodeGroup(const std::string & group, std::shared_ptr<StringLookup> lookup) {
     group_id_ = lookup->insert_string(group);
 }

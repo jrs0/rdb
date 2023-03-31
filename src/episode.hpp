@@ -149,7 +149,7 @@ public:
 	std::cout << std::string(' ', pad);
 	std::cout << std::string(pad, ' ');
         std::cout << "Primary diagnosis: ";
-	primary_diagnosis_.print(lookup);
+	::print(primary_diagnosis_, lookup);
         std::cout << std::endl;
 	std::cout << std::string(' ', pad);
 	if (secondary_diagnoses_.size() > 0) {
@@ -157,20 +157,20 @@ public:
 	    std::cout << "Secondary diagnoses: " << std::endl;
 	    for (const auto & diagnosis : secondary_diagnoses_) {
 		std::cout << std::string(pad, ' ') << "- ";
-		diagnosis.print(lookup);
+		::print(diagnosis, lookup);
 		std::cout << std::endl;
 	    }
 	}
 	std::cout << std::string(pad, ' ');	
         std::cout << "Primary procedure: ";
-	primary_procedure_.print(lookup);
+	::print(primary_procedure_, lookup);
         std::cout << std::endl;
 	if (secondary_procedures_.size() > 0) {
 	    std::cout << std::string(pad, ' ');
 	    std::cout << "Secondary procedures: " << std::endl;
 	    for (const auto & procedure : secondary_procedures_) {
 		std::cout << std::string(pad, ' ') << "- ";
-		procedure.print(lookup);
+		::print(procedure, lookup);
 		std::cout << std::endl;
 	    }
 	}	

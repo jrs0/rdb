@@ -7,9 +7,23 @@ TEST(ClinicalCode, NullOnDefaultConstruction) {
     EXPECT_TRUE(clinical_code.null());
 }
 
+/// Note this test relies on the current version of
+/// the groups in the codes files
 TEST(ClinicalCodeGroup, Contains) {
 
     auto lookup{new_string_lookup()};
     ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml", lookup};
-    auto code{parser.parse_diagnosis("I21.0")};
+    ClinicalCodeGroup group{"acs_stemi", lookup};
+
+    {
+	auto code{parser.parse_diagnosis("I21.0")};
+	print(code, lookup);
+	print(group, lookup);
+        EXPECT_TRUE(group.contains(code));
+    }
+
+    {
+	auto code{parser.parse_diagnosis("A000")};
+	EXPECT_FALSE(group.contains(code));
+    }
 }

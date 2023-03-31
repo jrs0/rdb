@@ -78,28 +78,29 @@ public:
 	return not data_.has_value();
     }
     
-    void print(std::shared_ptr<StringLookup> lookup) const {
-	if (null()) {
-	    std::cout << "Null";
-	} else {
-	    std::cout << name(lookup)
-		      << " (" << docs(lookup) << ") "
-		      << " [";
-	    for (const auto & group : groups(lookup)) {
-		std::cout << group << ",";
-	    }
-	    std::cout << "]";
-	}
-    }
-    
 private:
     std::optional<ClinicalCodeData> data_;
 };
 
+/// Print a clinical code using strings from the lookup
+inline void print(const ClinicalCode & code, std::shared_ptr<StringLookup> lookup) {
+    if (code.null()) {
+	std::cout << "Null";
+    } else {
+	std::cout << code.name(lookup)
+		  << " (" << code.docs(lookup) << ") "
+		  << " [";
+	for (const auto & group : code.groups(lookup)) {
+	    std::cout << group << ",";
+	}
+	std::cout << "]";
+    }    
+}
+
 class ClinicalCodeGroup {
 public:
     ClinicalCodeGroup(const std::string & group, std::shared_ptr<StringLookup> lookup);
-    std::string group(const ClinicalCodeParser & parser) const;
+    std::string group(std::shared_ptr<StringLookup> lookup) const;
 
     bool contains(const ClinicalCode & code) const {
 	if (not code.null()) {
@@ -112,6 +113,10 @@ public:
 private:
     std::size_t group_id_;
 };
+
+inline void print(const ClinicalCodeGroup & group, std::shared_ptr<StringLookup> & lookup) {
+    std::cout << group.group(lookup) << std::endl;
+}
 
 /// Deals with both procedures and diagnoses, but stores
 /// all the results in the same string pool, so no ids will
