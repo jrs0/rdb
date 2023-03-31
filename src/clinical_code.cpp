@@ -1,26 +1,25 @@
 #include "clinical_code.hpp"
 
 /// Get the code name
-std::string ClinicalCode::name(const ClinicalCodeParser & parser) const {
-    return parser.string_lookup().at(data_->name_id());
+std::string ClinicalCode::name(std::shared_ptr<StringLookup> lookup) const {
+    return lookup->at(data_->name_id());
 }
 
 /// Get the code ducumentation string
-std::string ClinicalCode::docs(const ClinicalCodeParser & parser) const {
-    return parser.string_lookup().at(data_->docs_id());
+std::string ClinicalCode::docs(std::shared_ptr<StringLookup> lookup) const {
+    return lookup->at(data_->docs_id());
 }
 
 /// Get the set of groups associated to this
 /// code
-std::set<std::string> ClinicalCode::groups(const ClinicalCodeParser & parser) const {
+std::set<std::string> ClinicalCode::groups(std::shared_ptr<StringLookup> lookup) const {
     std::set<std::string> groups;
-    auto & string_lookup{parser.string_lookup()};
     for (const auto group_id : data_->group_ids()) {
-	groups.insert(string_lookup.at(group_id));
+	groups.insert(lookup->at(group_id));
     }
     return groups;
 }
 
-std::string ClinicalCodeGroup::group(const ClinicalCodeParser & parser) const {
-    return parser.string_lookup().at(group_id_);
+ClinicalCodeGroup::ClinicalCodeGroup(const std::string & group, std::shared_ptr<StringLookup> lookup) {
+    group_id_ = lookup->insert_string(group);
 }

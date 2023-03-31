@@ -12,23 +12,23 @@
 /// A wrapper for the set of IDs that describe a code
 class ClinicalCodeData {
 public:
-    ClinicalCodeData(const CacheEntry & cache_entry, StringLookup & lookup) {
-	name_id_ = lookup.insert_string(cache_entry.name());
-	docs_id_ = lookup.insert_string(cache_entry.docs());
+    ClinicalCodeData(const CacheEntry & cache_entry, std::shared_ptr<StringLookup> lookup) {
+	name_id_ = lookup->insert_string(cache_entry.name());
+	docs_id_ = lookup->insert_string(cache_entry.docs());
 	for (const auto & group : cache_entry.groups()) {
-	    group_ids_.insert(lookup.insert_string(group));
+	    group_ids_.insert(lookup->insert_string(group));
 	}	
     }
 
-    auto name_id() const {
+    const auto & name_id() const {
 	return name_id_;
     }
 
-    auto docs_id() const {
+    const auto & docs_id() const {
 	return docs_id_;
     }
 
-    auto group_ids() const {
+    const auto & group_ids() const {
 	return group_ids_;
     }
     
@@ -40,22 +40,13 @@ private:
 
 class ClinicalCodeParser;
 
-class ClinicalCodeGroup {
-public:
-    ClinicalCodeGroup(const std::string & group, StringLookup & lookup) {
-	group_id_ = lookup.insert_string(group);
-    }
-
-    std::string group(const ClinicalCodeParser & parser) const;
-    
-private:
-    std::size_t group_id_;
-};
-
 /// Note that this class can be NULL, which is why
 /// there is also ClinicalCodeData
 class ClinicalCode {
 public:
+
+    struct Empty {};
+    
     /// Make a null clinical code
     ClinicalCode() = default;
     
@@ -65,28 +56,36 @@ public:
 	: data_{data} {}
 
     /// Get the code name
-    std::string name(const ClinicalCodeParser & parser) const;
+    std::string name(std::shared_ptr<StringLookup> lookup) const;
     
     /// Get the code documentation string
-    std::string docs(const ClinicalCodeParser & parser) const;
+    std::string docs(std::shared_ptr<StringLookup> lookup) const;
     
     /// Get the set of groups associated to this
     /// code
-    std::set<std::string> groups(const ClinicalCodeParser & parser) const;
-    
+    std::set<std::string> groups(std::shared_ptr<StringLookup> lookup) const;
+
+    const auto & group_ids() const {
+	if (not data_) {
+	    throw Empty{};
+	} else {
+	    return data_->group_ids();
+	}
+    }
+
     /// Is the clinical code empty
     auto null() const {
 	return not data_.has_value();
     }
     
-    void print(const ClinicalCodeParser & parser) const {
+    void print(std::shared_ptr<StringLookup> lookup) const {
 	if (null()) {
 	    std::cout << "Null";
 	} else {
-	    std::cout << name(parser)
-		      << " (" << docs(parser) << ") "
+	    std::cout << name(lookup)
+		      << " (" << docs(lookup) << ") "
 		      << " [";
-	    for (const auto & group : groups(parser)) {
+	    for (const auto & group : groups(lookup)) {
 		std::cout << group << ",";
 	    }
 	    std::cout << "]";
@@ -95,6 +94,23 @@ public:
     
 private:
     std::optional<ClinicalCodeData> data_;
+};
+
+class ClinicalCodeGroup {
+public:
+    ClinicalCodeGroup(const std::string & group, std::shared_ptr<StringLookup> lookup);
+    std::string group(const ClinicalCodeParser & parser) const;
+
+    bool contains(const ClinicalCode & code) const {
+	if (not code.null()) {
+	    return false;
+	} else {
+	    return code.group_ids().contains(group_id_);
+	}
+    }
+    
+private:
+    std::size_t group_id_;
 };
 
 /// Deals with both procedures and diagnoses, but stores
@@ -106,8 +122,10 @@ class ClinicalCodeParser {
 public:
 
     ClinicalCodeParser(const std::string & procedure_codes_file,
-		       const std::string & diagnosis_codes_file)
-	: procedure_parser_{YAML::LoadFile(procedure_codes_file)},
+		       const std::string & diagnosis_codes_file,
+		       std::shared_ptr<StringLookup> & lookup)
+	: lookup_{lookup},
+	  procedure_parser_{YAML::LoadFile(procedure_codes_file)},
 	  diagnosis_parser_{YAML::LoadFile(diagnosis_codes_file)}
     {}
     
@@ -119,7 +137,7 @@ public:
     ClinicalCode parse_procedure(const std::string & raw_code) {
 	try {
 	    auto cache_entry{procedure_parser_.parse(raw_code)};
-	    ClinicalCodeData clinical_code_data{cache_entry, string_lookup_};
+	    ClinicalCodeData clinical_code_data{cache_entry, lookup_};
 	    return ClinicalCode{clinical_code_data};
 	} catch (const TopLevelCategory::Empty &) {
 	    // If the code is empty, return the null-clinical code
@@ -131,7 +149,7 @@ public:
     ClinicalCode parse_diagnosis(const std::string & raw_code) {
 	try {
 	    auto cache_entry{diagnosis_parser_.parse(raw_code)};
-	    ClinicalCodeData clinical_code_data{cache_entry, string_lookup_};
+	    ClinicalCodeData clinical_code_data{cache_entry, lookup_};
 	    return ClinicalCode{clinical_code_data};
 	} catch (const TopLevelCategory::Empty &) {
 	    // If the code is empty, return the null-clinical code
@@ -146,13 +164,9 @@ public:
     std::string random_diagnosis(std::uniform_random_bit_generator auto & gen) const {
 	return diagnosis_parser_.random_code(gen);
     }
-
-    const auto & string_lookup() const {
-	return string_lookup_;
-    }
     
 private:
-    StringLookup string_lookup_;
+    std::shared_ptr<StringLookup> lookup_;
     TopLevelCategory procedure_parser_;
     TopLevelCategory diagnosis_parser_;
 };
