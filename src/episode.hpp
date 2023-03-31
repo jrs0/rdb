@@ -35,12 +35,21 @@ read_secondary_columns(const std::string & prefix, CodeType code_type,
     std::vector<ClinicalCode> secondaries;
     for (std::size_t n{0}; true; n++) {
 	auto column_name{prefix + std::to_string(n)};
-	auto secondary{read_clinical_code_column(column_name, code_type, row, parser)};
-	if (not secondary.null()) {
-	    secondaries.push_back(secondary);
-	} else {
-	    // Found a procedure that is NULL or empty (i.e. whitespace),
-	    // stop searching further columns
+
+	try {
+	    auto secondary{read_clinical_code_column(column_name, code_type, row, parser)};
+	    if (not secondary.null()) {
+		secondaries.push_back(secondary);
+	    } else {
+		// Found a procedure that is NULL or empty (i.e. whitespace),
+		// stop searching further columns
+		break;
+	    }
+	} catch (const std::out_of_range & ) {
+	    // If you get here, then the column prefix<n> was not found. This means that
+	    // you have already visited all the secondary columns in the row, so break.
+	    // TODO Think about whether there should be a check to distinguish this case from
+	    // the missing column case.
 	    break;
 	}
     }
