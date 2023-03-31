@@ -25,6 +25,13 @@ public:
     std::string at(std::size_t index) const {
 	return index_to_string_.at(index); 
     }
+
+    void print() const {
+	std::cout << "String lookup:" << std::endl;
+	for (const auto & [index, string] : index_to_string_) {
+	    std::cout << index << ": " << string << std::endl;
+	}
+    }
     
 private:
     std::size_t next_free_index_{0};
