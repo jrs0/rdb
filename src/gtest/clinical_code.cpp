@@ -24,35 +24,34 @@ TEST(ClinicalCode, ParseValidInvalidCodes) {
     /// Valid
     {
 	auto code{parser.parse(CodeType::Diagnosis, "I210")};
-	// EXPECT_FALSE(code.null());
-	// EXPECT_FALSE(code.invalid());
-	// EXPECT_EQ(code.name(lookup), "I21.0");
+	EXPECT_FALSE(code.null());
+	EXPECT_FALSE(code.invalid());
+	EXPECT_EQ(code.name(lookup), "I21.0");
     }
     
     /// Invalid
     {
 	auto code{parser.parse(CodeType::Diagnosis, "K85X")};
-	// EXPECT_FALSE(code.null());
-	// EXPECT_TRUE(code.invalid());
-	// EXPECT_EQ(code.name(lookup), "K85X");
+	EXPECT_FALSE(code.null());
+	EXPECT_TRUE(code.invalid());
+	EXPECT_EQ(code.name(lookup), "K85X");
     }
 
     /// Valid
     {
 	auto code{parser.parse(CodeType::Diagnosis, "D73.1")};
-	// EXPECT_FALSE(code.null());
-	// EXPECT_FALSE(code.invalid());
-	// EXPECT_EQ(code.name(lookup), "D37.1");
+	EXPECT_FALSE(code.null());
+	EXPECT_FALSE(code.invalid());
+	EXPECT_EQ(code.name(lookup), "D73.1");
     }
     
     /// Invalid
     {
 	auto code{parser.parse(CodeType::Diagnosis, "abcd")};
-	// EXPECT_FALSE(code.null());
-	// EXPECT_TRUE(code.invalid());
-	// EXPECT_EQ(code.name(lookup), "abcd");
+	EXPECT_FALSE(code.null());
+	EXPECT_TRUE(code.invalid());
+	EXPECT_EQ(code.name(lookup), "abcd");
     }
-    lookup->print();
 }
 
 
