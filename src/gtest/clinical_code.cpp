@@ -11,6 +11,7 @@ TEST(ClinicalCode, ParseInvalidCode) {
     auto lookup{new_string_lookup()};
     ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml", lookup};
     auto code{parser.parse(CodeType::Diagnosis, "K85X")};
+    EXPECT_FALSE(code.null());
     EXPECT_TRUE(code.invalid());
 }
 

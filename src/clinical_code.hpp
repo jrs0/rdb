@@ -102,7 +102,9 @@ inline void print(const ClinicalCode & code, std::shared_ptr<StringLookup> looku
     if (code.null()) {
 	std::cout << "Null";
     } else if (code.invalid()) {
-	std::cout << code.name(lookup) << " (Invalid)";
+	std::cout << Colour::ORANGE	
+		  << code.name(lookup) << " (Invalid)"
+		  << Colour::RESET;
     } else {
 	auto code_groups{code.groups(lookup)};
 	if (not code_groups.empty()) {
