@@ -19,16 +19,6 @@ int main() {
 
     SpellRows row{Timestamp{123}, 10, parser};
 
-    try {
-	while (true) {
-	    Episode episode{row, parser};
-	    episode.print(lookup);
-	    std::cout << std::endl;
-	    row.fetch_next_row();
-	}
-	    
-    } catch (const RowBufferException::NoMoreRows &) {
-	std::cout << "Finished fetching all rows" << std::endl;
-    }
-
+    Spell spell{row, parser};
+    spell.print(lookup);
 }

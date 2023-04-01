@@ -2,10 +2,11 @@
 #define SPELL_HPP
 
 #include "episode.hpp"
+#include "row_buffer.hpp"
 
 class Spell {
 public:
-    Spell(RowBuffer auto & row, ClinicalCodeParser & parser) {
+    Spell(RowBuffer auto & row, std::shared_ptr<ClinicalCodeParser> parser) {
 	// Assume the next row is the start of a new spell
 	// block. Push back to the episodes vector one row
 	// per episode.
@@ -14,22 +15,20 @@ public:
 	try {
 	    spell_id_ = column<Varchar>("spell_id", row).read();
 	    spell_start_ = column<Timestamp>("spell_start", row);
-	    spell_end_ = column<Timestamp>("spell_end", row);
-	} catch (const std::out_of_range & e) {
-	    std::cout << e.what() << std::endl;
+            spell_end_ = column<Timestamp>("spell_end", row);
+	} catch (const RowBufferException::ColumnNotFound &) {
 	    throw std::runtime_error("Missing required column in Spell constructor");
-	} catch (const std::bad_variant_access &) {
+	} catch (const RowBufferException::WrongColumnType &) {
 	    throw std::runtime_error("Column type errors in Spell constructor");
 	}
-	
-	while (column<Varchar>("spell_id", row).read() == spell_id_) {
-	    try {
+
+	try {
+	    while (column<Varchar>("spell_id", row).read() == spell_id_) {
 		episodes_.push_back(Episode{row, parser});
 		row.fetch_next_row();
-	    } catch (std::logic_error & ) {
-		// No more rows
-		break;
 	    }
+	} catch (const RowBufferException::NoMoreRows &) {
+	    // No more rows
 	}
     }
     
@@ -43,14 +42,17 @@ public:
 	return episodes_;
     }
 
-    void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
-	std::cout << " Spell " << spell_id_ << std::endl << "  ";
+    void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 4) const {
+	std::cout << std::string(pad, ' ');
+	std::cout << "Spell " << spell_id_ << std::endl;
+	std::cout << std::string(pad, ' ');
 	spell_start_.print();
 	std::cout << " - ";
 	spell_end_.print();
-	std::cout << std::endl;
+	std::cout << std::endl << std::endl;
 	for (const auto & episode : episodes_) {
-	    episode.print(lookup, pad + 2);
+	    episode.print(lookup, pad + 4);
+	    std::cout << std::endl;
 	}
     }
     
