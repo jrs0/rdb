@@ -33,9 +33,10 @@ ClinicalCodeGroup::ClinicalCodeGroup(const std::string & group, std::shared_ptr<
 }
 
 
-ClinicalCodeParser new_clinical_code_parser(const YAML::Node & config,
-					    std::shared_ptr<StringLookup> lookup) {
+std::shared_ptr<ClinicalCodeParser>
+new_clinical_code_parser(const YAML::Node & config,
+			 std::shared_ptr<StringLookup> lookup) {
     auto procedure_file{config["procedure_file"].as<std::string>()};
     auto diagnosis_file{config["diagnosis_file"].as<std::string>()};
-    return {procedure_file, diagnosis_file, lookup};
+    return std::make_shared<ClinicalCodeParser>(procedure_file, diagnosis_file, lookup);
 }

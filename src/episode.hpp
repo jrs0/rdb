@@ -12,10 +12,10 @@
 ClinicalCode
 read_clinical_code_column(const std::string & column_name,
 			  CodeType code_type, RowBuffer auto & row,
-			  ClinicalCodeParser & parser) {
+			  std::shared_ptr<ClinicalCodeParser> parser) {
     try {
 	auto raw{column<Varchar>(column_name, row).read()};
-	return parser.parse(code_type, raw);
+	return parser->parse(code_type, raw);
     } catch (const Varchar::Null &) {
 	// Column is null, record empty code
 	return ClinicalCode{};
@@ -29,7 +29,7 @@ read_clinical_code_column(const std::string & column_name,
 /// runtime error for missing columns or invalid types.
 std::vector<ClinicalCode>
 read_secondary_columns(const std::string & prefix, CodeType code_type,
-		       RowBuffer auto & row, ClinicalCodeParser & parser) {
+		       RowBuffer auto & row, std::shared_ptr<ClinicalCodeParser> parser) {
     std::vector<ClinicalCode> secondaries;
     for (std::size_t n{0}; true; n++) {
 	auto column_name{prefix + std::to_string(n)};
@@ -73,7 +73,7 @@ public:
     /// <n> is a non-negative integer. The first column that is not found
     /// signals the end of the block of secondary columns. The function will
     /// short circuit on a NULL or empty (whitespace) secondary column.
-    Episode(RowBuffer auto & row, ClinicalCodeParser & parser) {
+    Episode(RowBuffer auto & row, std::shared_ptr<ClinicalCodeParser> parser) {
 
         episode_start_ = column<Timestamp>("episode_start", row);
         episode_end_ = column<Timestamp>("episode_end", row);

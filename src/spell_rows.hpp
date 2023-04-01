@@ -6,14 +6,14 @@
 #include "sql_types.hpp"
 #include "random.hpp"
 
-/*
+
 class SpellRows {
 public:
-    SpellRows(const Timestamp & start, std::size_t num_episodes) {
+    SpellRows(const Timestamp & start, std::size_t num_episodes,
+	      std::shared_ptr<ClinicalCodeParser> parser) {
 
         Seed seed{57};
         auto gen{Generator<std::size_t,0,1>(seed)};
-        ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml"};
 
         for (std::size_t n{0}; n < num_episodes; n++) {
             EpisodeRowBuffer row{start, start + 24*60*60};
@@ -28,29 +28,24 @@ public:
     T at(std::string column_name) const {
         if (column_name == "spell_id") {
             if constexpr (std::is_same_v<T, Varchar>) {
-return spell_id_;
+		return spell_id_;
             } else {
                 throw std::runtime_error("spell_id is Varchar");
             }
         } else if (column_name == "spell_start") {
             if constexpr (std::is_same_v<T, Timestamp>) {
-return spell_start_;
+		return spell_start_;
             } else {
                 throw std::runtime_error("spell_start is Timestamp");
             }
         } else if (column_name == "spell_end") {
             if constexpr (std::is_same_v<T, Timestamp>) {
-return spell_end_;
+		return spell_end_;
             } else {
                 throw std::runtime_error("spell_end is Timestamp");
             }
         }
         return episode_rows_[current_row_].template at<T>(column_name);
-    }
-
-    /// Returns the number of columns
-    std::size_t size() const {
-        return episode_rows_[0].size();
     }
 
     void fetch_next_row() {
@@ -67,6 +62,5 @@ private:
     Timestamp spell_end_{123};
     std::vector<EpisodeRowBuffer> episode_rows_;
 };
-*/
 
 #endif

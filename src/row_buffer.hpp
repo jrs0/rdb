@@ -1,13 +1,13 @@
 #ifndef ROW_BUFFER_HPP
 #define ROW_BUFFER_HPP
 
+#include "sql_types.hpp"
 #include <string>
 
 template<class T>
-concept RowBuffer = requires(T t, const std::string & s)
-    {
-     t.size();
-    };
+concept RowBuffer = requires(T t, const std::string & s) {
+    t.template at<Varchar>(s);
+};
 
 /// Get a column from the row buffer. Throws out_of_range if
 /// the column is not found.

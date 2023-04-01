@@ -2,25 +2,28 @@
 #include "../episode.hpp"
 #include "../episode_row.hpp"
 #include "../string_lookup.hpp"
+#include "../config.hpp"
+
 
 /// Note that this test uses the codes files in the top level of
 /// the repository. TODO move them somewhere accessible.
 TEST(Episode, SetDiagnosesAndProcedures) {
 
-    Episode episode;
     auto lookup{new_string_lookup()};
-    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml", lookup};
-
+    auto config{load_config_file("../../config.yaml")};
+    auto parser{new_clinical_code_parser(config["parser"], lookup)};
+    Episode episode;
+    
     // Add a selection of diagnoses
-    episode.set_primary_diagnosis(parser.parse(CodeType::Diagnosis, "I210"));
-    episode.push_secondary_diagnosis(parser.parse(CodeType::Diagnosis, "I220"));
-    episode.push_secondary_diagnosis(parser.parse(CodeType::Diagnosis, "I240"));
+    episode.set_primary_diagnosis(parser->parse(CodeType::Diagnosis, "I210"));
+    episode.push_secondary_diagnosis(parser->parse(CodeType::Diagnosis, "I220"));
+    episode.push_secondary_diagnosis(parser->parse(CodeType::Diagnosis, "I240"));
 
     // Add a selection of procedures including a duplicate
-    episode.set_primary_procedure(parser.parse(CodeType::Procedure, "K432"));
-    episode.push_secondary_procedure(parser.parse(CodeType::Procedure, "K111"));
-    episode.push_secondary_procedure(parser.parse(CodeType::Procedure, "K221"));
-    episode.push_secondary_procedure(parser.parse(CodeType::Procedure, "K221"));
+    episode.set_primary_procedure(parser->parse(CodeType::Procedure, "K432"));
+    episode.push_secondary_procedure(parser->parse(CodeType::Procedure, "K111"));
+    episode.push_secondary_procedure(parser->parse(CodeType::Procedure, "K221"));
+    episode.push_secondary_procedure(parser->parse(CodeType::Procedure, "K221"));
 
     // Check the primaries
     EXPECT_EQ(episode.primary_diagnosis().name(lookup), "I21.0");
@@ -53,7 +56,8 @@ TEST(Episode, DiagnosesAndProceduresFromRow) {
     row.set_secondary_procedures({"  K111 ", "K221", "  K221 "});
 
     auto lookup{new_string_lookup()};
-    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml", lookup};
+    auto config{load_config_file("../../config.yaml")};
+    auto parser{new_clinical_code_parser(config["parser"], lookup)};
     Episode episode{row, parser};
 
     // Check the primaries
@@ -85,9 +89,10 @@ TEST(Episode, DiagnosesAndProceduresShortCircuit) {
     row.set_secondary_procedures({"K221", "   " , "  "});
 
     auto lookup{new_string_lookup()};
-    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml", lookup};
+    auto config{load_config_file("../../config.yaml")};
+    auto parser{new_clinical_code_parser(config["parser"], lookup)};
     Episode episode{row, parser};
-
+   
     // Check the secondaries
     EXPECT_EQ(episode.secondary_diagnoses().size(), 2);
     EXPECT_EQ(episode.secondary_procedures().size(), 1);
@@ -98,7 +103,8 @@ TEST(Episode, DiagnosesAndProceduresShortCircuit) {
 TEST(Episode, EpisodeRowColumnCheck) {
 
     auto lookup{new_string_lookup()};
-    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml", lookup};
+    auto config{load_config_file("../../config.yaml")};
+    auto parser{new_clinical_code_parser(config["parser"], lookup)};
     
     /// Missing primary diagnosis column
     { 

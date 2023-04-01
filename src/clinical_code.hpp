@@ -214,7 +214,7 @@ private:
 };
 
 /// Make a new parser from a configuration block
-ClinicalCodeParser
+std::shared_ptr<ClinicalCodeParser>
 new_clinical_code_parser(const YAML::Node &config,
                          std::shared_ptr<StringLookup> lookup);
 

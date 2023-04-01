@@ -14,6 +14,9 @@ add_library(rdb SHARED yaml.cpp category.cpp clinical_code.cpp random.cpp string
 add_executable(spells spells.cpp)
 target_link_libraries(spells rdb odbc yaml-cpp)
 
+add_executable(main main.cpp)
+target_link_libraries(main rdb odbc yaml-cpp)
+
 # Compile tests if they are enabled
 if(WITH_TESTS)
   set(INSTALL_GTEST OFF)
