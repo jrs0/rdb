@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_compile_options(-Wall -Wextra -fmax-errors=5 -g -pg -fno-omit-frame-pointer)
 add_link_options(-pg -fno-omit-frame-pointer)
 
-add_library(rdb SHARED yaml.cpp category.cpp clinical_code.cpp random.cpp string_lookup.cpp config.cpp cmdline.cpp)
+add_library(rdb SHARED yaml.cpp category.cpp clinical_code.cpp random.cpp string_lookup.cpp config.cpp cmdline.cpp sql_debug.cpp)
 
 add_executable(spells spells.cpp)
 target_link_libraries(spells rdb odbc yaml-cpp)
@@ -29,7 +29,7 @@ if(WITH_TESTS)
 
   enable_testing()
 
-  add_executable(run-gtest gtest/string_lookup.cpp gtest/clinical_code.cpp gtest/episode.cpp)
+  add_executable(run-gtest gtest/string_lookup.cpp gtest/clinical_code.cpp gtest/episode.cpp gtest/parser.cpp)
   target_link_libraries(run-gtest gtest_main rdb yaml-cpp odbc)
 
   include(GoogleTest)

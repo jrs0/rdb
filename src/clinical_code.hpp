@@ -185,6 +185,9 @@ public:
 		ClinicalCodeData clinical_code_data{cache_entry, lookup_};
 		return ClinicalCode{clinical_code_data};
 	    }
+	    default:
+		// To remove compiler warning "control reaches end of non-void function"
+		throw std::runtime_error("Not expecting to get here in parse()");
 	    }
 	} catch (const ParserException::Empty &) {
 	    // If the code is empty, return the null-clinical code
@@ -204,6 +207,9 @@ public:
 	    return procedure_parser_.random_code(gen);
 	case CodeType::Diagnosis:
 	    return diagnosis_parser_.random_code(gen);
+	default:
+	    // To remove compiler warning "control reaches end of non-void function"
+	    throw std::runtime_error("Not expecting to get here in random_code()");
 	}
     }
     

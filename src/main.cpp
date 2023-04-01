@@ -11,7 +11,7 @@
 
 #include "cmdline.hpp"
 
-int main(int argc, char ** argv) {
+int main() {
 
     auto lookup{new_string_lookup()};
     auto config{load_config_file("../../config.yaml")};

@@ -5,7 +5,7 @@
 #include "episode_row.hpp"
 #include "sql_types.hpp"
 #include "random.hpp"
-
+#include "row_buffer.hpp"
 
 class SpellRows {
 public:
@@ -45,13 +45,17 @@ public:
                 throw std::runtime_error("spell_end is Timestamp");
             }
         }
-        return episode_rows_[current_row_].template at<T>(column_name);
+	try {
+	    return episode_rows_[current_row_].template at<T>(column_name);
+	} catch (const std::out_of_range &) {
+	    throw RowBufferException::ColumnNotFound{};
+	}
     }
 
     void fetch_next_row() {
         current_row_++;
         if (current_row_ == episode_rows_.size()) {
-            throw std::logic_error("No more rows");
+            throw RowBufferException::NoMoreRows{};
         }
     }
 

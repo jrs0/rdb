@@ -7,13 +7,7 @@
 
 #include <sql.h>
 #include <sqlext.h>
-#include "debug.hpp"
-
-void throw_unimpl_sql_type(const std::string & type) {
-    std::stringstream ss;
-    ss << "Type '" << type << "' not yet implemented";
-    throw std::runtime_error(ss.str());
-}
+#include "sql_debug.hpp"
 
 // Could not determine the returned data length
 struct SqlNoTotal{};
