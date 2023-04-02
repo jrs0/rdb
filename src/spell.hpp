@@ -22,13 +22,9 @@ public:
 	    throw std::runtime_error("Column type errors in Spell constructor");
 	}
 
-	try {
-	    while (column<Varchar>("spell_id", row).read() == spell_id_) {
-		episodes_.push_back(Episode{row, parser});
-		row.fetch_next_row();
-	    }
-	} catch (const RowBufferException::NoMoreRows &) {
-	    // No more rows
+	while (column<Varchar>("spell_id", row).read() == spell_id_) {
+	    episodes_.push_back(Episode{row, parser});
+	    row.fetch_next_row();
 	}
     }
     

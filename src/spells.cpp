@@ -42,16 +42,12 @@ int main(int argc, char ** argv) {
     try {
 	auto row{sql_connection.execute_direct(sql_query)};
 	while (true) {
-	    Episode episode{row, parser};
-	    episode.print(lookup);
+	    Spell spell{row, parser};
+	    spell.print(lookup);
 	    std::cout << std::endl;
-	    row.fetch_next_row();
 	}
 	    
     } catch (const RowBufferException::NoMoreRows &) {
 	std::cout << "Finished fetching all rows" << std::endl;
     }
-
-    
-
 }
