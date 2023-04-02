@@ -39,15 +39,28 @@ int main(int argc, char ** argv) {
 
     std::cout << sql_query << std::endl;
 
-    try {
-	auto row{sql_connection.execute_direct(sql_query)};
-	while (true) {
-	    Spell spell{row, parser};
-	    spell.print(lookup);
-	    std::cout << std::endl;
+    auto row{sql_connection.execute_direct(sql_query)};
+    std::vector<Spell> spells;
+    
+    while (true) {
+	try {
+	    spells.push_back(Spell{row, parser});
+	} catch (const RowBufferException::NoMoreRows &) {
+	    std::cout << "Finished fetching all rows" << std::endl;
+	    break;
 	}
-	    
-    } catch (const RowBufferException::NoMoreRows &) {
-	std::cout << "Finished fetching all rows" << std::endl;
+    }
+
+    struct {
+	bool operator()(const Spell & a, const Spell & b) const {
+	    return a.start_date() < b.start_date();
+	}
+    } by_start_date;
+
+    std::ranges::sort(spells, by_start_date);
+
+    for (const auto & spell : spells) {
+	spell.print(lookup);
+	std::cout << std::endl;
     }
 }

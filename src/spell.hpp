@@ -38,6 +38,10 @@ public:
 	return episodes_;
     }
 
+    auto start_date() const {
+	return spell_start_;
+    }
+    
     void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 4) const {
 	std::cout << std::string(pad, ' ');
 	std::cout << "Spell " << spell_id_ << std::endl;
