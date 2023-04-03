@@ -5,16 +5,8 @@ test_cpp <- function(thing) {
     .Call(`_rdb_test_cpp`, thing)
 }
 
-make_acs_dataset <- function(config_path_chr) {
-    .Call(`_rdb_make_acs_dataset`, config_path_chr)
-}
-
 test_random_code <- function() {
     invisible(.Call(`_rdb_test_random_code`))
-}
-
-debug_sql <- function(dsn_character, query_character) {
-    invisible(.Call(`_rdb_debug_sql`, dsn_character, query_character))
 }
 
 parse_code <- function(file, code, what) {

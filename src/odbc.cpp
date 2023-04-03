@@ -14,132 +14,12 @@
 #include "random.hpp"
 #include "mem_row_buffer.hpp"
 #include "acs.hpp"
+#include "Rcpp.h"
 
 // [[Rcpp::export]]
-Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path_chr) {
-
-    //auto config_path{Rcpp::as<std::string>(config_path_chr)};
-    auto config_path{Rcpp::as<std::string>(config_path_chr)};
-    try {
-	YAML::Node config = YAML::LoadFile(config_path);
-
-	std::cout << "Configuration: " << std::endl
-		  << config << std::endl << std::endl;
-
-	// Get the records, one per index event, along with
-	// procedures/diagnoses before and after
-	auto records{get_acs_records(config)};
-
-	// Use the codes files to obtain the full list of
-	// diagnosis/procedure columns names
-	TopLevelCategory procedures {
-	    load_codes_helper(config["parser_config"]["procedures"])
-	};
-	TopLevelCategory diagnoses {
-	    load_codes_helper(config["parser_config"]["diagnoses"])
-	};
-	auto all_groups{set_union(procedures.all_groups(),
-				  diagnoses.all_groups())};
-	
-	// Make a table to store the counts.
-	std::map<std::string, Rcpp::NumericVector> event_counts;
-
-	// Make a vector to store the nhs numbers. Convert back
-	// to characters so there are no overflow issues with 64
-	// bit ints in R
-	Rcpp::CharacterVector nhs_numbers;
-
-	// Make a vector of timestamps for the date of each index
-	// event
-	Rcpp::NumericVector index_dates;
-
-	// The event triggering inclusion as an index event
-	Rcpp::CharacterVector index_type;
-
-	// The event triggering inclusion as an index event
-	Rcpp::NumericVector age_at_index;
-	
-	// The event triggering inclusion as an index event
-	Rcpp::LogicalVector stemi_presentation;
-
-	// Whether death occured in the "after" period
-	//Rcpp::NumericVector death_after;
-
-	// Cause of death (if it occured)
-	//Rcpp::CharacterVector cause_of_death;
-	
-	// Loop over all the diagnosis and procedure groups and
-	// create columns
-	for (const auto & record : records) {
-
-	    // Get the counts before and after for this record
-	    auto before{record.counts_before()};
-	    auto after{record.counts_after()};
-	    
-	    // Add all the counts columns 
-	    for (const auto & group : all_groups) {
-		event_counts[group + "_before"].push_back(before[group]);
-		event_counts[group + "_after"].push_back(after[group]);
-	    }
-
-	    // Get the nhs number
-	    nhs_numbers.push_back(std::to_string(record.nhs_number()));
-
-	    // Get the index event date
-	    index_dates.push_back(record.index_date());
-
-	    // Get the index event type
-	    index_type.push_back(record.index_type());
-
-	    // Get the stemi presentation flag
-	    stemi_presentation.push_back(record.stemi_presentation());
-
-	    // Age at the index event episode
-	    try {
-		age_at_index.push_back(record.age_at_index().value());
-	    } catch (const std::bad_optional_access &) {
-		age_at_index.push_back(NA_REAL);		
-	    }
-
-	    
-	}
-
-	
-	// Make the final R dataset
-	Rcpp::List table_r;
-
-	// Put the nhs number and index date in the list
-	table_r["nhs_number"] = nhs_numbers;
-	table_r["index_date"] = index_dates;
-	table_r["index_type"] = index_type;
-	table_r["age_at_index"] = age_at_index;
-	table_r["stemi_presentation"] = stemi_presentation;
-	//table_r["death_after"] = death_after;
-	//table_r["cause_of_death"] = cause_of_death;
-	
-	// Put all the columns in an R table
-	for (const auto [column_name, counts] : event_counts) {
-	    table_r[column_name] = counts;
-	}
-
-
-	return table_r;
-	
-    } catch(const YAML::BadFile& e) {
-	throw std::runtime_error("Bad YAML file");
-    } catch(const YAML::ParserException& e) {
-	throw std::runtime_error("YAML parsing error");
-    } catch (const std::runtime_error & e) {
-	//Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
-	std::cout << "Failed with error "  << e.what() << std::endl;
-	return Rcpp::List{};
-    } catch (const NullValue & ) {
-	Rcpp::Rcout << "An unhandled NULL value occured"
-		    << std::endl;
-	return Rcpp::List{};
-    }
+void test() {
+    
 }
-
 #include "random.hpp"
 
 // [[Rcpp::export]]
@@ -158,7 +38,7 @@ void test_random_code() {
     // 	      << std::endl;
 }
 
-
+/*
 // [[Rcpp::export]]
 void debug_sql(const Rcpp::CharacterVector & dsn_character,
 	       const Rcpp::CharacterVector & query_character) {
@@ -197,6 +77,7 @@ void debug_sql(const Rcpp::CharacterVector & dsn_character,
 		    << std::endl;	
     }
 }
+*/
 
 /*
 // [[Rcpp::export]]

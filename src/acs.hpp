@@ -31,6 +31,7 @@
 #include "patient.hpp"
 #include "set_utils.hpp"
 
+/*
 /// Index episode are those that contain
 /// an ACS or a PCI diagnosis. There is at most
 /// one index event from every spell -- this is
@@ -450,5 +451,5 @@ std::vector<Record> get_acs_records(const YAML::Node & config) {
     
     return records;
 }
-
+*/
 #endif

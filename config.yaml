@@ -28,8 +28,8 @@
 #  
 
 connection: 
-  #dsn: xsw
-  cred: /root/db.secret.yaml
+  dsn: xsw
+  #cred: /root/db.secret.yaml
 
 
 parser:

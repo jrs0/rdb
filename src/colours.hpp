@@ -17,6 +17,6 @@ namespace Colour {
     const std::string PINK{"\033[1;38;5;207m"};
     const std::string PALE{"\033[1;38;5;159m"};
     const std::string RESET{"\033[0m"};
-};
+}
 
 #endif
