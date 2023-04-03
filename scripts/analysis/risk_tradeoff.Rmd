@@ -9,7 +9,6 @@ output:
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Test change for model branch (magit)
 library(tidyverse)
 library(knitr)
 
@@ -59,7 +58,7 @@ split <- initial_split(dataset, prop = 0.75, strata = bleeding_after)
 train <- training(split)
 test <- testing(split)
 
-num_resamples <- 15
+num_resamples <- 3
 
 ## Create cross-validation folds
 resamples_from_train <- bootstraps(train, times = num_resamples)
@@ -381,7 +380,7 @@ roc_curves %>%
 \newpage
 ## Variability in risk predictions by model
 
-The purpose of this plot is to assess the variability inherent in fitting eahc model, and the variability between models. Each model has a small cluster (from bootstrap resampling), and the proximity of the clusters shows how well the models agree.
+The purpose of this plot is to assess the variability inherent in fitting each model, and the variability between models. Each model has a small cluster (from bootstrap resampling), and the proximity of the clusters shows how well the models agree.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
 ## For one patient, plot all the model predictions. This graph is supposed
@@ -400,8 +399,8 @@ grouped_pred %>%
     ##filter(id %in% c(1,20,23,43, 100, 101, 102)) %>%
     ggplot(aes(x = bleed, y = ischaemia, color=model_name, shape = primary)) +
     geom_point() +
-    scale_y_log10() +
-    scale_x_log10() +
+    ## scale_y_log10() +
+    ## scale_x_log10() +
     labs(title = "Plot of risk predictions from all models for some patients") +
     facet_wrap( ~ patient_id, ncol=2) +
     theme_minimal(base_size = 16)
