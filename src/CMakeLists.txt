@@ -11,10 +11,12 @@ add_link_options(-pg -fno-omit-frame-pointer)
 
 add_library(rdb SHARED yaml.cpp category.cpp clinical_code.cpp random.cpp string_lookup.cpp config.cpp cmdline.cpp sql_debug.cpp)
 
-add_executable(spells spells.cpp)
+include_directories(${CMAKE_SOURCE_DIR}/)
+
+add_executable(spells programs/spells.cpp)
 target_link_libraries(spells rdb odbc yaml-cpp)
 
-add_executable(main main.cpp)
+add_executable(main programs/main.cpp)
 target_link_libraries(main rdb odbc yaml-cpp)
 
 # Compile tests if they are enabled

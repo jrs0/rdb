@@ -1,13 +1,13 @@
 #include <iostream>
 //#include "acs.hpp"
-#include "clinical_code.hpp"
-#include "episode.hpp"
-#include "episode_row.hpp"
-#include "spell_rows.hpp"
-#include "spell.hpp"
-#include "config.hpp"
-#include "sql_query.hpp"
-#include "sql_connection.hpp"
+#include "../clinical_code.hpp"
+#include "../episode.hpp"
+#include "../episode_row.hpp"
+#include "../spell_rows.hpp"
+#include "../spell.hpp"
+#include "../config.hpp"
+#include "../sql_query.hpp"
+#include "../sql_connection.hpp"
 
 #include "cmdline.hpp"
 

@@ -42,7 +42,7 @@ public:
 	return spell_start_;
     }
     
-    void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 4) const {
+    void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
 	std::cout << std::string(pad, ' ');
 	std::cout << "Spell " << spell_id_ << std::endl;
 	std::cout << std::string(pad, ' ');
