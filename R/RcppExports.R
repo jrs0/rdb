@@ -5,15 +5,3 @@ test_cpp <- function(thing) {
     .Call(`_rdb_test_cpp`, thing)
 }
 
-test_random_code <- function() {
-    invisible(.Call(`_rdb_test_random_code`))
-}
-
-parse_code <- function(file, code, what) {
-    .Call(`_rdb_parse_code`, file, code, what)
-}
-
-dump_groups <- function(file) {
-    .Call(`_rdb_dump_groups`, file)
-}
-
