@@ -1,5 +1,5 @@
 ---
-title: "Modelling Bleeding and Ischaemia Risk in patients prescribed dual antiplatelet therapy"
+title: "Modelling Bleeding and Ischaemia Risk in Patients Prescribed Dual Antiplatelet Therapy"
 subtitle: "Classification models based on diagnosis/procedures codes from HES data"
 date: "`r Sys.Date()`"
 output:
@@ -22,6 +22,8 @@ library(lubridate)
 library(knitr)
 
 library(corrplot)
+
+options(width = 80)
 
 ## Set the working directory to the location of this script
 
@@ -58,7 +60,7 @@ split <- initial_split(dataset, prop = 0.75, strata = bleeding_after)
 train <- training(split)
 test <- testing(split)
 
-num_resamples <- 3
+num_resamples <- 15
 
 ## Create cross-validation folds
 resamples_from_train <- bootstraps(train, times = num_resamples)
