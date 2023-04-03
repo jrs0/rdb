@@ -29,14 +29,14 @@ source("model.R")
 source("plots.R")
         
 ## Load the data and convert the bleeding outcome to a factor
-## (levels no_bleed, bleed_occured). The result is a dataset with age and
+## (levels no_bleed, bleed_occurred). The result is a dataset with age and
 ## all the ICD <code>_before columns, and a response variable bleed.
 
 raw_dataset <- readRDS("gendata/medium_dataset.rds")
 
 dataset <- raw_dataset %>%
-    mutate(bleeding_after = factor(bleeding_after == 0, labels = c("bleed_occured", "no_bleed"))) %>%
-    mutate(ischaemia_after = factor(ischaemia_after == 0, labels = c("ischaemia_occured", "no_ischaemia"))) %>%
+    mutate(bleeding_after = factor(bleeding_after == 0, labels = c("bleed_occurred", "no_bleed"))) %>%
+    mutate(ischaemia_after = factor(ischaemia_after == 0, labels = c("ischaemia_occurred", "no_ischaemia"))) %>%
     drop_na() %>%
     ## Remove the after columns
     dplyr::select(- (matches("after") & !matches("(bleeding_after|ischaemia_after)")), - nhs_number) %>%
@@ -121,9 +121,9 @@ pred_bleed <- list(names(models), models) %>%
             mutate(outcome_name = "bleed") %>%
             mutate(outcome_result =
                        recode_factor(bleeding_after,
-                                     "bleed_occured" = "occured",
+                                     "bleed_occurred" = "occurred",
                                      "no_bleed" = "none")) %>%
-            rename(.pred_occured = .pred_bleed_occured) %>%
+            rename(.pred_occurred = .pred_bleed_occurred) %>%
             mutate(removals = if_else(model_id == "primary",
                                       list(removals = removals),
                                       list(removals = NULL)))
@@ -143,9 +143,9 @@ pred_ischaemia <- list(names(models), models) %>%
             mutate(outcome_name = "ischaemia") %>%
             mutate(outcome_result =
                        recode_factor(ischaemia_after,
-                                     "ischaemia_occured" = "occured",
+                                     "ischaemia_occurred" = "occurred",
                                      "no_ischaemia" = "none")) %>%
-            rename(.pred_occured = .pred_ischaemia_occured) %>%
+            rename(.pred_occurred = .pred_ischaemia_occurred) %>%
             mutate(removals = if_else(model_id == "primary",
                                       list(removals = removals),
                                       list(removals = NULL)))
@@ -228,11 +228,11 @@ grouped_pred <- pred %>%
 
 ## Compute the ROC curves
 roc_curves <- grouped_pred %>%
-    roc_curve(outcome_result, .pred_occured)
+    roc_curve(outcome_result, .pred_occurred)
 
 ## Compute the AUC
 roc_auc <- grouped_pred %>%
-    roc_auc(outcome_result, .pred_occured) %>%
+    roc_auc(outcome_result, .pred_occurred) %>%
     rename(auc = .estimate) %>%
     dplyr::select(model_name, outcome_name, model_id, primary, auc) %>%
     group_by(model_name, outcome_name)
@@ -240,13 +240,11 @@ roc_auc <- grouped_pred %>%
 
 # Overview of the problem
 
-Patients on dual antiplatelet therapy (following percutaneous coronary intervention or other procedures) to reduce their ischaemic risk are at increased risk of bleeding. 
+Patients on dual antiplatelet therapy to reduce their ischaemic risk are at increased risk of bleeding. Risk factors for both bleeding and ischaemia have been previously investigated in several studies, and several qualitative risk scores exist. These are often based on a mixture of patient characteristics at the time of the intervention (such as current comorbidities), and patient history of related diagnoses and procedures. The purpose of this report is to try to extract this information, or proxies for this information, from hospital episodes statistics (HES) data.
 
-Risk factors for both bleeding and ischaemia have been previously investigated in several studies, and several qualitative risk scores exist. These are often based on a mixture of patient characteristics at the time of the intervention (such as current comorbidities), and patient history of related diagnoses and procedures. The purpose of this report is to try to extract this information, or proxies for this information, from hospital episodes statistics (HES) data.
+More detailed relevant information is available from other data sources -- for example, the record of blood test results stored in hospital systems. However, a trade-off exists between finding data sources that are generic enough that they are likely available everywhere, vs. data sources that may not be easily generalized. HES data is the simplest data sources that is guaranteed to be present for all hospitals in the UK. HES data is not a real-time data source, but can be used to initially develop and validate different approaches to ischaemia/bleeding risk modelling.
 
-More detailed relevant information is available from other data sources -- for example, the record of blood test results stored in hospital systems. However, a trade-off exists between finding data sources that are generic enough that they are likely available everywhere, vs. data sources that may not be easily generalised. HES data is the simplest data sources that is guaranteed to be present for all hospitals in the UK.
-
-A summary of the modelling results is shown in the table below. For more information, see [Classification models].
+In this report, several classification models are used to predict bleeding/ischaemia. A summary of the modelling results is shown in the table below. For more information, see [Classification models].
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
 ## Summarise the AUC (should add primary AUC here)
@@ -270,7 +268,7 @@ Each row of the dataset corresponds to an episode with either an ACS or PCI code
 
 The start date of the index episode is used as the index date. A flag records whether the triggering event was a diagnosis or a procedure. The patient age at that episode is recorded.
 
-For each patient, all other diagnoses and procedures in all primary and secondary fields of all other episodes are retrieved. The number of occurances of diagnosis and procedure code groups (as defined in the codes definition file; see the appendix) are counted up in a defined period before and after the index event. The results of this tally form the majority of the columns of the dataset; there are two columns for each diagnosis and procedure group.
+For each patient, all other diagnoses and procedures in all primary and secondary fields of all other episodes are retrieved. The number of occurrences of diagnosis and procedure code groups (as defined in the codes definition file; see the appendix) are counted up in a defined period before and after the index event. The results of this tally form the majority of the columns of the dataset; there are two columns for each diagnosis and procedure group.
 
 \newpage
 ## ACS event over time
@@ -286,7 +284,7 @@ There are `r num_acs_patients` index events in the dataset, between the dates `r
 \newpage
 ## Distribution of predictors by outcome
 
-The four quadrants show the four possible bleeding/ischaemia outcomes, along with the mean number of occurances of the event on the x-axis before the ACS event. 
+The four quadrants show the four possible bleeding/ischaemia outcomes, along with the mean number of occurrences of the event on the x-axis before the ACS event. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
 plot_predictors_distributions(raw_dataset)
@@ -389,9 +387,9 @@ The purpose of this plot is to assess the variability inherent in fitting each m
 grouped_pred %>%
     ungroup() %>%
     dplyr::select(patient_id, model_name, outcome_name,
-                  primary, model_id, .pred_occured) %>%
+                  primary, model_id, .pred_occurred) %>%
     pivot_wider(names_from = "outcome_name",
-                values_from = ".pred_occured") %>%
+                values_from = ".pred_occurred") %>%
     ## Pick only one patient. The idea is to plot all the predictions for just
     ## that one patient
     filter(patient_id %in% sample(patient_id, size = 4)) %>%
@@ -409,15 +407,15 @@ grouped_pred %>%
 \newpage
 ## Risk trade-off plots for each model
 
-Plots of risk tradeoff for each model. The plot includes the model predictions corresponding to STEMI presentations explicitly.
+Plots of risk trade-off for each model. The plot includes the model predictions corresponding to STEMI presentations explicitly.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
 ## Plot of the risk trade-off graph for each model (using the primary model)
 grouped_pred %>%
     ungroup() %>%
     filter(primary == "primary") %>%
-    dplyr::select(stemi_presentation, patient_id, outcome_name, model_name, .pred_occured) %>%
-    pivot_wider(names_from = outcome_name, values_from = .pred_occured) %>%
+    dplyr::select(stemi_presentation, patient_id, outcome_name, model_name, .pred_occurred) %>%
+    pivot_wider(names_from = outcome_name, values_from = .pred_occurred) %>%
     ggplot(aes(x = bleed, y = ischaemia, color = stemi_presentation)) +
     geom_point() +
     facet_wrap( ~ model_name, ncol=2) +
@@ -427,7 +425,7 @@ grouped_pred %>%
 \newpage
 # Appendix
 
-A bespoke program reads the ICD and OPCS codes in the HES database and parses them into code groups, shown in the sections below. In important feature of the program is its ability (after a certain amount of further development) to offer 100% discrimination between different codes and reject invalid codes with no false positives.
+A bespoke program reads the ICD and OPCS codes in the HES database and parses them into code groups, shown in the sections below.
 
 ## ICD 10 codes in the dataset
 
@@ -452,3 +450,6 @@ for (n in seq_along(groups)) {
 ```
 
 
+
+<!--  LocalWords:  acs
+ -->
