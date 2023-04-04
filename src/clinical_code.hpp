@@ -6,6 +6,7 @@
 #include <iostream>
 #include <optional>
 #include <random>
+#include <ranges>
 
 #include "category.hpp"
 #include "colours.hpp"
@@ -135,26 +136,53 @@ public:
 	    return code.group_ids().contains(group_id_);
 	}
     }
+
+    void print(std::shared_ptr<StringLookup> lookup) const {
+	std::cout << lookup->at(group_id_);
+    }
     
 private:
     std::size_t group_id_;
 };
 
+/// A metagroup is a set of clinical code groups
 class ClinicalCodeMetagroup {
 public:
+
+    /// Empty group
+    ClinicalCodeMetagroup() = default;
+    
     ClinicalCodeMetagroup(const YAML::Node & group_list,
 			  std::shared_ptr<StringLookup> lookup) {
 	for (const auto & group : group_list) {
-	    metagroup.emplace_back(group.as<std::string>(), lookup);
+	    groups_.emplace_back(group.as<std::string>(), lookup);
 	}
     }
 
-private:
-    std::vector<ClinicalCodeGroup> metagroup;    
-};
+    void push_back(const ClinicalCodeGroup & code) {
+	groups_.push_back(code);
+    }
 
-/// A metagroup is a set of clinical code groups. The group_list must be a
-/// list-like YAML node containing the names of the groups
+    bool contains(const ClinicalCode & code) {
+	auto contains_code{[&](const auto & group) {
+	    return group.contains(code);
+	}};
+
+	return std::ranges::any_of(groups_, contains_code);
+    }
+
+    void print(std::shared_ptr<StringLookup> lookup) {
+	std::cout << "[";
+	for (const auto & group : groups_) {
+	    group.print(lookup);
+	    std::cout << ",";
+	}
+	std::cout << "]";
+    }
+    
+private:
+    std::vector<ClinicalCodeGroup> groups_;
+};
 
 inline void print(const ClinicalCodeGroup & group, std::shared_ptr<StringLookup> & lookup) {
     std::cout << group.group(lookup) << std::endl;
