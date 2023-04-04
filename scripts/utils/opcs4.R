@@ -55,6 +55,8 @@ section_to_category <- function(name, docs, codes) {
 ##' chapter (the end of the range includes codes which match after
 ##' truncation). The categories list is sorted by index.
 ##'
+##' This function claims it sorts, but it doesn't
+##'
 ##' @title Convert tibble to Category
 ##' @param name The chapter name
 ##' @param docs The chapter description
