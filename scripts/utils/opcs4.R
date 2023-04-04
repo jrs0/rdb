@@ -145,9 +145,25 @@ opcs_get_codes <- function(input_file_path, output_name = "opcs.yaml") {
             chapter_to_category(name, docs, contents)
         })
     
-
-    top_level_category <- list(
+    ## Place the chapters inside one top level category
+    opcs_category <- list(
         categories = categories,
+        docs = "OPCS-4 Classification of Interventions and Procedures (OPCS-4)",
+        name = "OPCS-4",
+        index = categories %>%
+            map(~ .x %>%
+                    pluck("index") %>%
+                    as_tibble()) %>%
+            list_rbind() %>%
+            filter(value == max(value) | value == min(value)) %>%
+            arrange(value) %>%
+            pull(value)
+    )
+    
+    ## Place the entire classification inside one top level category
+    top_level_category <- list(
+        ## Only has one element, but must be a list
+        categories = list(opcs_category),
         groups = list()
     )
 
