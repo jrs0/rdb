@@ -196,4 +196,6 @@ private:
     std::vector<ClinicalCode> secondary_diagnoses_;
 };
 
+
+
 #endif
