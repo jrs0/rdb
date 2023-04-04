@@ -36,7 +36,7 @@ read_secondary_columns(const std::string & prefix, CodeType code_type,
 
 	try {
 	    auto secondary{read_clinical_code_column(column_name, code_type, row, parser)};
-	    if (not secondary.null()) {
+	    if (secondary.valid()) {
 		secondaries.push_back(secondary);
 	    } else {
 		// Found a procedure that is NULL or empty (i.e. whitespace),

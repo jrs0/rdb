@@ -2,7 +2,7 @@
 
 /// Get the code name
 std::string ClinicalCode::name(std::shared_ptr<StringLookup> lookup) const {
-    if (invalid()) {
+    if (not valid()) {
 	return lookup->at(*invalid_);
     } else {
 	return lookup->at(data_->name_id());

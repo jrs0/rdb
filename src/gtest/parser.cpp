@@ -13,7 +13,7 @@ TEST(ParserBoundaries, G069) {
     auto config{load_config_file("../../config.yaml")};
     auto parser{new_clinical_code_parser(config["parser"], lookup)};
     auto code{parser->parse(CodeType::Procedure, "G069 ")};
-    EXPECT_FALSE(code.invalid());
+    EXPECT_TRUE(code.valid());
 }
 
 /// Also incorrect index in file
@@ -22,7 +22,7 @@ TEST(ParserBoundaries, W561) {
     auto config{load_config_file("../../config.yaml")};
     auto parser{new_clinical_code_parser(config["parser"], lookup)};
     auto code{parser->parse(CodeType::Procedure, "  W56.1 ")};
-    EXPECT_FALSE(code.invalid());
+    EXPECT_TRUE(code.valid());
 }
 
 /// Also incorrect index in file
@@ -31,5 +31,5 @@ TEST(ParserBoundaries, W983) {
     auto config{load_config_file("../../config.yaml")};
     auto parser{new_clinical_code_parser(config["parser"], lookup)};
     auto code{parser->parse(CodeType::Procedure, "W983")};
-    EXPECT_FALSE(code.invalid());
+    EXPECT_TRUE(code.valid());
 }

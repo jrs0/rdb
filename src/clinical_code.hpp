@@ -47,7 +47,7 @@ class ClinicalCodeParser;
 class ClinicalCode {
 public:
 
-    struct Empty {};
+    struct Invalid {};
     
     /// Make a null clinical code
     ClinicalCode() = default;
@@ -72,27 +72,18 @@ public:
     /// code
     std::set<std::string> groups(std::shared_ptr<StringLookup> lookup) const;
 
+    auto valid() const {
+	return data_.has_value();
+    }
+
     const auto & group_ids() const {
-	if (not data_) {
-	    throw Empty{};
+	if (not valid()) {
+	    throw Invalid{};
 	} else {
 	    return data_->group_ids();
 	}
     }
-    
-    /// Is the clinical code empty
-    auto null() const {
-	return (not data_.has_value()) and (not invalid_.has_value());
-    }
 
-    /// Is the clinical code invalid? If
-    /// it is, it will still print and show
-    /// the code, but there will be no
-    /// description or groups
-    auto invalid() const {
-	return invalid_.has_value();
-    }
-    
 private:
     std::optional<std::size_t> invalid_{std::nullopt};
     std::optional<ClinicalCodeData> data_{std::nullopt};
@@ -100,9 +91,7 @@ private:
 
 /// Print a clinical code using strings from the lookup
 inline void print(const ClinicalCode & code, std::shared_ptr<StringLookup> lookup) {
-    if (code.null()) {
-	std::cout << "Null";
-    } else if (code.invalid()) {
+    if (not code.valid()) {
 	std::cout << Colour::CYAN	
 		  << code.name(lookup) << " (Unknown)"
 		  << Colour::RESET;
@@ -130,7 +119,7 @@ public:
     std::string group(std::shared_ptr<StringLookup> lookup) const;
 
     bool contains(const ClinicalCode & code) const {
-	if (code.null()) {
+	if (not code.valid()) {
 	    return false;
 	} else {
 	    return code.group_ids().contains(group_id_);
