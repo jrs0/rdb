@@ -10,7 +10,7 @@
 #include "../sql_connection.hpp"
 #include "../patient.hpp"
 
-#include "cmdline.hpp"
+#include "../cmdline.hpp"
 
 void sort_spells_by_date(std::vector<Spell> & spells) {
     std::ranges::sort(spells, [](const auto &a, const auto &b) {

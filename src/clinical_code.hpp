@@ -140,6 +140,16 @@ private:
     std::size_t group_id_;
 };
 
+/// A metagroup is a set of clinical code groups. The group_list must be a
+/// list-like YAML node containing the names of the groups
+std::vector<ClinicalCodeGroup> make_clinical_code_metagroup(const YAML::Node & group_list,
+							    std::shared_ptr<StringLookup> lookup) {
+    std::vector<ClinicalCodeGroup> metagroup;
+    for (const auto & group : group_list) {
+	metagroup.emplace_back(group.as<std::string>(), lookup);
+    }
+}
+
 inline void print(const ClinicalCodeGroup & group, std::shared_ptr<StringLookup> & lookup) {
     std::cout << group.group(lookup) << std::endl;
 }
