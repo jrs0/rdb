@@ -38974,4 +38974,7 @@ categories:
   index:
   - Z01
   - Z99
-groups: []
+groups:
+- pci
+- cabg
+- blood_transfusion
