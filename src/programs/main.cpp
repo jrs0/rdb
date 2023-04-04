@@ -64,7 +64,7 @@ int main(int argc, char ** argv) {
 		}
 		auto & first_episode{episodes[0]};
 		auto primary_acs{acs.contains(first_episode.primary_diagnosis())};
-		auto primary_pci{acs.contains(first_episode.primary_procedure())};
+		auto primary_pci{pci.contains(first_episode.primary_procedure())};
 		return primary_acs or primary_pci;
 	    }};
 	    
