@@ -382,7 +382,7 @@ roc_curves %>%
     geom_line(data = . %>% filter(primary == "bootstrap"),aes(col = "Bootstrap"), alpha = 0.5, size =1.05) +
     geom_line(data = . %>% filter(primary == "primary"),aes(col = "Primary"),size = 1.05) +
     geom_abline(slope = 1, intercept = 0, size = 0.4) +
-    geom_text(aes(x = 0.75, y = 0.25, label = glue::glue("AUC = {round(`Mean AUC`[.data$primary == primary], digits = 2)}")),
+    geom_text(aes(x = 0.75, y = 0.25, label = glue::glue("AUC = {round(`Mean AUC`[primary == 'primary'], digits = 2)}")),
               col = "black",  hjust =0, vjust = 0) +
     coord_fixed() +
     theme_minimal(base_size = 16) +
