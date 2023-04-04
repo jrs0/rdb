@@ -1,3 +1,4 @@
+
 library(tidyverse)
 
 ##' The functions in this file can be used to obtain a blank OPCS4
@@ -9,6 +10,7 @@ section_to_category <- function(name, docs, codes) {
     index <- codes %>%
         dplyr::select(code) %>%
         filter(code == max(code) | code == min(code)) %>%
+        arrange(code) %>%
         mutate(code = str_replace(code, "\\.", "")) %>%
         pull(code)
 
