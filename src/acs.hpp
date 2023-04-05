@@ -33,6 +33,11 @@
 class AcsRecord {
 public:
 
+    AcsRecord(const Spell & index_spell) {
+	auto & first_episode{index_spell.episodes()[0]};
+	age_at_index_ = first_episode.age_at_episode();
+    }
+    
     /// Increment the counter for group in the before map
     void push_before(const ClinicalCodeGroup & group) {
 	before_counts_[group]++;
@@ -45,9 +50,10 @@ public:
 
     void print(std::shared_ptr<StringLookup> lookup) {
 	std::cout << "ACS Record" << std::endl;
-	std::cout << "Counts before:" << std::endl;
+	std::cout << "Age at index: " << age_at_index_ << std::endl;
+	std::cout << "- Counts before:" << std::endl;
 	for (const auto & [group, count] : before_counts_) {
-	    std::cout << "- ";
+	    std::cout << "  - ";
 	    group.print(lookup);
 	    std::cout << ": " << count
 		      << std::endl;
@@ -55,6 +61,7 @@ public:
     }
     
 private:
+    Integer age_at_index_;
     std::map<ClinicalCodeGroup, std::size_t> before_counts_;
     std::map<ClinicalCodeGroup, std::size_t> after_counts_;
 };
@@ -74,14 +81,11 @@ auto get_acs_index_spells(const std::vector<Spell> & spells,
 	auto primary_pci{pci_group.contains(first_episode.primary_procedure())};
 	return primary_acs or primary_pci;
     }};
-	    
+    
     return spells | std::views::filter(is_acs_index_spell);
 }
 
-/** 
- * \brief Get secondary lists from the first episode of the index spell
- *
- */
+/// Get secondary lists from the first episode of the index spell
 auto get_index_secondaries(const Spell & index_spell, CodeType type) {
     return index_spell.episodes() |
 	std::views::take(1) |

@@ -65,10 +65,10 @@ int main(int argc, char ** argv) {
 	    std::cout << "Patient = " << patient.nhs_number() << std::endl;
 	    for (const auto & spell : index_spells) {
 
-		AcsRecord record;
-	    
-		spell.print(lookup, 4);
+		AcsRecord record{spell};
 
+		std::cout << "INDEX SPELL:" << std::endl;
+		spell.print(lookup, 4);
 
 		// Secondary diagnoses are often proxies for underlying conditions. Do not
 		// add secondary procedures into the counts, because they often represent
@@ -77,8 +77,29 @@ int main(int argc, char ** argv) {
 		    record.push_before(group);
 		}
 
-		record.print(lookup);
+		// In previous 12 months
+		auto in_before_window{[&](const Spell & other_spell) {
+		    auto index_start{spell.start_date()};
+		    auto other_spell_start{other_spell.start_date()};
+		    return (other_spell_start < index_start)
+			and (other_spell_start > index_start + -365*24*60*60);
+		}};
+		
+		// Get the spells that occur before the index event
+		auto spells_before{patient.spells() |
+			std::views::filter(in_before_window)};
+		std::cout << "SPELLS BEFORE INDEX:" << std::endl;
 
+                for (const auto & spell_before : spells_before) {
+		    spell_before.print(lookup, 4);
+		}
+
+		
+		
+		std::cout << "INDEX RECORD:" << std::endl;
+		record.print(lookup);
+		std::cout << std::endl;
+		
 	    }
 	    
 	} catch (const RowBufferException::NoMoreRows &) {

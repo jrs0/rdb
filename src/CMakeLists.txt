@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_compile_options(-Wall -Wextra -fmax-errors=5 -g -pg -fno-omit-frame-pointer)
 add_link_options(-pg -fno-omit-frame-pointer)
 
-add_library(rdb SHARED yaml.cpp category.cpp clinical_code.cpp random.cpp string_lookup.cpp config.cpp cmdline.cpp sql_debug.cpp)
+add_library(rdb SHARED yaml.cpp category.cpp clinical_code.cpp random.cpp string_lookup.cpp config.cpp cmdline.cpp sql_debug.cpp sql_types.cpp)
 
 include_directories(${CMAKE_SOURCE_DIR}/)
 

@@ -38,8 +38,17 @@ public:
 	return episodes_;
     }
 
+    /// Return the spell start date, or fall back
+    /// to the start date of the first episode. If
+    /// that is empty, return null
     auto start_date() const {
-	return spell_start_;
+	if (not spell_start_.null()) {
+	    return spell_start_;
+	} else if (not episodes_.empty()){
+	    return episodes_[0].episode_start();
+	} else {
+	    return Timestamp{};
+	}
     }
     
     void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {

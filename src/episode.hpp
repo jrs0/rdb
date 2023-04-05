@@ -75,6 +75,7 @@ public:
     /// short circuit on a NULL or empty (whitespace) secondary column.
     Episode(RowBuffer auto & row, std::shared_ptr<ClinicalCodeParser> parser) {
 
+	age_at_episode_ = column<Integer>("age_at_episode", row);
         episode_start_ = column<Timestamp>("episode_start", row);
         episode_end_ = column<Timestamp>("episode_end", row);
 
@@ -149,6 +150,10 @@ public:
 	    throw std::runtime_error("Failed to return in secondaries()");
 	}
     }
+
+    auto age_at_episode() const {
+	return age_at_episode_;
+    }
     
     auto episode_start() const {
 	return episode_start_;
@@ -196,6 +201,8 @@ public:
     }
     
 private:
+    Integer age_at_episode_;
+    
     Timestamp episode_start_;
     Timestamp episode_end_;
 

@@ -31,12 +31,12 @@ public:
 	    throw Null{};
 	}
     }
-    void print() const {
-	std::cout << "Integer: ";
+    void print(std::ostream & os = std::cout) const {
+	os << "Integer: ";
 	if (null_) {
-	    std::cout << "NULL" << std::endl;
+	    os << "NULL" << std::endl;
 	} else {
-	    std::cout << value_ << std::endl;	    
+	    os << value_ << std::endl;	    
 	}
     }
     bool null() const { return null_; }
@@ -60,12 +60,12 @@ public:
 	    throw Null{};
 	}
     }
-    void print() const {
-	std::cout << "Integer: ";
+    void print(std::ostream & os = std::cout) const {
+	os << "Integer: ";
 	if (null_) {
-	    std::cout << "NULL" << std::endl;
+	    os << "NULL" << std::endl;
 	} else {
-	    std::cout << value_ << std::endl;	    
+	    os << value_ << std::endl;	    
 	}
     }
     bool null() const { return null_; }
@@ -73,6 +73,8 @@ private:
     bool null_{true};
     unsigned long long value_{0};
 };
+
+std::ostream &operator<<(std::ostream &os, const Integer &integer);
 
 // Stores an absolute time as a unix timestamp, constructed from
 // date components assuming that BST may be in effect.
