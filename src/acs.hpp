@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <ranges>
+#include "patient.hpp"
 #include "spell.hpp"
 #include "clinical_code.hpp"
 
@@ -145,5 +146,49 @@ auto get_all_groups(std::ranges::range auto && spells) {
 	std::views::join;
 }
 
+auto get_record_from_index_spell(const Patient & patient,
+				 const Spell & index_spell,
+				 std::shared_ptr<StringLookup> lookup,
+				 bool print) {
+    AcsRecord record{index_spell};
+    
+    // Do not add secondary procedures into the counts, because they
+    // often represent the current index procedure (not prior procedures)
+    for (const auto & group : get_index_secondaries(index_spell, CodeType::Diagnosis)) {
+	record.push_before(group);
+    }
+
+    auto spells_before{get_spells_in_window(patient.spells(), index_spell, -365*24*60*60)};
+
+    for (const auto & group : get_all_groups(spells_before)) {
+	record.push_before(group);
+    }
+
+    auto spells_after{get_spells_in_window(patient.spells(), index_spell, 365*24*60*60)};
+    for (const auto & group : get_all_groups(spells_after)) {
+	record.push_after(group);
+    }
+
+    if (print) {
+	std::cout << "INDEX SPELL:" << std::endl;
+	index_spell.print(lookup, 4);
+
+	std::cout << "SPELLS BEFORE INDEX:" << std::endl;
+	for (const auto & spell_before : spells_before) {
+	    spell_before.print(lookup, 4);
+	}
+	
+	std::cout << "SPELLS AFTER INDEX:" << std::endl;
+	for (const auto & spell_after : spells_after) {
+	    spell_after.print(lookup, 4);
+	}
+    
+	std::cout << "INDEX RECORD:" << std::endl;
+	record.print(lookup);
+	std::cout << std::endl;
+    }
+    
+    return record;
+}
 
 #endif

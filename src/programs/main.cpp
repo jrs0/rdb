@@ -52,6 +52,8 @@ int main(int argc, char ** argv) {
     
     auto row{sql_connection.execute_direct(sql_query)};
 
+    std::vector<AcsRecord> acs_records;
+    
     while (true) {
 	try {
 	    Patient patient{row, parser};
@@ -63,41 +65,9 @@ int main(int argc, char ** argv) {
 	    }
 	    
 	    std::cout << "Patient = " << patient.nhs_number() << std::endl;
-	    for (const auto & spell : index_spells) {
-
-		AcsRecord record{spell};
-
-		std::cout << "INDEX SPELL:" << std::endl;
-		spell.print(lookup, 4);
-
-		// Do not add secondary procedures into the counts, because they
-		// often represent the current index procedure (not prior procedures)
-		for (const auto & group : get_index_secondaries(spell, CodeType::Diagnosis)) {
-		    record.push_before(group);
-		}
-
-		auto spells_before{get_spells_in_window(patient.spells(), spell, -365*24*60*60)};
-		std::cout << "SPELLS BEFORE INDEX:" << std::endl;
-                for (const auto & spell_before : spells_before) {
-		    spell_before.print(lookup, 4);
-		}
-		for (const auto & group : get_all_groups(spells_before)) {
-		    record.push_before(group);
-		}
-
-		auto spells_after{get_spells_in_window(patient.spells(), spell, 365*24*60*60)};
-		std::cout << "SPELLS AFTER INDEX:" << std::endl;
-                for (const auto & spell_after : spells_after) {
-		    spell_after.print(lookup, 4);
-		}
-		for (const auto & group : get_all_groups(spells_after)) {
-		    record.push_after(group);
-		}
-		
-		std::cout << "INDEX RECORD:" << std::endl;
-		record.print(lookup);
-		std::cout << std::endl;
-		
+	    for (const auto & index_spell : index_spells) {
+		auto record{get_record_from_index_spell(patient, index_spell, lookup, true)};
+		acs_records.push_back(record);
 	    }
 	    
 	} catch (const RowBufferException::NoMoreRows &) {
