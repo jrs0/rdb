@@ -105,7 +105,7 @@ auto get_index_secondaries(const Spell & index_spell, CodeType type) {
 auto get_spells_in_window(const std::vector<Spell> & all_spells,
 			  const Spell & base_spell,
 			  int offset_seconds) {
-    auto in_window{[&](const Spell & other_spell) {
+    auto in_window{[&base_spell, offset_seconds](const Spell & other_spell) {
 	auto base_start{base_spell.start_date()};
 	auto other_spell_start{other_spell.start_date()};
 
@@ -115,7 +115,6 @@ auto get_spells_in_window(const std::vector<Spell> & all_spells,
 	} else {
 	    bool a{(other_spell_start < base_start)
 		and (other_spell_start > base_start + offset_seconds)};
-	    std::cout << offset_seconds << std::endl;
 	    std::cout << other_spell_start << " " << base_start << " " << base_start + offset_seconds << " " << a << std::endl;
 	    return a;
 	}
