@@ -86,27 +86,15 @@ int main(int argc, char ** argv) {
 		}};
 		
 		// Get the spells that occur before the index event
-		auto spells_before{patient.spells() |
-			std::views::filter(in_before_window)};
+		auto spells_before{get_spells_in_window(patient.spells(), spell, -365*24*60*60)};
 		std::cout << "SPELLS BEFORE INDEX:" << std::endl;
-
                 for (const auto & spell_before : spells_before) {
 		    spell_before.print(lookup, 4);
 		}
-
-		auto all_groups_before{ spells_before |
-		    std::views::transform(&Spell::episodes) |
-		    std::views::join |
-		    std::views::transform(&Episode::all_procedures_and_diagnosis) |
-		    std::views::join |
-		    std::views::filter(&ClinicalCode::valid) |
-		    std::views::transform(&ClinicalCode::groups) |
-		    std::views::join
-		};
-
-		for (const auto & group : all_groups_before) {
+		for (const auto & group : get_all_groups(spells_before)) {
 		    print(group, lookup);
 		}
+
 		
 		std::cout << "INDEX RECORD:" << std::endl;
 		record.print(lookup);

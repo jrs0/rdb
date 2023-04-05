@@ -99,4 +99,38 @@ auto get_index_secondaries(const Spell & index_spell, CodeType type) {
 }
 
 
+/// Get all the spells whose start date is strictly between
+/// the time of the base spell and an offset in seconds (positive
+/// for after, negative for before). The base spell is not included.
+auto get_spells_in_window(const std::vector<Spell> & all_spells,
+			  const Spell & base_spell,
+			  int offset_seconds) {
+    auto in_window{[&](const Spell & other_spell) {
+	auto index_start{base_spell.start_date()};
+	auto other_spell_start{other_spell.start_date()};
+	return (other_spell_start < index_start)
+	    and (other_spell_start > index_start + offset_seconds);
+    }};
+		
+    // Get the spells that occur before the index event
+    return all_spells |
+	std::views::filter(in_window);
+
+}
+
+/// Fetch all the code groups present in the primary
+/// and secondary diagnoses and procedures of all the
+/// episodes in a vector of spells
+auto get_all_groups(std::ranges::range auto && spells) {
+    return spells |
+	std::views::transform(&Spell::episodes) |
+	std::views::join |
+	std::views::transform(&Episode::all_procedures_and_diagnosis) |
+	std::views::join |
+	std::views::filter(&ClinicalCode::valid) |
+	std::views::transform(&ClinicalCode::groups) |
+	std::views::join;
+}
+
+
 #endif
