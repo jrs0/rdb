@@ -58,7 +58,14 @@ public:
 	    std::cout << ": " << count
 		      << std::endl;
 	}
-    }
+	std::cout << "- Counts after:" << std::endl;
+	for (const auto & [group, count] : after_counts_) {
+	    std::cout << "  - ";
+	    group.print(lookup);
+	    std::cout << ": " << count
+		      << std::endl;
+	}
+        }
     
 private:
     Integer age_at_index_;
