@@ -84,7 +84,7 @@ int main(int argc, char ** argv) {
 		    spell_before.print(lookup, 4);
 		}
 		for (const auto & group : get_all_groups(spells_before)) {
-		    print(group, lookup);
+		    record.push_before(group);
 		}
 
 		

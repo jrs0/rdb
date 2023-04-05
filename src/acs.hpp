@@ -113,10 +113,8 @@ auto get_spells_in_window(const std::vector<Spell> & all_spells,
 	    return (other_spell_start > base_start)
 		and (other_spell_start < base_start + offset_seconds);	    
 	} else {
-	    bool a{(other_spell_start < base_start)
-		and (other_spell_start > base_start + offset_seconds)};
-	    std::cout << other_spell_start << " " << base_start << " " << base_start + offset_seconds << " " << a << std::endl;
-	    return a;
+	    return (other_spell_start < base_start)
+		and (other_spell_start > base_start + offset_seconds);
 	}
     }};
 		
