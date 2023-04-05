@@ -51,18 +51,28 @@ int main(int argc, char ** argv) {
     ClinicalCodeMetagroup pci{config["code_groups"]["pci"], lookup};
     
     auto row{sql_connection.execute_direct(sql_query)};
-    
+
     while (true) {
 	try {
 	    Patient patient{row, parser};
 
 	    auto index_spells{get_acs_index_spells(patient.spells(), acs, pci)};
 
-	    
-	    
+	    AcsRecord record;
+    	    
 	    std::cout << "Patient = " << patient.nhs_number() << std::endl;
 	    for (const auto & spell : index_spells) {
 		spell.print(lookup, 4);
+
+		// Add all the secondary diagnoses and procedures in the
+		// _first_ episode to the before counts in the record
+		for (const auto & procedure : spell.episodes() |
+			 std::views::take(1) |
+			 std::views::transform(&Episode::secondary_procedures) |
+			 std::views::join) {
+		    print(procedure, lookup);
+		}
+
 	    }
 	    
 	} catch (const RowBufferException::NoMoreRows &) {

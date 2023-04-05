@@ -137,6 +137,8 @@ public:
     void print(std::shared_ptr<StringLookup> lookup) const {
 	std::cout << lookup->at(group_id_);
     }
+
+    friend auto operator<=>(const ClinicalCodeGroup&, const ClinicalCodeGroup&) = default;
     
 private:
     std::size_t group_id_;
