@@ -76,6 +76,10 @@ public:
 	return data_.has_value();
     }
 
+    auto null() const {
+	return not data_.has_value();
+    }
+    
     const auto & group_ids() const {
 	if (not valid()) {
 	    throw Invalid{};
@@ -91,7 +95,11 @@ private:
 
 /// Print a clinical code using strings from the lookup
 inline void print(const ClinicalCode & code, std::shared_ptr<StringLookup> lookup) {
-    if (not code.valid()) {
+    if (code.null()) {
+	std::cout << Colour::CYAN	
+		  << "Null"
+		  << Colour::RESET;
+    } else if (not code.valid()) {
 	std::cout << Colour::CYAN	
 		  << code.name(lookup) << " (Unknown)"
 		  << Colour::RESET;
@@ -152,7 +160,7 @@ public:
 	groups_.push_back(code);
     }
 
-    bool contains(const ClinicalCode & code) {
+    bool contains(const ClinicalCode & code) const {
 	auto contains_code{[&](const auto & group) {
 	    return group.contains(code);
 	}};

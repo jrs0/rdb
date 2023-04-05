@@ -11,6 +11,7 @@
 #include "../patient.hpp"
 
 #include "../cmdline.hpp"
+#include "../acs.hpp"
 
 void sort_spells_by_date(std::vector<Spell> & spells) {
     std::ranges::sort(spells, [](const auto &a, const auto &b) {
@@ -55,21 +56,8 @@ int main(int argc, char ** argv) {
 	try {
 	    Patient patient{row, parser};
 
-	    /// Is index event if there is a primary ACS or PCI
-	    /// in the _first_ episode of the spell
-	    auto is_acs_index_spell{[&](const Spell &spell) {
-		auto & episodes{spell.episodes()};
-		if (episodes.empty()) {
-		    return false;
-		}
-		auto & first_episode{episodes[0]};
-		auto primary_acs{acs.contains(first_episode.primary_diagnosis())};
-		auto primary_pci{pci.contains(first_episode.primary_procedure())};
-		return primary_acs or primary_pci;
-	    }};
+	    auto index_spells{get_acs_index_spells(patient.spells(), acs, pci)};
 	    
-	    auto index_spells { patient.spells() | std::views::filter(is_acs_index_spell) };
-
 	    std::cout << "Patient = " << patient.nhs_number() << std::endl;
 	    for (const auto & spell : index_spells) {
 		spell.print(lookup, 4);
