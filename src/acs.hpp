@@ -34,7 +34,8 @@
 class AcsRecord {
 public:
 
-    AcsRecord(const Spell & index_spell) {
+    AcsRecord(const Patient & patient, const Spell & index_spell) {
+	nhs_number_ = patient.nhs_number();
 	auto & first_episode{index_spell.episodes()[0]};
 	age_at_index_ = first_episode.age_at_episode();
     }
@@ -49,8 +50,8 @@ public:
 	after_counts_[group]++;
     }
 
-    void print(std::shared_ptr<StringLookup> lookup) {
-	std::cout << "ACS Record" << std::endl;
+    void print(std::shared_ptr<StringLookup> lookup) const {
+	std::cout << "ACS Record for NHS number " << nhs_number_ << std::endl;
 	std::cout << "Age at index: " << age_at_index_ << std::endl;
 	std::cout << "- Counts before:" << std::endl;
 	for (const auto & [group, count] : before_counts_) {
@@ -69,6 +70,7 @@ public:
         }
     
 private:
+    long long unsigned nhs_number_;
     Integer age_at_index_;
     std::map<ClinicalCodeGroup, std::size_t> before_counts_;
     std::map<ClinicalCodeGroup, std::size_t> after_counts_;
@@ -150,7 +152,7 @@ auto get_record_from_index_spell(const Patient & patient,
 				 const Spell & index_spell,
 				 std::shared_ptr<StringLookup> lookup,
 				 bool print) {
-    AcsRecord record{index_spell};
+    AcsRecord record{patient, index_spell};
     
     // Do not add secondary procedures into the counts, because they
     // often represent the current index procedure (not prior procedures)

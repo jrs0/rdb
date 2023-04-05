@@ -63,9 +63,9 @@ public:
     void print(std::ostream & os = std::cout) const {
 	os << "Integer: ";
 	if (null_) {
-	    os << "NULL" << std::endl;
+	    os << "NULL";
 	} else {
-	    os << value_ << std::endl;	    
+	    os << value_;	    
 	}
     }
     bool null() const { return null_; }

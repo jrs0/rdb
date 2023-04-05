@@ -53,6 +53,8 @@ int main(int argc, char ** argv) {
     auto row{sql_connection.execute_direct(sql_query)};
 
     std::vector<AcsRecord> acs_records;
+
+    bool print{false};
     
     while (true) {
 	try {
@@ -63,8 +65,10 @@ int main(int argc, char ** argv) {
 	    if (index_spells.empty()) {
 		continue;
 	    }
-	    
-	    std::cout << "Patient = " << patient.nhs_number() << std::endl;
+
+	    if (print) {
+		std::cout << "Patient = " << patient.nhs_number() << std::endl;
+	    }
 	    for (const auto & index_spell : index_spells) {
 		auto record{get_record_from_index_spell(patient, index_spell, lookup, true)};
 		acs_records.push_back(record);
@@ -75,4 +79,10 @@ int main(int argc, char ** argv) {
 	    break;
 	}
     }
+    /*
+    for (const auto & record : acs_records) {
+        record.print(lookup);
+        std::cout << std::endl;
+    }
+    */    
 }
