@@ -66,11 +66,12 @@ int main(int argc, char ** argv) {
 
 		// Add all the secondary diagnoses and procedures in the
 		// _first_ episode to the before counts in the record
-		for (const auto & procedure : spell.episodes() |
+		for (const auto & diagnosis_group : spell.episodes() |
 			 std::views::take(1) |
-			 std::views::transform(&Episode::secondary_procedures) |
-			 std::views::join) {
-		    print(procedure, lookup);
+			 std::views::transform(&Episode::secondary_diagnoses) |
+			 std::views::join |
+			 std::views::filter(&ClinicalCode::valid)) {
+		    diagnosis_group.print(lookup);
 		}
 
 	    }
