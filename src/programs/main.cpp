@@ -70,14 +70,12 @@ int main(int argc, char ** argv) {
 		std::cout << "INDEX SPELL:" << std::endl;
 		spell.print(lookup, 4);
 
-		// Secondary diagnoses are often proxies for underlying conditions. Do not
-		// add secondary procedures into the counts, because they often represent
-		// the current index procedure (not prior procedures)
+		// Do not add secondary procedures into the counts, because they
+		// often represent the current index procedure (not prior procedures)
 		for (const auto & group : get_index_secondaries(spell, CodeType::Diagnosis)) {
 		    record.push_before(group);
 		}
 
-		// Get the spells that occur before the index event
 		auto spells_before{get_spells_in_window(patient.spells(), spell, -365*24*60*60)};
 		std::cout << "SPELLS BEFORE INDEX:" << std::endl;
                 for (const auto & spell_before : spells_before) {
@@ -87,6 +85,14 @@ int main(int argc, char ** argv) {
 		    record.push_before(group);
 		}
 
+		auto spells_after{get_spells_in_window(patient.spells(), spell, 365*24*60*60)};
+		std::cout << "SPELLS AFTER INDEX:" << std::endl;
+                for (const auto & spell_after : spells_after) {
+		    spell_after.print(lookup, 4);
+		}
+		for (const auto & group : get_all_groups(spells_after)) {
+		    record.push_after(group);
+		}
 		
 		std::cout << "INDEX RECORD:" << std::endl;
 		record.print(lookup);
