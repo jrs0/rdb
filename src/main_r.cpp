@@ -1,9 +1,10 @@
 #include "string_lookup.hpp"
 #include "config.hpp"
 #include "clinical_code.hpp"
-#include "acs.hpp"
 #include "sql_query.hpp"
 #include "patient.hpp"
+
+#include "acs.hpp"
 
 #include <Rcpp.h>
 
@@ -17,7 +18,7 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
     try {
 
 	auto lookup{new_string_lookup()};
-	auto config{load_config_file("../../config.yaml")};
+	auto config{load_config_file(config_path_str)};
 	auto parser{new_clinical_code_parser(config["parser"], lookup)};
 	auto sql_connection{new_sql_connection(config["connection"])};
 	auto sql_query{make_acs_sql_query(config["sql_query"], false, std::nullopt)};
@@ -46,10 +47,14 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		}
 
 		if (print) {
-		    std::cout << "Patient = " << patient.nhs_number() << std::endl;
+		    std::cout << "Patient = " << patient.nhs_number()
+			      << std::endl;
 		}
 		for (const auto & index_spell : index_spells) {
-		    auto record{get_record_from_index_spell(patient, index_spell, lookup, print)};
+		    auto record{get_record_from_index_spell(patient,
+							    index_spell,
+							    lookup,
+							    print)};
 		    acs_records.push_back(record);
 		}
 	    

@@ -23,6 +23,7 @@
 #include <vector>
 #include <ranges>
 #include "patient.hpp"
+#include "episode.hpp"
 #include "spell.hpp"
 #include "clinical_code.hpp"
 
