@@ -3,3 +3,4 @@
 export(acs_dataset)
 export(code_groups)
 importFrom(Rcpp,sourceCpp)
+useDynLib(rdb)

@@ -2,6 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 test_cpp <- function(thing) {
-    .Call(`_rdb_test_cpp`, thing)
+    .Call('_rdb_test_cpp', PACKAGE = 'rdb', thing)
+}
+
+foo <- function() {
+    invisible(.Call('_rdb_foo', PACKAGE = 'rdb'))
 }
 

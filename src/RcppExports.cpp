@@ -21,9 +21,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// foo
+void foo();
+RcppExport SEXP _rdb_foo() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    foo();
+    return R_NilValue;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_cpp", (DL_FUNC) &_rdb_test_cpp, 1},
+    {"_rdb_foo", (DL_FUNC) &_rdb_foo, 0},
     {NULL, NULL, 0}
 };
 

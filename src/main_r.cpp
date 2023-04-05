@@ -1,0 +1,4 @@
+// [[Rcpp::export]]
+void foo() {
+
+}
