@@ -100,7 +100,7 @@ auto get_acs_index_spells(const std::vector<Spell> & spells,
 auto get_index_secondaries(const Spell & index_spell, CodeType type) {
     return index_spell.episodes() |
 	std::views::take(1) |
-	std::views::transform([=](const auto & episode) {
+	std::views::transform([=](const auto & episode) -> auto & {
 	    return episode.secondaries(type);
 	}) |
 	std::views::join |
