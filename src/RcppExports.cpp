@@ -21,19 +21,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// foo
-void foo();
-RcppExport SEXP _rdb_foo() {
+// make_acs_dataset
+void make_acs_dataset(Rcpp::CharacterVector& config_path);
+RcppExport SEXP _rdb_make_acs_dataset(SEXP config_pathSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    foo();
+    Rcpp::traits::input_parameter< Rcpp::CharacterVector& >::type config_path(config_pathSEXP);
+    make_acs_dataset(config_path);
     return R_NilValue;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_cpp", (DL_FUNC) &_rdb_test_cpp, 1},
-    {"_rdb_foo", (DL_FUNC) &_rdb_foo, 0},
+    {"_rdb_make_acs_dataset", (DL_FUNC) &_rdb_make_acs_dataset, 1},
     {NULL, NULL, 0}
 };
 

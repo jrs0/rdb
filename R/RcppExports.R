@@ -5,7 +5,7 @@ test_cpp <- function(thing) {
     .Call('_rdb_test_cpp', PACKAGE = 'rdb', thing)
 }
 
-foo <- function() {
-    invisible(.Call('_rdb_foo', PACKAGE = 'rdb'))
+make_acs_dataset <- function(config_path) {
+    invisible(.Call('_rdb_make_acs_dataset', PACKAGE = 'rdb', config_path))
 }
 
