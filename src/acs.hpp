@@ -106,10 +106,18 @@ auto get_spells_in_window(const std::vector<Spell> & all_spells,
 			  const Spell & base_spell,
 			  int offset_seconds) {
     auto in_window{[&](const Spell & other_spell) {
-	auto index_start{base_spell.start_date()};
+	auto base_start{base_spell.start_date()};
 	auto other_spell_start{other_spell.start_date()};
-	return (other_spell_start < index_start)
-	    and (other_spell_start > index_start + offset_seconds);
+
+	if (offset_seconds > 0) {
+	    return (other_spell_start > base_start)
+		and (other_spell_start < base_start + offset_seconds);	    
+	} else {
+	    bool a{(other_spell_start < base_start)
+		and (other_spell_start > base_start + offset_seconds)};
+	    std::cout << other_spell_start << " " << base_start << " " << a << std::endl;
+	    return a;
+	}
     }};
 		
     // Get the spells that occur before the index event

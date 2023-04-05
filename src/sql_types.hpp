@@ -140,12 +140,12 @@ public:
 	    throw Null{};
 	}
     }
-    void print() const {
+    void print(std::ostream & os = std::cout) const {
 	if (null_) {
-	    std::cout << "NULL";
+	    os << "NULL";
 	} else {
 	    auto t{static_cast<std::time_t>(unix_timestamp_)};
-	    std::cout << std::put_time(std::localtime(&t), "%F %T");
+	    os << std::put_time(std::localtime(&t), "%F %T");
 	}
     }
     bool null() const { return null_; }
@@ -153,6 +153,8 @@ private:
     bool null_{true};
     unsigned long long unix_timestamp_{0};
 };
+
+std::ostream &operator<<(std::ostream &os, const Timestamp &timestamp);
 
 template<std::integral T>
 Timestamp operator+(const Timestamp & time, T offset_seconds) {

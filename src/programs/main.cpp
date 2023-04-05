@@ -77,14 +77,6 @@ int main(int argc, char ** argv) {
 		    record.push_before(group);
 		}
 
-		// In previous 12 months
-		auto in_before_window{[&](const Spell & other_spell) {
-		    auto index_start{spell.start_date()};
-		    auto other_spell_start{other_spell.start_date()};
-		    return (other_spell_start < index_start)
-			and (other_spell_start > index_start + -365*24*60*60);
-		}};
-		
 		// Get the spells that occur before the index event
 		auto spells_before{get_spells_in_window(patient.spells(), spell, -365*24*60*60)};
 		std::cout << "SPELLS BEFORE INDEX:" << std::endl;
