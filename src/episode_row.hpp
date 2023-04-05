@@ -13,8 +13,9 @@
 class EpisodeRowBuffer {
 public:
     EpisodeRowBuffer() {
+	columns_["age_at_episode"] = Integer{0};
 	columns_["episode_start"] = Timestamp{0};
-	columns_["episode_end"] = Timestamp{0};
+        columns_["episode_end"] = Timestamp{0};
     }
 
     EpisodeRowBuffer(const Timestamp & start, const Timestamp & end) {

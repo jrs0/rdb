@@ -75,10 +75,14 @@ public:
     /// short circuit on a NULL or empty (whitespace) secondary column.
     Episode(RowBuffer auto & row, std::shared_ptr<ClinicalCodeParser> parser) {
 
-	age_at_episode_ = column<Integer>("age_at_episode", row);
-        episode_start_ = column<Timestamp>("episode_start", row);
-        episode_end_ = column<Timestamp>("episode_end", row);
-
+	try {
+	    age_at_episode_ = column<Integer>("age_at_episode", row);
+	    episode_start_ = column<Timestamp>("episode_start", row);
+	    episode_end_ = column<Timestamp>("episode_end", row);
+	} catch (const RowBufferException::ColumnNotFound & ) {
+	    throw std::runtime_error("Missing one of age_at_episode, episode_start or episode_end in Episode()");
+	}
+	    
 	try {
 	    // Get primary procedure
 	    primary_procedure_ = read_clinical_code_column("primary_procedure",
