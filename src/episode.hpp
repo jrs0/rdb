@@ -139,6 +139,17 @@ public:
 	return secondary_diagnoses_;
     }
 
+    const auto & secondaries(CodeType type) const {
+	switch (type) {
+	case CodeType::Diagnosis:
+	    return secondary_diagnoses_;
+	case CodeType::Procedure:
+	    return secondary_procedures_;
+	default:
+	    throw std::runtime_error("Failed to return in secondaries()");
+	}
+    }
+    
     auto episode_start() const {
 	return episode_start_;
     }

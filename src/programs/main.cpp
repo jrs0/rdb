@@ -58,30 +58,26 @@ int main(int argc, char ** argv) {
 
 	    auto index_spells{get_acs_index_spells(patient.spells(), acs, pci)};
 
+	    if (index_spells.empty()) {
+		continue;
+	    }
+	    
 	    AcsRecord record;
     	    
 	    std::cout << "Patient = " << patient.nhs_number() << std::endl;
 	    for (const auto & spell : index_spells) {
 		spell.print(lookup, 4);
 
-		// Add all the secondary diagnoses and procedures in the
-		// _first_ episode to the before counts in the record
-		auto secondary_diagnosis_groups{spell.episodes() |
-		    std::views::take(1) |
-		    std::views::transform(&Episode::secondary_diagnoses) |
-		    std::views::join |
-		    std::views::filter(&ClinicalCode::valid) |
-		    std::views::transform(&ClinicalCode::groups) |
-		    std::views::join
-		};
-
-		std::cout << "Diagnosis groups" << std::endl;
-		for (const auto & group : secondary_diagnosis_groups) {
-		    group.print(lookup);
-		    std::cout << std::endl;		    
+		for (const auto & group : get_index_secondaries(spell, CodeType::Diagnosis)) {
+		    record.push_before(group);
 		}
 
+		for (const auto & group : get_index_secondaries(spell, CodeType::Procedure)) {
+		    record.push_before(group);
+		}
 	    }
+
+	    record.print(lookup);
 	    
 	} catch (const RowBufferException::NoMoreRows &) {
 	    std::cout << "Finished fetching all rows" << std::endl;

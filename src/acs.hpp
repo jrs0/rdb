@@ -43,6 +43,17 @@ public:
 	after_counts_[group]++;
     }
 
+    void print(std::shared_ptr<StringLookup> lookup) {
+	std::cout << "ACS Record" << std::endl;
+	std::cout << "Counts before:" << std::endl;
+	for (const auto & [group, count] : before_counts_) {
+	    std::cout << "- ";
+	    group.print(lookup);
+	    std::cout << ": " << count
+		      << std::endl;
+	}
+    }
+    
 private:
     std::map<ClinicalCodeGroup, std::size_t> before_counts_;
     std::map<ClinicalCodeGroup, std::size_t> after_counts_;
@@ -65,6 +76,22 @@ auto get_acs_index_spells(const std::vector<Spell> & spells,
     }};
 	    
     return spells | std::views::filter(is_acs_index_spell);
+}
+
+/** 
+ * \brief Get secondary lists from the first episode of the index spell
+ *
+ */
+auto get_index_secondaries(const Spell & index_spell, CodeType type) {
+    return index_spell.episodes() |
+	std::views::take(1) |
+	std::views::transform([=](const auto & episode) {
+	    return episode.secondaries(type);
+	}) |
+	std::views::join |
+	std::views::filter(&ClinicalCode::valid) |
+	std::views::transform(&ClinicalCode::groups) |
+	std::views::join;
 }
 
 
