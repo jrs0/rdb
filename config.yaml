@@ -28,18 +28,21 @@
 #  
 
 connection: 
-  #dsn: xsw
-  cred: /root/db.secret.yaml
+  dsn: xsw
+  #cred: /root/db.secret.yaml
 
   
 
 parser:
-  diagnosis_file: ../../icd10.yaml
-  procedure_file: ../../opcs4.yaml
+  #diagnosis_file: ../../icd10.yaml
+  #procedure_file: ../../opcs4.yaml
+  diagnosis_file: icd10.yaml
+  procedure_file: opcs4.yaml
 
+  
 sql_query:
   # Set a limit on the number of returned rows (optional)
-  result_limit: 50
+  result_limit: 500
   primary_diagnosis: diagnosisprimary_icd
   secondary_diagnoses:
   - diagnosis1stsecondary_icd
@@ -122,3 +125,4 @@ in_memory:
   num_patients: 500
   seed: 47
 
+print: true

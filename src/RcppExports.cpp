@@ -22,11 +22,11 @@ BEGIN_RCPP
 END_RCPP
 }
 // make_acs_dataset
-void make_acs_dataset(Rcpp::CharacterVector& config_path);
+void make_acs_dataset(const Rcpp::CharacterVector& config_path);
 RcppExport SEXP _rdb_make_acs_dataset(SEXP config_pathSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::CharacterVector& >::type config_path(config_pathSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type config_path(config_pathSEXP);
     make_acs_dataset(config_path);
     return R_NilValue;
 END_RCPP
