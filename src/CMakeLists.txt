@@ -31,7 +31,7 @@ if(WITH_TESTS)
 
   enable_testing()
 
-  add_executable(run-gtest gtest/string_lookup.cpp gtest/clinical_code.cpp gtest/episode.cpp gtest/parser.cpp)
+  add_executable(run-gtest gtest/string_lookup.cpp gtest/clinical_code.cpp gtest/episode.cpp gtest/parser.cpp gtest/timestamp.cpp)
   target_link_libraries(run-gtest gtest_main rdb yaml-cpp odbc)
 
   include(GoogleTest)
