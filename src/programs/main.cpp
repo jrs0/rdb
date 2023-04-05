@@ -57,6 +57,8 @@ int main(int argc, char ** argv) {
 	    Patient patient{row, parser};
 
 	    auto index_spells{get_acs_index_spells(patient.spells(), acs, pci)};
+
+	    
 	    
 	    std::cout << "Patient = " << patient.nhs_number() << std::endl;
 	    for (const auto & spell : index_spells) {

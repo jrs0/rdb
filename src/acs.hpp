@@ -25,6 +25,29 @@
 #include "spell.hpp"
 #include "clinical_code.hpp"
 
+/** 
+ * \brief Stores the data for a row in the ACS dataset
+ *
+ * 
+ */
+class AcsRecord {
+public:
+
+    /// Increment the counter for group in the before map
+    void push_before(const ClinicalCodeGroup & group) {
+	before_counts_[group]++;
+    }
+
+    /// Increment the counter for group in the before map
+    void push_after(const ClinicalCodeGroup & group) {
+	after_counts_[group]++;
+    }
+
+private:
+    std::map<ClinicalCodeGroup, std::size_t> before_counts_;
+    std::map<ClinicalCodeGroup, std::size_t> after_counts_;
+};
+
 /// Is index event if there is a primary ACS or PCI
 /// in the _first_ episode of the spell
 auto get_acs_index_spells(const std::vector<Spell> & spells,
