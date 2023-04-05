@@ -55,6 +55,8 @@ int main(int argc, char ** argv) {
     std::vector<AcsRecord> acs_records;
 
     bool print{false};
+
+    std::cout << "Started fetching rows" << std::endl;
     
     while (true) {
 	try {
@@ -70,7 +72,7 @@ int main(int argc, char ** argv) {
 		std::cout << "Patient = " << patient.nhs_number() << std::endl;
 	    }
 	    for (const auto & index_spell : index_spells) {
-		auto record{get_record_from_index_spell(patient, index_spell, lookup, true)};
+		auto record{get_record_from_index_spell(patient, index_spell, lookup, print)};
 		acs_records.push_back(record);
 	    }
 	    
