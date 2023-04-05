@@ -22,10 +22,22 @@ public:
 	    throw std::runtime_error("Column type errors in Spell constructor");
 	}
 
-	while (column<Varchar>("spell_id", row).read() == spell_id_) {
-	    episodes_.push_back(Episode{row, parser});
-	    row.fetch_next_row();
+	try {
+	    while (column<Varchar>("spell_id", row).read() == spell_id_) {
+		episodes_.push_back(Episode{row, parser});
+		row.fetch_next_row();
+	    }
+	} catch (const RowBufferException::NoMoreRows & e) {
+	    sort_episodes();
+	    throw;
 	}
+	
+	sort_episodes();
+    }
+
+    /// Sort the episodes by start date
+    void sort_episodes() {
+        std::ranges::sort(episodes_, {}, &Episode::episode_start);	
     }
     
     /// If the spell contains no episodes, then it is
@@ -38,8 +50,17 @@ public:
 	return episodes_;
     }
 
+    /// Return the spell start date, or fall back
+    /// to the start date of the first episode. If
+    /// that is empty, return null
     auto start_date() const {
-	return spell_start_;
+	if (not spell_start_.null()) {
+	    return spell_start_;
+	} else if (not episodes_.empty()){
+	    return episodes_[0].episode_start();
+	} else {
+	    return Timestamp{};
+	}
     }
     
     void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {

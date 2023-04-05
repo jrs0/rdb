@@ -75,9 +75,14 @@ public:
     /// short circuit on a NULL or empty (whitespace) secondary column.
     Episode(RowBuffer auto & row, std::shared_ptr<ClinicalCodeParser> parser) {
 
-        episode_start_ = column<Timestamp>("episode_start", row);
-        episode_end_ = column<Timestamp>("episode_end", row);
-
+	try {
+	    age_at_episode_ = column<Integer>("age_at_episode", row);
+	    episode_start_ = column<Timestamp>("episode_start", row);
+	    episode_end_ = column<Timestamp>("episode_end", row);
+	} catch (const RowBufferException::ColumnNotFound & ) {
+	    throw std::runtime_error("Missing one of age_at_episode, episode_start or episode_end in Episode()");
+	}
+	    
 	try {
 	    // Get primary procedure
 	    primary_procedure_ = read_clinical_code_column("primary_procedure",
@@ -129,6 +134,16 @@ public:
 	return primary_diagnosis_;
     }
 
+    auto all_procedures_and_diagnosis() const {
+	auto all_codes{secondary_diagnoses_};
+	
+        all_codes.insert(all_codes.end(), secondary_procedures_.begin(),
+			 secondary_procedures_.end());
+	all_codes.push_back(primary_diagnosis_);
+	all_codes.push_back(primary_procedure_);
+	return all_codes;
+    }
+    
     /// Note that the result is ordered, and not necessarily unique
     const auto & secondary_procedures() const {
 	return secondary_procedures_;
@@ -139,6 +154,21 @@ public:
 	return secondary_diagnoses_;
     }
 
+    const auto & secondaries(CodeType type) const {
+	switch (type) {
+	case CodeType::Diagnosis:
+	    return secondary_diagnoses_;
+	case CodeType::Procedure:
+	    return secondary_procedures_;
+	default:
+	    throw std::runtime_error("Failed to return in secondaries()");
+	}
+    }
+
+    auto age_at_episode() const {
+	return age_at_episode_;
+    }
+    
     auto episode_start() const {
 	return episode_start_;
     }
@@ -185,6 +215,8 @@ public:
     }
     
 private:
+    Integer age_at_episode_;
+    
     Timestamp episode_start_;
     Timestamp episode_end_;
 

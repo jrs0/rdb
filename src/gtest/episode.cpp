@@ -63,7 +63,6 @@ TEST(Episode, DiagnosesAndProceduresFromRow) {
     // Check the primaries
     EXPECT_EQ(episode.primary_diagnosis().name(lookup), "I21.0");
     EXPECT_EQ(episode.primary_procedure().name(lookup), "K43.2");
-
     // Check the secondaries
     auto & secondary_diagnoses{episode.secondary_diagnoses()};
     auto & secondary_procedures{episode.secondary_procedures()};

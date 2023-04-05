@@ -31,12 +31,12 @@ public:
 	    throw Null{};
 	}
     }
-    void print() const {
-	std::cout << "Integer: ";
+    void print(std::ostream & os = std::cout) const {
+	os << "Integer: ";
 	if (null_) {
-	    std::cout << "NULL" << std::endl;
+	    os << "NULL" << std::endl;
 	} else {
-	    std::cout << value_ << std::endl;	    
+	    os << value_ << std::endl;	    
 	}
     }
     bool null() const { return null_; }
@@ -60,12 +60,12 @@ public:
 	    throw Null{};
 	}
     }
-    void print() const {
-	std::cout << "Integer: ";
+    void print(std::ostream & os = std::cout) const {
+	os << "Integer: ";
 	if (null_) {
-	    std::cout << "NULL" << std::endl;
+	    os << "NULL";
 	} else {
-	    std::cout << value_ << std::endl;	    
+	    os << value_;	    
 	}
     }
     bool null() const { return null_; }
@@ -73,6 +73,8 @@ private:
     bool null_{true};
     unsigned long long value_{0};
 };
+
+std::ostream &operator<<(std::ostream &os, const Integer &integer);
 
 // Stores an absolute time as a unix timestamp, constructed from
 // date components assuming that BST may be in effect.
@@ -138,12 +140,12 @@ public:
 	    throw Null{};
 	}
     }
-    void print() const {
+    void print(std::ostream & os = std::cout) const {
 	if (null_) {
-	    std::cout << "NULL";
+	    os << "NULL";
 	} else {
 	    auto t{static_cast<std::time_t>(unix_timestamp_)};
-	    std::cout << std::put_time(std::localtime(&t), "%F %T");
+	    os << std::put_time(std::localtime(&t), "%F %T");
 	}
     }
     bool null() const { return null_; }
@@ -151,6 +153,8 @@ private:
     bool null_{true};
     unsigned long long unix_timestamp_{0};
 };
+
+std::ostream &operator<<(std::ostream &os, const Timestamp &timestamp);
 
 template<std::integral T>
 Timestamp operator+(const Timestamp & time, T offset_seconds) {

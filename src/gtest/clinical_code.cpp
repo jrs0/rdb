@@ -83,8 +83,6 @@ TEST(ClinicalCodeMetagroup, Contains) {
     metagroup.push_back(acs_stemi);
     metagroup.push_back(bleeding);	
 
-    metagroup.print(lookup);
-
     auto acs_code{parser.parse(CodeType::Diagnosis, "I21.0")};
     auto bleed_code{parser.parse(CodeType::Diagnosis, "D62")};
     auto something_else{parser.parse(CodeType::Diagnosis, "A000")};

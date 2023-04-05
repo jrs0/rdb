@@ -11,6 +11,7 @@
 #include "../patient.hpp"
 
 #include "../cmdline.hpp"
+#include "../acs.hpp"
 
 void sort_spells_by_date(std::vector<Spell> & spells) {
     std::ranges::sort(spells, [](const auto &a, const auto &b) {
@@ -50,29 +51,29 @@ int main(int argc, char ** argv) {
     ClinicalCodeMetagroup pci{config["code_groups"]["pci"], lookup};
     
     auto row{sql_connection.execute_direct(sql_query)};
+
+    std::vector<AcsRecord> acs_records;
+
+    auto print{config["print"].as<bool>()};
+
+    std::cout << "Started fetching rows" << std::endl;
     
     while (true) {
 	try {
 	    Patient patient{row, parser};
 
-	    /// Is index event if there is a primary ACS or PCI
-	    /// in the _first_ episode of the spell
-	    auto is_acs_index_spell{[&](const Spell &spell) {
-		auto & episodes{spell.episodes()};
-		if (episodes.empty()) {
-		    return false;
-		}
-		auto & first_episode{episodes[0]};
-		auto primary_acs{acs.contains(first_episode.primary_diagnosis())};
-		auto primary_pci{pci.contains(first_episode.primary_procedure())};
-		return primary_acs or primary_pci;
-	    }};
-	    
-	    auto index_spells { patient.spells() | std::views::filter(is_acs_index_spell) };
+	    auto index_spells{get_acs_index_spells(patient.spells(), acs, pci)};
 
-	    std::cout << "Patient = " << patient.nhs_number() << std::endl;
-	    for (const auto & spell : index_spells) {
-		spell.print(lookup, 4);
+	    if (index_spells.empty()) {
+		continue;
+	    }
+
+	    if (print) {
+		std::cout << "Patient = " << patient.nhs_number() << std::endl;
+	    }
+	    for (const auto & index_spell : index_spells) {
+		auto record{get_record_from_index_spell(patient, index_spell, lookup, print)};
+		acs_records.push_back(record);
 	    }
 	    
 	} catch (const RowBufferException::NoMoreRows &) {
@@ -80,4 +81,6 @@ int main(int argc, char ** argv) {
 	    break;
 	}
     }
+
+    std::cout << "Total records: " << acs_records.size() << std::endl;
 }

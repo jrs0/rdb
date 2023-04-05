@@ -16,17 +16,26 @@ std::string ClinicalCode::docs(std::shared_ptr<StringLookup> lookup) const {
 
 /// Get the set of groups associated to this
 /// code
-std::set<std::string> ClinicalCode::groups(std::shared_ptr<StringLookup> lookup) const {
-    std::set<std::string> groups;
+std::set<ClinicalCodeGroup> ClinicalCode::groups() const {
+    std::set<ClinicalCodeGroup> groups;
     for (const auto group_id : data_->group_ids()) {
-	groups.insert(lookup->at(group_id));
+	groups.insert(group_id);
     }
     return groups;
 }
 
-std::string ClinicalCodeGroup::group(std::shared_ptr<StringLookup> lookup) const {
+std::string ClinicalCodeGroup::name(std::shared_ptr<StringLookup> lookup) const {
     return lookup->at(group_id_);
 }
+
+bool ClinicalCodeGroup::contains(const ClinicalCode & code) const {
+    if (not code.valid()) {
+	return false;
+    } else {
+	return code.group_ids().contains(group_id_);
+    }
+}
+
 
 ClinicalCodeGroup::ClinicalCodeGroup(const std::string & group, std::shared_ptr<StringLookup> lookup) {
     group_id_ = lookup->insert_string(group);

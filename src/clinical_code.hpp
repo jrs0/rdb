@@ -11,6 +11,8 @@
 #include "category.hpp"
 #include "colours.hpp"
 
+class ClinicalCode;
+
 /// A wrapper for the set of IDs that describe a code
 class ClinicalCodeData {
 public:
@@ -42,6 +44,67 @@ private:
 
 class ClinicalCodeParser;
 
+class ClinicalCodeGroup {
+public:
+    ClinicalCodeGroup(std::size_t group_id) : group_id_{group_id} {}
+    ClinicalCodeGroup(const std::string & group, std::shared_ptr<StringLookup> lookup);
+    std::string name(std::shared_ptr<StringLookup> lookup) const;
+
+    bool contains(const ClinicalCode & code) const;
+
+    void print(std::shared_ptr<StringLookup> lookup) const {
+	std::cout << lookup->at(group_id_);
+    }
+
+    friend auto operator<=>(const ClinicalCodeGroup&, const ClinicalCodeGroup&) = default;
+    
+private:
+    std::size_t group_id_;
+};
+
+/// A metagroup is a set of clinical code groups
+class ClinicalCodeMetagroup {
+public:
+
+    /// Empty group
+    ClinicalCodeMetagroup() = default;
+    
+    ClinicalCodeMetagroup(const YAML::Node & group_list,
+			  std::shared_ptr<StringLookup> lookup) {
+	for (const auto & group : group_list) {
+	    groups_.emplace_back(group.as<std::string>(), lookup);
+	}
+    }
+
+    void push_back(const ClinicalCodeGroup & code) {
+	groups_.push_back(code);
+    }
+
+    bool contains(const ClinicalCode & code) const {
+	auto contains_code{[&](const auto & group) {
+	    return group.contains(code);
+	}};
+
+	return std::ranges::any_of(groups_, contains_code);
+    }
+
+    void print(std::shared_ptr<StringLookup> lookup) {
+	std::cout << "[";
+	for (const auto & group : groups_) {
+	    group.print(lookup);
+	    std::cout << ",";
+	}
+	std::cout << "]";
+    }
+    
+private:
+    std::vector<ClinicalCodeGroup> groups_;
+};
+
+inline void print(const ClinicalCodeGroup & group, std::shared_ptr<StringLookup> & lookup) {
+    std::cout << group.name(lookup) << std::endl;
+}
+
 /// Note that this class can be NULL, which is why
 /// there is also ClinicalCodeData
 class ClinicalCode {
@@ -70,12 +133,16 @@ public:
     
     /// Get the set of groups associated to this
     /// code
-    std::set<std::string> groups(std::shared_ptr<StringLookup> lookup) const;
+    std::set<ClinicalCodeGroup> groups() const;
 
     auto valid() const {
 	return data_.has_value();
     }
 
+    auto null() const {
+	return not data_.has_value();
+    }
+    
     const auto & group_ids() const {
 	if (not valid()) {
 	    throw Invalid{};
@@ -91,12 +158,16 @@ private:
 
 /// Print a clinical code using strings from the lookup
 inline void print(const ClinicalCode & code, std::shared_ptr<StringLookup> lookup) {
-    if (not code.valid()) {
+    if (code.null()) {
+	std::cout << Colour::CYAN	
+		  << "Null"
+		  << Colour::RESET;
+    } else if (not code.valid()) {
 	std::cout << Colour::CYAN	
 		  << code.name(lookup) << " (Unknown)"
 		  << Colour::RESET;
     } else {
-	auto code_groups{code.groups(lookup)};
+	auto code_groups{code.groups()};
 	if (not code_groups.empty()) {
 	    std::cout << Colour::ORANGE;
 	}
@@ -104,7 +175,7 @@ inline void print(const ClinicalCode & code, std::shared_ptr<StringLookup> looku
 		  << " (" << code.docs(lookup) << ") "
 		  << " [";
         for (const auto & group : code_groups) {
-	    std::cout << group << ",";
+	    std::cout << group.name(lookup) << ",";
 	}
 	std::cout << "]";
 	if (not code_groups.empty()) {
@@ -113,69 +184,6 @@ inline void print(const ClinicalCode & code, std::shared_ptr<StringLookup> looku
     }    
 }
 
-class ClinicalCodeGroup {
-public:
-    ClinicalCodeGroup(const std::string & group, std::shared_ptr<StringLookup> lookup);
-    std::string group(std::shared_ptr<StringLookup> lookup) const;
-
-    bool contains(const ClinicalCode & code) const {
-	if (not code.valid()) {
-	    return false;
-	} else {
-	    return code.group_ids().contains(group_id_);
-	}
-    }
-
-    void print(std::shared_ptr<StringLookup> lookup) const {
-	std::cout << lookup->at(group_id_);
-    }
-    
-private:
-    std::size_t group_id_;
-};
-
-/// A metagroup is a set of clinical code groups
-class ClinicalCodeMetagroup {
-public:
-
-    /// Empty group
-    ClinicalCodeMetagroup() = default;
-    
-    ClinicalCodeMetagroup(const YAML::Node & group_list,
-			  std::shared_ptr<StringLookup> lookup) {
-	for (const auto & group : group_list) {
-	    groups_.emplace_back(group.as<std::string>(), lookup);
-	}
-    }
-
-    void push_back(const ClinicalCodeGroup & code) {
-	groups_.push_back(code);
-    }
-
-    bool contains(const ClinicalCode & code) {
-	auto contains_code{[&](const auto & group) {
-	    return group.contains(code);
-	}};
-
-	return std::ranges::any_of(groups_, contains_code);
-    }
-
-    void print(std::shared_ptr<StringLookup> lookup) {
-	std::cout << "[";
-	for (const auto & group : groups_) {
-	    group.print(lookup);
-	    std::cout << ",";
-	}
-	std::cout << "]";
-    }
-    
-private:
-    std::vector<ClinicalCodeGroup> groups_;
-};
-
-inline void print(const ClinicalCodeGroup & group, std::shared_ptr<StringLookup> & lookup) {
-    std::cout << group.group(lookup) << std::endl;
-}
 
 /// Choose whether to parse a raw code (string) as a diagnosis
 /// or a procedure
