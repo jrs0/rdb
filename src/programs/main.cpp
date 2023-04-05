@@ -54,7 +54,7 @@ int main(int argc, char ** argv) {
 
     std::vector<AcsRecord> acs_records;
 
-    bool print{false};
+    auto print{config["print"].as<bool>()};
 
     std::cout << "Started fetching rows" << std::endl;
     
@@ -81,10 +81,6 @@ int main(int argc, char ** argv) {
 	    break;
 	}
     }
-    /*
-    for (const auto & record : acs_records) {
-        record.print(lookup);
-        std::cout << std::endl;
-    }
-    */    
+
+    std::cout << "Total records: " << acs_records.size() << std::endl;
 }

@@ -39,7 +39,7 @@ parser:
 
 sql_query:
   # Set a limit on the number of returned rows (optional)
-  result_limit: 1000000
+  result_limit: 500
   primary_diagnosis: diagnosisprimary_icd
   secondary_diagnoses:
   - diagnosis1stsecondary_icd
@@ -122,3 +122,4 @@ in_memory:
   num_patients: 500
   seed: 47
 
+print: true
