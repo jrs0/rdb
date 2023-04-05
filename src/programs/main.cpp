@@ -62,22 +62,24 @@ int main(int argc, char ** argv) {
 		continue;
 	    }
 	    
-	    AcsRecord record;
-    	    
 	    std::cout << "Patient = " << patient.nhs_number() << std::endl;
 	    for (const auto & spell : index_spells) {
+
+		AcsRecord record;
+	    
 		spell.print(lookup, 4);
 
+
+		// Secondary diagnoses are often proxies for underlying conditions. Do not
+		// add secondary procedures into the counts, because they often represent
+		// the current index procedure (not prior procedures)
 		for (const auto & group : get_index_secondaries(spell, CodeType::Diagnosis)) {
 		    record.push_before(group);
 		}
 
-		for (const auto & group : get_index_secondaries(spell, CodeType::Procedure)) {
-		    record.push_before(group);
-		}
-	    }
+		record.print(lookup);
 
-	    record.print(lookup);
+	    }
 	    
 	} catch (const RowBufferException::NoMoreRows &) {
 	    std::cout << "Finished fetching all rows" << std::endl;

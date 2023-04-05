@@ -27320,10 +27320,10 @@ categories:
           docs: Mechanical complication of cardiac electronic device
           index: T821
         - name: T82.2
-          docs: Mechanical complication of coronary artery bypass and valve gratrial_fibts
+          docs: Mechanical complication of coronary artery bypass and valve grafts
           index: T822
         - name: T82.3
-          docs: Mechanical complication of other vascular gratrial_fibts
+          docs: Mechanical complication of other vascular grafts
           index: T823
         - name: T82.4
           docs: Mechanical complication of vascular dialysis catheter
@@ -27335,15 +27335,15 @@ categories:
           docs: Infection and inflammatory reaction due to cardiac valve prosthesis
           index: T826
         - name: T82.7
-          docs: Infection and inflammatory reaction due to other cardiac and vascular devices, implants and gratrial_fibts
+          docs: Infection and inflammatory reaction due to other cardiac and vascular devices, implants and grafts
           index: T827
         - name: T82.8
-          docs: Other specified complications of cardiac and vascular prosthetic devices, implants and gratrial_fibts
+          docs: Other specified complications of cardiac and vascular prosthetic devices, implants and grafts
           index: T828
         - name: T82.9
-          docs: Unspecified complication of cardiac and vascular prosthetic device, implant and gratrial_fibt
+          docs: Unspecified complication of cardiac and vascular prosthetic device, implant and graft
           index: T829
-        docs: Complications of cardiac and vascular prosthetic devices, implants and gratrial_fibts
+        docs: Complications of cardiac and vascular prosthetic devices, implants and grafts
         exclude:
         - bleeding
         index: T82
@@ -27356,27 +27356,27 @@ categories:
           docs: Mechanical complication of other urinary devices and implants
           index: T831
         - name: T83.2
-          docs: Mechanical complication of gratrial_fibt of urinary organ
+          docs: Mechanical complication of graft of urinary organ
           index: T832
         - name: T83.3
           docs: Mechanical complication of intrauterine contraceptive device
           index: T833
         - name: T83.4
-          docs: Mechanical complication of other prosthetic devices, implants and gratrial_fibts in genital tract
+          docs: Mechanical complication of other prosthetic devices, implants and grafts in genital tract
           index: T834
         - name: T83.5
-          docs: Infection and inflammatory reaction due to prosthetic device, implant and gratrial_fibt in urinary system
+          docs: Infection and inflammatory reaction due to prosthetic device, implant and graft in urinary system
           index: T835
         - name: T83.6
-          docs: Infection and inflammatory reaction due to prosthetic device, implant and gratrial_fibt in genital tract
+          docs: Infection and inflammatory reaction due to prosthetic device, implant and graft in genital tract
           index: T836
         - name: T83.8
-          docs: Other complications of genitourinary prosthetic devices, implants and gratrial_fibts
+          docs: Other complications of genitourinary prosthetic devices, implants and grafts
           index: T838
         - name: T83.9
-          docs: Unspecified complication of genitourinary prosthetic device, implant and gratrial_fibt
+          docs: Unspecified complication of genitourinary prosthetic device, implant and graft
           index: T839
-        docs: Complications of genitourinary prosthetic devices, implants and gratrial_fibts
+        docs: Complications of genitourinary prosthetic devices, implants and grafts
         exclude:
         - bleeding
         index: T83
@@ -27392,10 +27392,10 @@ categories:
           docs: Mechanical complication of internal fixation device of other bones
           index: T842
         - name: T84.3
-          docs: Mechanical complication of other bone devices, implants and gratrial_fibts
+          docs: Mechanical complication of other bone devices, implants and grafts
           index: T843
         - name: T84.4
-          docs: Mechanical complication of other internal orthopaedic devices, implants and gratrial_fibts
+          docs: Mechanical complication of other internal orthopaedic devices, implants and grafts
           index: T844
         - name: T84.5
           docs: Infection and inflammatory reaction due to internal joint prosthesis
@@ -27404,15 +27404,15 @@ categories:
           docs: Infection and inflammatory reaction due to internal fixation device [any site]
           index: T846
         - name: T84.7
-          docs: Infection and inflammatory reaction due to other internal orthopaedic prosthetic devices, implants and gratrial_fibts
+          docs: Infection and inflammatory reaction due to other internal orthopaedic prosthetic devices, implants and grafts
           index: T847
         - name: T84.8
-          docs: Other complications of internal orthopaedic prosthetic devices, implants and gratrial_fibts
+          docs: Other complications of internal orthopaedic prosthetic devices, implants and grafts
           index: T848
         - name: T84.9
-          docs: Unspecified complication of internal orthopaedic prosthetic device, implant and gratrial_fibt
+          docs: Unspecified complication of internal orthopaedic prosthetic device, implant and graft
           index: T849
-        docs: Complications of internal orthopaedic prosthetic devices, implants and gratrial_fibts
+        docs: Complications of internal orthopaedic prosthetic devices, implants and grafts
         exclude:
         - bleeding
         index: T84
@@ -27428,27 +27428,27 @@ categories:
           docs: Mechanical complication of intraocular lens
           index: T852
         - name: T85.3
-          docs: Mechanical complication of other ocular prosthetic devices, implants and gratrial_fibts
+          docs: Mechanical complication of other ocular prosthetic devices, implants and grafts
           index: T853
         - name: T85.4
           docs: Mechanical complication of breast prosthesis and implant
           index: T854
         - name: T85.5
-          docs: Mechanical complication of gastrointestinal prosthetic devices, implants and gratrial_fibts
+          docs: Mechanical complication of gastrointestinal prosthetic devices, implants and grafts
           index: T855
         - name: T85.6
-          docs: Mechanical complication of other specified internal prosthetic devices, implants and gratrial_fibts
+          docs: Mechanical complication of other specified internal prosthetic devices, implants and grafts
           index: T856
         - name: T85.7
-          docs: Infection and inflammatory reaction due to other internal prosthetic devices, implants and gratrial_fibts
+          docs: Infection and inflammatory reaction due to other internal prosthetic devices, implants and grafts
           index: T857
         - name: T85.8
-          docs: Other complications of internal prosthetic devices, implants and gratrial_fibts, not elsewhere classified
+          docs: Other complications of internal prosthetic devices, implants and grafts, not elsewhere classified
           index: T858
         - name: T85.9
-          docs: Unspecified complication of internal prosthetic device, implant and gratrial_fibt
+          docs: Unspecified complication of internal prosthetic device, implant and graft
           index: T859
-        docs: Complications of other internal prosthetic devices, implants and gratrial_fibts
+        docs: Complications of other internal prosthetic devices, implants and grafts
         exclude:
         - bleeding
         index: T85
@@ -39233,7 +39233,7 @@ categories:
             docs: Surgical operation with implant of artificial internal device
             index: Y831
           - name: Y83.2
-            docs: Surgical operation with anastomosis, bypass or gratrial_fibt
+            docs: Surgical operation with anastomosis, bypass or graft
             index: Y832
           - name: Y83.3
             docs: Surgical operation with formation of external stoma
@@ -41678,7 +41678,7 @@ categories:
           docs: Presence of electronic cardiac devices
           index: Z950
         - name: Z95.1
-          docs: Presence of aortocoronary bypass gratrial_fibt
+          docs: Presence of aortocoronary bypass graft
           index: Z951
         - name: Z95.2
           docs: Presence of prosthetic heart valve
@@ -41690,15 +41690,15 @@ categories:
           docs: Presence of other heart-valve replacement
           index: Z954
         - name: Z95.5
-          docs: Presence of coronary angioplasty implant and gratrial_fibt
+          docs: Presence of coronary angioplasty implant and graft
           index: Z955
         - name: Z95.8
-          docs: Presence of other cardiac and vascular implants and gratrial_fibts
+          docs: Presence of other cardiac and vascular implants and grafts
           index: Z958
         - name: Z95.9
-          docs: Presence of cardiac and vascular implant and gratrial_fibt, unspecified
+          docs: Presence of cardiac and vascular implant and graft, unspecified
           index: Z959
-        docs: Presence of cardiac and vascular implants and gratrial_fibts
+        docs: Presence of cardiac and vascular implants and grafts
         exclude:
         - ckd
         index: Z95
