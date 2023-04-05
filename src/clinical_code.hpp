@@ -11,6 +11,8 @@
 #include "category.hpp"
 #include "colours.hpp"
 
+class ClinicalCode;
+
 /// A wrapper for the set of IDs that describe a code
 class ClinicalCodeData {
 public:
@@ -42,97 +44,13 @@ private:
 
 class ClinicalCodeParser;
 
-/// Note that this class can be NULL, which is why
-/// there is also ClinicalCodeData
-class ClinicalCode {
-public:
-
-    struct Invalid {};
-    
-    /// Make a null clinical code
-    ClinicalCode() = default;
-
-    /// Make an invalid clinical code (prints as invalid,
-    /// stores the ID of the raw string)
-    ClinicalCode(std::size_t invalid_string_id)
-	: invalid_{invalid_string_id} {}
-    
-    /// Create a new clinical code identified
-    /// by this id
-    ClinicalCode(const ClinicalCodeData & data)
-	: data_{data} {}
-
-    /// Get the code name. Returns the raw string for an invalid code
-    std::string name(std::shared_ptr<StringLookup> lookup) const;
-    
-    /// Get the code documentation string
-    std::string docs(std::shared_ptr<StringLookup> lookup) const;
-    
-    /// Get the set of groups associated to this
-    /// code
-    std::set<std::string> groups(std::shared_ptr<StringLookup> lookup) const;
-
-    auto valid() const {
-	return data_.has_value();
-    }
-
-    auto null() const {
-	return not data_.has_value();
-    }
-    
-    const auto & group_ids() const {
-	if (not valid()) {
-	    throw Invalid{};
-	} else {
-	    return data_->group_ids();
-	}
-    }
-
-private:
-    std::optional<std::size_t> invalid_{std::nullopt};
-    std::optional<ClinicalCodeData> data_{std::nullopt};
-};
-
-/// Print a clinical code using strings from the lookup
-inline void print(const ClinicalCode & code, std::shared_ptr<StringLookup> lookup) {
-    if (code.null()) {
-	std::cout << Colour::CYAN	
-		  << "Null"
-		  << Colour::RESET;
-    } else if (not code.valid()) {
-	std::cout << Colour::CYAN	
-		  << code.name(lookup) << " (Unknown)"
-		  << Colour::RESET;
-    } else {
-	auto code_groups{code.groups(lookup)};
-	if (not code_groups.empty()) {
-	    std::cout << Colour::ORANGE;
-	}
-	std::cout << code.name(lookup)
-		  << " (" << code.docs(lookup) << ") "
-		  << " [";
-        for (const auto & group : code_groups) {
-	    std::cout << group << ",";
-	}
-	std::cout << "]";
-	if (not code_groups.empty()) {
-	    std::cout << Colour::RESET;
-	}
-    }    
-}
-
 class ClinicalCodeGroup {
 public:
+    ClinicalCodeGroup(std::size_t group_id) : group_id_{group_id} {}
     ClinicalCodeGroup(const std::string & group, std::shared_ptr<StringLookup> lookup);
-    std::string group(std::shared_ptr<StringLookup> lookup) const;
+    std::string name(std::shared_ptr<StringLookup> lookup) const;
 
-    bool contains(const ClinicalCode & code) const {
-	if (not code.valid()) {
-	    return false;
-	} else {
-	    return code.group_ids().contains(group_id_);
-	}
-    }
+    bool contains(const ClinicalCode & code) const;
 
     void print(std::shared_ptr<StringLookup> lookup) const {
 	std::cout << lookup->at(group_id_);
@@ -184,8 +102,88 @@ private:
 };
 
 inline void print(const ClinicalCodeGroup & group, std::shared_ptr<StringLookup> & lookup) {
-    std::cout << group.group(lookup) << std::endl;
+    std::cout << group.name(lookup) << std::endl;
 }
+
+/// Note that this class can be NULL, which is why
+/// there is also ClinicalCodeData
+class ClinicalCode {
+public:
+
+    struct Invalid {};
+    
+    /// Make a null clinical code
+    ClinicalCode() = default;
+
+    /// Make an invalid clinical code (prints as invalid,
+    /// stores the ID of the raw string)
+    ClinicalCode(std::size_t invalid_string_id)
+	: invalid_{invalid_string_id} {}
+    
+    /// Create a new clinical code identified
+    /// by this id
+    ClinicalCode(const ClinicalCodeData & data)
+	: data_{data} {}
+
+    /// Get the code name. Returns the raw string for an invalid code
+    std::string name(std::shared_ptr<StringLookup> lookup) const;
+    
+    /// Get the code documentation string
+    std::string docs(std::shared_ptr<StringLookup> lookup) const;
+    
+    /// Get the set of groups associated to this
+    /// code
+    std::set<ClinicalCodeGroup> groups() const;
+
+    auto valid() const {
+	return data_.has_value();
+    }
+
+    auto null() const {
+	return not data_.has_value();
+    }
+    
+    const auto & group_ids() const {
+	if (not valid()) {
+	    throw Invalid{};
+	} else {
+	    return data_->group_ids();
+	}
+    }
+
+private:
+    std::optional<std::size_t> invalid_{std::nullopt};
+    std::optional<ClinicalCodeData> data_{std::nullopt};
+};
+
+/// Print a clinical code using strings from the lookup
+inline void print(const ClinicalCode & code, std::shared_ptr<StringLookup> lookup) {
+    if (code.null()) {
+	std::cout << Colour::CYAN	
+		  << "Null"
+		  << Colour::RESET;
+    } else if (not code.valid()) {
+	std::cout << Colour::CYAN	
+		  << code.name(lookup) << " (Unknown)"
+		  << Colour::RESET;
+    } else {
+	auto code_groups{code.groups()};
+	if (not code_groups.empty()) {
+	    std::cout << Colour::ORANGE;
+	}
+	std::cout << code.name(lookup)
+		  << " (" << code.docs(lookup) << ") "
+		  << " [";
+        for (const auto & group : code_groups) {
+	    std::cout << group.name(lookup) << ",";
+	}
+	std::cout << "]";
+	if (not code_groups.empty()) {
+	    std::cout << Colour::RESET;
+	}
+    }    
+}
+
 
 /// Choose whether to parse a raw code (string) as a diagnosis
 /// or a procedure

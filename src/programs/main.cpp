@@ -70,7 +70,9 @@ int main(int argc, char ** argv) {
 			 std::views::take(1) |
 			 std::views::transform(&Episode::secondary_diagnoses) |
 			 std::views::join |
-			 std::views::filter(&ClinicalCode::valid)) {
+			 std::views::filter(&ClinicalCode::valid) |
+			 std::views::transform(&ClinicalCode::groups) |
+			 std::views::join) {
 		    diagnosis_group.print(lookup);
 		}
 
