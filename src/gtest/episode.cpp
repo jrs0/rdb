@@ -58,7 +58,6 @@ TEST(Episode, DiagnosesAndProceduresFromRow) {
     auto lookup{new_string_lookup()};
     auto config{load_config_file("../../config.yaml")};
     auto parser{new_clinical_code_parser(config["parser"], lookup)};
-    std::cout << "HERE" << std::endl;
     Episode episode{row, parser};
 
     // Check the primaries
