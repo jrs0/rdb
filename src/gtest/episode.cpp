@@ -58,12 +58,12 @@ TEST(Episode, DiagnosesAndProceduresFromRow) {
     auto lookup{new_string_lookup()};
     auto config{load_config_file("../../config.yaml")};
     auto parser{new_clinical_code_parser(config["parser"], lookup)};
+    std::cout << "HERE" << std::endl;
     Episode episode{row, parser};
 
     // Check the primaries
     EXPECT_EQ(episode.primary_diagnosis().name(lookup), "I21.0");
     EXPECT_EQ(episode.primary_procedure().name(lookup), "K43.2");
-
     // Check the secondaries
     auto & secondary_diagnoses{episode.secondary_diagnoses()};
     auto & secondary_procedures{episode.secondary_procedures()};
