@@ -94,7 +94,19 @@ int main(int argc, char ** argv) {
 		    spell_before.print(lookup, 4);
 		}
 
-		
+		auto all_groups_before{ spells_before |
+		    std::views::transform(&Spell::episodes) |
+		    std::views::join |
+		    std::views::transform(&Episode::all_procedures_and_diagnosis) |
+		    std::views::join |
+		    std::views::filter(&ClinicalCode::valid) |
+		    std::views::transform(&ClinicalCode::groups) |
+		    std::views::join
+		};
+
+		for (const auto & group : all_groups_before) {
+		    print(group, lookup);
+		}
 		
 		std::cout << "INDEX RECORD:" << std::endl;
 		record.print(lookup);

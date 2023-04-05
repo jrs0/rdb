@@ -22,10 +22,22 @@ public:
 	    throw std::runtime_error("Column type errors in Spell constructor");
 	}
 
-	while (column<Varchar>("spell_id", row).read() == spell_id_) {
-	    episodes_.push_back(Episode{row, parser});
-	    row.fetch_next_row();
+	try {
+	    while (column<Varchar>("spell_id", row).read() == spell_id_) {
+		episodes_.push_back(Episode{row, parser});
+		row.fetch_next_row();
+	    }
+	} catch (const RowBufferException::NoMoreRows & e) {
+	    sort_episodes();
+	    throw;
 	}
+	
+	sort_episodes();
+    }
+
+    /// Sort the episodes by start date
+    void sort_episodes() {
+        std::ranges::sort(episodes_, {}, &Episode::episode_start);	
     }
     
     /// If the spell contains no episodes, then it is

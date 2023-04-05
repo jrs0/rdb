@@ -130,6 +130,16 @@ public:
 	return primary_diagnosis_;
     }
 
+    auto all_procedures_and_diagnosis() const {
+	auto all_codes{secondary_diagnoses_};
+	
+        all_codes.insert(all_codes.end(), secondary_procedures_.begin(),
+			 secondary_procedures_.end());
+	all_codes.push_back(primary_diagnosis_);
+	all_codes.push_back(primary_procedure_);
+	return all_codes;
+    }
+    
     /// Note that the result is ordered, and not necessarily unique
     const auto & secondary_procedures() const {
 	return secondary_procedures_;
