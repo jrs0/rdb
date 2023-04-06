@@ -17,10 +17,10 @@ Next, install the C++ library dependencies by installing Rtools43. Open `Rtools4
 pacman -Sy mingw-w64-x86_64-toolchain mingw-w64-x86_64-unixodbc mingw-w64-x86_64-yaml-cpp
 ```
 
-The `toolchain` gets you basic build tools (make, etc.). The other two are library dependencies for this package. If you installed Rtools43 in a custom location (not `c:\rtools43`), you must add the following line to your `.Renviron` (create it wherever `path.expand(~)` returns):
+The `toolchain` gets you basic build tools (make, etc.). The other two are library dependencies for this package. If you installed Rtools43 in a custom location (not `c:\rtools43`), you must add the following line to your `.Renviron` (create it wherever `path.expand(~)` returns). For example:
 
 ```bash
-PATH=c:\\Users\\john.scott\\rtools43\\x86_64-w64-mingw32.static.posix\\bin:${PATH}
+PATH=c:\\Users\\your.name\\rtools43\\x86_64-w64-mingw32.static.posix\\bin;c:\\Users\\your.name\\rtools43\\usr\\bin;${PATH}
 ```
 
 This will allow R to find the right toolchain (and the libraries installed above).
