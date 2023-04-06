@@ -11,8 +11,19 @@ You must currently install from source. First, obtain R 4.3, and install devtool
 install.packages("devtools")
 ```
 
-Next, install the C++ library dependencies by installing Rtools43.
+Next, install the C++ library dependencies by installing Rtools43. Open `Rtools43 Bash` and run
 
+```bash
+pacman -Sy mingw-w64-x86_64-toolchain mingw-w64-x86_64-unixodbc mingw-w64-x86_64-yaml-cpp
+```
+
+The `toolchain` gets you basic build tools (make, etc.). The other two are library dependencies for this package. If you installed Rtools43 in a custom location (not `c:\rtools43`), you must add the following line to your `.Renviron` (create it wherever `path.expand(~)` returns):
+
+```bash
+PATH=c:\\Users\\john.scott\\rtools43\\x86_64-w64-mingw32.static.posix\\bin:${PATH}
+```
+
+This will allow R to find the right toolchain (and the libraries installed above).
 
 ## Linux Development
 
