@@ -2,7 +2,17 @@
 
 The goal of this repository is to test out the idea of loading data in C++, doing the preprocessing in C++, and then passing it to R for the rest.
 
+
 ## Windows Development
+
+You must currently install from source. First, obtain R 4.3, and install devtools as follows:
+
+```r
+install.packages("devtools")
+```
+
+Next, install the C++ library dependencies by installing Rtools43.
+
 
 ## Linux Development
 

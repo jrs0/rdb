@@ -1,4 +1,4 @@
-CXX_STD=CXX20
+CXX_STD=CXX23
 
 # gdwarf2 for profiling on Windows -- see:
 # "https://www.r-bloggers.com/2016/09/
