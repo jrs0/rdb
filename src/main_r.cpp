@@ -2,6 +2,7 @@
 #include "config.hpp"
 #include "clinical_code.hpp"
 #include "sql_query.hpp"
+#include "sql_connection.hpp"
 #include "patient.hpp"
 
 #include "acs.hpp"
