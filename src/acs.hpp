@@ -41,16 +41,18 @@ public:
 	age_at_index_ = first_episode.age_at_episode();
     }
     
-    /// Increment the counter for group in the before map
+    /// Increment a group counter in the before map
     void push_before(const ClinicalCodeGroup & group) {
 	before_counts_[group]++;
     }
 
-    /// Increment the counter for group in the before map
     void push_after(const ClinicalCodeGroup & group) {
 	after_counts_[group]++;
     }
 
+    
+    
+    
     void print(std::shared_ptr<StringLookup> lookup) const {
 	std::cout << "ACS Record for NHS number " << nhs_number_ << std::endl;
 	std::cout << "Age at index: " << age_at_index_ << std::endl;
@@ -68,13 +70,14 @@ public:
 	    std::cout << ": " << count
 		      << std::endl;
 	}
-        }
-    
+    }
+
 private:
     long long unsigned nhs_number_;
     Integer age_at_index_;
     std::map<ClinicalCodeGroup, std::size_t> before_counts_;
     std::map<ClinicalCodeGroup, std::size_t> after_counts_;
+    
 };
 
 /// Is index event if there is a primary ACS or PCI
@@ -190,6 +193,8 @@ auto get_record_from_index_spell(const Patient & patient,
 	record.print(lookup);
 	std::cout << std::endl;
     }
+
+
     
     return record;
 }
