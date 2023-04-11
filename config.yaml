@@ -113,7 +113,7 @@ code_groups:
   - acs_nstemi
   - acs_unstable_angina
   - atrial_fib
-  - cardiac
+  - chronic_ischaemia_heart_disease
   
 data_sources:
   hospital_episodes:
