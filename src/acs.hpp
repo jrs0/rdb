@@ -107,7 +107,7 @@ public:
 	    std::cout << ": " << count
 		      << std::endl;
 	}
-	if (death_after_) {
+	if (not death_after_) {
 	    std::cout << "No death after" << std::endl;
 	} else {
 	    std::cout << "Death occurred ";
