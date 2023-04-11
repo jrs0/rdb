@@ -32,12 +32,42 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
     
 	auto row{sql_connection.execute_direct(sql_query)};
 
-	std::vector<AcsRecord> acs_records;
+	//std::vector<AcsRecord> acs_records;
 
         auto print{config["print"].as<bool>()};
 
 	std::cout << "Started fetching rows" << std::endl;
 
+	// Make a table to store the counts.
+	std::map<std::string, Rcpp::NumericVector> event_counts;
+
+	// Make a vector to store the nhs numbers. Convert back
+	// to characters so there are no overflow issues with 64
+	// bit ints in R
+	Rcpp::CharacterVector nhs_numbers;
+
+	// Make a vector of timestamps for the date of each index
+	// event
+	Rcpp::NumericVector index_dates;
+
+	// The event triggering inclusion as an index event
+	Rcpp::CharacterVector index_type;
+
+	// The event triggering inclusion as an index event
+	Rcpp::NumericVector age_at_index;
+	
+	// The event triggering inclusion as an index event
+	Rcpp::LogicalVector stemi_presentation;
+
+	// Whether death occured in the "after" period
+	Rcpp::LogicalVector death_after;
+
+	// Time between index event and death (if death_after)
+	Rcpp::LogicalVector index_to_death;	
+
+	// Cause of death (if it occurred)
+	Rcpp::CharacterVector cause_of_death;
+	
 	unsigned cancel_counter{0};
 	unsigned ctrl_c_counter_limit{10};
 	while (true) {
@@ -69,7 +99,11 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 						    cardiac_death,
 						    lookup,
 						    print)};
-		    acs_records.push_back(record);
+
+		    
+		    
+		    record.print(lookup);
+		    //acs_records.push_back(record);
 		}
 	    
 	    } catch (const RowBufferException::NoMoreRows &) {
@@ -77,8 +111,6 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		break;
 	    }
 	}
-
-	std::cout << "Total records: " << acs_records.size() << std::endl;
 
     } catch (const std::runtime_error & e) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;

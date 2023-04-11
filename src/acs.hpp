@@ -254,8 +254,6 @@ auto get_record_from_index_spell(const Patient & patient,
 	record.print(lookup);
 	std::cout << std::endl;
     }
-
-
     
     return record;
 }
