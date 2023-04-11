@@ -10,6 +10,7 @@
 
 #include "category.hpp"
 #include "colours.hpp"
+#include "set_utils.hpp"
 
 class ClinicalCode;
 
@@ -86,6 +87,10 @@ public:
 	}};
 
 	return std::ranges::any_of(groups_, contains_code);
+    }
+
+    bool contains(const ClinicalCodeGroup & group) {
+	return groups_.contains(group);
     }
 
     void print(std::shared_ptr<StringLookup> lookup) {
@@ -241,6 +246,11 @@ public:
 	}
     }
 
+    auto all_groups() const {
+	return set_union(procedure_parser_.all_groups(),
+			 diagnosis_parser_.all_groups());
+    }
+    
     std::string random_code(CodeType type,
 			    std::uniform_random_bit_generator auto & gen) const {
 	switch (type) {

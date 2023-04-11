@@ -29,7 +29,8 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	ClinicalCodeMetagroup acs{config["code_groups"]["acs"], lookup};
 	ClinicalCodeMetagroup pci{config["code_groups"]["pci"], lookup};
 	ClinicalCodeMetagroup cardiac_death{config["code_groups"]["cardiac_death"], lookup};
-    
+	ClinicalCodeMetagroup stemi{config["code_groups"]["cardiac_death"], lookup};
+	
 	auto row{sql_connection.execute_direct(sql_query)};
 
 	//std::vector<AcsRecord> acs_records;
@@ -38,6 +39,8 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
 	std::cout << "Started fetching rows" << std::endl;
 
+	auto all_groups{parser.all_groups()};
+	
 	// Make a table to store the counts.
 	std::map<std::string, Rcpp::NumericVector> event_counts;
 
@@ -97,13 +100,49 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		    auto record{
 			get_record_from_index_spell(patient, index_spell,
 						    cardiac_death,
+						    stemi,
 						    lookup,
 						    print)};
 
+
+
+                    record.print(lookup);
+
+                    // Get the counts before and after for this record
+		    auto before{record.counts_before()};
+		    auto after{record.counts_after()};
+	    
+		    // Add all the counts columns
+		    for (const auto & group : all_groups) {
+			auto group_name{group.name()};
+			event_counts[group_name + "_before"].push_back(before[group]);
+			event_counts[group_name + "_after"].push_back(after[group]);
+		    }
 		    
+		    // Get the nhs number
+		    nhs_numbers.push_back(std::to_string(record.nhs_number()));
+
+		    // Get the index event date
+		    index_dates.push_back(record.index_date());
+
+		    // Get the index event type
+		    index_type.push_back(record.index_type());
+
+		    // Get the stemi presentation flag
+		    stemi_presentation.push_back(record.stemi_presentation());
+
+		    // Age at the index event episode
+		    try {
+			age_at_index.push_back(record.age_at_index().value());
+		    } catch (const std::bad_optional_access &) {
+			age_at_index.push_back(NA_REAL);		
+		    }
+
+
 		    
-		    record.print(lookup);
-		    //acs_records.push_back(record);
+		    nhs_numbers.push_back()
+		    
+                    //acs_records.push_back(record);
 		}
 	    
 	    } catch (const RowBufferException::NoMoreRows &) {

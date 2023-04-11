@@ -43,7 +43,6 @@ public:
 	auto & first_episode{index_spell.episodes()[0]};
 	age_at_index_ = first_episode.age_at_episode();
 	date_of_index_ = first_episode.episode_start();
-	
     }
     
     /// Increment a group counter in the before map
@@ -88,6 +87,10 @@ public:
 	    }
 	}
     }
+
+    void set_stemi_presentation(bool stemi_presentation) {
+	stemi_presentation_ = stemi_presentation;
+    }
     
     void print(std::shared_ptr<StringLookup> lookup) const {
 	std::cout << "ACS Record for NHS number " << nhs_number_ << std::endl;
@@ -125,6 +128,23 @@ public:
 	}
     }
 
+    const auto & counts_before() const {
+	return before_counts_;
+    }
+
+    const auto & counts_after() const {
+	return before_counts_;
+    }
+
+    auto index_date() const {
+	return date_of_index_.read();
+    }
+
+    auto stemi_presentation() const {
+	return stemi_presentation_;
+    }
+
+    
 private:
     long long unsigned nhs_number_;
     Integer age_at_index_;
@@ -132,6 +152,7 @@ private:
     std::map<ClinicalCodeGroup, std::size_t> before_counts_;
     std::map<ClinicalCodeGroup, std::size_t> after_counts_;
     bool death_after_{false};
+    bool stemi_presentation_{false};
 
     /// False means all cause or unknown
     bool cardiac_death_{false};
@@ -213,6 +234,7 @@ auto get_all_groups(std::ranges::range auto && spells) {
 auto get_record_from_index_spell(const Patient & patient,
 				 const Spell & index_spell,
 				 const ClinicalCodeMetagroup cardiac_death_group,
+				 const ClinicalCodeMetagroup stemi_group,
 				 std::shared_ptr<StringLookup> lookup,
 				 bool print) {
     AcsRecord record{patient, index_spell};
@@ -225,7 +247,13 @@ auto get_record_from_index_spell(const Patient & patient,
 
     auto spells_before{get_spells_in_window(patient.spells(), index_spell, -365*24*60*60)};
 
-    for (const auto & group : get_all_groups(spells_before)) {
+    const auto & all_groups{get_all_groups(spells_before)};
+    auto stemi_presentation{std::ranges::any_of(all_groups, {},
+						[&](const ClinicalCodeGroup & group){
+						    stemi_group.contains(group);
+						})};
+    record.set_stemi_presentation(stemi_presentation);
+    for (const auto & group : all_groups) {
 	record.push_before(group);
     }
 

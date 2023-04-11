@@ -114,6 +114,8 @@ code_groups:
   - acs_unstable_angina
   - atrial_fib
   - chronic_ischaemia_heart_disease
+  stemi: [acs_stemi]
+
   
 data_sources:
   hospital_episodes:
