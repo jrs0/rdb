@@ -3,6 +3,7 @@
 
 #include "row_buffer.hpp"
 #include "spell.hpp"
+#include <ostream>
 
 /// If all three of the mortality fields are NULL, then the
 /// patient is considered still alive.
@@ -55,11 +56,11 @@ public:
 	return age_at_death_;
     }
 
-    auto date_at_death() const {
+    auto date_of_death() const {
 	if (alive()) {
 	    throw PatientAlive{};
 	}
-	return age_at_death_;
+	return date_of_death_;
     }
 
     void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
@@ -69,11 +70,13 @@ public:
 	if (alive()) {
 	    std::cout << "alive" << std::endl;
 	} else {
-	    std::cout << "date of death = " << date_of_death_ << ", "
-		      << "age at death = " << age_at_death_ << ", "
-		      << "cause of death = ";
+	    std::cout << std::endl
+		      << std::string(pad, ' ') << "- date of death = " << date_of_death_ << std::endl
+		      << std::string(pad, ' ') << "- age at death = " << age_at_death_  << std::endl
+		      << std::string(pad, ' ') << "- cause of death = ";
 	    if (cause_of_death_) {
 		::print(cause_of_death_.value(), lookup);
+		std::cout << std::endl;
 	    } else {
 		std::cout << "Unknown" << std::endl;
 	    }

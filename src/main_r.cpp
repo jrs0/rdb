@@ -63,10 +63,11 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		    mortality.print(lookup);
 		}
 		for (const auto & index_spell : index_spells) {
-		    auto record{get_record_from_index_spell(patient,
-							    index_spell,
-							    lookup,
-							    print)};
+		    auto record{
+			get_record_from_index_spell(patient, index_spell,
+						    acs,
+						    lookup,
+						    print)};
 		    acs_records.push_back(record);
 		}
 	    

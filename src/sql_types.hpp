@@ -16,6 +16,58 @@
 // Could not determine the returned data length
 struct SqlNoTotal{};
 
+/// For a time offset (seconds) relative to a Timestamp
+class TimestampOffset {
+public:
+    explicit TimestampOffset(long long offset)
+	: offset_{offset} {}
+    auto value() const {
+	return offset_;
+    }
+    friend auto operator<=>(const TimestampOffset &, const TimestampOffset &) = default;
+private:
+    long long offset_;
+};
+
+TimestampOffset years(long long value);
+
+std::ostream & operator << (std::ostream & os, const TimestampOffset & offset) {
+    auto value{offset.value()};
+    if (value > 0) {
+	os << "+ ";
+    } else {
+	os << "- ";
+    }
+    auto years{std::abs(value) / (365*24*60*60)};
+    auto less_than_year{value % (365*24*60*60)};
+    auto days{less_than_year / (24*60*60)};
+    auto less_than_day{less_than_year % (24*60*60)};
+    auto hours{less_than_day / (60*60)};
+    auto less_than_hour{less_than_day % (60*60)};
+    auto minutes{less_than_hour / (60)};
+    auto seconds{less_than_hour % (60)};
+
+    if (years > 0) {
+	os << years << "y ";
+    }
+
+    if (days > 0) {
+	os << days << "d ";
+    }
+
+    if (hours > 0) {
+	os << hours << "h ";
+    }
+
+    if (minutes > 0) {
+	os << minutes << "m ";
+    }
+
+    os << seconds << "s ";
+
+    return os;
+}
+
 class Varchar {
 public:
     struct Null {};
@@ -161,6 +213,8 @@ Timestamp operator+(const Timestamp & time, T offset_seconds) {
     return Timestamp{time.read() + offset_seconds};
 }
 
+TimestampOffset operator-(const Timestamp & a, const Timestamp & b);
+
 using SqlType = std::variant<Varchar,
 			     Integer,
 			     Timestamp>;
@@ -287,6 +341,8 @@ private:
     /// or equal to the buffer size to avoid memory errors.
     std::unique_ptr<SQLLEN> data_size_;
 };
+
+
 
 using BufferType = std::variant<VarcharBuffer,
 				IntegerBuffer,

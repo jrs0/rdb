@@ -30,7 +30,10 @@
 /** 
  * \brief Stores the data for a row in the ACS dataset
  *
- * 
+ * Each ACS record is triggered by an index event which is
+ * either and ACS diagnosis or a PCI procedure. The class also
+ * records relevant events that occur before and after (currently
+ * hardcoded to 12 months, should be defined in the config file).
  */
 class AcsRecord {
 public:
@@ -39,6 +42,8 @@ public:
 	nhs_number_ = patient.nhs_number();
 	auto & first_episode{index_spell.episodes()[0]};
 	age_at_index_ = first_episode.age_at_episode();
+	date_of_index_ = first_episode.episode_start();
+	
     }
     
     /// Increment a group counter in the before map
@@ -50,8 +55,40 @@ public:
 	after_counts_[group]++;
     }
 
-    
-    
+    void set_death_after(const Mortality & mortality, const ClinicalCodeMetagroup & acs_group) {
+
+	if (not mortality.alive()) {
+
+	    auto date_of_death{mortality.date_of_death()};
+	    if (not date_of_death.null() and not date_of_index_.null()) {
+
+		if (date_of_death < date_of_index_) {
+		    throw std::runtime_error("Unexpected date of death before index date at patient"
+					     + std::to_string(nhs_number_));
+		}
+
+		// Check if death occurs in window after (hardcoded for now)
+		index_to_death_ = date_of_death - date_of_index_;
+		if (index_to_death_.value() < years(1)) {
+
+		    death_after_ = true;
+
+		    auto cause_of_death{mortality.cause_of_death()};
+		    if (cause_of_death.has_value()) {
+			acs_death_ = acs_group.contains(cause_of_death.value());
+
+			// Also increment the relevant counter if the death is in
+			// the acs group, so it is recorded as a post index event too.
+                        if (acs_death_) {
+			    for (const auto & group : cause_of_death.value().groups()) {
+				push_after(group);
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
     
     void print(std::shared_ptr<StringLookup> lookup) const {
 	std::cout << "ACS Record for NHS number " << nhs_number_ << std::endl;
@@ -70,14 +107,37 @@ public:
 	    std::cout << ": " << count
 		      << std::endl;
 	}
+	if (death_after_) {
+	    std::cout << "No death after" << std::endl;
+	} else {
+	    std::cout << "Death occurred ";
+	    if (index_to_death_.has_value()) {
+		std::cout << index_to_death_.value();
+	    } else {
+		std::cout << "unknown";
+	    }
+	    std::cout << " seconds after (";
+            if (acs_death_) {
+		std::cout << "ACS-cause)";
+	    } else {
+		std::cout << "all-cause)";
+	    }
+	    std::cout << std::endl;
+	}
     }
 
 private:
     long long unsigned nhs_number_;
     Integer age_at_index_;
+    Timestamp date_of_index_;
     std::map<ClinicalCodeGroup, std::size_t> before_counts_;
     std::map<ClinicalCodeGroup, std::size_t> after_counts_;
-    
+    bool death_after_{false};
+
+    /// False means all cause or unknown, true means the cause of
+    /// death diagnosis was the acs metagroup
+    bool acs_death_{false};
+    std::optional<TimestampOffset> index_to_death_;    
 };
 
 /// Is index event if there is a primary ACS or PCI
@@ -154,6 +214,7 @@ auto get_all_groups(std::ranges::range auto && spells) {
 
 auto get_record_from_index_spell(const Patient & patient,
 				 const Spell & index_spell,
+				 const ClinicalCodeMetagroup acs_group,
 				 std::shared_ptr<StringLookup> lookup,
 				 bool print) {
     AcsRecord record{patient, index_spell};
@@ -175,6 +236,8 @@ auto get_record_from_index_spell(const Patient & patient,
 	record.push_after(group);
     }
 
+    record.set_death_after(patient.mortality(), acs_group);
+    
     if (print) {
 	std::cout << "INDEX SPELL:" << std::endl;
 	index_spell.print(lookup, 4);
