@@ -128,6 +128,10 @@ public:
 	}
     }
 
+    auto nhs_number() const {
+	return nhs_number_;
+    }
+    
     const auto & counts_before() const {
 	return before_counts_;
     }
@@ -231,6 +235,19 @@ auto get_all_groups(std::ranges::range auto && spells) {
 	std::views::join;
 }
 
+/// Returns true if the index_spell was a stemi
+auto get_stemi_presentation(const Spell & index_spell) {
+    
+    return index_spell.episodes() |
+	std::views::transform(&Episode::all_procedures_and_diagnosis) |
+	std::views::join |
+	std::views::filter(&ClinicalCode::valid) |
+	std::views::transform(&ClinicalCode::groups) |
+	std::views::join |
+	std::ranges::any_of();
+	
+}
+
 auto get_record_from_index_spell(const Patient & patient,
 				 const Spell & index_spell,
 				 const ClinicalCodeMetagroup cardiac_death_group,
@@ -245,15 +262,13 @@ auto get_record_from_index_spell(const Patient & patient,
 	record.push_before(group);
     }
 
+    auto stemi_presentation{get_stemi_presentation(index_spell)};
+    record.set_stemi_presentation(stemi_presentation);
+    
     auto spells_before{get_spells_in_window(patient.spells(), index_spell, -365*24*60*60)};
 
-    const auto & all_groups{get_all_groups(spells_before)};
-    auto stemi_presentation{std::ranges::any_of(all_groups, {},
-						[&](const ClinicalCodeGroup & group){
-						    stemi_group.contains(group);
-						})};
-    record.set_stemi_presentation(stemi_presentation);
-    for (const auto & group : all_groups) {
+    
+    for (const auto & group : get_all_groups(spells_before)) {
 	record.push_before(group);
     }
 

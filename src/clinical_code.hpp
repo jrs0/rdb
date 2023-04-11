@@ -89,8 +89,9 @@ public:
 	return std::ranges::any_of(groups_, contains_code);
     }
 
-    bool contains(const ClinicalCodeGroup & group) {
-	return groups_.contains(group);
+    bool contains(const ClinicalCodeGroup & group) const {
+	return std::ranges::find(groups_, group)
+	    not_eq std::ranges::end(groups_);
     }
 
     void print(std::shared_ptr<StringLookup> lookup) {
