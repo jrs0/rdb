@@ -42,7 +42,7 @@ parser:
   
 sql_query:
   # Set a limit on the number of returned rows (optional)
-  result_limit: 5000
+  result_limit: 50000
   primary_diagnosis: diagnosisprimary_icd
   secondary_diagnoses:
   - diagnosis1stsecondary_icd
@@ -108,6 +108,12 @@ index_event:
 code_groups:
   acs: [acs_stemi, acs_nstemi, acs_unstable_angina]
   pci: [pci]
+  cardiac_death:
+  - acs_stemi
+  - acs_nstemi
+  - acs_unstable_angina
+  - atrial_fib
+  - cardiac
   
 data_sources:
   hospital_episodes:

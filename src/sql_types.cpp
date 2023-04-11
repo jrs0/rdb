@@ -56,7 +56,7 @@ std::ostream & operator << (std::ostream & os, const TimestampOffset & offset) {
 	os << minutes << "m ";
     }
 
-    os << seconds << "s ";
-
+    os << seconds << "s (" << value << ")";
+    
     return os;
 }

@@ -69,8 +69,7 @@ public:
 
 		// Check if death occurs in window after (hardcoded for now)
 		index_to_death_ = date_of_death - date_of_index_;
-		if (index_to_death_.value() < years(1)) {
-
+                if (index_to_death_.value() < years(1)) {
 		    death_after_ = true;
 
 		    auto cause_of_death{mortality.cause_of_death()};
