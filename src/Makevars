@@ -1,4 +1,4 @@
-#CXX_STD=CXX23
+CXX_STD=CXX20
 
 # gdwarf2 for profiling on Windows -- see:
 # "https://www.r-bloggers.com/2016/09/
@@ -11,8 +11,9 @@
 # -lprofiler library too)
 #
 PKG_LIBS = -lyaml-cpp -lodbc32 -pg #-lprofiler #$(SHLIB_OPENMP_CFLAGS)
-PKG_CXXFLAGS = -std=gnu++20 -pg -g #-gdwarf-2 -DNO_GPERFTOOLS
+PKG_CXXFLAGS = -pg -g #-gdwarf-2 -DNO_GPERFTOOLS
 
 ## This flag is important to override the -s from
 ## the user Makevars
 DLLFLAGS =
+
