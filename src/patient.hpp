@@ -64,7 +64,20 @@ public:
 
     void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
 	
-	//std::cout << ""
+	std::cout << std::string(pad, ' ')
+		  << "Mortality: ";
+	if (alive()) {
+	    std::cout << "alive" << std::endl;
+	} else {
+	    std::cout << "date of death = " << date_of_death_ << ", "
+		      << "age at death = " << age_at_death_ << ", "
+		      << "cause of death = ";
+	    if (cause_of_death_) {
+		::print(cause_of_death_.value(), lookup);
+	    } else {
+		std::cout << "Unknown" << std::endl;
+	    }
+	}	    
     }
     
 private:
@@ -81,6 +94,8 @@ public:
     /// discovers a new patients, the row is left in
     /// the buffer for the next Patient object
     Patient(RowBuffer auto & row, std::shared_ptr<ClinicalCodeParser> parser)
+	// Take the mortality data from the first row of the first spell, because
+	// the mortality table was left-joined (so all rows will be the same)
 	: mortality_{row, parser} {
 
 	try {
@@ -111,6 +126,7 @@ public:
     void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
 	std::cout << Colour::PINK <<"Patient: " << nhs_number_
 		  << Colour::RESET << std::endl;
+	mortality_.print(lookup, pad);
 	for (const auto & spell : spells_) {
 	    spell.print(lookup, pad + 4);
 	}
