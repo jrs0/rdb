@@ -7,6 +7,9 @@
 
 #include "acs.hpp"
 
+#include <thread>
+#include <chrono>
+
 #include <Rcpp.h>
 
 #include <optional>
@@ -14,10 +17,15 @@
 // [[Rcpp::export]]
 void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
+    std::thread cancel_listener{[]{
+	Rcpp::checkUserInterrupt();
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }};
+    
     std::string config_path_str{Rcpp::as<std::string>(config_path)};
     
     try {
-
+	
 	auto lookup{new_string_lookup()};
 	auto config{load_config_file(config_path_str)};
 	auto parser{new_clinical_code_parser(config["parser"], lookup)};
@@ -70,6 +78,8 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
     } catch (const std::runtime_error & e) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
     }
+
+    cancel_listener.join();
 
     
 }
