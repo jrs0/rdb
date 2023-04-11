@@ -194,4 +194,5 @@ auto get_record_from_index_spell(const Patient & patient,
     return record;
 }
 
+
 #endif

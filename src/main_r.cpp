@@ -22,27 +22,28 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	auto config{load_config_file(config_path_str)};
 	auto parser{new_clinical_code_parser(config["parser"], lookup)};
 	auto sql_connection{new_sql_connection(config["connection"])};
-	auto sql_query{make_acs_sql_query(config["sql_query"], false, std::nullopt)};
+	auto sql_query{make_acs_sql_query(config["sql_query"], true, std::nullopt)};
 
 	std::cout << sql_query << std::endl;
-
+	
 	ClinicalCodeMetagroup acs{config["code_groups"]["acs"], lookup};
 	ClinicalCodeMetagroup pci{config["code_groups"]["pci"], lookup};
     
 	auto row{sql_connection.execute_direct(sql_query)};
 
 	std::vector<AcsRecord> acs_records;
-	
-	auto print{config["print"].as<bool>()};
+
+        auto print{config["print"].as<bool>()};
 
 	std::cout << "Started fetching rows" << std::endl;
 
 	unsigned cancel_counter{0};
+	unsigned ctrl_c_counter_limit{10};
 	while (true) {
 
-	    if (++cancel_counter > 10) {
-		cancel_counter = 0;
+	    if (++cancel_counter > ctrl_c_counter_limit) {
 		Rcpp::checkUserInterrupt();
+		cancel_counter = 0;
 	    }
 
 	    try {
