@@ -28,6 +28,7 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	
 	ClinicalCodeMetagroup acs{config["code_groups"]["acs"], lookup};
 	ClinicalCodeMetagroup pci{config["code_groups"]["pci"], lookup};
+	ClinicalCodeMetagroup cardiac_death{config["code_groups"]["cardiac_death"], lookup};
     
 	auto row{sql_connection.execute_direct(sql_query)};
 
@@ -65,7 +66,7 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		for (const auto & index_spell : index_spells) {
 		    auto record{
 			get_record_from_index_spell(patient, index_spell,
-						    acs,
+						    cardiac_death,
 						    lookup,
 						    print)};
 		    acs_records.push_back(record);

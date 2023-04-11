@@ -55,7 +55,7 @@ public:
 	after_counts_[group]++;
     }
 
-    void set_death_after(const Mortality & mortality, const ClinicalCodeMetagroup & acs_group) {
+    void set_death_after(const Mortality & mortality, const ClinicalCodeMetagroup & cardiac_death_group) {
 
 	if (not mortality.alive()) {
 
@@ -74,11 +74,11 @@ public:
 
 		    auto cause_of_death{mortality.cause_of_death()};
 		    if (cause_of_death.has_value()) {
-			acs_death_ = acs_group.contains(cause_of_death.value());
+			cardiac_death_ = cardiac_death_group.contains(cause_of_death.value());
 
 			// Also increment the relevant counter if the death is in
 			// the acs group, so it is recorded as a post index event too.
-                        if (acs_death_) {
+                        if (cardiac_death_) {
 			    for (const auto & group : cause_of_death.value().groups()) {
 				push_after(group);
 			    }
@@ -116,8 +116,8 @@ public:
 		std::cout << "unknown";
 	    }
 	    std::cout << " seconds after (";
-            if (acs_death_) {
-		std::cout << "ACS-cause)";
+            if (cardiac_death_) {
+		std::cout << "cardiac-cause)";
 	    } else {
 		std::cout << "all-cause)";
 	    }
@@ -133,9 +133,8 @@ private:
     std::map<ClinicalCodeGroup, std::size_t> after_counts_;
     bool death_after_{false};
 
-    /// False means all cause or unknown, true means the cause of
-    /// death diagnosis was the acs metagroup
-    bool acs_death_{false};
+    /// False means all cause or unknown
+    bool cardiac_death_{false};
     std::optional<TimestampOffset> index_to_death_;    
 };
 
@@ -213,7 +212,7 @@ auto get_all_groups(std::ranges::range auto && spells) {
 
 auto get_record_from_index_spell(const Patient & patient,
 				 const Spell & index_spell,
-				 const ClinicalCodeMetagroup acs_group,
+				 const ClinicalCodeMetagroup cardiac_death_group,
 				 std::shared_ptr<StringLookup> lookup,
 				 bool print) {
     AcsRecord record{patient, index_spell};
@@ -235,7 +234,7 @@ auto get_record_from_index_spell(const Patient & patient,
 	record.push_after(group);
     }
 
-    record.set_death_after(patient.mortality(), acs_group);
+    record.set_death_after(patient.mortality(), cardiac_death_group);
     
     if (print) {
 	std::cout << "INDEX SPELL:" << std::endl;
