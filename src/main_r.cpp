@@ -7,9 +7,6 @@
 
 #include "acs.hpp"
 
-#include <thread>
-#include <chrono>
-
 #include <Rcpp.h>
 
 #include <optional>
@@ -17,11 +14,6 @@
 // [[Rcpp::export]]
 void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
-    std::thread cancel_listener{[]{
-	Rcpp::checkUserInterrupt();
-	std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }};
-    
     std::string config_path_str{Rcpp::as<std::string>(config_path)};
     
     try {
@@ -40,13 +32,21 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	auto row{sql_connection.execute_direct(sql_query)};
 
 	std::vector<AcsRecord> acs_records;
-
+	
 	auto print{config["print"].as<bool>()};
 
 	std::cout << "Started fetching rows" << std::endl;
-    
+
+	unsigned cancel_counter{0};
 	while (true) {
+
+	    if (++cancel_counter > 10) {
+		cancel_counter = 0;
+		Rcpp::checkUserInterrupt();
+	    }
+
 	    try {
+		
 		Patient patient{row, parser};
 
 		auto index_spells{get_acs_index_spells(patient.spells(), acs, pci)};
@@ -78,8 +78,4 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
     } catch (const std::runtime_error & e) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
     }
-
-    cancel_listener.join();
-
-    
 }
