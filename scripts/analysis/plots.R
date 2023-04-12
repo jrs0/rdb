@@ -160,7 +160,7 @@ plot_survival <- function(dataset) {
         select(stemi_presentation, cause_of_death, index_to_death) %>%
         ggplot(aes(x = index_to_death, fill = cause_of_death)) +
         geom_density(alpha = 0.3, position="stack") +
-        facet_grid(stemi_presentation ~ cause_of_death) +
+        facet_grid(~ stemi_presentation) +
         labs(x = "Survival time (seconds)", y = "Distribution (normalised by totals)") +
         theme_minimal(base_size = 16)
 }

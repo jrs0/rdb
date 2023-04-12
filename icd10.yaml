@@ -3047,6 +3047,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - A00
     - B99
@@ -5941,6 +5942,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - C00
     - D48
@@ -6683,6 +6685,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - D50
     - D89
@@ -8097,6 +8100,7 @@ categories:
     - acs_unstable_angina
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - E00
     - E90
@@ -8146,6 +8150,7 @@ categories:
       - acs_unstable_angina
       - ischaemic_stroke
       - chronic_ischaemia_heart_disease
+      - other_ischaemic_heart_diseases
       index:
       - I00
       - I02
@@ -8260,6 +8265,7 @@ categories:
       - acs_unstable_angina
       - ischaemic_stroke
       - chronic_ischaemia_heart_disease
+      - other_ischaemic_heart_diseases
       index:
       - I05
       - I09
@@ -8339,6 +8345,7 @@ categories:
       - acs_unstable_angina
       - ischaemic_stroke
       - chronic_ischaemia_heart_disease
+      - other_ischaemic_heart_diseases
       index:
       - I10
       - I15
@@ -8346,6 +8353,8 @@ categories:
     - categories:
       - categories:
         - docs: Unstable angina
+          exclude:
+          - other_ischaemic_heart_diseases
           index: I200
           name: I20.0
         - docs: Angina pectoris with documented spasm
@@ -8375,26 +8384,31 @@ categories:
         - docs: Acute transmural myocardial infarction of anterior wall
           exclude:
           - acs_nstemi
+          - other_ischaemic_heart_diseases
           index: I210
           name: I21.0
         - docs: Acute transmural myocardial infarction of inferior wall
           exclude:
           - acs_nstemi
+          - other_ischaemic_heart_diseases
           index: I211
           name: I21.1
         - docs: Acute transmural myocardial infarction of other sites
           exclude:
           - acs_nstemi
+          - other_ischaemic_heart_diseases
           index: I212
           name: I21.2
         - docs: Acute transmural myocardial infarction of unspecified site
           exclude:
           - acs_nstemi
+          - other_ischaemic_heart_diseases
           index: I213
           name: I21.3
         - docs: Acute subendocardial myocardial infarction
           exclude:
           - acs_stemi
+          - other_ischaemic_heart_diseases
           index: I214
           name: I21.4
         - docs: Acute myocardial infarction, unspecified
@@ -8436,10 +8450,13 @@ categories:
         - bleeding
         - acs_unstable_angina
         - chronic_ischaemia_heart_disease
+        - other_ischaemic_heart_diseases
         index: I22
         name: I22
       - categories:
         - docs: Haemopericardium as current complication following acute myocardial infarction
+          exclude:
+          - other_ischaemic_heart_diseases
           index: I230
           name: I23.0
         - docs: Atrial septal defect as current complication following acute myocardial infarction
@@ -8541,6 +8558,7 @@ categories:
         - acs_stemi
         - acs_nstemi
         - acs_unstable_angina
+        - other_ischaemic_heart_diseases
         index: I25
         name: I25
       docs: Ischaemic heart diseases
@@ -8610,6 +8628,7 @@ categories:
       - acs_unstable_angina
       - ischaemic_stroke
       - chronic_ischaemia_heart_disease
+      - other_ischaemic_heart_diseases
       index:
       - I26
       - I28
@@ -9143,6 +9162,7 @@ categories:
       - acs_unstable_angina
       - ischaemic_stroke
       - chronic_ischaemia_heart_disease
+      - other_ischaemic_heart_diseases
       index:
       - I30
       - I52
@@ -9419,6 +9439,7 @@ categories:
       - acs_nstemi
       - acs_unstable_angina
       - chronic_ischaemia_heart_disease
+      - other_ischaemic_heart_diseases
       index:
       - I60
       - I69
@@ -9623,6 +9644,7 @@ categories:
       - acs_unstable_angina
       - ischaemic_stroke
       - chronic_ischaemia_heart_disease
+      - other_ischaemic_heart_diseases
       index:
       - I70
       - I79
@@ -9818,6 +9840,7 @@ categories:
       - acs_unstable_angina
       - ischaemic_stroke
       - chronic_ischaemia_heart_disease
+      - other_ischaemic_heart_diseases
       index:
       - I80
       - I89
@@ -9912,6 +9935,7 @@ categories:
       - acs_unstable_angina
       - ischaemic_stroke
       - chronic_ischaemia_heart_disease
+      - other_ischaemic_heart_diseases
       index:
       - I95
       - I99
@@ -11546,6 +11570,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - F00
     - F99
@@ -12869,6 +12894,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - G00
     - G99
@@ -14046,6 +14072,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - H00
     - H59
@@ -14548,6 +14575,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - H60
     - H95
@@ -15578,6 +15606,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - J00
     - J99
@@ -17530,6 +17559,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - K00
     - K93
@@ -18868,6 +18898,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - L00
     - L99
@@ -21004,6 +21035,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - M00
     - M99
@@ -22917,6 +22949,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - N00
     - N99
@@ -27780,6 +27813,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - S00
     - T98
@@ -29430,6 +29464,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - O00
     - O99
@@ -30737,6 +30772,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - P00
     - P96
@@ -33063,6 +33099,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - Q00
     - Q99
@@ -34508,6 +34545,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - R00
     - R99
@@ -39486,6 +39524,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - V01
     - Y98
@@ -41881,6 +41920,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - Z00
     - Z99
@@ -42069,6 +42109,7 @@ categories:
     - diabetes_unspecified
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
+    - other_ischaemic_heart_diseases
     index:
     - U00
     - U85
@@ -42083,6 +42124,8 @@ groups:
 - acs_nstemi
 - acs_unstable_angina
 - bleeding
+- chronic_ischaemia_heart_disease
+- other_ischaemic_heart_diseases
 - atrial_fib
 - ckd1
 - ckd2
@@ -42103,4 +42146,3 @@ groups:
 - type_2_diabetes
 - diabetes_unspecified
 - ischaemic_stroke
-- chronic_ischaemia_heart_disease

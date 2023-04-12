@@ -111,8 +111,8 @@ code_groups:
   - acs_unstable_angina
   - atrial_fib
   - chronic_ischaemia_heart_disease
+  - other_ischaemic_heart_diseases
   stemi: [acs_stemi]
-
   
 data_sources:
   hospital_episodes:
@@ -130,4 +130,4 @@ in_memory:
   num_patients: 500
   seed: 47
 
-print: false
+print: true
