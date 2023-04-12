@@ -6,6 +6,6 @@ test_cpp <- function(thing) {
 }
 
 make_acs_dataset <- function(config_path) {
-    invisible(.Call('_rdb_make_acs_dataset', PACKAGE = 'rdb', config_path))
+    .Call('_rdb_make_acs_dataset', PACKAGE = 'rdb', config_path)
 }
 

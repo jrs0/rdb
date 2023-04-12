@@ -12,7 +12,7 @@
 #include <optional>
 
 // [[Rcpp::export]]
-void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
+Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
     std::string config_path_str{Rcpp::as<std::string>(config_path)};
     
@@ -39,35 +39,14 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
 	std::cout << "Started fetching rows" << std::endl;
 
-	// Make a table to store the counts.
 	std::map<std::string, Rcpp::NumericVector> event_counts;
-
-	// Make a vector to store the nhs numbers. Convert back
-	// to characters so there are no overflow issues with 64
-	// bit ints in R
 	Rcpp::CharacterVector nhs_numbers;
-
-	// Make a vector of timestamps for the date of each index
-	// event
 	Rcpp::NumericVector index_dates;
-
-	// The event triggering inclusion as an index event
-	// (ACS or PCI)
 	Rcpp::LogicalVector pci_triggered;
-
-	// The event triggering inclusion as an index event
 	Rcpp::NumericVector age_at_index;
-	
-	// The event triggering inclusion as an index event
 	Rcpp::LogicalVector stemi_presentation;
-
-	// Whether death occured in the "after" period
 	Rcpp::LogicalVector death_after;
-
-	// Time between index event and death (if death_after)
-	Rcpp::LogicalVector index_to_death;	
-
-	// Cause of death (if it occurred)
+	Rcpp::NumericVector index_to_death;	
 	Rcpp::CharacterVector cause_of_death;
 	
 	unsigned cancel_counter{0};
@@ -103,37 +82,43 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 						    lookup,
 						    print)};
 
-
-
                     record.print(lookup);
 
                     // Get the counts before and after for this record
 		    auto before{record.counts_before()};
 		    auto after{record.counts_after()};
-	    
-		    // Add all the counts columns
 		    for (const auto & group : all_groups) {
 			event_counts[group.name(lookup) + "_before"].push_back(before[group]);
 			event_counts[group.name(lookup) + "_after"].push_back(after[group]);
 		    }
 
-		    // Get the nhs number
 		    nhs_numbers.push_back(std::to_string(record.nhs_number()));
-
-		    // Get the index event date
 		    index_dates.push_back(record.index_date());
-
-		    // Get the index event type
 		    pci_triggered.push_back(primary_pci(first_episode(index_spell), pci));
-
-		    // Get the stemi presentation flag
 		    stemi_presentation.push_back(get_stemi_presentation(index_spell, stemi));
 
-		    // Age at the index event episode
-		    try {
+                    try {
 			age_at_index.push_back(record.age_at_index().read());
 		    } catch (const Integer::Null &) {
 			age_at_index.push_back(NA_REAL);		
+		    }
+
+		    death_after.push_back(record.death_after());
+
+		    if (record.death_after()) {
+			index_to_death.push_back(record.index_to_death().value().value());
+		    } else {
+                        index_to_death.push_back(NA_REAL);
+		    }
+
+		    if (record.death_after()) {
+			if (record.cardiac_death()) {
+			    cause_of_death.push_back("cardiac");
+			} else {
+			    cause_of_death.push_back("all_cause");			    
+			}
+		    } else {
+			cause_of_death.push_back("no_death");
 		    }
 		}
 	    
@@ -143,7 +128,23 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	    }
 	}
 
+	Rcpp::List table_r;
+	table_r["nhs_number"] = nhs_numbers;
+	table_r["index_date"] = index_dates;
+	table_r["pci_triggered"] = pci_triggered;
+	table_r["age_at_index"] = age_at_index;
+	table_r["stemi_presentation"] = stemi_presentation;
+	table_r["death_after"] = death_after;
+	table_r["index_to_death"] = index_to_death;
+	table_r["cause_of_death"] = cause_of_death;
+	for (const auto & [column_name, counts] : event_counts) {
+	    table_r[column_name] = counts;
+	}
+
+	return table_r;
+
     } catch (const std::runtime_error & e) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+	return Rcpp::List{};
     }
 }

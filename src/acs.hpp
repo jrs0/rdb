@@ -139,10 +139,6 @@ public:
 	return age_at_index_;
     }
 
-    auto date_of_index() const {
-	return date_of_index_;
-    }
-
     const auto & counts_before() const {
 	return before_counts_;
     }
@@ -151,10 +147,22 @@ public:
 	return before_counts_;
     }
 
+    auto death_after() const {
+	return death_after_;
+    }
+    
     auto index_date() const {
 	return date_of_index_.read();
     }
 
+    auto index_to_death() const {
+	return index_to_death_;
+    }
+
+    auto cardiac_death() const {
+	return cardiac_death_;
+    }
+    
 private:
     long long unsigned nhs_number_;
     Integer age_at_index_;
