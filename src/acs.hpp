@@ -312,7 +312,7 @@ auto get_record_from_index_spell(const Patient & patient,
 	    }
 	}
 	std::cout << std::endl;
-	
+
 	std::cout << "INDEX RECORD:" << std::endl;
 	record.print(lookup);
 	std::cout << std::endl;

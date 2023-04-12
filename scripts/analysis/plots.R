@@ -156,7 +156,7 @@ plot_age_distributions <- function(dataset) {
 plot_survival <- function(dataset) {
     dataset %>%
         filter(cause_of_death != "no_death") %>%
-        mutate(stemi_presentation = factor(stemi_presentation, labels = c("STEMI", "NSTEMI"))) %>%
+        mutate(stemi_presentation = factor(stemi_presentation, labels = c("NSTEMI", "STEMI"))) %>%
         select(stemi_presentation, cause_of_death, index_to_death) %>%
         ggplot(aes(x = index_to_death, fill = cause_of_death)) +
         geom_density(alpha = 0.3, position="stack") +
