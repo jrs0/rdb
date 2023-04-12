@@ -9,8 +9,10 @@ library(ggplot2)
 ##' @return A ggplot object
 ##' 
 plot_index_with_time <- function(dataset) {
-    ggplot(dataset) +
-        geom_histogram(aes(x = index_date, fill = stemi_presentation),
+    dataset %>%
+        rename(STEMI = stemi_presentation) %>%
+        ggplot() +
+        geom_histogram(aes(x = index_date, fill = STEMI),
                        bins = 75)
 }
 
@@ -142,4 +144,23 @@ plot_age_distributions <- function(dataset) {
         labs(x = 'Predictor class', y = 'Count in bin') +
         theme_minimal(base_size = 16) +
         theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))    
+}
+
+##' Plot the distribution of survival time from index for the
+##' STEMI and NSTEMI groups
+##' 
+##' @title Plot distribution of survival times from index 
+##' @param dataset ACS dataset
+##' @return A ggplot object
+##' 
+plot_survival <- function(dataset) {
+    dataset %>%
+        filter(cause_of_death != "no_death") %>%
+        mutate(stemi_presentation = factor(stemi_presentation, labels = c("STEMI", "NSTEMI"))) %>%
+        select(stemi_presentation, cause_of_death, index_to_death) %>%
+        ggplot(aes(x = index_to_death, fill = cause_of_death)) +
+        geom_density(alpha = 0.3, position="stack") +
+        facet_grid(stemi_presentation ~ cause_of_death) +
+        labs(x = "Survival time (seconds)", y = "Distribution (normalised by totals)") +
+        theme_minimal(base_size = 16)
 }

@@ -19,7 +19,8 @@ acs_dataset <- function(config_file = "config.yaml") {
     ## Convert the date from unix time to lubridate
     dataset <- dplyr::mutate(dataset,
                              index_date = lubridate::as_datetime(index_date),
-                             index_to_death = lubridate::as.duration(index_to_death))
+                             index_to_death = lubridate::as.duration(index_to_death),
+                             cause_of_death = as.factor(cause_of_death))
     
     ## Compute the outcome columns (only need ischaemia because bleed
     ## is already in there)
@@ -28,4 +29,3 @@ acs_dataset <- function(config_file = "config.yaml") {
                              + acs_nstemi_after
                              + ischaemic_stroke_after)
 }
-
