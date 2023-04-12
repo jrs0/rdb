@@ -236,16 +236,19 @@ auto get_all_groups(std::ranges::range auto && spells) {
 }
 
 /// Returns true if the index_spell was a stemi
-auto get_stemi_presentation(const Spell & index_spell) {
+auto get_stemi_presentation(const Spell & index_spell,
+			    const ClinicalCodeGroup & stemi_group) {
     
-    return index_spell.episodes() |
+    auto index_codes{
+	index_spell.episodes() |
 	std::views::transform(&Episode::all_procedures_and_diagnosis) |
 	std::views::join |
-	std::views::filter(&ClinicalCode::valid) |
-	std::views::transform(&ClinicalCode::groups) |
-	std::views::join |
-	std::ranges::any_of();
-	
+	std::views::filter(&ClinicalCode::valid)
+    };
+    return std::ranges::any_of(index_codes,
+			       [&](const auto & code) {
+			       return stemi_group.contains(code);
+			       });
 }
 
 auto get_record_from_index_spell(const Patient & patient,
@@ -262,7 +265,7 @@ auto get_record_from_index_spell(const Patient & patient,
 	record.push_before(group);
     }
 
-    auto stemi_presentation{get_stemi_presentation(index_spell)};
+    auto stemi_presentation{get_stemi_presentation(index_spell, stemi_group)};
     record.set_stemi_presentation(stemi_presentation);
     
     auto spells_before{get_spells_in_window(patient.spells(), index_spell, -365*24*60*60)};
