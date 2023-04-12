@@ -29,7 +29,7 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	ClinicalCodeMetagroup acs{config["code_groups"]["acs"], lookup};
 	ClinicalCodeMetagroup pci{config["code_groups"]["pci"], lookup};
 	ClinicalCodeMetagroup cardiac_death{config["code_groups"]["cardiac_death"], lookup};
-	ClinicalCodeMetagroup stemi{config["code_groups"]["cardiac_death"], lookup};
+	ClinicalCodeMetagroup stemi{config["code_groups"]["stemi"], lookup};
 	
 	auto row{sql_connection.execute_direct(sql_query)};
 
