@@ -42,7 +42,7 @@ parser:
   
 sql_query:
   # Set a limit on the number of returned rows (optional)
-  result_limit: 500000
+  result_limit: 5000
   primary_diagnosis: diagnosisprimary_icd
   secondary_diagnoses:
   - diagnosis1stsecondary_icd
@@ -68,7 +68,7 @@ sql_query:
   - diagnosis21stsecondary_icd
   - diagnosis22ndsecondary_icd
   - diagnosis23rdsecondary_icd
-0
+
   # Defines how procedures are processed
   primary_procedure: primaryprocedure_opcs
   secondary_procedures: 
