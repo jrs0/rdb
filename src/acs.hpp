@@ -299,6 +299,24 @@ auto get_record_from_index_spell(const Patient & patient,
     record.set_death_after(patient.mortality(), cardiac_death_group);
     
     if (print) {
+
+	auto index_date{Timestamp{record.index_date()}};
+	std::cout << "Index date: " << index_date
+		  << std::endl;
+	if (record.death_after()) {
+	    std::cout << "Survival time: ";
+	    try {
+		std::cout << record.index_to_death().value() << std::endl;
+	    } catch (std::bad_optional_access &) {
+		std::cout << "unknown" << std::endl;
+	    }
+	}
+	std::cout << std::endl;
+	
+	std::cout << "INDEX RECORD:" << std::endl;
+	record.print(lookup);
+	std::cout << std::endl;
+
 	std::cout << "INDEX SPELL:" << std::endl;
 	index_spell.print(lookup, 4);
 
@@ -311,11 +329,7 @@ auto get_record_from_index_spell(const Patient & patient,
 	for (const auto & spell_after : spells_after) {
 	    spell_after.print(lookup, 4);
 	}
-    
-	std::cout << "INDEX RECORD:" << std::endl;
-	record.print(lookup);
-	std::cout << std::endl;
-    }
+        }
     
     return record;
 }

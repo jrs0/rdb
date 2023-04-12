@@ -68,19 +68,33 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		    continue;
 		}
 
-		if (print) {
-		    std::cout << "Patient = " << patient.nhs_number()
-			      << std::endl;
-		    auto mortality{patient.mortality()};
-		    mortality.print(lookup);
-		}
 		for (const auto & index_spell : index_spells) {
+
+		    auto stemi_flag{get_stemi_presentation(index_spell, stemi)};
+		    
+		    if (print) {
+			std::cout << std::endl
+				  << "------ RECORD for PCI/ACS INDEX ------"
+				  << std::endl;
+			std::cout << "Patient = " << patient.nhs_number() << std::endl;
+			auto mortality{patient.mortality()};
+			mortality.print(lookup);
+
+			std::cout << "Presentation: ";
+			if (stemi_flag) {
+			    std::cout << "STEMI" << std::endl;
+			} else {
+			    std::cout << "NSTEMI" << std::endl;
+			}
+		    }
+		    
 		    auto record{
 			get_record_from_index_spell(patient, index_spell,
 						    cardiac_death,
 						    lookup,
-						    print)};
-
+						    print)
+		    };
+		    
                     // Get the counts before and after for this record
 		    auto before{record.counts_before()};
 		    auto after{record.counts_after()};
@@ -92,7 +106,7 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		    nhs_numbers.push_back(std::to_string(record.nhs_number()));
 		    index_dates.push_back(record.index_date());
 		    pci_triggered.push_back(primary_pci(first_episode(index_spell), pci));
-		    stemi_presentation.push_back(get_stemi_presentation(index_spell, stemi));
+		    stemi_presentation.push_back(stemi_flag);
 
                     try {
 			age_at_index.push_back(record.age_at_index().read());
