@@ -286,7 +286,6 @@ auto get_record_from_index_spell(const Patient & patient,
     }
     
     auto spells_before{get_spells_in_window(patient.spells(), index_spell, -365*24*60*60)};
-
     
     for (const auto & group : get_all_groups(spells_before)) {
 	record.push_before(group);

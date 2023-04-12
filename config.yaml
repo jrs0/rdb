@@ -54,21 +54,21 @@ sql_query:
   - diagnosis7thsecondary_icd
   - diagnosis8thsecondary_icd
   - diagnosis9thsecondary_icd
-  # - diagnosis10thsecondary_icd
-  # - diagnosis11thsecondary_icd
-  # - diagnosis12thsecondary_icd
-  # - diagnosis13thsecondary_icd
-  # - diagnosis14thsecondary_icd
-  # - diagnosis15thsecondary_icd
-  # - diagnosis16thsecondary_icd
-  # - diagnosis17thsecondary_icd
-  # - diagnosis18thsecondary_icd
-  # - diagnosis19thsecondary_icd
-  # - diagnosis20thsecondary_icd
-  # - diagnosis21stsecondary_icd
-  # - diagnosis22ndsecondary_icd
-  # - diagnosis23rdsecondary_icd
-
+  - diagnosis10thsecondary_icd
+  - diagnosis11thsecondary_icd
+  - diagnosis12thsecondary_icd
+  - diagnosis13thsecondary_icd
+  - diagnosis14thsecondary_icd
+  - diagnosis15thsecondary_icd
+  - diagnosis16thsecondary_icd
+  - diagnosis17thsecondary_icd
+  - diagnosis18thsecondary_icd
+  - diagnosis19thsecondary_icd
+  - diagnosis20thsecondary_icd
+  - diagnosis21stsecondary_icd
+  - diagnosis22ndsecondary_icd
+  - diagnosis23rdsecondary_icd
+0
   # Defines how procedures are processed
   primary_procedure: primaryprocedure_opcs
   secondary_procedures: 
@@ -82,20 +82,20 @@ sql_query:
   - procedure8th_opcs
   - procedure9th_opcs
   - procedure10th_opcs
-  # - procedure11th_opcs
-  # - procedure12th_opcs
-  # - procedure13th_opcs
-  # - procedure14th_opcs
-  # - procedure15th_opcs
-  # - procedure16th_opcs
-  # - procedure17th_opcs
-  # - procedure18th_opcs
-  # - procedure19th_opcs
-  # - procedure20th_opcs
-  # - procedure21st_opcs
-  # - procedure22nd_opcs
-  # - procedure23rd_opcs
-  # - procedure24th_opcs
+  - procedure11th_opcs
+  - procedure12th_opcs
+  - procedure13th_opcs
+  - procedure14th_opcs
+  - procedure15th_opcs
+  - procedure16th_opcs
+  - procedure17th_opcs
+  - procedure18th_opcs
+  - procedure19th_opcs
+  - procedure20th_opcs
+  - procedure21st_opcs
+  - procedure22nd_opcs
+  - procedure23rd_opcs
+  - procedure24th_opcs
 
 index_event:
   start_date: "2015-1-1" 
@@ -133,4 +133,4 @@ in_memory:
   num_patients: 500
   seed: 47
 
-print: true
+print: false

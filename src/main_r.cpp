@@ -45,7 +45,6 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	Rcpp::LogicalVector pci_triggered;
 	Rcpp::NumericVector age_at_index;
 	Rcpp::LogicalVector stemi_presentation;
-	Rcpp::LogicalVector death_after;
 	Rcpp::NumericVector index_to_death;	
 	Rcpp::CharacterVector cause_of_death;
 	
@@ -82,8 +81,6 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 						    lookup,
 						    print)};
 
-                    record.print(lookup);
-
                     // Get the counts before and after for this record
 		    auto before{record.counts_before()};
 		    auto after{record.counts_after()};
@@ -102,8 +99,6 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		    } catch (const Integer::Null &) {
 			age_at_index.push_back(NA_REAL);		
 		    }
-
-		    death_after.push_back(record.death_after());
 
 		    if (record.death_after()) {
 			index_to_death.push_back(record.index_to_death().value().value());
@@ -134,7 +129,6 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	table_r["pci_triggered"] = pci_triggered;
 	table_r["age_at_index"] = age_at_index;
 	table_r["stemi_presentation"] = stemi_presentation;
-	table_r["death_after"] = death_after;
 	table_r["index_to_death"] = index_to_death;
 	table_r["cause_of_death"] = cause_of_death;
 	for (const auto & [column_name, counts] : event_counts) {
