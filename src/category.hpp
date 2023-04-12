@@ -12,7 +12,6 @@
 #include <algorithm>
 #include <set>
 #include <random>
-#include "string_lookup.hpp"
 
 #include <yaml-cpp/yaml.h>
 

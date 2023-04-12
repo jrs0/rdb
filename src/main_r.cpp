@@ -39,8 +39,6 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
 	std::cout << "Started fetching rows" << std::endl;
 
-	auto all_groups{parser->all_groups()};
-	
 	// Make a table to store the counts.
 	std::map<std::string, Rcpp::NumericVector> event_counts;
 
@@ -55,7 +53,7 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
 	// The event triggering inclusion as an index event
 	// (ACS or PCI)
-	Rcpp::CharacterVector index_type;
+	Rcpp::LogicalVector pci_triggered;
 
 	// The event triggering inclusion as an index event
 	Rcpp::NumericVector age_at_index;
@@ -74,7 +72,8 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	
 	unsigned cancel_counter{0};
 	unsigned ctrl_c_counter_limit{10};
-	while (true) {
+	const auto all_groups{parser->all_groups(lookup)};
+        while (true) {
 
 	    if (++cancel_counter > ctrl_c_counter_limit) {
 		Rcpp::checkUserInterrupt();
@@ -101,7 +100,6 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		    auto record{
 			get_record_from_index_spell(patient, index_spell,
 						    cardiac_death,
-						    stemi,
 						    lookup,
 						    print)};
 
@@ -115,11 +113,10 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	    
 		    // Add all the counts columns
 		    for (const auto & group : all_groups) {
-			auto group_name{group.name()};
-			event_counts[group_name + "_before"].push_back(before[group]);
-			event_counts[group_name + "_after"].push_back(after[group]);
+			event_counts[group.name(lookup) + "_before"].push_back(before[group]);
+			event_counts[group.name(lookup) + "_after"].push_back(after[group]);
 		    }
-		    
+
 		    // Get the nhs number
 		    nhs_numbers.push_back(std::to_string(record.nhs_number()));
 
@@ -127,23 +124,17 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		    index_dates.push_back(record.index_date());
 
 		    // Get the index event type
-		    index_type.push_back(record.index_type());
+		    pci_triggered.push_back(primary_pci(first_episode(index_spell), pci));
 
 		    // Get the stemi presentation flag
-		    stemi_presentation.push_back(record.stemi_presentation());
+		    stemi_presentation.push_back(get_stemi_presentation(index_spell, stemi));
 
 		    // Age at the index event episode
 		    try {
-			age_at_index.push_back(record.age_at_index().value());
-		    } catch (const std::bad_optional_access &) {
+			age_at_index.push_back(record.age_at_index().read());
+		    } catch (const Integer::Null &) {
 			age_at_index.push_back(NA_REAL);		
 		    }
-
-
-		    
-		    nhs_numbers.push_back()
-		    
-                    //acs_records.push_back(record);
 		}
 	    
 	    } catch (const RowBufferException::NoMoreRows &) {

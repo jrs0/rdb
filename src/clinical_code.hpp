@@ -12,6 +12,8 @@
 #include "colours.hpp"
 #include "set_utils.hpp"
 
+#include "string_lookup.hpp"
+
 class ClinicalCode;
 
 /// A wrapper for the set of IDs that describe a code
@@ -247,9 +249,15 @@ public:
 	}
     }
 
-    auto all_groups() const {
-	return set_union(procedure_parser_.all_groups(),
-			 diagnosis_parser_.all_groups());
+    auto all_groups(std::shared_ptr<StringLookup> lookup) const {
+	std::set<ClinicalCodeGroup> groups;
+	for (const auto & group_name : procedure_parser_.all_groups()) {
+	    groups.insert({group_name, lookup});
+	}
+	for (const auto & group_name : diagnosis_parser_.all_groups()) {
+	    groups.insert({group_name, lookup});
+	}
+	return groups;
     }
     
     std::string random_code(CodeType type,

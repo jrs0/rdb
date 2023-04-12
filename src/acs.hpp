@@ -134,7 +134,15 @@ public:
     auto nhs_number() const {
 	return nhs_number_;
     }
-    
+
+    auto age_at_index() const {
+	return age_at_index_;
+    }
+
+    auto date_of_index() const {
+	return date_of_index_;
+    }
+
     const auto & counts_before() const {
 	return before_counts_;
     }
@@ -259,7 +267,6 @@ auto get_stemi_presentation(const Spell & index_spell,
 auto get_record_from_index_spell(const Patient & patient,
 				 const Spell & index_spell,
 				 const ClinicalCodeMetagroup cardiac_death_group,
-				 const ClinicalCodeMetagroup stemi_group,
 				 std::shared_ptr<StringLookup> lookup,
 				 bool print) {
     AcsRecord record{patient, index_spell};
@@ -269,11 +276,6 @@ auto get_record_from_index_spell(const Patient & patient,
     for (const auto & group : get_index_secondaries(index_spell, CodeType::Diagnosis)) {
 	record.push_before(group);
     }
-
-    auto stemi_presentation{get_stemi_presentation(index_spell, stemi_group)};
-    record.set_stemi_presentation(stemi_presentation);
-
-    record.set_acs_triggered(primary_pci(first_episode(index_spell), pci_group));
     
     auto spells_before{get_spells_in_window(patient.spells(), index_spell, -365*24*60*60)};
 
