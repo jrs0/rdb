@@ -27,6 +27,13 @@
 #include "spell.hpp"
 #include "clinical_code.hpp"
 
+const auto & first_episode(const Spell & spell) {
+    if (spell.episodes().empty()) {
+	throw std::runtime_error("Spell has no episodes in call to first_episode()");
+    }
+    return spell.episodes()[0];
+}
+
 /** 
  * \brief Stores the data for a row in the ACS dataset
  *
@@ -40,7 +47,7 @@ public:
 
     AcsRecord(const Patient & patient, const Spell & index_spell) {
 	nhs_number_ = patient.nhs_number();
-	auto & first_episode{index_spell.episodes()[0]};
+	auto & first_episode{::first_episode(index_spell)};
 	age_at_index_ = first_episode.age_at_episode();
 	date_of_index_ = first_episode.episode_start();
     }
@@ -88,10 +95,6 @@ public:
 	}
     }
 
-    void set_stemi_presentation(bool stemi_presentation) {
-	stemi_presentation_ = stemi_presentation;
-    }
-    
     void print(std::shared_ptr<StringLookup> lookup) const {
 	std::cout << "ACS Record for NHS number " << nhs_number_ << std::endl;
 	std::cout << "Age at index: " << age_at_index_ << std::endl;
@@ -144,11 +147,6 @@ public:
 	return date_of_index_.read();
     }
 
-    auto stemi_presentation() const {
-	return stemi_presentation_;
-    }
-
-    
 private:
     long long unsigned nhs_number_;
     Integer age_at_index_;
@@ -156,12 +154,20 @@ private:
     std::map<ClinicalCodeGroup, std::size_t> before_counts_;
     std::map<ClinicalCodeGroup, std::size_t> after_counts_;
     bool death_after_{false};
-    bool stemi_presentation_{false};
-
+    
     /// False means all cause or unknown
     bool cardiac_death_{false};
     std::optional<TimestampOffset> index_to_death_;    
 };
+
+auto primary_acs(const Episode & episode, const ClinicalCodeMetagroup & acs_group) {
+    return acs_group.contains(episode.primary_diagnosis());    
+}
+
+auto primary_pci(const Episode & episode, const ClinicalCodeMetagroup & pci_group) {
+    return pci_group.contains(episode.primary_procedure());
+}
+
 
 /// Is index event if there is a primary ACS or PCI
 /// in the _first_ episode of the spell
@@ -174,9 +180,8 @@ auto get_acs_index_spells(const std::vector<Spell> & spells,
 	    return false;
 	}
 	auto & first_episode{episodes[0]};
-	auto primary_acs{acs_group.contains(first_episode.primary_diagnosis())};
-	auto primary_pci{pci_group.contains(first_episode.primary_procedure())};
-	return primary_acs or primary_pci;
+	return primary_acs(first_episode, acs_group)
+	    or primary_pci(first_episode, pci_group);
     }};
     
     return spells | std::views::filter(is_acs_index_spell);
@@ -237,7 +242,7 @@ auto get_all_groups(std::ranges::range auto && spells) {
 
 /// Returns true if the index_spell was a stemi
 auto get_stemi_presentation(const Spell & index_spell,
-			    const ClinicalCodeGroup & stemi_group) {
+			    const ClinicalCodeMetagroup & stemi_group) {
     
     auto index_codes{
 	index_spell.episodes() |
@@ -267,6 +272,8 @@ auto get_record_from_index_spell(const Patient & patient,
 
     auto stemi_presentation{get_stemi_presentation(index_spell, stemi_group)};
     record.set_stemi_presentation(stemi_presentation);
+
+    record.set_acs_triggered(primary_pci(first_episode(index_spell), pci_group));
     
     auto spells_before{get_spells_in_window(patient.spells(), index_spell, -365*24*60*60)};
 

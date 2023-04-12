@@ -39,7 +39,7 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
 	std::cout << "Started fetching rows" << std::endl;
 
-	auto all_groups{parser.all_groups()};
+	auto all_groups{parser->all_groups()};
 	
 	// Make a table to store the counts.
 	std::map<std::string, Rcpp::NumericVector> event_counts;
@@ -54,6 +54,7 @@ void make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	Rcpp::NumericVector index_dates;
 
 	// The event triggering inclusion as an index event
+	// (ACS or PCI)
 	Rcpp::CharacterVector index_type;
 
 	// The event triggering inclusion as an index event
