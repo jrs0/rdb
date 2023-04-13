@@ -29,7 +29,7 @@
 
 # Set to true to load the dataset from a file, otherwise
 # load from the database
-load_from_file: true
+load_from_file: false
 
 file:
   directory: gendata/
@@ -47,8 +47,8 @@ parser:
   
 sql_query:
   # Set a limit on the number of returned rows (optional)
-  #result_limit: 1000000
   result_limit: 5000
+  #result_limit: 5000
   primary_diagnosis: diagnosisprimary_icd
   secondary_diagnoses:
   - diagnosis1stsecondary_icd

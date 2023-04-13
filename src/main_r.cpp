@@ -23,8 +23,6 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	auto parser{new_clinical_code_parser(config["parser"], lookup)};
 	auto sql_connection{new_sql_connection(config["connection"])};
 	auto sql_query{make_acs_sql_query(config["sql_query"], true, std::nullopt)};
-
-	std::cout << sql_query << std::endl;
 	
 	ClinicalCodeMetagroup acs{config["code_groups"]["acs"], lookup};
 	ClinicalCodeMetagroup pci{config["code_groups"]["pci"], lookup};

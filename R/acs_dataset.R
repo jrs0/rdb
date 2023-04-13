@@ -15,7 +15,7 @@
 ##'
 ##' @title Load the ACS dataset from the database or a file
 ##' @param config The path to the YAML configuration file
-##' @return A tibble containing the dataset
+##' @return A dataframe containing the dataset
 ##' 
 load_acs_dataset <- function(config_path = "config.yaml") {
     config <- yaml::read_yaml(config_path)
@@ -34,7 +34,7 @@ load_acs_dataset <- function(config_path = "config.yaml") {
         }
         readRDS(file_path)
     } else {
-        dataset <- make_acs_dataset(config_path)
+        dataset <- tibble::as_tibble(make_acs_dataset(config_path))
         if (!fs::dir_exists(directory)) {
             message("Creating missing ", directory, " for storing dataset")
             fs::dir_create(directory)
@@ -44,26 +44,22 @@ load_acs_dataset <- function(config_path = "config.yaml") {
     }
 }
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' @title Create the ACS/PCI bleeding/ischaemia risk dataset
-##' @param config_file 
-##' @return A tibble of the dataset
-##' @export 
-acs_dataset <- function(config_file = "config.yaml") {
 
-    ## Get the raw data
-    dataset <- tibble::as_tibble(make_acs_dataset(config_file))
+processed_acs_dataset <- function(config_file = "config.yaml") {
 
-    ## Convert the date from unix time to lubridate
+    dataset <- load_acs_dataset(config_file)
+
+    ## Convert the date from unix timestamps to lubridate
     dataset <- dplyr::mutate(dataset,
                              index_date = lubridate::as_datetime(index_date),
                              index_to_death = lubridate::as.duration(index_to_death))
-    
+
     ## Compute the outcome columns (only need ischaemia because bleed
-    ## is already in there)
+    ## is already in there). The ischaemia endpoint is defined as
+    ## subsequent ACS STEMI or NSTEMI or cardiac death.
     dataset <- dplyr::mutate(dataset,
-                             ischaemia_after = acs_stemi_after
-                             + acs_nstemi_after
-                             + ischaemic_stroke_after)
+                             ischaemia_after = acs_stemi_after +
+                                 acs_nstemi_after +
+                                 ischaemic_stroke_after +
+                                 (cause_of_death == "cardiac_death"))
 }

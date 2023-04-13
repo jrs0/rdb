@@ -105,29 +105,24 @@ public:
 	case SQL_VARCHAR:
 	    /// Store a varchar in a std::string. Convert to
 	    /// a char string
-	    std::cout << "Found varchar column " << col_name << std::endl;
 	    return make_varchar_binding(index, get_handle());
 	    
 	case SQL_INTEGER:
 	    // 32-bit signed or unsigned integer -> map to SqlInteger
 	    // Map
 	    //target_type =
-	    std::cout << "Found integer column " << col_name << std::endl;
 	    return make_integer_binding(index, get_handle());    
 	case SQL_BIGINT:
 	    // 64-bit signed or unsigned int -> map to SqlInteger
-	    std::cout << "Found big integer column " << col_name << std::endl;
 	    return make_integer_binding(index, get_handle());
 	    
 	case SQL_TYPE_TIMESTAMP:
 	    // Year, month, day, hour, minute, and second
 	    // -> map to SqlDatetime
-	    std::cout << "Found timestamp column " << col_name << std::endl;
 	    return make_timestamp_binding(index, get_handle());
 	    break;
 	    
 	case SQL_TYPE_DATE:
-	    std::cout << "Found date column " << col_name << std::endl;
 	    return make_timestamp_binding(index, get_handle());
 	    break;
 	    
