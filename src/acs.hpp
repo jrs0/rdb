@@ -58,18 +58,9 @@ public:
 		index_to_death_ = date_of_death - date_of_index_;
                 if (index_to_death_.value() < years(1)) {
 		    death_after_ = true;
-
 		    auto cause_of_death{mortality.cause_of_death()};
 		    if (cause_of_death.has_value()) {
 			cardiac_death_ = cardiac_death_group.contains(cause_of_death.value());
-
-			// Also increment the relevant counter if the death is in
-			// the acs group, so it is recorded as a post index event too.
-                        if (cardiac_death_) {
-			    for (const auto & group : cause_of_death.value().groups()) {
-				push_after(group);
-			    }
-			}
 		    }
 		}
 	    }
