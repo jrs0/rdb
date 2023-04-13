@@ -56,9 +56,8 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	    }
 
 	    try {
-		
 		Patient patient{row, parser};
-		auto index_spells{get_acs_index_spells(patient.spells(), acs_metagroup, pci_metagroup)};
+		auto index_spells{get_acs_and_pci_spells(patient.spells(), acs_metagroup, pci_metagroup)};
 		if (index_spells.empty()) {
 		    continue;
 		}
@@ -161,11 +160,42 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
                         survival_times.push_back(NA_REAL);
 			causes_of_death.push_back("no_death");
 		    }
-		}
 
-		if (print) {
-		    std::cout << "=============================" << std::endl;
-		    std::cout << "PCI/ACS Record" << std::endl;
+		    if (print) {
+			std::cout << "====================================" << std::endl;
+			std::cout << "PCI/ACS RECORD" << std::endl;
+			std::cout << "------------------------------------" << std::endl;
+			std::cout << "Pseudo NHS Number: " << nhs_number << std::endl;
+			std::cout << "Age at index: " << age_at_index << std::endl;
+			std::cout << "Index date: " << date_of_index << std::endl;
+			if (stemi_flag) {
+			    std::cout << "Presentation: STEMI" << std::endl;
+			} else {
+			    std::cout << "Presentation: NSTEMI" << std::endl;
+			}
+			if (pci_triggered) {
+			    std::cout << "Inclusion trigger: PCI" << std::endl;
+			} else {
+			    std::cout << "Inclusion trigger: ACS" << std::endl;
+			}   
+                        mortality.print(lookup);
+			if (survival_time.has_value()) {
+			    std::cout << "Survival time: " << survival_time.value() << std::endl;
+			}
+			std::cout << "EVENT COUNTS" << std::endl;
+			event_counter.print(lookup);
+			std::cout << "INDEX SPELL" << std::endl;
+			index_spell.print(lookup, 4);			
+			std::cout << std::endl;
+			std::cout << "SPELLS AFTER" << std::endl;
+			for (const auto & spell : spells_after) {
+			    spell.print(lookup, 4);
+			}
+			std::cout << "SPELLS BEFORE" << std::endl;
+			for (const auto & spell : spells_before) {
+			    spell.print(lookup, 4);
+			}
+		    }
 		}
 		
 	    } catch (const RowBufferException::NoMoreRows &) {

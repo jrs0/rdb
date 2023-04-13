@@ -7,6 +7,7 @@
 #include "episode.hpp"
 #include "spell.hpp"
 #include "clinical_code.hpp"
+#include "event_counter.hpp"
 
 const auto & get_first_episode(const Spell & spell) {
     if (spell.episodes().empty()) {
@@ -14,31 +15,6 @@ const auto & get_first_episode(const Spell & spell) {
     }
     return spell.episodes()[0];
 }
-
-class EventCounter {
-public:
-    
-    /// Increment a group counter in the before map
-    void push_before(const ClinicalCodeGroup & group) {
-	before_counts_[group]++;
-    }
-
-    void push_after(const ClinicalCodeGroup & group) {
-	after_counts_[group]++;
-    }
-
-    const auto & counts_before() const {
-	return before_counts_;
-    }
-
-    const auto & counts_after() const {
-	return before_counts_;
-    }
-
-private:
-    std::map<ClinicalCodeGroup, std::size_t> before_counts_;
-    std::map<ClinicalCodeGroup, std::size_t> after_counts_;
-};
 
 auto primary_acs(const Episode & episode, const ClinicalCodeMetagroup & acs_group) {
     return acs_group.contains(episode.primary_diagnosis());    
@@ -51,7 +27,7 @@ auto primary_pci(const Episode & episode, const ClinicalCodeMetagroup & pci_grou
 
 /// Is index event if there is a primary ACS or PCI
 /// in the _first_ episode of the spell
-auto get_acs_index_spells(const std::vector<Spell> & spells,
+auto get_acs_and_pci_spells(const std::vector<Spell> & spells,
 			  const ClinicalCodeMetagroup & acs_group,
 			  const ClinicalCodeMetagroup & pci_group) {
     auto is_acs_index_spell{[&](const Spell &spell) {
