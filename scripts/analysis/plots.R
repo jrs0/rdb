@@ -113,13 +113,20 @@ plot_outcome_distributions <- function(dataset) {
         theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))    
 }
 
-plot_count_distributions <- function(dataset) {
+
+##' Distribution of non-zero bleeding/ischaemia counts (uses a cutoff)
+plot_non_zero_count_distributions <- function(dataset) {
+    total_rows <- nrow(dataset)
     dataset %>%
         pivot_longer(c(bleeding_after, ischaemia_after)) %>%
+        filter(value != 0 & value < 20) %>%
         ggplot(aes(x = value)) +
-        geom_histogram() +
+        geom_histogram(binwidth = 1, fill = 'deepskyblue4') +
         facet_grid(~ name) +
-        labs(x = "Total count after", y = "Count")
+        labs(title = paste("Distribution of non-zero counts (from", total_rows, "rows)"),
+             x = "Total count",
+             y = "Total rows having count") +
+        theme_minimal(base_size = 16)
 }
 
 ##' Plot the distribution of age in each of the four bleeding/ischaemia

@@ -13,7 +13,6 @@ library(knitr)
 
 library(probably)
 library(discrim)
-library(probably)
 
 ## For attempt to find optimal threshold
 library(pROC)
@@ -31,12 +30,15 @@ source("plots.R")
 ## (levels no_bleed, bleed_occured). The result is a dataset with age and
 ## all the ICD <code>_before columns, and a response variable bleed.
 
-raw_dataset <- readRDS("gendata/medium_dataset.rds")
+raw_dataset <- processed_acs_dataset("../../config.yaml")
+```
 
+Put all the descriptive stuff here, before modifying the dataset for modelling.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 dataset <- raw_dataset %>%
     mutate(bleeding_after = factor(bleeding_after == 0, labels = c("bleed_occured", "no_bleed"))) %>%
     mutate(ischaemia_after = factor(ischaemia_after == 0, labels = c("ischaemia_occured", "no_ischaemia"))) %>%
-    drop_na() %>%
     ## Remove the after columns
     dplyr::select(- (matches("after") & !matches("(bleeding_after|ischaemia_after)")), - nhs_number) %>%
     ## Add an ID to link up patients between bleeding and ischaemia predictions
