@@ -113,6 +113,14 @@ plot_outcome_distributions <- function(dataset) {
         theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))    
 }
 
+plot_count_distributions <- function(dataset) {
+    dataset %>%
+        pivot_longer(c(bleeding_after, ischaemia_after)) %>%
+        ggplot(aes(x = value)) +
+        geom_histogram() +
+        facet_grid(~ name) +
+        labs(x = "Total count after", y = "Count")
+}
 
 ##' Plot the distribution of age in each of the four bleeding/ischaemia
 ##' groups
@@ -134,6 +142,7 @@ plot_age_distributions <- function(dataset) {
                                                        "Ischaemia After"))) %>%
         dplyr::select(- matches("(before|after)"))
 
+    
     reduced %>%
         drop_na() %>%
         ## Use capital letter to identify predictor
