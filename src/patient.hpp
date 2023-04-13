@@ -5,18 +5,6 @@
 #include "spell.hpp"
 #include <ostream>
 
-/// If all three of the mortality fields are NULL, then the
-/// patient is considered still alive.
-bool patient_alive(const RowBuffer auto & row) {
-
-    /*
-
-    */
-
-    // For now not using mortality
-    return true;
-}
-
 class Mortality {
 public:
 

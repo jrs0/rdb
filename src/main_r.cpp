@@ -8,6 +8,7 @@
 #include "acs.hpp"
 
 #include <Rcpp.h>
+#include "r_factor.hpp"
 
 #include <optional>
 
@@ -16,8 +17,7 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
     std::string config_path_str{Rcpp::as<std::string>(config_path)};
     
-    try {
-	
+    try {	
 	auto lookup{new_string_lookup()};
 	auto config{load_config_file(config_path_str)};
 	auto parser{new_clinical_code_parser(config["parser"], lookup)};
@@ -33,20 +33,18 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	
 	auto row{sql_connection.execute_direct(sql_query)};
 
-	//std::vector<AcsRecord> acs_records;
-
         auto print{config["print"].as<bool>()};
 
 	std::cout << "Started fetching rows" << std::endl;
 
 	std::map<std::string, Rcpp::NumericVector> event_counts;
-	Rcpp::CharacterVector nhs_numbers;
+	RFactor nhs_numbers;
 	Rcpp::NumericVector index_dates;
-	Rcpp::LogicalVector pci_triggered;
+	RFactor index_type;
 	Rcpp::NumericVector age_at_index;
-	Rcpp::LogicalVector stemi_presentation;
-	Rcpp::NumericVector index_to_death;	
-	Rcpp::CharacterVector cause_of_death;
+	RFactor stemi_presentation;
+        Rcpp::NumericVector index_to_death;	
+	RFactor cause_of_death;
 	
 	unsigned cancel_counter{0};
 	unsigned ctrl_c_counter_limit{10};
@@ -105,9 +103,20 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
 		    nhs_numbers.push_back(std::to_string(record.nhs_number()));
 		    index_dates.push_back(record.index_date());
-		    pci_triggered.push_back(primary_pci(first_episode(index_spell), pci));
-		    stemi_presentation.push_back(stemi_flag);
 
+		    auto pci_triggered{primary_pci(first_episode(index_spell), pci)};
+		    if (pci_triggered) {
+			index_type.push_back("PCI");
+		    } else {
+			index_type.push_back("ACS");			
+		    }
+
+		    if (stemi_flag) {
+			stemi_presentation.push_back("STEMI");
+		    } else {
+			stemi_presentation.push_back("NSTEMI");
+		    }
+		    
                     try {
 			age_at_index.push_back(record.age_at_index().read());
 		    } catch (const Integer::Null &) {
@@ -138,13 +147,13 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	}
 
 	Rcpp::List table_r;
-	table_r["nhs_number"] = nhs_numbers;
+	table_r["nhs_number"] = nhs_numbers.get();
 	table_r["index_date"] = index_dates;
-	table_r["pci_triggered"] = pci_triggered;
+	table_r["index_type"] = index_type.get();
 	table_r["age_at_index"] = age_at_index;
-	table_r["stemi_presentation"] = stemi_presentation;
+	table_r["stemi_presentation"] = stemi_presentation.get();
 	table_r["index_to_death"] = index_to_death;
-	table_r["cause_of_death"] = cause_of_death;
+	table_r["cause_of_death"] = cause_of_death.get();
 	for (const auto & [column_name, counts] : event_counts) {
 	    table_r[column_name] = counts;
 	}

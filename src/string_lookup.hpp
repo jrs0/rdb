@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <ranges>
 
 /**
  * \brief Map strings to unique IDs
@@ -40,6 +41,11 @@ public:
 	for (const auto & [index, string] : index_to_string_) {
 	    std::cout << index << ": " << string << std::endl;
 	}
+    }
+
+    /// All the strings in the lookup, in order of index
+    auto strings() const {
+	return index_to_string_ | std::views::values;
     }
     
 private:

@@ -1,22 +1,3 @@
-// This file interprets hospital episode data into records
-// containing an index event, and counts of certain events
-// that occur before and after the index event.
-//
-// For the purposes of this file, an episode is only of interest
-// if its diagnosis or procedure falls within a group of
-// interest. If it does not, then that episode is ignored.
-//
-// Every class whose job it is to parse a block of (ordered)
-// rows does it in the same way: the first row is assumed to
-// point to the first row of the block (which is used to identify
-// the block). The class then steps through rows until it reaches
-// one that is outside its current block. At this point it
-// returns, and the next block is handled by another class
-// (which can assume its first row is ready in the buffer).
-// This approach avoids the need to know up front how long
-// each block is going to be. It does however require a column
-// which uniquely distinguishes the blocks from each other.
-
 #ifndef ACS_HPP
 #define ACS_HPP
 
@@ -329,7 +310,7 @@ auto get_record_from_index_spell(const Patient & patient,
 	for (const auto & spell_after : spells_after) {
 	    spell_after.print(lookup, 4);
 	}
-        }
+    }
     
     return record;
 }
