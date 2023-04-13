@@ -10,9 +10,9 @@ library(ggplot2)
 ##' 
 plot_index_with_time <- function(dataset) {
     dataset %>%
-        rename(STEMI = stemi_presentation) %>%
+        rename(Presentation = stemi_presentation) %>%
         ggplot() +
-        geom_histogram(aes(x = index_date, fill = STEMI),
+        geom_histogram(aes(x = index_date, fill = Presentation),
                        bins = 75)
 }
 
@@ -156,9 +156,9 @@ plot_age_distributions <- function(dataset) {
 plot_survival <- function(dataset) {
     dataset %>%
         filter(cause_of_death != "no_death") %>%
-        mutate(stemi_presentation = factor(stemi_presentation, labels = c("NSTEMI", "STEMI"))) %>%
-        select(stemi_presentation, cause_of_death, index_to_death) %>%
-        ggplot(aes(x = index_to_death, fill = cause_of_death)) +
+        select(stemi_presentation, cause_of_death, survival_time) %>%
+        rename(`Cause of Death` = cause_of_death) %>%
+        ggplot(aes(x = survival_time, fill = `Cause of Death`)) +
         geom_density(alpha = 0.3, position="stack") +
         facet_grid(~ stemi_presentation) +
         labs(x = "Survival time (seconds)", y = "Distribution (normalised by totals)") +
