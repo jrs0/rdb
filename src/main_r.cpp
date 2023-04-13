@@ -23,13 +23,14 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	auto parser{new_clinical_code_parser(config["parser"], lookup)};
 	auto sql_connection{new_sql_connection(config["connection"])};
 	auto sql_query{make_acs_sql_query(config["sql_query"], true, std::nullopt)};
-	
+
 	ClinicalCodeMetagroup acs{config["code_groups"]["acs"], lookup};
 	ClinicalCodeMetagroup pci{config["code_groups"]["pci"], lookup};
 	ClinicalCodeMetagroup cardiac_death{config["code_groups"]["cardiac_death"], lookup};
 	ClinicalCodeMetagroup stemi{config["code_groups"]["stemi"], lookup};
-	
-	auto row{sql_connection.execute_direct(sql_query)};
+
+	std::cout << "Executing query" << std::endl;
+        auto row{sql_connection.execute_direct(sql_query)};
 
         auto print{config["print"].as<bool>()};
 
@@ -84,12 +85,42 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 			}
 		    }
 		    
-		    auto record{
-			get_record_from_index_spell(patient, index_spell,
-						    cardiac_death,
-						    lookup,
-						    print)
-		    };
+		    auto record{get_record_from_index_spell(patient, index_spell)};
+		    record.set_death_after(patient.mortality(), cardiac_death);
+
+		    if (print) {
+
+			auto index_date{Timestamp{record.index_date()}};
+			std::cout << "Index date: " << index_date
+				  << std::endl;
+			if (record.death_after()) {
+			    std::cout << "Survival time: ";
+			    try {
+				std::cout << record.index_to_death().value() << std::endl;
+			    } catch (std::bad_optional_access &) {
+				std::cout << "unknown" << std::endl;
+			    }
+			}
+			std::cout << std::endl;
+
+			std::cout << "INDEX RECORD:" << std::endl;
+			record.print(lookup);
+			std::cout << std::endl;
+
+			std::cout << "INDEX SPELL:" << std::endl;
+			index_spell.print(lookup, 4);
+
+			std::cout << "SPELLS BEFORE INDEX:" << std::endl;
+			for (const auto & spell_before : spells_before) {
+			    spell_before.print(lookup, 4);
+			}
+	
+			std::cout << "SPELLS AFTER INDEX:" << std::endl;
+			for (const auto & spell_after : spells_after) {
+			    spell_after.print(lookup, 4);
+			}
+		    }
+
 		    
                     // Get the counts before and after for this record
 		    auto before{record.counts_before()};

@@ -56,10 +56,10 @@ processed_acs_dataset <- function(config_file = "config.yaml") {
 
     ## Compute the outcome columns (only need ischaemia because bleed
     ## is already in there). The ischaemia endpoint is defined as
-    ## subsequent ACS STEMI or NSTEMI or cardiac death.
+    ## subsequent ACS STEMI or NSTEMI, ischaemic stroke, or cardiac death.
     dataset <- dplyr::mutate(dataset,
                              ischaemia_after = acs_stemi_after +
                                  acs_nstemi_after +
                                  ischaemic_stroke_after +
-                                 (cause_of_death == "cardiac_death"))
+                                 (cause_of_death == "cardiac"))
 }

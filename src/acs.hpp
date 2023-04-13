@@ -218,13 +218,12 @@ auto get_spells_in_window(const std::vector<Spell> & all_spells,
 /// and secondary diagnoses and procedures of all the
 /// episodes in a vector of spells
 auto get_all_groups(std::ranges::range auto && spells) {
-    return spells |
-	std::views::transform(&Spell::episodes) |
-	std::views::join |
+    return spells | std::views::transform(&Spell::episodes) | std::views::join |
 	std::views::transform(&Episode::all_procedures_and_diagnosis) |
 	std::views::join |
 	std::views::filter(&ClinicalCode::valid) |
 	std::views::transform(&ClinicalCode::groups) |
+	// BUG: removes duplicates incorrectly before count (std::set)
 	std::views::join;
 }
 
@@ -245,10 +244,7 @@ auto get_stemi_presentation(const Spell & index_spell,
 }
 
 auto get_record_from_index_spell(const Patient & patient,
-				 const Spell & index_spell,
-				 const ClinicalCodeMetagroup cardiac_death_group,
-				 std::shared_ptr<StringLookup> lookup,
-				 bool print) {
+				 const Spell & index_spell ) {
     AcsRecord record{patient, index_spell};
     
     // Do not add secondary procedures into the counts, because they
@@ -266,41 +262,6 @@ auto get_record_from_index_spell(const Patient & patient,
     auto spells_after{get_spells_in_window(patient.spells(), index_spell, 365*24*60*60)};
     for (const auto & group : get_all_groups(spells_after)) {
 	record.push_after(group);
-    }
-
-    record.set_death_after(patient.mortality(), cardiac_death_group);
-    
-    if (print) {
-
-	auto index_date{Timestamp{record.index_date()}};
-	std::cout << "Index date: " << index_date
-		  << std::endl;
-	if (record.death_after()) {
-	    std::cout << "Survival time: ";
-	    try {
-		std::cout << record.index_to_death().value() << std::endl;
-	    } catch (std::bad_optional_access &) {
-		std::cout << "unknown" << std::endl;
-	    }
-	}
-	std::cout << std::endl;
-
-	std::cout << "INDEX RECORD:" << std::endl;
-	record.print(lookup);
-	std::cout << std::endl;
-
-	std::cout << "INDEX SPELL:" << std::endl;
-	index_spell.print(lookup, 4);
-
-	std::cout << "SPELLS BEFORE INDEX:" << std::endl;
-	for (const auto & spell_before : spells_before) {
-	    spell_before.print(lookup, 4);
-	}
-	
-	std::cout << "SPELLS AFTER INDEX:" << std::endl;
-	for (const auto & spell_after : spells_after) {
-	    spell_after.print(lookup, 4);
-	}
     }
     
     return record;
