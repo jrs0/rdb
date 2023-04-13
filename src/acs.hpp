@@ -243,29 +243,4 @@ auto get_stemi_presentation(const Spell & index_spell,
 			       });
 }
 
-auto get_record_from_index_spell(const Patient & patient,
-				 const Spell & index_spell ) {
-    AcsRecord record{patient, index_spell};
-    
-    // Do not add secondary procedures into the counts, because they
-    // often represent the current index procedure (not prior procedures)
-    for (const auto & group : get_index_secondaries(index_spell, CodeType::Diagnosis)) {
-	record.push_before(group);
-    }
-    
-    auto spells_before{get_spells_in_window(patient.spells(), index_spell, -365*24*60*60)};
-    
-    for (const auto & group : get_all_groups(spells_before)) {
-	record.push_before(group);
-    }
-
-    auto spells_after{get_spells_in_window(patient.spells(), index_spell, 365*24*60*60)};
-    for (const auto & group : get_all_groups(spells_after)) {
-	record.push_after(group);
-    }
-    
-    return record;
-}
-
-
 #endif
