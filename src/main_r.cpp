@@ -24,10 +24,10 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	auto sql_connection{new_sql_connection(config["connection"])};
 	auto sql_query{make_acs_sql_query(config["sql_query"], true, std::nullopt)};
 
-	ClinicalCodeMetagroup acs{config["code_groups"]["acs"], lookup};
-	ClinicalCodeMetagroup pci{config["code_groups"]["pci"], lookup};
-	ClinicalCodeMetagroup cardiac_death{config["code_groups"]["cardiac_death"], lookup};
-	ClinicalCodeMetagroup stemi{config["code_groups"]["stemi"], lookup};
+	ClinicalCodeMetagroup acs_metagroup{config["code_groups"]["acs"], lookup};
+	ClinicalCodeMetagroup pci_metagroup{config["code_groups"]["pci"], lookup};
+	ClinicalCodeMetagroup cardiac_death_metagroup{config["code_groups"]["cardiac_death"], lookup};
+	ClinicalCodeMetagroup stemi_metagroup{config["code_groups"]["stemi"], lookup};
 
 	std::cout << "Executing query" << std::endl;
         auto row{sql_connection.execute_direct(sql_query)};
@@ -58,33 +58,18 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	    try {
 		
 		Patient patient{row, parser};
-
-		auto index_spells{get_acs_index_spells(patient.spells(), acs, pci)};
-
+		auto index_spells{get_acs_index_spells(patient.spells(), acs_metagroup, pci_metagroup)};
 		if (index_spells.empty()) {
 		    continue;
 		}
 
+		auto nhs_number{patient.nhs_number()};
+		const auto & mortality{patient.mortality()};
+
 		for (const auto & index_spell : index_spells) {
 
-		    auto stemi_flag{get_stemi_presentation(index_spell, stemi)};
+		    auto stemi_flag{get_stemi_presentation(index_spell, stemi_metagroup)};
 		    
-		    if (print) {
-			std::cout << std::endl
-				  << "------ RECORD for PCI/ACS INDEX ------"
-				  << std::endl;
-			std::cout << "Patient = " << patient.nhs_number() << std::endl;
-			auto mortality{patient.mortality()};
-			mortality.print(lookup);
-
-			std::cout << "Presentation: ";
-			if (stemi_flag) {
-			    std::cout << "STEMI" << std::endl;
-			} else {
-			    std::cout << "NSTEMI" << std::endl;
-			}
-		    }
-
 		    AcsRecord record{patient, index_spell};
     
 		    // Do not add secondary procedures into the counts, because they
@@ -103,43 +88,36 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		    for (const auto & group : get_all_groups(spells_after)) {
 			record.push_after(group);
 		    }
+
+		    const auto & first_episode{::first_episode(index_spell)};
+		    auto age_at_index{first_episode.age_at_episode()};
+		    auto date_of_index{first_episode.episode_start()};		    
+		    auto death_after{false};
+		    auto cardiac_death{false};
+		    std::optional<TimestampOffset> index_to_death;
 		    
-		    record.set_death_after(patient.mortality(), cardiac_death);
+		    if (not mortality.alive()) {
 
-		    if (print) {
+			auto date_of_death{mortality.date_of_death()};
+			if (not date_of_death.null() and not date_of_index.null()) {
 
-			auto index_date{Timestamp{record.index_date()}};
-			std::cout << "Index date: " << index_date
-				  << std::endl;
-			if (record.death_after()) {
-			    std::cout << "Survival time: ";
-			    try {
-				std::cout << record.index_to_death().value() << std::endl;
-			    } catch (std::bad_optional_access &) {
-				std::cout << "unknown" << std::endl;
+			    if (date_of_death < date_of_index) {
+				throw std::runtime_error("Unexpected date of death before index date at patient"
+							 + std::to_string(nhs_number));
 			    }
-			}
-			std::cout << std::endl;
 
-			std::cout << "INDEX RECORD:" << std::endl;
-			record.print(lookup);
-			std::cout << std::endl;
-
-			std::cout << "INDEX SPELL:" << std::endl;
-			index_spell.print(lookup, 4);
-
-			std::cout << "SPELLS BEFORE INDEX:" << std::endl;
-			for (const auto & spell_before : spells_before) {
-			    spell_before.print(lookup, 4);
-			}
-	
-			std::cout << "SPELLS AFTER INDEX:" << std::endl;
-			for (const auto & spell_after : spells_after) {
-			    spell_after.print(lookup, 4);
+			    // Check if death occurs in window after (hardcoded for now)
+			    index_to_death = date_of_death - date_of_index};
+			    if (index_to_death.value() < years(1)) {
+				death_after = true;
+				auto cause_of_death{mortality.cause_of_death()};
+				if (cause_of_death.has_value()) {
+				    cardiac_death = cardiac_death_metagroup.contains(cause_of_death.value());
+				}
+			    }
 			}
 		    }
 
-		    
                     // Get the counts before and after for this record
 		    auto before{record.counts_before()};
 		    auto after{record.counts_after()};

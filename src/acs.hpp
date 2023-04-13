@@ -44,27 +44,6 @@ public:
 
     void set_death_after(const Mortality & mortality, const ClinicalCodeMetagroup & cardiac_death_group) {
 
-	if (not mortality.alive()) {
-
-	    auto date_of_death{mortality.date_of_death()};
-	    if (not date_of_death.null() and not date_of_index_.null()) {
-
-		if (date_of_death < date_of_index_) {
-		    throw std::runtime_error("Unexpected date of death before index date at patient"
-					     + std::to_string(nhs_number_));
-		}
-
-		// Check if death occurs in window after (hardcoded for now)
-		index_to_death_ = date_of_death - date_of_index_;
-                if (index_to_death_.value() < years(1)) {
-		    death_after_ = true;
-		    auto cause_of_death{mortality.cause_of_death()};
-		    if (cause_of_death.has_value()) {
-			cardiac_death_ = cardiac_death_group.contains(cause_of_death.value());
-		    }
-		}
-	    }
-	}
     }
 
     void print(std::shared_ptr<StringLookup> lookup) const {
