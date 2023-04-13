@@ -15,23 +15,8 @@ const auto & first_episode(const Spell & spell) {
     return spell.episodes()[0];
 }
 
-/** 
- * \brief Stores the data for a row in the ACS dataset
- *
- * Each ACS record is triggered by an index event which is
- * either and ACS diagnosis or a PCI procedure. The class also
- * records relevant events that occur before and after (currently
- * hardcoded to 12 months, should be defined in the config file).
- */
-class AcsRecord {
+class EventCounter {
 public:
-
-    AcsRecord(const Patient & patient, const Spell & index_spell) {
-	nhs_number_ = patient.nhs_number();
-	auto & first_episode{::first_episode(index_spell)};
-	age_at_index_ = first_episode.age_at_episode();
-	date_of_index_ = first_episode.episode_start();
-    }
     
     /// Increment a group counter in the before map
     void push_before(const ClinicalCodeGroup & group) {
@@ -42,54 +27,6 @@ public:
 	after_counts_[group]++;
     }
 
-    void set_death_after(const Mortality & mortality, const ClinicalCodeMetagroup & cardiac_death_group) {
-
-    }
-
-    void print(std::shared_ptr<StringLookup> lookup) const {
-	std::cout << "ACS Record for NHS number " << nhs_number_ << std::endl;
-	std::cout << "Age at index: " << age_at_index_ << std::endl;
-	std::cout << "- Counts before:" << std::endl;
-	for (const auto & [group, count] : before_counts_) {
-	    std::cout << "  - ";
-	    group.print(lookup);
-	    std::cout << ": " << count
-		      << std::endl;
-	}
-	std::cout << "- Counts after:" << std::endl;
-	for (const auto & [group, count] : after_counts_) {
-	    std::cout << "  - ";
-	    group.print(lookup);
-	    std::cout << ": " << count
-		      << std::endl;
-	}
-	if (not death_after_) {
-	    std::cout << "No death after" << std::endl;
-	} else {
-	    std::cout << "Death occurred ";
-	    if (index_to_death_.has_value()) {
-		std::cout << index_to_death_.value();
-	    } else {
-		std::cout << "unknown";
-	    }
-	    std::cout << " seconds after (";
-            if (cardiac_death_) {
-		std::cout << "cardiac-cause)";
-	    } else {
-		std::cout << "all-cause)";
-	    }
-	    std::cout << std::endl;
-	}
-    }
-
-    auto nhs_number() const {
-	return nhs_number_;
-    }
-
-    auto age_at_index() const {
-	return age_at_index_;
-    }
-
     const auto & counts_before() const {
 	return before_counts_;
     }
@@ -98,33 +35,9 @@ public:
 	return before_counts_;
     }
 
-    auto death_after() const {
-	return death_after_;
-    }
-    
-    auto index_date() const {
-	return date_of_index_.read();
-    }
-
-    auto index_to_death() const {
-	return index_to_death_;
-    }
-
-    auto cardiac_death() const {
-	return cardiac_death_;
-    }
-    
 private:
-    long long unsigned nhs_number_;
-    Integer age_at_index_;
-    Timestamp date_of_index_;
     std::map<ClinicalCodeGroup, std::size_t> before_counts_;
     std::map<ClinicalCodeGroup, std::size_t> after_counts_;
-    bool death_after_{false};
-    
-    /// False means all cause or unknown
-    bool cardiac_death_{false};
-    std::optional<TimestampOffset> index_to_death_;    
 };
 
 auto primary_acs(const Episode & episode, const ClinicalCodeMetagroup & acs_group) {

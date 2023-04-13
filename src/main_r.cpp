@@ -68,33 +68,38 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
 		for (const auto & index_spell : index_spells) {
 
+		    if (index_spell.empty()) {
+			continue;
+		    }
+
+		    const auto & first_episode{::first_episode(index_spell)};
+
+                    auto age_at_index{first_episode.age_at_episode()};
+		    auto date_of_index{first_episode.episode_start()};		    
+		    auto death_after{false};
+		    auto cardiac_death{false};
+		    std::optional<TimestampOffset> index_to_death;		    
+		    
 		    auto stemi_flag{get_stemi_presentation(index_spell, stemi_metagroup)};
 		    
-		    AcsRecord record{patient, index_spell};
+		    EventCounter event_counter;
     
 		    // Do not add secondary procedures into the counts, because they
 		    // often represent the current index procedure (not prior procedures)
 		    for (const auto & group : get_index_secondaries(index_spell, CodeType::Diagnosis)) {
-			record.push_before(group);
+			event_counter.push_before(group);
 		    }
     
 		    auto spells_before{get_spells_in_window(patient.spells(), index_spell, -365*24*60*60)};
     
 		    for (const auto & group : get_all_groups(spells_before)) {
-			record.push_before(group);
+			event_counter.push_before(group);
 		    }
 
 		    auto spells_after{get_spells_in_window(patient.spells(), index_spell, 365*24*60*60)};
 		    for (const auto & group : get_all_groups(spells_after)) {
-			record.push_after(group);
+			event_counter.push_after(group);
 		    }
-
-		    const auto & first_episode{::first_episode(index_spell)};
-		    auto age_at_index{first_episode.age_at_episode()};
-		    auto date_of_index{first_episode.episode_start()};		    
-		    auto death_after{false};
-		    auto cardiac_death{false};
-		    std::optional<TimestampOffset> index_to_death;
 		    
 		    if (not mortality.alive()) {
 
@@ -119,17 +124,17 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		    }
 
                     // Get the counts before and after for this record
-		    auto before{record.counts_before()};
-		    auto after{record.counts_after()};
+		    auto before{event_counter.counts_before()};
+		    auto after{event_counter.counts_after()};
 		    for (const auto & group : all_groups) {
 			event_counts[group.name(lookup) + "_before"].push_back(before[group]);
 			event_counts[group.name(lookup) + "_after"].push_back(after[group]);
 		    }
 
-		    nhs_numbers.push_back(std::to_string(record.nhs_number()));
-		    index_dates.push_back(record.index_date());
+		    nhs_numbers.push_back(std::to_string(nhs_number));
+		    index_dates.push_back(date_of_index);
 
-		    auto pci_triggered{primary_pci(first_episode(index_spell), pci)};
+		    auto pci_triggered{primary_pci(first_episode(index_spell), pci_metagroup)};
 		    if (pci_triggered) {
 			index_type.push_back("PCI");
 		    } else {
@@ -143,24 +148,20 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		    }
 		    
                     try {
-			age_at_index.push_back(record.age_at_index().read());
+			age_at_index.push_back(age_at_index.read());
 		    } catch (const Integer::Null &) {
 			age_at_index.push_back(NA_REAL);		
 		    }
 
-		    if (record.death_after()) {
-			index_to_death.push_back(record.index_to_death().value().value());
-		    } else {
-                        index_to_death.push_back(NA_REAL);
-		    }
-
-		    if (record.death_after()) {
-			if (record.cardiac_death()) {
+		    if (death_after) {
+			index_to_death.push_back(index_to_death.value().value());
+			if (cardiac_death) {
 			    cause_of_death.push_back("cardiac");
 			} else {
 			    cause_of_death.push_back("all_cause");			    
 			}
 		    } else {
+                        index_to_death.push_back(NA_REAL);
 			cause_of_death.push_back("no_death");
 		    }
 		}
