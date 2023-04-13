@@ -8,7 +8,7 @@
 #include "spell.hpp"
 #include "clinical_code.hpp"
 
-const auto & first_episode(const Spell & spell) {
+const auto & get_first_episode(const Spell & spell) {
     if (spell.episodes().empty()) {
 	throw std::runtime_error("Spell has no episodes in call to first_episode()");
     }

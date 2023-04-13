@@ -39,11 +39,11 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	std::map<std::string, Rcpp::NumericVector> event_counts;
 	RFactor nhs_numbers;
 	Rcpp::NumericVector index_dates;
-	RFactor index_type;
-	Rcpp::NumericVector age_at_index;
-	RFactor stemi_presentation;
-        Rcpp::NumericVector index_to_death;	
-	RFactor cause_of_death;
+	RFactor index_types;
+	Rcpp::NumericVector ages_at_index;
+	RFactor stemi_presentations;
+        Rcpp::NumericVector survival_times;	
+	RFactor causes_of_death;
 	
 	unsigned cancel_counter{0};
 	unsigned ctrl_c_counter_limit{10};
@@ -72,26 +72,43 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 			continue;
 		    }
 
-		    const auto & first_episode{::first_episode(index_spell)};
+		    nhs_numbers.push_back(std::to_string(nhs_number));
+		    
+		    const auto & first_episode_of_index{get_first_episode(index_spell)};
 
-                    auto age_at_index{first_episode.age_at_episode()};
-		    auto date_of_index{first_episode.episode_start()};		    
-		    auto death_after{false};
-		    auto cardiac_death{false};
-		    std::optional<TimestampOffset> index_to_death;		    
+		    auto pci_triggered{primary_pci(first_episode_of_index, pci_metagroup)};
+		    if (pci_triggered) {
+			index_types.push_back("PCI");
+		    } else {
+			index_types.push_back("ACS");			
+		    }		    
+		    
+                    auto age_at_index{first_episode_of_index.age_at_episode()};
+                    try {
+			ages_at_index.push_back(age_at_index.read());
+		    } catch (const Integer::Null &) {
+			ages_at_index.push_back(NA_REAL);		
+		    }
+
+		    auto date_of_index{first_episode_of_index.episode_start()};
+		    index_dates.push_back(date_of_index.read());
 		    
 		    auto stemi_flag{get_stemi_presentation(index_spell, stemi_metagroup)};
-		    
-		    EventCounter event_counter;
-    
+		    if (stemi_flag) {
+			stemi_presentations.push_back("STEMI");
+		    } else {
+			stemi_presentations.push_back("NSTEMI");
+		    }
+
+		    // Count events before/after
 		    // Do not add secondary procedures into the counts, because they
 		    // often represent the current index procedure (not prior procedures)
+		    EventCounter event_counter;
 		    for (const auto & group : get_index_secondaries(index_spell, CodeType::Diagnosis)) {
 			event_counter.push_before(group);
 		    }
-    
 		    auto spells_before{get_spells_in_window(patient.spells(), index_spell, -365*24*60*60)};
-    
+		    
 		    for (const auto & group : get_all_groups(spells_before)) {
 			event_counter.push_before(group);
 		    }
@@ -99,28 +116,6 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		    auto spells_after{get_spells_in_window(patient.spells(), index_spell, 365*24*60*60)};
 		    for (const auto & group : get_all_groups(spells_after)) {
 			event_counter.push_after(group);
-		    }
-		    
-		    if (not mortality.alive()) {
-
-			auto date_of_death{mortality.date_of_death()};
-			if (not date_of_death.null() and not date_of_index.null()) {
-
-			    if (date_of_death < date_of_index) {
-				throw std::runtime_error("Unexpected date of death before index date at patient"
-							 + std::to_string(nhs_number));
-			    }
-
-			    // Check if death occurs in window after (hardcoded for now)
-			    index_to_death = date_of_death - date_of_index};
-			    if (index_to_death.value() < years(1)) {
-				death_after = true;
-				auto cause_of_death{mortality.cause_of_death()};
-				if (cause_of_death.has_value()) {
-				    cardiac_death = cardiac_death_metagroup.contains(cause_of_death.value());
-				}
-			    }
-			}
 		    }
 
                     // Get the counts before and after for this record
@@ -131,41 +126,48 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 			event_counts[group.name(lookup) + "_after"].push_back(after[group]);
 		    }
 
-		    nhs_numbers.push_back(std::to_string(nhs_number));
-		    index_dates.push_back(date_of_index);
+		    // Record mortality info
+		    auto death_after{false};
+		    auto cardiac_death{false};
+		    std::optional<TimestampOffset> survival_time;
+                    if (not mortality.alive()) {
+			auto date_of_death{mortality.date_of_death()};
+			if (not date_of_death.null() and not date_of_index.null()) {
 
-		    auto pci_triggered{primary_pci(first_episode(index_spell), pci_metagroup)};
-		    if (pci_triggered) {
-			index_type.push_back("PCI");
-		    } else {
-			index_type.push_back("ACS");			
-		    }
+			    if (date_of_death < date_of_index) {
+				throw std::runtime_error("Unexpected date of death before index date at patient"
+							 + std::to_string(nhs_number));
+			    }
 
-		    if (stemi_flag) {
-			stemi_presentation.push_back("STEMI");
-		    } else {
-			stemi_presentation.push_back("NSTEMI");
+			    // Check if death occurs in window after (hardcoded for now)
+			    survival_time = date_of_death - date_of_index;
+			    if (survival_time.value() < years(1)) {
+				death_after = true;
+				auto cause_of_death{mortality.cause_of_death()};
+				if (cause_of_death.has_value()) {
+				    cardiac_death = cardiac_death_metagroup.contains(cause_of_death.value());
+				}
+			    }
+			}
 		    }
-		    
-                    try {
-			age_at_index.push_back(age_at_index.read());
-		    } catch (const Integer::Null &) {
-			age_at_index.push_back(NA_REAL);		
-		    }
-
 		    if (death_after) {
-			index_to_death.push_back(index_to_death.value().value());
+			survival_times.push_back(survival_time.value().value());
 			if (cardiac_death) {
-			    cause_of_death.push_back("cardiac");
+			    causes_of_death.push_back("cardiac");
 			} else {
-			    cause_of_death.push_back("all_cause");			    
+			    causes_of_death.push_back("all_cause");			    
 			}
 		    } else {
-                        index_to_death.push_back(NA_REAL);
-			cause_of_death.push_back("no_death");
+                        survival_times.push_back(NA_REAL);
+			causes_of_death.push_back("no_death");
 		    }
 		}
-	    
+
+		if (print) {
+		    std::cout << "=============================" << std::endl;
+		    std::cout << "PCI/ACS Record" << std::endl;
+		}
+		
 	    } catch (const RowBufferException::NoMoreRows &) {
 		std::cout << "Finished fetching all rows" << std::endl;
 		break;
@@ -175,11 +177,11 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	Rcpp::List table_r;
 	table_r["nhs_number"] = nhs_numbers.get();
 	table_r["index_date"] = index_dates;
-	table_r["index_type"] = index_type.get();
-	table_r["age_at_index"] = age_at_index;
-	table_r["stemi_presentation"] = stemi_presentation.get();
-	table_r["index_to_death"] = index_to_death;
-	table_r["cause_of_death"] = cause_of_death.get();
+	table_r["index_type"] = index_types.get();
+	table_r["age_at_index"] = ages_at_index;
+	table_r["stemi_presentation"] = stemi_presentations.get();
+	table_r["survival_time"] = survival_times;
+	table_r["cause_of_death"] = causes_of_death.get();
 	for (const auto & [column_name, counts] : event_counts) {
 	    table_r[column_name] = counts;
 	}
