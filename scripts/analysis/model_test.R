@@ -4,18 +4,20 @@ library(tidymodels)
 ##' @param recipe The recipe containing the step_nzv()
 ##' @return A character vector of predictor column names
 ##' that are removed due to NZV
-near_zero_variance_predictors <- function(recipe) {
-    nzv_row_numbers <- bleeding_recipe %>%
+near_zero_variance_columns <- function(recipe) {
+    nzv_row_numbers <- recipe %>%
         prep() %>%
         tidy() %>%
         filter(type == "nzv")
 
-    if (length(nzv_row_number) != 1) {
+    if (nrow(nzv_row_numbers) != 1) {
         stop("There must be exactly one NZV predictor in the recipe")
     }
-    bleeding_recipe %>%
+    
+    recipe %>%
         prep() %>%
-        tidy(number = nzv_row_numbers[[1]])
+        tidy(number = nzv_row_numbers[[1]]) %>%
+        pull(terms)
 }
 
 ##' Preprocess data using a recipe
@@ -26,6 +28,24 @@ preprocess_data <- function(recipe) {
     bleeding_recipe %>%
         prep() %>%
         juice()
+}
+
+##' This function performs the step_nzv(), but not any of the
+##' others, so that you can see the original data from the columns
+##' that will be included in the model.
+##' 
+##' @param recipe The recipe defining the preprocessing steps
+##' @return The dataset without the near-zero variance columns
+##' 
+without_near_zero_variance_columns <- function(recipe) {
+    nzv_cols <- near_zero_variance_columns(recipe)
+    retained_cols <- bleeding_recipe %>%
+        summary() %>%
+        filter(!(variable %in% nzv_cols)) %>%
+        pull(variable)
+    ## template contains the data used to create the recipe?
+    recipe$template %>%
+        select(retained_cols)
 }
 
 raw_dataset <- processed_acs_dataset("../../config.yaml")
@@ -55,3 +75,22 @@ bleeding_recipe <- recipe(bleeding_after ~ ., data = train) %>%
     step_nzv(all_predictors()) %>%
     step_normalize(all_numeric_predictors())
 
+bleeding_recipe %>%
+    near_zero_variance_predictors()
+
+after_preprocessing <- bleeding_recipe %>%
+    preprocess_data()
+
+after_nzv_removal <- bleeding_recipe %>%
+    without_near_zero_variance_columns()
+
+log_reg <- logistic_reg() %>% 
+    set_engine('glm') %>% 
+    set_mode('classification')
+
+workflow <- workflow() %>%
+    add_model(log_reg) %>%
+    add_recipe(bleeding_recipe)
+
+workflow %>%
+    fit(data = train)
