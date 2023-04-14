@@ -65,10 +65,12 @@ Put all the descriptive stuff here (plots, summaries, etc.) , before modifying t
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 dataset <- raw_dataset %>%
-    mutate(bleeding_after = factor(bleeding_after == 0, labels = c("bleed_occured", "no_bleed"))) %>%
-    mutate(ischaemia_after = factor(ischaemia_after == 0, labels = c("ischaemia_occured", "no_ischaemia"))) %>%
+    mutate(bleeding_after = factor(bleeding_after == 0, labels = c("bleeding_occurred", "no_bleed"))) %>%
+    mutate(ischaemia_after = factor(ischaemia_after == 0, labels = c("ischaemia_occurred", "no_ischaemia"))) %>%
     ## Remove the after columns
     dplyr::select(- (matches("after") & !matches("(bleeding_after|ischaemia_after)")), - nhs_number) %>%
+    ## Remove mortality columns
+    dplyr::select(- c(survival_time, cause_of_death)) %>%
     ## Add an ID to link up patients between bleeding and ischaemia predictions
     mutate(index_id = as.factor(row_number()))
 
@@ -113,28 +115,24 @@ models <- list(
 
 ## Create the recipe for the bleed models
 bleeding_recipe <- recipe(bleeding_after ~ ., data = train) %>%
-    update_role(patient_id, new_role = "id") %>%
+    update_role(index_id, new_role = "id") %>%
     update_role(index_date, new_role = "date") %>%
     update_role(ischaemia_after, new_role = "ischaemic_after") %>%
-    step_integer(stemi_presentation) %>%
     step_nzv(all_predictors()) %>%
-    step_center(all_predictors()) %>%
-    step_scale(all_predictors())
+    step_normalize()
 
 ## Create the ischaemia recipe
 ischaemia_recipe <- recipe(ischaemia_after ~ ., data = train) %>%
-    update_role(patient_id, new_role = "id") %>%
+    update_role(index_id, new_role = "id") %>%
     update_role(index_date, new_role = "date") %>%
     update_role(bleeding_after, new_role = "bleeding_after") %>%
-    step_integer(stemi_presentation) %>%
     step_nzv(all_predictors()) %>%
-    step_center(all_predictors()) %>%
-    step_scale(all_predictors())
+    step_normalize()
 
+    
 ## Perform the resampling predictions for all the models for bleeding
-pred_bleed <- list(names(models), models) %>%
-    purrr::pmap(function(model_name, model)
-    {
+pred_bleeding <- list(names(models), models) %>%
+    purrr::pmap(function(model_name, model) {
         ## x is a list of result and removals
         x <- predict_resample(model, train, test,
                               resamples_from_train, bleeding_recipe)
@@ -145,9 +143,9 @@ pred_bleed <- list(names(models), models) %>%
             mutate(outcome_name = "bleed") %>%
             mutate(outcome_result =
                        recode_factor(bleeding_after,
-                                     "bleed_occurred" = "occurred",
+                                     "bleeding_occurred" = "occurred",
                                      "no_bleed" = "none")) %>%
-            rename(.pred_occurred = .pred_bleed_occurred) %>%
+            rename(.pred_occurred = .pred_bleeding_occurred) %>%
             mutate(removals = if_else(model_id == "primary",
                                       list(removals = removals),
                                       list(removals = NULL)))
