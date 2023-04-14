@@ -107,11 +107,7 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 			event_counter.push_before(group);
 		    }
 		    
-		    //auto spells_before{get_spells_in_window(patient.spells(), index_spell, -365*24*60*60)};
-		    auto spells_before{patient.spells() |
-			std::views::filter([](const auto & spell) {
-			    auto spell_date{spell.start_date()}
-			})};
+		    auto spells_before{get_spells_in_window(patient.spells(), index_spell, -365*24*60*60)};
 		    for (const auto & group : get_all_groups(spells_before)) {
 			event_counter.push_before(group);
 		    }
