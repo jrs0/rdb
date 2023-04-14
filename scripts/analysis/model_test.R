@@ -1,5 +1,6 @@
 library(tidymodels)
 library(ggplot2)
+library(corrr)
 
 ##' Requires exactly one NZV (near-zero variance) step
 ##' @param recipe The recipe containing the step_nzv()
@@ -38,21 +39,19 @@ preprocess_data <- function(recipe) {
 ##' @param recipe The recipe defining the preprocessing steps
 ##' @return The dataset without the near-zero variance columns
 ##' 
-without_near_zero_variance_columns <- function(recipe) {
+without_near_zero_variance_columns <- function(recipe, dataset) {
     nzv_cols <- near_zero_variance_columns(recipe)
     retained_cols <- bleeding_recipe %>%
         summary() %>%
         filter(!(variable %in% nzv_cols)) %>%
         pull(variable)
-    ## template contains the data used to create the recipe?
-    recipe$template %>%
+    dataset %>%
         select(retained_cols)
 }
 
 raw_dataset <- processed_acs_dataset("../../config.yaml")
 
 ## Simple proportions from the data
-    
 dataset <- raw_dataset %>%
     mutate(bleeding_after = factor(bleeding_after == 0, labels = c("bleeding_occurred", "no_bleed"))) %>%
     mutate(ischaemia_after = factor(ischaemia_after == 0, labels = c("ischaemia_occurred", "no_ischaemia"))) %>%
@@ -82,13 +81,37 @@ after_preprocessing <- bleeding_recipe %>%
     preprocess_data()
 
 after_nzv_removal <- bleeding_recipe %>%
-    without_near_zero_variance_columns()
+    without_near_zero_variance_columns(dataset)
+
+
+##' Convert a factor column which two levels to a numeric
+##' column containing 0/1. Specify the factor level corresponding
+##' to one as an argument.
+two_level_factor_to_numeric <- function(dataset, factor_column, one_level) {
+    factor_levels <- dataset %>%
+        pull({{ factor_column }}) %>%
+        levels()
+    if (length(factor_levels) != 2) {
+        stop("Factor must have exactly two levels")
+    }
+    if (!(one_level %in% factor_levels)) {
+        stop("Required level '", one_level, "' not present in factor")
+    }
+    dataset %>%
+        mutate({{ factor_column }} :=
+                   if_else({{ factor_column }} == one_level, 1, 0))
+}
 
 after_nzv_removal %>%
     select(-nhs_number, -index_date) %>%
-    mutate(across(everything()), ~ as.numeric(.x))
-
-    cor()
+    two_level_factor_to_numeric(bleeding_after, "bleeding_occurred") %>%
+    two_level_factor_to_numeric(ischaemia_after, "ischaemia_occurred") %>%
+    two_level_factor_to_numeric(index_type, "PCI") %>%
+    two_level_factor_to_numeric(stemi_presentation, "STEMI") %>%
+    select(bleeding_after, ischaemia_after, everything()) %>%
+    correlate() %>%
+    rplot(colors = c("blue", "red")) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 log_reg <- logistic_reg() %>% 
     set_engine('glm') %>% 
