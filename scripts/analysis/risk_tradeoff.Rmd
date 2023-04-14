@@ -60,6 +60,11 @@ first_index_date <- raw_dataset %>%
 last_index_date <- raw_dataset %>%
     pull(index_date) %>%
     max()
+
+## Survival information across entire set
+raw_dataset %>%
+    dplyr::select(survival_time) %>%
+    summary()
 ```
 
 Put all the descriptive stuff here (plots, summaries, etc.) , before modifying the dataset for modelling.
@@ -77,6 +82,15 @@ dataset <- raw_dataset %>%
     drop_na() %>%
     ## Add an ID to link up patients between bleeding and ischaemia predictions
     mutate(index_id = as.factor(row_number()))
+
+
+## Check near-zero variance using caret (prints the
+## remaining predictors)
+predictor_columns <- dataset %>%
+    dplyr::select(-nhs_number,-index_date,-index_id,-matches("after"))
+near_zero_var_indices <- predictor_columns %>%
+    nearZeroVar()
+names(predictor_columns)[-near_zero_var_indices]
 
 ## These are the total counts of ACS/PCI events and patients
 ## excluding any rows containing an NA anywhere
@@ -367,10 +381,10 @@ predictors
 The preprocessing steps filter out variables that do not have enough variability to contribute to model performance. The remaining predictors after the preprocessing steps are listed below.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-##for_correlations <- raw_dataset %>%
-##    dplyr::select(bleeding_after, ischaemia_after, all_of(remaining_predictors))
-##correlations = cor(for_correlations)
-##corrplot(correlations)
+for_correlations <- raw_dataset %>%
+    dplyr::select(bleeding_after, ischaemia_after, all_of(remaining_predictors))
+correlations = cor(for_correlations)
+corrplot(correlations)
 remaining_predictors
 ```
 
