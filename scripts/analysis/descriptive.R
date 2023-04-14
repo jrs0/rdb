@@ -1,54 +1,56 @@
 library(tidyverse)
+library(scales)
 
-##' Compute percentages grouped by outcome (whether bleeding or
-##' ischaemia occurred after)
+##' Group by a set of custom named conditions and compute an average based
+##' on a custom predicate
 ##' @param dataset The dataset to average
-##' @param pred The condition to compute the proportion of
-##' @param column_name The name of the column in the output tibble
-##' @return A summary tibble containing the output
-percentages_by_outcome <- function(dataset, pred, column_name) {
+##' @param column_name The name of the output average column
+##' @param pred_outcome The custom predicate defining the average
+##' @param ... A list of named group-by conditions
+##' @return A tibble with the percentages defined by the predicate broken
+##' down by the custom groups
+##' 
+percents_by_groups <- function(dataset, column_name, pred_outcome, ...) {
     dataset %>%
-        group_by(`Bleeding After` = bleeding_after != 0, `Ischaemia After` = ischaemia_after != 0) %>%
-        summarize({{ column_name }} := percent(mean({{ pred }}))) %>%
-        arrange({{ column_name }})
+        group_by(...) %>%
+        summarize({{ column_name }} := percent(mean({{ pred_outcome }}))) %>%
+        arrange({{ column_name }})        
 }
 
-
-
-
-##' Compute percentages by 
-percentages_by_stemi <- function(dataset, pred, column_name) {
+##' Break down column average by bleeding/ischaemia outcomes
+percents_by_outcomes <- function(dataset, pred_outcome, column_name) {
     dataset %>%
-        group_by(Presentation = stemi_presentation) %>%
-        summarize({{ column_name }} := percent(mean({{ pred }}))) %>%
-        arrange({{ column_name }})
+        percents_by_groups({{ column_name }}, {{ pred_outcome }},
+                           `Bleeding After` = bleeding_after != 0,
+                           `Ischaemia After` = ischaemia_after != 0)
 }
 
+##' Break down a column average by STEMI presentation
+percents_by_stemi <- function(dataset, pred_outcome, column_name) {
+    dataset %>%
+        percents_by_groups({{ column_name }}, {{ pred_outcome }},
+                           `Presentation` = stemi_presentation)
+}
 
-'''
+##' Break down a column average by whether or not the index event
+##' involved a PCI
+percents_by_had_pci <- function(dataset, pred_outcome, column_name) {
+    dataset %>%
+        percents_by_groups({{ column_name }}, {{ pred_outcome }},
+                           `Had PCI` = index_type == "PCI")
+}
 
-presented_stemi_by_outcome <- raw_dataset %>%
-    percentages_by_outcome(stemi_presentation == "STEMI",
-                         `Presented STEMI`)
+##' Percentage of any-cause death (all-cause and cardiac) following
+##' the index event
+any_cause_death_by_stemi <- function(dataset) {
+    dataset %>%
+        percents_by_stemi(cause_of_death != "no_death",
+                          "Any Cause Death")
+}
 
-had_pci_by_outcome <- raw_dataset %>%
-    percentages_by_outcome(index_type == "PCI",
-                         `Had PCI`)
-
-any_cause_death_by_outcome <- raw_dataset %>%
-    percentages_by_outcome(cause_of_death != "no_death",
-                         `Any Cause Death`)
-
-cardiovascular_death_by_outcome <- raw_dataset %>%
-    percentages_by_outcome(cause_of_death == "cardiac",
-                         `Cardiovascular Death`)
-
-cardiovascular_death_by_presentation <- raw_dataset %>%
-    percentages_by_stemi(cause_of_death == "cardiac",
-                         `Cardiovascular Death`)
-
-any_cause_death_by_presentation <- raw_dataset %>%
-    percentages_by_stemi(cause_of_death != "no_death",
-                         `Any Cause Death`)
-
-'''
+##' Percentage of cardiovascular death following the index event
+cardiovascular_death_by_stemi <- function(dataset) {
+    dataset %>%
+        percents_by_stemi(cause_of_death == "cardiac",
+                          "Cardiovascular Death")
+}
