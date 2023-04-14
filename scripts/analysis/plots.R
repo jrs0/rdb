@@ -1,5 +1,6 @@
 library(tidyverse)
 library(ggplot2)
+library(corrr)
 
 ##' @title Plot the distribution of index events with time
 ##'
@@ -180,3 +181,17 @@ plot_survival <- function(dataset) {
         labs(x = "Survival time (seconds)", y = "Distribution (normalised by totals)") +
         theme_minimal(base_size = 16)
 }
+
+plot_predictor_outcome_correlations <- function(after_nzv_removal) {
+    after_nzv_removal %>%
+        select(-nhs_number, -index_date) %>%
+        two_level_factor_to_numeric(bleeding_after, "bleeding_occurred") %>%
+        two_level_factor_to_numeric(ischaemia_after, "ischaemia_occurred") %>%
+        two_level_factor_to_numeric(index_type, "PCI") %>%
+        two_level_factor_to_numeric(stemi_presentation, "STEMI") %>%
+        select(bleeding_after, ischaemia_after, everything()) %>%
+        correlate() %>%
+        rplot(colors = c("blue", "red")) +
+        theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+}
+

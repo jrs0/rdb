@@ -83,7 +83,6 @@ after_preprocessing <- bleeding_recipe %>%
 after_nzv_removal <- bleeding_recipe %>%
     without_near_zero_variance_columns(dataset)
 
-
 ##' Convert a factor column which two levels to a numeric
 ##' column containing 0/1. Specify the factor level corresponding
 ##' to one as an argument.
@@ -101,17 +100,7 @@ two_level_factor_to_numeric <- function(dataset, factor_column, one_level) {
         mutate({{ factor_column }} :=
                    if_else({{ factor_column }} == one_level, 1, 0))
 }
-
-after_nzv_removal %>%
-    select(-nhs_number, -index_date) %>%
-    two_level_factor_to_numeric(bleeding_after, "bleeding_occurred") %>%
-    two_level_factor_to_numeric(ischaemia_after, "ischaemia_occurred") %>%
-    two_level_factor_to_numeric(index_type, "PCI") %>%
-    two_level_factor_to_numeric(stemi_presentation, "STEMI") %>%
-    select(bleeding_after, ischaemia_after, everything()) %>%
-    correlate() %>%
-    rplot(colors = c("blue", "red")) +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    
 
 log_reg <- logistic_reg() %>% 
     set_engine('glm') %>% 
@@ -132,3 +121,10 @@ bleeding_predictions <- bleeding_fit %>%
     augment(new_data = test) %>%
     select(bleeding_after, .pred_bleeding_occurred, .pred_class)
 
+roc_curves <- bleeding_predictions %>%
+    roc_curve(bleeding_after, .pred_bleeding_occurred)
+
+roc_curves %>%
+    ggplot(aes(x = 1 - specificity, y = sensitivity)) +
+    geom_line() +
+    geom_abline(slope = 1, intercept = 0, size = 0.4)
