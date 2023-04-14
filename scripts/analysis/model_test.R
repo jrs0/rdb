@@ -104,8 +104,7 @@ two_level_factor_to_numeric <- function(dataset, factor_column, one_level) {
     dataset %>%
         mutate({{ factor_column }} :=
                    if_else({{ factor_column }} == one_level, 1, 0))
-}
-    
+}    
 
 log_reg <- logistic_reg() %>% 
     set_engine('glm') %>% 
