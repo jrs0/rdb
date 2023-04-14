@@ -145,18 +145,26 @@ bleeding_recipe <- recipe(bleeding_after ~ ., data = train) %>%
     update_role(nhs_number, new_role = "nhs_number") %>%
     update_role(index_date, new_role = "date") %>%
     update_role(ischaemia_after, new_role = "ischaemic_after") %>%
+    #step_nzv(all_predictors()) %>%
+    #step_normalize(all_numeric_predictors())
+    step_integer(stemi_presentation, index_type) %>%
     step_nzv(all_predictors()) %>%
-    step_normalize(all_numeric_predictors())
-
+    step_center(all_predictors()) %>%
+    step_scale(all_predictors())
+    
 ## Create the ischaemia recipe
 ischaemia_recipe <- recipe(ischaemia_after ~ ., data = train) %>%
     update_role(index_id, new_role = "id") %>%
     update_role(nhs_number, new_role = "nhs_number") %>%
     update_role(index_date, new_role = "date") %>%
     update_role(bleeding_after, new_role = "bleeding_after") %>%
+    ## step_nzv(all_predictors()) %>%
+    ## step_normalize(all_numeric_predictors())
+    step_integer(stemi_presentation, index_type) %>%
     step_nzv(all_predictors()) %>%
-    step_normalize(all_numeric_predictors())
-
+    step_center(all_predictors()) %>%
+    step_scale(all_predictors())
+    
     
 ## Perform the resampling predictions for all the models for bleeding
 pred_bleeding <- list(names(models), models) %>%
@@ -381,11 +389,11 @@ predictors
 The preprocessing steps filter out variables that do not have enough variability to contribute to model performance. The remaining predictors after the preprocessing steps are listed below.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-for_correlations <- raw_dataset %>%
-    dplyr::select(bleeding_after, ischaemia_after, all_of(remaining_predictors))
-correlations = cor(for_correlations)
-corrplot(correlations)
-remaining_predictors
+##for_correlations <- raw_dataset %>%
+##    dplyr::select(bleeding_after, ischaemia_after, all_of(remaining_predictors))
+##correlations = cor(for_correlations)
+##corrplot(correlations)
+##remaining_predictors
 ```
 
 \newpage
