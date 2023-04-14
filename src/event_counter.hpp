@@ -20,7 +20,7 @@ public:
     }
 
     const auto & counts_after() const {
-	return before_counts_;
+	return after_counts_;
     }
 
     void print(std::shared_ptr<StringLookup> lookup) const {
