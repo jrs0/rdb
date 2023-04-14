@@ -1,4 +1,5 @@
 library(tidymodels)
+library(ggplot2)
 
 ##' Requires exactly one NZV (near-zero variance) step
 ##' @param recipe The recipe containing the step_nzv()
@@ -77,9 +78,6 @@ bleeding_recipe <- recipe(bleeding_after ~ ., data = train) %>%
     step_nzv(all_predictors()) %>%
     step_normalize(all_numeric_predictors())
 
-bleeding_recipe %>%
-    near_zero_variance_predictors()
-
 after_preprocessing <- bleeding_recipe %>%
     preprocess_data()
 
@@ -94,5 +92,14 @@ workflow <- workflow() %>%
     add_model(log_reg) %>%
     add_recipe(bleeding_recipe)
 
-workflow %>%
+bleeding_fit <- workflow %>%
     fit(data = train)
+
+bleeding_fit %>%
+    extract_fit_parsnip() %>%
+    tidy()
+
+bleeding_predictions <- bleeding_fit %>%
+    augment(new_data = test) %>%
+    select(bleeding_after, .pred_bleeding_occurred, .pred_class)
+

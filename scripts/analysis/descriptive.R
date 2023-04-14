@@ -54,3 +54,17 @@ cardiovascular_death_by_stemi <- function(dataset) {
         percents_by_stemi(cause_of_death == "cardiac",
                           "Cardiovascular Death")
 }
+
+##'  Subsequent ischaemia by presentation
+ischaemia_by_stemi <- function(dataset) {
+    dataset %>%
+        percents_by_stemi(ischaemia_after != 0,
+                          "Ischaemia After")
+}
+
+##' Subsequent ischaemia by presentation
+bleeding_by_stemi <- function(dataset) {
+    dataset %>%
+        percents_by_stemi(bleeding_after != 0,
+                          "Bleeding After")
+}
