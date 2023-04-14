@@ -28,7 +28,19 @@ options(width = 80)
 
 source("model.R")
 source("plots.R")
-        
+
+## Seed for randomness (predominantly in the models)
+seed <- 47
+
+## The proportion of the dataset used for model training
+train_prop <- 0.75
+
+## Whether to use bootstrapping or cross-validation for resamples
+bootstrap <- TRUE
+
+## The number of resamples in the cross-validation folds/botstrapping
+num_resamples <- 3
+
 ## Load the data and convert the bleeding outcome to a factor
 ## (levels no_bleed, bleed_occurred). The result is a dataset with age and
 ## all the ICD <code>_before columns, and a response variable bleed.
@@ -47,7 +59,6 @@ first_index_date <- raw_dataset %>%
 last_index_date <- raw_dataset %>%
     pull(index_date) %>%
     max()
-
 ```
 
 Put all the descriptive stuff here (plots, summaries, etc.) , before modifying the dataset for modelling.
@@ -61,13 +72,7 @@ dataset <- raw_dataset %>%
     ## Add an ID to link up patients between bleeding and ischaemia predictions
     mutate(index_id = as.factor(row_number()))
 
-## Get number of acs patients
-start <- min(dataset$index_date)
-end <- max(dataset$index_date)
-
-set.seed(47)
-
-train_prop <- 0.75
+set.seed(seed)
 
 ## Get a test training split stratified by bleeding (the
 ## less common outcome)
@@ -75,10 +80,12 @@ split <- initial_split(dataset, prop = 0.75, strata = bleeding_after)
 train <- training(split)
 test <- testing(split)
 
-num_resamples <- 3
-
 ## Create cross-validation folds
-resamples_from_train <- bootstraps(train, times = num_resamples)
+if (bootstrap) {
+    resamples_from_train <- bootstraps(train, times = num_resamples)
+} else {
+    resamples_from_train <- vfold_cv(train, times = num_resamples)
+}
 
 ## Create the model list
 models <- list(
