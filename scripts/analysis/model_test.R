@@ -84,6 +84,12 @@ after_preprocessing <- bleeding_recipe %>%
 after_nzv_removal <- bleeding_recipe %>%
     without_near_zero_variance_columns()
 
+after_nzv_removal %>%
+    select(-nhs_number, -index_date) %>%
+    mutate(across(everything()), ~ as.numeric(.x))
+
+    cor()
+
 log_reg <- logistic_reg() %>% 
     set_engine('glm') %>% 
     set_mode('classification')
