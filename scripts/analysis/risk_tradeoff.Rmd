@@ -132,7 +132,7 @@ bleeding_recipe <- recipe(bleeding_after ~ ., data = train) %>%
     update_role(index_date, new_role = "date") %>%
     update_role(ischaemia_after, new_role = "ischaemic_after") %>%
     step_nzv(all_predictors()) %>%
-    step_normalize()
+    step_normalize(all_numeric_predictors())
 
 ## Create the ischaemia recipe
 ischaemia_recipe <- recipe(ischaemia_after ~ ., data = train) %>%
@@ -141,7 +141,7 @@ ischaemia_recipe <- recipe(ischaemia_after ~ ., data = train) %>%
     update_role(index_date, new_role = "date") %>%
     update_role(bleeding_after, new_role = "bleeding_after") %>%
     step_nzv(all_predictors()) %>%
-    step_normalize()
+    step_normalize(all_numeric_predictors())
 
     
 ## Perform the resampling predictions for all the models for bleeding
