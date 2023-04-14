@@ -2,6 +2,10 @@ library(tidymodels)
 library(ggplot2)
 library(corrr)
 
+training_proportion <- 0.75
+
+source("plots.R")
+
 ##' Requires exactly one NZV (near-zero variance) step
 ##' @param recipe The recipe containing the step_nzv()
 ##' @return A character vector of predictor column names
@@ -65,7 +69,8 @@ dataset <- raw_dataset %>%
     ## Add an ID to link up patients between bleeding and ischaemia predictions
     mutate(index_id = as.factor(row_number()))
 
-split <- initial_split(dataset, prop = 0.75, strata = bleeding_after)
+split <- initial_split(dataset, prop = training_proportion,
+                       strata = bleeding_after)
 train <- training(split)
 test <- testing(split)
 
