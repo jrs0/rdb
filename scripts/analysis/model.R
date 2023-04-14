@@ -35,7 +35,7 @@ predict_resample <- function(model, train, test, resamples_from_train, recipe)
     )
 
     ## Perform an independent fit on each bootstrapped resample,
-    ## extracting the fit objects
+    ## extraclting the fit objects
     bootstrap_fits <- workflow %>%
         fit_resamples(resamples_from_train, control = ctrl_rs) %>%
         pull(.extracts) %>%

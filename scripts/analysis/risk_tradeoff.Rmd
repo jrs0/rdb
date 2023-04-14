@@ -7,11 +7,12 @@ output:
     toc: true
 ---
 
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-library(tidyverse)
-library(knitr)
 
+## Before running this script, you must set the working directory to
+## the location of this script, and load_all or install the rdb package.
+
+library(tidyverse)
 library(probably)
 library(discrim)
 
@@ -68,11 +69,22 @@ dataset <- raw_dataset %>%
     mutate(bleeding_after = factor(bleeding_after == 0, labels = c("bleeding_occurred", "no_bleed"))) %>%
     mutate(ischaemia_after = factor(ischaemia_after == 0, labels = c("ischaemia_occurred", "no_ischaemia"))) %>%
     ## Remove the after columns
-    dplyr::select(- (matches("after") & !matches("(bleeding_after|ischaemia_after)")), - nhs_number) %>%
+    dplyr::select(- (matches("after") & !matches("(bleeding_after|ischaemia_after)"))) %>%
     ## Remove mortality columns
     dplyr::select(- c(survival_time, cause_of_death)) %>%
+    ## Now that the mortality columns are gone (the survival time columns contains
+    ## NAs when patient is alive), drop other NAs
+    drop_na() %>%
     ## Add an ID to link up patients between bleeding and ischaemia predictions
     mutate(index_id = as.factor(row_number()))
+
+## These are the total counts of ACS/PCI events and patients
+## excluding any rows containing an NA anywhere
+num_index_events_exclude_na <- dataset %>%
+    nrow()
+num_patients_exclude_na <- dataset %>%
+    distinct(nhs_number) %>%
+    nrow()
 
 set.seed(seed)
 
@@ -116,6 +128,7 @@ models <- list(
 ## Create the recipe for the bleed models
 bleeding_recipe <- recipe(bleeding_after ~ ., data = train) %>%
     update_role(index_id, new_role = "id") %>%
+    update_role(nhs_number, new_role = "nhs_number") %>%
     update_role(index_date, new_role = "date") %>%
     update_role(ischaemia_after, new_role = "ischaemic_after") %>%
     step_nzv(all_predictors()) %>%
@@ -124,6 +137,7 @@ bleeding_recipe <- recipe(bleeding_after ~ ., data = train) %>%
 ## Create the ischaemia recipe
 ischaemia_recipe <- recipe(ischaemia_after ~ ., data = train) %>%
     update_role(index_id, new_role = "id") %>%
+    update_role(nhs_number, new_role = "nhs_number") %>%
     update_role(index_date, new_role = "date") %>%
     update_role(bleeding_after, new_role = "bleeding_after") %>%
     step_nzv(all_predictors()) %>%
