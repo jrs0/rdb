@@ -182,6 +182,24 @@ plot_survival <- function(dataset) {
         theme_minimal(base_size = 16)
 }
 
+##' Convert a factor column which two levels to a numeric
+##' column containing 0/1. Specify the factor level corresponding
+##' to one as an argument.
+two_level_factor_to_numeric <- function(dataset, factor_column, one_level) {
+    factor_levels <- dataset %>%
+        pull({{ factor_column }}) %>%
+        levels()
+    if (length(factor_levels) != 2) {
+        stop("Factor must have exactly two levels")
+    }
+    if (!(one_level %in% factor_levels)) {
+        stop("Required level '", one_level, "' not present in factor")
+    }
+    dataset %>%
+        mutate({{ factor_column }} :=
+                   if_else({{ factor_column }} == one_level, 1, 0))
+}
+
 plot_predictor_outcome_correlations <- function(after_nzv_removal) {
     after_nzv_removal %>%
         select(-nhs_number, -index_date) %>%

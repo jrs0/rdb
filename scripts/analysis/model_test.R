@@ -2,9 +2,15 @@ library(tidymodels)
 library(ggplot2)
 library(corrr)
 
+source("plots.R")
+
+## Whether to use bootstrapping or cross-validation for resamples
+bootstrap <- TRUE
+
 training_proportion <- 0.75
 
-source("plots.R")
+## The number of resamples in the cross-validation folds/botstrapping
+num_resamples <- 3
 
 ##' Requires exactly one NZV (near-zero variance) step
 ##' @param recipe The recipe containing the step_nzv()
@@ -74,6 +80,14 @@ split <- initial_split(dataset, prop = training_proportion,
 train <- training(split)
 test <- testing(split)
 
+
+## Create cross-validation folds
+if (bootstrap) {
+    resamples_from_train <- bootstraps(train, times = num_resamples)
+} else {
+    resamples_from_train <- vfold_cv(train, times = num_resamples)
+}
+
 bleeding_recipe <- recipe(bleeding_after ~ ., data = train) %>%
     update_role(index_id, new_role = "id") %>%
     update_role(nhs_number, new_role = "nhs_number") %>%
@@ -85,26 +99,9 @@ bleeding_recipe <- recipe(bleeding_after ~ ., data = train) %>%
 after_preprocessing <- bleeding_recipe %>%
     preprocess_data()
 
+## This is just for debugging -- other preprocessing not done
 after_nzv_removal <- bleeding_recipe %>%
     without_near_zero_variance_columns(dataset)
-
-##' Convert a factor column which two levels to a numeric
-##' column containing 0/1. Specify the factor level corresponding
-##' to one as an argument.
-two_level_factor_to_numeric <- function(dataset, factor_column, one_level) {
-    factor_levels <- dataset %>%
-        pull({{ factor_column }}) %>%
-        levels()
-    if (length(factor_levels) != 2) {
-        stop("Factor must have exactly two levels")
-    }
-    if (!(one_level %in% factor_levels)) {
-        stop("Required level '", one_level, "' not present in factor")
-    }
-    dataset %>%
-        mutate({{ factor_column }} :=
-                   if_else({{ factor_column }} == one_level, 1, 0))
-}    
 
 log_reg <- logistic_reg() %>% 
     set_engine('glm') %>% 
@@ -114,8 +111,12 @@ workflow <- workflow() %>%
     add_model(log_reg) %>%
     add_recipe(bleeding_recipe)
 
+ctrl_rs <- control_resamples(
+    extract = function (x) x
+)
+
 bleeding_fit <- workflow %>%
-    fit(data = train)
+    fit_resamples(resamples_from_train, control = ctrl_rs)
 
 bleeding_fit %>%
     extract_fit_parsnip() %>%

@@ -1,9 +1,6 @@
 library(tidymodels)
 library(tidyverse)
 
-
-'''
-
 ##' Using the bootstrap resamples to obtain multiple models
 ##' and thereby obtain a spectrum of predicted class scores for each
 ##' element of the test set. This indicates the variability in the
@@ -79,5 +76,3 @@ predict_resample <- function(model, train, test, resamples_from_train, recipe)
 
     list(results = pred, removals = primary_removals) 
 }
-
-'''
