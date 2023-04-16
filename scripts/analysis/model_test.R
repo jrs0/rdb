@@ -111,17 +111,62 @@ workflow <- workflow() %>%
     add_model(log_reg) %>%
     add_recipe(bleeding_recipe)
 
-ctrl_rs <- control_resamples(
-    extract = function (x) x
-)
+##' Do the fits for each resample. This it to assess the variability
+##' in model parameters as a function of variability in the dataset
+##' @param workflow The workflow with the model and recipe
+##' @param resamples The resamples to fit
+fit_models_to_resamples <- function(workflow, resamples) {
+    ## You appear to need to tell it to extract something. THe
+    ## identity function is needed because x is everything (I think),
+    ## so it is just telling the function to save the whole internal fit
+    ## fit.
+    ctrl_rs <- control_resamples(extract = identity)
+    workflow %>%
+        fit_resamples(resamples, control = ctrl_rs)
+}
 
-bleeding_fit <- workflow %>%
-    fit_resamples(resamples_from_train, control = ctrl_rs)
+bleeding_fits <- fit_models_to_resamples(workflow, resamples_from_train)
 
-bleeding_fit %>%
-    extract_fit_parsnip() %>%
-    tidy()
+##' Get the overall (averaged) metrics over the resamples.
+##' @param fits The output from fit_models_to_resamples()
+overall_resample_metrics <- function(fits) {
+    fits %>%
+        collect_metrics()
+}
 
+bleeding_fits %>%
+    overall_resample_metrics()
+
+##' Get the models from the fits to the resamples
+##' @param fits The result of a call to fit_models_to_resamples()
+trained_resample_workflows <- function(fits) {
+    fits %>%
+        pull(.extracts) %>%
+        list_rbind() %>%
+        pull(.extracts)
+}
+
+bleeding_resample_workflows <- trained_resample_workflows(bleeding_fits)
+
+model_predictions_for_resamples <- function(models, test) {
+    list(
+        m = models,
+        n = seq_along(models)
+    ) %>%
+        pmap(function(m, n) {
+            m %>%
+                predict(test) %>%
+                mutate(resample_id = as.factor(n))
+        }) %>%
+        list_rbind()
+}
+
+predictions_for_resamples <-
+    model_predictions_for_resamples(bleeding_resample_workflows, test)
+
+
+
+bleeding_models_aucs <- model_aucs(bleeding_models)
 bleeding_predictions <- bleeding_fit %>%
     augment(new_data = test) %>%
     select(bleeding_after, .pred_bleeding_occurred, .pred_class)
