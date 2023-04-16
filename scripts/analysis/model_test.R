@@ -31,7 +31,7 @@ near_zero_variance_columns <- function(recipe) {
 ##' preprocessing steps
 ##' @return A tibble with the preprocessed results
 preprocess_data <- function(recipe) {
-    bleeding_recipe %>%
+    recipe %>%
         prep() %>%
         juice()
 }
@@ -45,7 +45,7 @@ preprocess_data <- function(recipe) {
 ##' 
 without_near_zero_variance_columns <- function(recipe, dataset) {
     nzv_cols <- near_zero_variance_columns(recipe)
-    retained_cols <- bleeding_recipe %>%
+    retained_cols <- recipe %>%
         summary() %>%
         filter(!(variable %in% nzv_cols)) %>%
         pull(variable)
