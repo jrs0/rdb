@@ -13,16 +13,11 @@ num_resamples <- 3
 raw_dataset <- processed_acs_dataset("../../config.yaml")
 
 dataset <- raw_dataset %>%
-    mutate(bleeding_after = factor(bleeding_after == 0, labels = c("bleeding_occurred", "no_bleed"))) %>%
-    mutate(ischaemia_after = factor(ischaemia_after == 0, labels = c("ischaemia_occurred", "no_ischaemia"))) %>%
-    ## Remove the after columns
-    dplyr::select(- (matches("after") & !matches("(bleeding_after|ischaemia_after)"))) %>%
-    ## Remove mortality columns
-    dplyr::select(- c(survival_time, cause_of_death)) %>%
-    ## Now that the mortality columns are gone (the survival time columns contains
-    ## NAs when patient is alive), drop other NAs
+    count_to_two_level_factor(bleeding_after, "bleeding") %>%
+    count_to_two_level_factor(ischaemia_after, "ischaemia") %>%
+    remove_other_outcome_columns() %>%
+    remove_mortality_columns() %>%
     drop_na() %>%
-    ## Add an ID to link up patients between bleeding and ischaemia predictions
     mutate(index_id = as.factor(row_number()))
 
 split <- initial_split(dataset, prop = training_proportion,
@@ -30,48 +25,36 @@ split <- initial_split(dataset, prop = training_proportion,
 train <- training(split)
 test <- testing(split)
 
-
-## Create cross-validation folds
 if (bootstrap) {
     resamples_from_train <- bootstraps(train, times = num_resamples)
 } else {
     resamples_from_train <- vfold_cv(train, v = num_resamples)
 }
 
-bleeding_recipe <- recipe(bleeding_after ~ ., data = train) %>%
-    update_role(index_id, new_role = "id") %>%
-    update_role(nhs_number, new_role = "nhs_number") %>%
-    update_role(index_date, new_role = "date") %>%
-    update_role(ischaemia_after, new_role = "ischaemic_after") %>%
-    step_nzv(all_predictors()) %>%
-    step_normalize(all_numeric_predictors())
+bleeding_recipe <- train %>%
+    make_recipe(bleeding_after, ischaemia_after)
 
-after_preprocessing <- bleeding_recipe %>%
-    preprocess_data()
-
-## This is just for debugging -- other preprocessing not done
-after_nzv_removal <- bleeding_recipe %>%
-    without_near_zero_variance_columns(dataset)
-
-log_reg <- logistic_reg() %>% 
+logistic_regression_model <- logistic_reg() %>% 
     set_engine('glm') %>% 
     set_mode('classification')
 
 workflow <- workflow() %>%
-    add_model(log_reg) %>%
+    add_model(logistic_regression_model) %>%
     add_recipe(bleeding_recipe)
 
-bleeding_fits <- fit_models_to_resamples(workflow, resamples_from_train)
+bleeding_fits <- workflow %>%
+    fit_models_to_resamples(resamples_from_train)
 
 bleeding_fits %>%
     overall_resample_metrics()
 
-bleeding_resample_workflows <- trained_resample_workflows(bleeding_fits)
+bleeding_resample_workflows <- bleeding_fits %>%
+    trained_resample_workflows()
 
-predictions_for_resamples <-
-    model_predictions_for_resamples(bleeding_resample_workflows, test)
+predictions_for_resamples <- bleeding_resample_workflows %>%
+    model_predictions_for_resamples(test)
 
-bleeding_models_aucs <- predictions_for_resamples %>%
+predictions_for_resamples %>%
     resample_model_aucs(bleeding_after, .pred_bleeding_occurred)
 
 bleeding_model_resample_roc_curves <- predictions_for_resamples %>%

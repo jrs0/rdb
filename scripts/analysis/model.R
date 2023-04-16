@@ -20,9 +20,47 @@ two_level_factor_to_numeric <- function(dataset, factor_column, one_level) {
                    if_else({{ factor_column }} == one_level, 1, 0))
 }
 
-##' 
-count_to_two_level_factor <- function(dataset, count_column, name) {
+##' Convert a column of counts to a factor representing count != 0
+##' (event_name_occurred) or count == 0 (non_event_name). Modifies the
+##' column in place.
+count_to_two_level_factor <- function(dataset, count_column, event_name) {
+    dataset %>%
+        mutate({{ count_column }} := factor({{ count_column }} == 0,
+                                            labels = c(
+                                                paste0(event_name,
+                                                       "_occurred"),
+                                                paste0("no_",
+                                                       event_name))))
+}
 
+#' Only keep bleeding_after and ischaemia_after, drop all other
+#' *_after columns
+remove_other_outcome_columns <- function(dataset) {
+    dataset %>%
+        dplyr::select(- (matches("after") &
+                         !matches("(bleeding_after|ischaemia_after)")))
+}
+
+remove_mortality_columns <- function(dataset) {
+    dataset %>%
+        dplyr::select(- c(survival_time, cause_of_death))
+}
+
+##' Expects a dataset as input containing a set of columns to ignore
+##' (index_id, nhs_number, index_date), two outcome columns, one to model
+##' and one to ignore, and all other columns are predictors. Returns a recipe
+##' that drops near-zero-variance columns, and centers and scales all
+##' numeric predictors.
+make_recipe <- function(train, outcome_to_model, outcome_to_ignore) {
+    recipe(train) %>%
+        update_role(everything(), new_role = "predictor") %>%
+        update_role({{ outcome_to_model }}, new_role = "outcome") %>%
+        update_role({{ outcome_to_ignore }}, new_role = "ignored_outcome") %>%
+        update_role(nhs_number, new_role = "nhs_number") %>%
+        update_role(index_date, new_role = "index_date") %>%
+        update_role(index_id, new_role = "index_id") %>%
+        step_nzv(all_predictors()) %>%
+        step_normalize(all_numeric_predictors())
 }
 
 ##' Requires exactly one NZV (near-zero variance) step
