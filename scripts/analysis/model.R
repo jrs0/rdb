@@ -1,78 +1,140 @@
 library(tidymodels)
 library(tidyverse)
 
-##' Using the bootstrap resamples to obtain multiple models
-##' and thereby obtain a spectrum of predicted class scores for each
-##' element of the test set. This indicates the variability in the
-##' model fitting process.
-##'
-##' @param model The tidymodels model to use for the fit
-##' @param train The training data on which to perform the fits
-##' @param test The test set, where each model (from the bootstrap resamples)
-##' is used to make a prediction for the items in the test set
-##' @param resamples_from_train The bootstrap resamples object used to specify
-##' which subsets of train are used to train the models.
-##' @param recipe The recipe (preprocessing steps) to apply before training
-##' _any_ of the models. (i.e. the same preprocessing steps are applied before
-##' fitting the models in the bootstrap resamples.
-##' @return A list of two items. The first ("results") is a tibble with
-##' the test set, containing predictors along with a model_id column
-##' indicating which bootstrap resample was used to fit that model. The
-##' second ("removals") is a list of predictors removed due to near-zero
-##' variance in the primary fit.
-predict_resample <- function(model, train, test, resamples_from_train, recipe)
-{
-    ## Create the workflow for this model
-    workflow <- workflow() %>%
-        add_model(model) %>%
-        add_recipe(recipe)
 
-    ## Set the control to extract the fitted model for each resample
-    ## Turns out you don't need to run extract_fit_parsnip. Surely
-    ## there is a way not to call the identity function!
-    ctrl_rs <- control_resamples(
-        extract = function (x) x
-    )
+##' Convert a factor column which two levels to a numeric
+##' column containing 0/1. Specify the factor level corresponding
+##' to one as an argument.
+two_level_factor_to_numeric <- function(dataset, factor_column, one_level) {
+    factor_levels <- dataset %>%
+        pull({{ factor_column }}) %>%
+        levels()
+    if (length(factor_levels) != 2) {
+        stop("Factor must have exactly two levels")
+    }
+    if (!(one_level %in% factor_levels)) {
+        stop("Required level '", one_level, "' not present in factor")
+    }
+    dataset %>%
+        mutate({{ factor_column }} :=
+                   if_else({{ factor_column }} == one_level, 1, 0))
+}
 
-    ## Perform an independent fit on each bootstrapped resample,
-    ## extraclting the fit objects
-    bootstrap_fits <- workflow %>%
-        fit_resamples(resamples_from_train, control = ctrl_rs) %>%
+##' 
+count_to_two_level_factor <- function(dataset, count_column, name) {
+
+}
+
+##' Requires exactly one NZV (near-zero variance) step
+##' @param recipe The recipe containing the step_nzv()
+##' @return A character vector of predictor column names
+##' that are removed due to NZV
+near_zero_variance_columns <- function(recipe) {
+    nzv_row_numbers <- recipe %>%
+        prep() %>%
+        tidy() %>%
+        filter(type == "nzv")
+
+    if (nrow(nzv_row_numbers) != 1) {
+        stop("There must be exactly one NZV predictor in the recipe")
+    }
+    
+    recipe %>%
+        prep() %>%
+        tidy(number = nzv_row_numbers[[1]]) %>%
+        pull(terms)
+}
+
+##' Preprocess data using a recipe
+##' @param recipe The recipe defining the training data
+##' preprocessing steps
+##' @return A tibble with the preprocessed results
+preprocess_data <- function(recipe) {
+    recipe %>%
+        prep() %>%
+        juice()
+}
+
+##' This function performs the step_nzv(), but not any of the
+##' others, so that you can see the original data from the columns
+##' that will be included in the model.
+##' 
+##' @param recipe The recipe defining the preprocessing steps
+##' @return The dataset without the near-zero variance columns
+##' 
+without_near_zero_variance_columns <- function(recipe, dataset) {
+    nzv_cols <- near_zero_variance_columns(recipe)
+    retained_cols <- recipe %>%
+        summary() %>%
+        filter(!(variable %in% nzv_cols)) %>%
+        pull(variable)
+    dataset %>%
+        select(retained_cols)
+}
+
+##' Do the fits for each resample. This it to assess the variability
+##' in model parameters as a function of variability in the dataset
+##' @param workflow The workflow with the model and recipe
+##' @param resamples The resamples to fit
+fit_models_to_resamples <- function(workflow, resamples) {
+    ## You appear to need to tell it to extract something. THe
+    ## identity function is needed because x is everything (I think),
+    ## so it is just telling the function to save the whole internal fit
+    ## fit.
+    ctrl_rs <- control_resamples(extract = identity)
+    workflow %>%
+        fit_resamples(resamples, control = ctrl_rs)
+}
+
+##' Get the overall (averaged) metrics over the resamples.
+##' @param fits The output from fit_models_to_resamples()
+overall_resample_metrics <- function(fits) {
+    fits %>%
+        collect_metrics()
+}
+
+##' Get the models from the fits to the resamples
+##' @param fits The result of a call to fit_models_to_resamples()
+trained_resample_workflows <- function(fits) {
+    fits %>%
         pull(.extracts) %>%
-        map(~ .x %>% pluck(".extracts", 1))
-    
-    ## Perform one fit on the entire training dataset. This is the
-    ## single (no cross-validation here) main fit of the model on the
-    ## entire training set.
-    primary_fit <- workflow %>%
-        fit(data = train)
+        list_rbind() %>%
+        pull(.extracts)
+}
 
-    ## Use the primary model to predict the test set
-    primary_pred <- primary_fit %>%
-        augment(new_data = test) %>%
-        mutate(model_id = as.factor("primary"))
-
-    primary_removals <- primary_fit %>%
-        extract_recipe() %>%
-        pluck("steps", 2, "removals")
-    
-    ## For each bleeding model, predict the probabilities for
-    ## the test set and record the model used to make the
-    ## prediction in model_id
-    bootstrap_pred <- list(
-        n = seq_along(bootstrap_fits),
-        f = bootstrap_fits
+##' Use each model (one per resample) to make predictions on the test
+##' set. Return the result in a tibble with an id specifying which
+##' resample made the predictions. The returned data is the test data
+##' augmented by the predictions.
+model_predictions_for_resamples <- function(models, test) {
+    list(
+        m = models,
+        n = seq_along(models)
     ) %>%
-        pmap(function(n, f)
-        {
-            f %>%
-                augment(new_data = test) %>%
-                mutate(model_id = as.factor(n))
+        pmap(function(m, n) {
+            m %>%
+                augment(test) %>%
+                mutate(resample_id = as.factor(n))
         }) %>%
         list_rbind()
 
-    ## Bind together the primary and bootstrap fits
-    pred <- bind_rows(primary_pred, bootstrap_pred)
+    ## If you need it wide: 
+    ## pivot_wider(names_from = resample_id,
+    ##             names_prefix = "resample_",
+    ##             values_from = matches(".pred"))
+}
 
-    list(results = pred, removals = primary_removals) 
+##' A tibble of the AUCs for the resample models
+resample_model_aucs <- function(predictions, truth, probability) {
+    predictions %>%
+        group_by(resample_id) %>%
+        roc_auc({{ truth }}, {{ probability }})
+}
+
+##' The test data resample predictions tibble, augmented by
+##' ROC curves (sensitivity and selectivity columns)
+resample_model_roc_curves <- function(predictions, truth, probability) {
+    predictions %>%
+        group_by(resample_id) %>%
+        roc_curve({{ truth }}, {{ probability }})
 }
