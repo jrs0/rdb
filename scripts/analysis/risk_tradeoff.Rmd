@@ -20,15 +20,8 @@ More detailed relevant information is available from other data sources -- for e
 In this report, several classification models are used to predict bleeding/ischaemia. A summary of the modelling results is shown in the table below. For more information, see [Classification models].
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
-## Summarise the AUC (should add primary AUC here)
-roc_summary <- roc_auc %>%
-    group_by(outcome_name, model_name) %>%
-    summarise("Mean AUC" = mean(auc), "AUC Error" = 1.96*sd(auc))
-
-roc_summary %>%
-    rename("Outcome Name" = outcome_name,
-           "Model Name" = model_name) %>%
-    kable(caption = "Summary of model performance. The mean area under the ROC curve was obtained by averaging bootstrapped resamples. The 95% error on this estimate is also shown.")
+all_model_auc_summary %>%
+    kable(caption = "Summary of model performances. The mean area under the ROC curve was obtained by averaging bootstrapped resamples. The 95% error on this estimate is also shown.")
 ```
 
 ## Hospital episode statistics

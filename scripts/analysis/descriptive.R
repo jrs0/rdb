@@ -68,3 +68,22 @@ bleeding_by_stemi <- function(dataset) {
         percents_by_stemi(bleeding_after != 0,
                           "Bleeding After")
 }
+
+
+model_aucs <- function(model_results, model_name) {
+    model_results$model_aucs %>%
+        mutate(model = model_name)
+}
+
+summarise_model_aucs <- function(all_model_aucs) {
+    all_model_aucs %>%
+        filter(.metric == "roc_auc") %>%
+        rename(auc = .estimate) %>%
+        mutate(outcome = str_to_title(outcome)) %>%
+        group_by(outcome, model) %>%
+        summarise("Mean AUC" = mean(auc), "AUC Error" = 1.96*sd(auc)) %>%
+        pivot_wider(names_from = outcome,
+                    values_from = c(`Mean AUC`, `AUC Error`),
+                    names_vary = "slowest",
+                    names_glue = "{.value} ({outcome})")
+}
