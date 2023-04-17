@@ -5,10 +5,9 @@ library(corrr)
 source("model.R")
 source("plots.R")
 
-## Whether to use bootstrapping or cross-validation for resamples
-bootstrap <- TRUE
 training_proportion <- 0.75
-num_resamples <- 5
+num_cross_validation_folds <- 5
+num_bootstrap_resamples <- 6
 
 raw_dataset <- processed_acs_dataset("../../config.yaml")
 
@@ -25,15 +24,8 @@ split <- initial_split(dataset, prop = training_proportion,
 train <- training(split)
 test <- testing(split)
 
-if (bootstrap) {
-    resamples_from_train <- bootstraps(train, times = num_resamples)
-} else {
-    resamples_from_train <- vfold_cv(train, v = num_resamples)
-}
-
-## model <- logistic_reg() %>% 
-##     set_engine('glm') %>% 
-##     set_mode('classification')
+recipe <- train %>%
+    make_recipe(bleeding_after, ischaemia_after)
 
 model <- decision_tree(
     tree_depth = tune(),
@@ -46,25 +38,47 @@ tuning_grid <- grid_regular(cost_complexity(),
                             tree_depth(),
                             levels = 5)
 
-recipe <- train %>%
-    make_recipe(bleeding_after, ischaemia_after)
 
-model_workflow <- workflow() %>%
-    add_model(model) %>%
-    add_recipe(recipe)
+##' Get the optimal model over a grid of hyper-parameters
+##' using cross-validation on the training set. Use this
+##' function when the model has hyperparameters
+optimal_workflow_from_tuning <- function(model, recipe, train,
+                                      tuning_grid, num_folds) {    
+    pre_tuning_workflow <- workflow() %>%
+        add_model(model) %>%
+        add_recipe(recipe)
 
-best_model <- model_workflow %>%
-    tune_models_with_resamples(resamples_from_train, tuning_grid) %>%
-    select_best("roc_auc")
+    resamples <- vfold_cv(train, v = num_folds)
+    best_model <- pre_tuning_workflow %>%
+        tune_models_with_resamples(resamples, tuning_grid) %>%
+        select_best("roc_auc")
 
-optimal_fit <- model_workflow %>%
-    finalize_workflow(best_model)
+    pre_tuning_workflow %>%
+        finalize_workflow(best_model)
+}
 
-    
+model_workflow <- optimal_workflow_from_tuning(model, recipe, train, 
+                                               tuning_grid, num_cross_validation_folds)
+
+##' Use this function for a model with no hyper-parameters. The
+##' optimal workflow is obtained by combining the recipe with the
+##' model.
+optimal_workflow_no_tuning <- function(model, recipe, train) {
+    workflow() %>%
+        add_model(model) %>%
+        add_recipe(recipe)
+}
+
+model <- logistic_reg() %>% 
+    set_engine('glm') %>% 
+    set_mode('classification')
+
+model_workflow <- optimal_workflow_no_tuning(model, recipe, train)
+
+
 
 optimal_fit <- model_workflow %>%
     fit(data = train)
-
 
 fits <- model_workflow %>%
     fit_models_to_resamples(resamples_from_train)
