@@ -120,6 +120,14 @@ fit_models_to_resamples <- function(workflow, resamples) {
         fit_resamples(resamples, control = ctrl_rs)
 }
 
+tune_models_with_resamples <- function(workflow, resamples, tuning_grid) {
+    ctrl_rs <- control_resamples(extract = identity)
+    workflow %>%
+        tune_grid(resamples = resamples,
+                  grid = tuning_grid,
+                  control = ctrl_rs)
+}
+
 ##' Get the overall (averaged) metrics over the resamples.
 ##' @param fits The output from fit_models_to_resamples()
 overall_resample_metrics <- function(fits) {
@@ -171,42 +179,4 @@ resample_model_roc_curves <- function(predictions, truth, probability) {
     predictions %>%
         group_by(resample_id) %>%
         roc_curve({{ truth }}, {{ probability }})
-}
-
-##' Fit a particular model on a set of resamples of the training data,
-##' test the models on the test data, and return the AUC and ROC curves
-##' for the models.
-fit_model_on_resamples <- function(recipe, model, train, test, resamples,
-                                   outcome_column, outcome_name) {
-    model_workflow <- workflow() %>%
-        add_model(model) %>%
-        add_recipe(recipe)
-
-    primary_fit <- model_workflow %>%
-        fit(data = train)
-    
-    fits <- model_workflow %>%
-        fit_models_to_resamples(resamples)
-    
-    overall_metrics <- fits %>%
-        overall_resample_metrics()
-
-    predictions_for_resamples <- fits %>%
-        trained_resample_workflows() %>%
-        model_predictions_for_resamples(test) %>%
-        mutate(outcome = outcome_name)
-
-    model_aucs <- predictions_for_resamples %>%
-        resample_model_aucs({{ outcome_column }}, .pred_occurred)
-
-    roc_curves <- predictions_for_resamples %>%
-        resample_model_roc_curves({{ outcome_column }}, .pred_occurred) %>%
-        plot_resample_roc_curves()
-
-    list (
-        primary_fit = primary_fit,
-        overall_metrics = overall_metrics,
-        model_aucs = model_aucs,
-        roc_curves = roc_curves
-    )
 }

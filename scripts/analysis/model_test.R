@@ -36,8 +36,8 @@ if (bootstrap) {
 ##     set_mode('classification')
 
 model <- decision_tree(
-    tree_depth = tune(),
-    cost_complexity = tune()
+    ## tree_depth = tune(),
+    ## cost_complexity = tune()
 ) %>% 
     set_engine("rpart") %>%
     set_mode("classification")
@@ -46,10 +46,38 @@ tuning_grid <- grid_regular(cost_complexity(),
                             tree_depth(),
                             levels = 5)
 
-bleeding_resample_results <- train %>%
-    make_recipe(bleeding_after, ischaemia_after) %>%
-    fit_model_on_resamples(model, train, test, resamples_from_train,
-                           bleeding_after, "bleeding")
+recipe <- train %>%
+    make_recipe(bleeding_after, ischaemia_after)
+
+model_workflow <- workflow() %>%
+    add_model(model) %>%
+    add_recipe(recipe)
+
+tuned_models <- model_workflow %>%
+    tune_models_with_resamples(resamples_from_train, tuning_grid)
+
+fits <- model_workflow %>%
+    fit_models_to_resamples(resamples_from_train)
+
+primary_fit <- model_workflow %>%
+    fit(data = train)
+
+
+overall_metrics <- fits %>%
+    overall_resample_metrics()
+
+predictions_for_resamples <- fits %>%
+    trained_resample_workflows() %>%
+    model_predictions_for_resamples(test) %>%
+    mutate(outcome = outcome_name)
+
+model_aucs <- predictions_for_resamples %>%
+    resample_model_aucs({{ outcome_column }}, .pred_occurred)
+
+roc_curves <- predictions_for_resamples %>%
+    resample_model_roc_curves({{ outcome_column }}, .pred_occurred) %>%
+    plot_resample_roc_curves()
+
 
 
 ischaemia_resample_results <- train %>%

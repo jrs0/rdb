@@ -374,6 +374,17 @@ plot_age_distributions(raw_dataset)
 
 Four classification models were fitted to the data: logistic regression; linear discriminant analysis; a basic decision tree; and naive Bayes.
 
+## Finding the optimal model
+
+Optimal models of each type were obtained by average model performance (over a set of cross-validation folds) for a grid of model hyper-parameters, and selecting the model with the highest mean ROC AUC value. For models with no hyper-parameters (e.g. logistic regression), a single model was obtained by fitting to the whole training set. 
+
+## Identifying variability in the fitted model
+
+In order to obtain a measure of variability of output risk predictions, the optimal model (i.e. with a fixed set of tuning parameters) was fitted to a set of bootstrapped resamples of the training data. The resulting set of models have slightly different ROC AUCs, and generate slightly different estimates for the bleeding and ischaemia risk for a given patient. This variability shows how randomness in the fitting process (due to variations in the training set used for fitting) translates to variations in the output probabilities.
+
+
+
+
 The data was split into a training and a test set with `r 100*train_prop`% of the data in the training set. The training data was then resampled with replacement (bootstrapping) `r num_resamples` times, and each model was fitted on each bootstrap resample, in order to simulate variability in the model fitting process. A primary model was also fitted on the full training set.
 
 Before fitting the models, near-zero variance predictors were removed as described in the section below.
