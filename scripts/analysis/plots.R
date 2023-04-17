@@ -200,10 +200,11 @@ plot_predictor_outcome_correlations <- function(after_nzv_removal) {
 ##' identified by resample_id)
 plot_resample_roc_curves <- function(resample_roc_curves) {
     resample_roc_curves %>%
-    ggplot(aes(x = 1 - specificity,
-               y = sensitivity,
-               colour = resample_id,
-               group = resample_id)) +
-    geom_line() +
-    geom_abline(slope = 1, intercept = 0, size = 0.4)
+        ggplot(aes(x = 1 - specificity,
+                   y = sensitivity,
+                   colour = resample_id,
+                   group = resample_id)) +
+        geom_line() +
+        facet_wrap(~ outcome) +
+        geom_abline(slope = 1, intercept = 0, size = 0.4)
 }

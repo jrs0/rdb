@@ -2,6 +2,7 @@ library(tidymodels)
 library(ggplot2)
 library(corrr)
 
+source("dataset.R")
 source("model.R")
 source("plots.R")
 
@@ -12,66 +13,89 @@ num_bootstrap_resamples <- 6
 raw_dataset <- processed_acs_dataset("../../config.yaml")
 
 dataset <- raw_dataset %>%
-    count_to_two_level_factor(bleeding_after) %>%
-    count_to_two_level_factor(ischaemia_after) %>%
-    remove_other_outcome_columns() %>%
-    remove_mortality_columns() %>%
-    drop_na() %>%
-    mutate(index_id = as.factor(row_number()))
+    modelling_dataset()
 
-split <- initial_split(dataset, prop = training_proportion,
-                       strata = bleeding_after)
+split <- dataset %>%
+    initial_split(prop = training_proportion, strata = bleeding_after)
 train <- training(split)
 test <- testing(split)
 
-recipe <- train %>%
+
+bleeding_recipe <- train %>%
     make_recipe(bleeding_after, ischaemia_after)
+ischaemia_recipe <- train %>%
+    make_recipe(ischaemia_after, bleeding_after)
 
-##' A decision tree along with a specification for
-##' tuning its hyper-parameters
-make_decision_tree <- function() {
+
+logistic_regression_model <- make_logistic_regression()
+decision_tree_model <- make_decision_tree()
+
+
+
+
+
+
+bootstrap_fit_results <- function(model, recipe, outcome_column, outcome_name) {
+    model %>%
+        optimal_workflow(recipe, train) %>%
+        fit_model_on_bootstrap_resamples(train, test, {{ outcome_column }},
+                                         outcome_name,
+                                         num_bootstrap_resamples)
+}
+
+bind_model_results <- function(a, b) {
+    predictions <- a$predictions %>%
+        bind_rows(b$predictions)
+
+    model_aucs <- a$model_aucs %>%
+        bind_rows(b$model_aucs)
+
+    roc_curves <- a$roc_curves %>%
+        bind_rows(b$roc_curves)
+
     list (
-        model = decision_tree(
-            tree_depth = tune(),
-            cost_complexity = tune()
-        ) %>% 
-            set_engine("rpart") %>%
-            set_mode("classification"),
-        tuning_grid = grid_regular(cost_complexity(),
-                                   tree_depth(),
-                                   levels = 5),
-        num_cross_validation_folds = num_cross_validation_folds
+        predictions = predictions,
+        model_aucs = model_aucs,
+        roc_curves = roc_curves
     )
 }
 
-##' A logistic regression model (no hyper-parameters)
-make_logistic_regression <- function() {
-    list (
-        model = logistic_reg() %>% 
-            set_engine('glm') %>% 
-            set_mode('classification')
-    )
+model_results <- function(model) {
+
+    bleeding_results <- model %>%
+        bootstrap_fit_results(bleeding_recipe, bleeding_after, "bleeding")
+    
+    ischaemia_results <- model %>%
+        bootstrap_fit_results(ischaemia_recipe, ischaemia_after, "ischaemia")
+    
+    bind_model_results(bleeding_results, ischaemia_results)
 }
 
-optimal_workflow <- function(model, recipe, train) {
-    if (!is.null(model$tuning_grid)) {
-        k <- model$num_cross_validation_folds
-        optimal_workflow_from_tuning(model$model, recipe, train, 
-                                     model$tuning_grid, k)
-    } else {
-        optimal_workflow_no_tuning(model$model, recipe, train)
-    }
-}
+
+logistic_regression_results <- logistic_regression_model %>%
+    model_results()
+
+
+logistic_regression_results$roc_curves %>%
+    plot_resample_roc_curves()
 
 logistic_regression_results = make_logistic_regression() %>%
-    optimal_workflow(recipe, train) %>%
-    fit_model_on_bootstrap_resamples(train, test, bleeding_after, "bleeding",
-                                     num_bootstrap_resamples)
-    
-
-decision_tree_model = make_decision_tree() %>%
-    optimal_workflow(recipe, train) %>%
-    fit_model_on_bootstrap_resamples(train, test, bleeding_after, "bleeding",
+    optimal_workflow(ischaemia_recipe, train) %>%
+    fit_model_on_bootstrap_resamples(train, test, ischaemia_after, "ischaemia",
                                      num_bootstrap_resamples)
 
-bleeding_resample_results
+
+
+
+
+
+
+
+
+
+
+
+decision_tree_results = make_decision_tree() %>%
+    optimal_workflow(preprocessing_recipe, train) %>%
+    fit_model_on_bootstrap_resamples(train, test, bleeding_after, "bleeding",
+                                     num_bootstrap_resamples)

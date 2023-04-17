@@ -228,18 +228,19 @@ fit_model_on_bootstrap_resamples <- function(model_workflow, train, test,
 
     bootstrap_predictions <- bootstrap_fits %>%
         trained_resample_workflows() %>%
-        model_predictions_for_resamples(test) %>%
-        mutate(outcome = outcome_name)
+        model_predictions_for_resamples(test)
 
     predictions <- full_train_predictions %>%
-        bind_rows(bootstrap_predictions)
+        bind_rows(bootstrap_predictions) %>%
+        mutate(outcome = outcome_name)
     
     model_aucs <- predictions %>%
-        resample_model_aucs({{ outcome_column }}, .pred_occurred)
+        resample_model_aucs({{ outcome_column }}, .pred_occurred) %>%
+        mutate(outcome = outcome_name)
 
     roc_curves <- predictions %>%
         resample_model_roc_curves({{ outcome_column }}, .pred_occurred) %>%
-        plot_resample_roc_curves()
+        mutate(outcome = outcome_name)
 
     list (
         full_train_fit = full_train_fit,
@@ -248,4 +249,40 @@ fit_model_on_bootstrap_resamples <- function(model_workflow, train, test,
         model_aucs = model_aucs,
         roc_curves = roc_curves
     )
+}
+
+##' A decision tree along with a specification for
+##' tuning its hyper-parameters
+make_decision_tree <- function() {
+    list (
+        model = decision_tree(
+            tree_depth = tune(),
+            cost_complexity = tune()
+        ) %>% 
+            set_engine("rpart") %>%
+            set_mode("classification"),
+        tuning_grid = grid_regular(cost_complexity(),
+                                   tree_depth(),
+                                   levels = 5),
+        num_cross_validation_folds = num_cross_validation_folds
+    )
+}
+
+##' A logistic regression model (no hyper-parameters)
+make_logistic_regression <- function() {
+    list (
+        model = logistic_reg() %>% 
+            set_engine('glm') %>% 
+            set_mode('classification')
+    )
+}
+
+optimal_workflow <- function(model, recipe, train) {
+    if (!is.null(model$tuning_grid)) {
+        k <- model$num_cross_validation_folds
+        optimal_workflow_from_tuning(model$model, recipe, train, 
+                                     model$tuning_grid, k)
+    } else {
+        optimal_workflow_no_tuning(model$model, recipe, train)
+    }
 }
