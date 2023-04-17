@@ -6,9 +6,9 @@ source("model.R")
 source("plots.R")
 
 ## Whether to use bootstrapping or cross-validation for resamples
-bootstrap <- FALSE
+bootstrap <- TRUE
 training_proportion <- 0.75
-num_resamples <- 3
+num_resamples <- 5
 
 raw_dataset <- processed_acs_dataset("../../config.yaml")
 
@@ -34,32 +34,59 @@ if (bootstrap) {
 bleeding_recipe <- train %>%
     make_recipe(bleeding_after, ischaemia_after)
 
+ischaemia_recipe <- train %>%
+    make_recipe(ischaemia_after, bleeding_after)
+
 logistic_regression_model <- logistic_reg() %>% 
     set_engine('glm') %>% 
     set_mode('classification')
 
-workflow <- workflow() %>%
-    add_model(logistic_regression_model) %>%
-    add_recipe(bleeding_recipe)
+model_workflow <- workflow() %>%
+    add_model(logistic_regression_model)
 
-bleeding_fits <- workflow %>%
+bleeding_workflow <- model_workflow %>%
+    add_recipe(bleeding_recipe) 
+
+ischaemia_workflow <- model_workflow %>%
+    add_recipe(ischaemia_recipe)
+
+bleeding_fits <- bleeding_workflow %>%
+    fit_models_to_resamples(resamples_from_train)
+
+ischaemia_fits <- ischaemia_workflow %>%
     fit_models_to_resamples(resamples_from_train)
 
 bleeding_fits %>%
     overall_resample_metrics()
 
+ischaemia_fits %>%
+    overall_resample_metrics()
+
 bleeding_resample_workflows <- bleeding_fits %>%
     trained_resample_workflows()
 
-predictions_for_resamples <- bleeding_resample_workflows %>%
-    model_predictions_for_resamples(test)
+ischaemia_resample_workflows <- ischaemia_fits %>%
+    trained_resample_workflows()
 
-predictions_for_resamples %>%
+bleeding_predictions_for_resamples <- bleeding_resample_workflows %>%
+    model_predictions_for_resamples(test) %>%
+    mutate(outcome = "bleeding")
+
+ischaemia_predictions_for_resamples <- ischaemia_resample_workflows %>%
+    model_predictions_for_resamples(test) %>%
+    mutate(outcome = "ischaemia")
+
+bleeding_predictions_for_resamples %>%
     resample_model_aucs(bleeding_after, .pred_bleeding_occurred)
 
-bleeding_model_resample_roc_curves <- predictions_for_resamples %>%
-    resample_model_roc_curves(bleeding_after, .pred_bleeding_occurred)
+ischaemia_predictions_for_resamples %>%
+    resample_model_aucs(ischaemia_after, .pred_ischaemia_occurred)
 
-bleeding_model_resample_roc_curves %>%
+bleeding_predictions_for_resamples %>%
+    resample_model_roc_curves(bleeding_after, .pred_bleeding_occurred) %>%
+    plot_resample_roc_curves()
+
+ischaemia_predictions_for_resamples %>%
+    resample_model_roc_curves(ischaemia_after, .pred_ischaemia_occurred) %>%
     plot_resample_roc_curves()
 
