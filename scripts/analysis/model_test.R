@@ -31,18 +31,29 @@ if (bootstrap) {
     resamples_from_train <- vfold_cv(train, v = num_resamples)
 }
 
-logistic_regression_model <- logistic_reg() %>% 
-    set_engine('glm') %>% 
-    set_mode('classification')
+## model <- logistic_reg() %>% 
+##     set_engine('glm') %>% 
+##     set_mode('classification')
+
+model <- decision_tree(
+    tree_depth = tune(),
+    cost_complexity = tune()
+) %>% 
+    set_engine("rpart") %>%
+    set_mode("classification")
+
+tuning_grid <- grid_regular(cost_complexity(),
+                            tree_depth(),
+                            levels = 5)
 
 bleeding_resample_results <- train %>%
     make_recipe(bleeding_after, ischaemia_after) %>%
-    fit_model_on_resamples(logistic_regression_model, test,
-                           resamples_from_train, bleeding_after, "bleeding")
+    fit_model_on_resamples(model, train, test, resamples_from_train,
+                           bleeding_after, "bleeding")
 
 
 ischaemia_resample_results <- train %>%
     make_recipe(ischaemia_after, bleeding_after) %>%
-    fit_model_on_resamples(logistic_regression_model, test,
-                           resamples_from_train, ischaemia_after, "ischaemia")
+    fit_model_on_resamples(model, train, test, resamples_from_train,
+                           ischaemia_after, "ischaemia")
     
