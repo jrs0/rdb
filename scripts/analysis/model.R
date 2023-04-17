@@ -180,3 +180,72 @@ resample_model_roc_curves <- function(predictions, truth, probability) {
         group_by(resample_id) %>%
         roc_curve({{ truth }}, {{ probability }})
 }
+
+##' Get the optimal model over a grid of hyper-parameters
+##' using cross-validation on the training set. Use this
+##' function when the model has hyperparameters
+optimal_workflow_from_tuning <- function(model, recipe, train,
+                                      tuning_grid, num_folds) {    
+    pre_tuning_workflow <- workflow() %>%
+        add_model(model) %>%
+        add_recipe(recipe)
+
+    resamples <- vfold_cv(train, v = num_folds)
+    best_model <- pre_tuning_workflow %>%
+        tune_models_with_resamples(resamples, tuning_grid) %>%
+        select_best("roc_auc")
+
+    pre_tuning_workflow %>%
+        finalize_workflow(best_model)
+}
+
+##' Use this function for a model with no hyper-parameters. The
+##' optimal workflow is obtained by combining the recipe with the
+##' model.
+optimal_workflow_no_tuning <- function(model, recipe, train) {
+    workflow() %>%
+        add_model(model) %>%
+        add_recipe(recipe)
+}
+
+##' Perform the fit on bootstrap resamples to assess stability in the
+##' output probabilities with variations in the training set.
+fit_model_on_bootstrap_resamples <- function(model_workflow, train, test,
+                                             outcome_column, outcome_name,
+                                             num_bootstrap_resamples) {
+    
+    bootstrap_resamples <- bootstraps(train, times = num_bootstrap_resamples)
+
+    full_train_fit <- model_workflow %>%
+        fit(data = train)
+
+    full_train_predictions <- full_train_fit %>%
+        augment(test) %>%
+        mutate(resample_id = as.factor("full_training_set"))
+    
+    bootstrap_fits <- model_workflow %>%
+        fit_models_to_resamples(bootstrap_resamples)
+
+    bootstrap_predictions <- bootstrap_fits %>%
+        trained_resample_workflows() %>%
+        model_predictions_for_resamples(test) %>%
+        mutate(outcome = outcome_name)
+
+    predictions <- full_train_predictions %>%
+        bind_rows(bootstrap_predictions)
+    
+    model_aucs <- predictions %>%
+        resample_model_aucs({{ outcome_column }}, .pred_occurred)
+
+    roc_curves <- predictions %>%
+        resample_model_roc_curves({{ outcome_column }}, .pred_occurred) %>%
+        plot_resample_roc_curves()
+
+    list (
+        full_train_fit = full_train_fit,
+        bootstrap_fits = bootstrap_fits,
+        predictions = predictions,
+        model_aucs = model_aucs,
+        roc_curves = roc_curves
+    )
+}
