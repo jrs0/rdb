@@ -172,3 +172,35 @@ resample_model_roc_curves <- function(predictions, truth, probability) {
         group_by(resample_id) %>%
         roc_curve({{ truth }}, {{ probability }})
 }
+
+##' Fit a particular model on a set of resamples of the training data,
+##' test the models on the test data, and return the AUC and ROC curves
+##' for the models.
+fit_model_on_resamples <- function(recipe, model, test, resamples,
+                                   outcome_column, outcome_name) {
+    results = list()
+    
+    model_workflow <- workflow() %>%
+        add_model(model) %>%
+        add_recipe(recipe)
+
+    fits <- model_workflow %>%
+        fit_models_to_resamples(resamples)
+
+    results$overal_metrics <- fits %>%
+        overall_resample_metrics()
+
+    predictions_for_resamples <- fits %>%
+        trained_resample_workflows() %>%
+        model_predictions_for_resamples(test) %>%
+        mutate(outcome = outcome_name)
+
+    results$model_aucs <- predictions_for_resamples %>%
+        resample_model_aucs({{ outcome_column }}, .pred_occurred)
+
+    results$roc_curves <- predictions_for_resamples %>%
+        resample_model_roc_curves({{ outcome_column }}, .pred_occurred) %>%
+        plot_resample_roc_curves()
+
+    results
+}
