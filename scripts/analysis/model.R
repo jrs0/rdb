@@ -26,11 +26,7 @@ two_level_factor_to_numeric <- function(dataset, factor_column, one_level) {
 count_to_two_level_factor <- function(dataset, count_column, event_name) {
     dataset %>%
         mutate({{ count_column }} := factor({{ count_column }} == 0,
-                                            labels = c(
-                                                paste0(event_name,
-                                                       "_occurred"),
-                                                paste0("no_",
-                                                       event_name))))
+                                            labels = c("occurred", "none")))
 }
 
 #' Only keep bleeding_after and ischaemia_after, drop all other

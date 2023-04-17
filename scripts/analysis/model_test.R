@@ -13,8 +13,8 @@ num_resamples <- 5
 raw_dataset <- processed_acs_dataset("../../config.yaml")
 
 dataset <- raw_dataset %>%
-    count_to_two_level_factor(bleeding_after, "bleeding") %>%
-    count_to_two_level_factor(ischaemia_after, "ischaemia") %>%
+    count_to_two_level_factor(bleeding_after) %>%
+    count_to_two_level_factor(ischaemia_after) %>%
     remove_other_outcome_columns() %>%
     remove_mortality_columns() %>%
     drop_na() %>%
@@ -37,56 +37,43 @@ bleeding_recipe <- train %>%
 ischaemia_recipe <- train %>%
     make_recipe(ischaemia_after, bleeding_after)
 
-logistic_regression_model <- logistic_reg() %>% 
-    set_engine('glm') %>% 
-    set_mode('classification')
+## logistic_regression_model <- logistic_reg() %>% 
+##     set_engine('glm') %>% 
+##     set_mode('classification')
 
-model_workflow <- workflow() %>%
-    add_model(logistic_regression_model)
 
-bleeding_workflow <- model_workflow %>%
-    add_recipe(bleeding_recipe) 
+fit_model_on_resamples <- function(recipe, model, resamples,
+                                   outcome_column, outcome_name) {
 
-ischaemia_workflow <- model_workflow %>%
-    add_recipe(ischaemia_recipe)
+    results = list()
+    
+    model_workflow <- workflow() %>%
+        add_model(model) %>%
+        add_recipe(bleeding_recipe)
 
-bleeding_fits <- bleeding_workflow %>%
-    fit_models_to_resamples(resamples_from_train)
+    fits <- model_workflow %>%
+        fit_models_to_resamples(resamples)
 
-ischaemia_fits <- ischaemia_workflow %>%
-    fit_models_to_resamples(resamples_from_train)
+    results$overal_metrics <- bleeding_fits %>%
+        overall_resample_metrics()
 
-bleeding_fits %>%
-    overall_resample_metrics()
+    predictions_for_resamples <- fits %>%
+        trained_resample_workflows() %>%
+        model_predictions_for_resamples(test) %>%
+        mutate(outcome = outcome_name)
 
-ischaemia_fits %>%
-    overall_resample_metrics()
+    results$model_aucs <- predictions_for_resamples %>%
+        resample_model_aucs({{ outcome_column }}, .pred_occurred)
 
-bleeding_resample_workflows <- bleeding_fits %>%
-    trained_resample_workflows()
+    results$roc_curves <- predictions_for_resamples %>%
+        resample_model_roc_curves({{ outcome_column }}, .pred_occurred) %>%
+        plot_resample_roc_curves()
 
-ischaemia_resample_workflows <- ischaemia_fits %>%
-    trained_resample_workflows()
+    results
+}
 
-bleeding_predictions_for_resamples <- bleeding_resample_workflows %>%
-    model_predictions_for_resamples(test) %>%
-    mutate(outcome = "bleeding")
 
-ischaemia_predictions_for_resamples <- ischaemia_resample_workflows %>%
-    model_predictions_for_resamples(test) %>%
-    mutate(outcome = "ischaemia")
-
-bleeding_predictions_for_resamples %>%
-    resample_model_aucs(bleeding_after, .pred_bleeding_occurred)
-
-ischaemia_predictions_for_resamples %>%
-    resample_model_aucs(ischaemia_after, .pred_ischaemia_occurred)
-
-bleeding_predictions_for_resamples %>%
-    resample_model_roc_curves(bleeding_after, .pred_bleeding_occurred) %>%
-    plot_resample_roc_curves()
-
-ischaemia_predictions_for_resamples %>%
-    resample_model_roc_curves(ischaemia_after, .pred_ischaemia_occurred) %>%
-    plot_resample_roc_curves()
-
+bleeding_resample_results <-
+    fit_model_on_resamples(bleeding_recipe, logistic_regression_model,
+                       resamples_from_train, bleeding_after, "bleeding")
+    
