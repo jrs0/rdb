@@ -38,7 +38,6 @@ tuning_grid <- grid_regular(cost_complexity(),
                             tree_depth(),
                             levels = 5)
 
-
 ##' Get the optimal model over a grid of hyper-parameters
 ##' using cross-validation on the training set. Use this
 ##' function when the model has hyperparameters
@@ -75,35 +74,49 @@ model <- logistic_reg() %>%
 
 model_workflow <- optimal_workflow_no_tuning(model, recipe, train)
 
-
-
-optimal_fit <- model_workflow %>%
-    fit(data = train)
-
-fits <- model_workflow %>%
-    fit_models_to_resamples(resamples_from_train)
-
-
-
-overall_metrics <- fits %>%
-    overall_resample_metrics()
-
-predictions_for_resamples <- fits %>%
-    trained_resample_workflows() %>%
-    model_predictions_for_resamples(test) %>%
-    mutate(outcome = outcome_name)
-
-model_aucs <- predictions_for_resamples %>%
-    resample_model_aucs({{ outcome_column }}, .pred_occurred)
-
-roc_curves <- predictions_for_resamples %>%
-    resample_model_roc_curves({{ outcome_column }}, .pred_occurred) %>%
-    plot_resample_roc_curves()
-
-
-
-ischaemia_resample_results <- train %>%
-    make_recipe(ischaemia_after, bleeding_after) %>%
-    fit_model_on_resamples(model, train, test, resamples_from_train,
-                           ischaemia_after, "ischaemia")
+fit_model_on_bootstrap_resamples <- function(model_workflow, train, test,
+                                             outcome_column, outcome_name,
+                                             num_bootstrap_resamples) {
     
+    bootstrap_resamples <- bootstraps(train, times = num_bootstrap_resamples)
+
+    full_train_fit <- model_workflow %>%
+        fit(data = train)
+
+    full_train_predictions <- full_train_fit %>%
+        augment(test) %>%
+        mutate(resample_id = as.factor("full_training_set"))
+    
+    bootstrap_fits <- model_workflow %>%
+        fit_models_to_resamples(bootstrap_resamples)
+
+    bootstrap_predictions <- bootstrap_fits %>%
+        trained_resample_workflows() %>%
+        model_predictions_for_resamples(test) %>%
+        mutate(outcome = outcome_name)
+
+    predictions <- full_train_predictions %>%
+        bind_rows(bootstrap_predictions)
+    
+    model_aucs <- predictions %>%
+        resample_model_aucs({{ outcome_column }}, .pred_occurred)
+
+    roc_curves <- predictions %>%
+        resample_model_roc_curves({{ outcome_column }}, .pred_occurred) %>%
+        plot_resample_roc_curves()
+
+    list (
+        full_train_fit = full_train_fit,
+        bootstrap_fits = bootstrap_fits,
+        predictions = predictions,
+        model_aucs = model_aucs,
+        roc_curves = roc_curves
+    )
+}
+
+bleeding_resample_results <- model_workflow %>%
+    fit_model_on_bootstrap_resamples(train, test, bleeding_after, "bleeding",
+                                     num_bootstrap_resamples)
+
+
+bleeding_resample_results
