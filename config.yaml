@@ -119,7 +119,7 @@ code_groups:
   - acs_nstemi
   - acs_unstable_angina
   - atrial_fib
-  - chronoic_ischaemia_heart_disease
+  - chronic_ischaemia_heart_disease
   - other_ischaemic_heart_diseases
   stemi: [acs_stemi]
   
