@@ -36,8 +36,8 @@ if (bootstrap) {
 ##     set_mode('classification')
 
 model <- decision_tree(
-    ## tree_depth = tune(),
-    ## cost_complexity = tune()
+    tree_depth = tune(),
+    cost_complexity = tune()
 ) %>% 
     set_engine("rpart") %>%
     set_mode("classification")
@@ -53,14 +53,22 @@ model_workflow <- workflow() %>%
     add_model(model) %>%
     add_recipe(recipe)
 
-tuned_models <- model_workflow %>%
-    tune_models_with_resamples(resamples_from_train, tuning_grid)
+best_model <- model_workflow %>%
+    tune_models_with_resamples(resamples_from_train, tuning_grid) %>%
+    select_best("roc_auc")
+
+optimal_fit <- model_workflow %>%
+    finalize_workflow(best_model)
+
+    
+
+optimal_fit <- model_workflow %>%
+    fit(data = train)
+
 
 fits <- model_workflow %>%
     fit_models_to_resamples(resamples_from_train)
 
-primary_fit <- model_workflow %>%
-    fit(data = train)
 
 
 overall_metrics <- fits %>%

@@ -226,6 +226,11 @@ public:
 	return groups_;
     }
 
+    /// Obtain a (flat) list of all codes along with code
+    /// documentation in the parser (i.e. in the file)
+    std::vector<std::pair<std::string, std::string>>
+    all_codes_and_docs() const;
+
     /// Return all the codes in a particular group. Throws
     /// std::runtime_error if the group does not exist.
     std::vector<std::pair<std::string, std::string>>

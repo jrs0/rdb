@@ -32,10 +32,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// get_flat_codes
+Rcpp::List get_flat_codes(const Rcpp::CharacterVector& codes_file_path);
+RcppExport SEXP _rdb_get_flat_codes(SEXP codes_file_pathSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type codes_file_path(codes_file_pathSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_flat_codes(codes_file_path));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_cpp", (DL_FUNC) &_rdb_test_cpp, 1},
     {"_rdb_make_acs_dataset", (DL_FUNC) &_rdb_make_acs_dataset, 1},
+    {"_rdb_get_flat_codes", (DL_FUNC) &_rdb_get_flat_codes, 1},
     {NULL, NULL, 0}
 };
 

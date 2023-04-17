@@ -223,3 +223,18 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	return Rcpp::List{};
     }
 }
+
+// [[Rcpp::export]]
+Rcpp::List get_flat_codes(const Rcpp::CharacterVector & codes_file_path) {
+
+    std::string codes_file_path_str{Rcpp::as<std::string>(codes_file_path)};
+    auto codes_file{YAML::LoadFile(codes_file_path_str)};
+    TopLevelCategory top_level_category{codes_file};
+    auto all_codes_and_docs{top_level_category.all_codes_and_docs()};
+
+    Rcpp::List list_r;
+    for (const auto & [code, docs] : all_codes_and_docs) {
+	list_r[code] = docs;
+    }
+    return list_r;
+}

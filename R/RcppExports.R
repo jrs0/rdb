@@ -9,3 +9,7 @@ make_acs_dataset <- function(config_path) {
     .Call('_rdb_make_acs_dataset', PACKAGE = 'rdb', config_path)
 }
 
+get_flat_codes <- function(codes_file_path) {
+    .Call('_rdb_get_flat_codes', PACKAGE = 'rdb', codes_file_path)
+}
+

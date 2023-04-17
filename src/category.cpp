@@ -120,6 +120,28 @@ locate_code_in_categories(const std::string & code,
 }
 
 std::vector<std::pair<std::string, std::string>>
+get_all_codes_and_docs(const std::vector<Category> & categories) {
+    std::vector<std::pair<std::string, std::string>> codes_and_docs;
+    for (const auto & category : categories) {
+	if (category.is_leaf()) {
+	    codes_and_docs.push_back({category.name(), category.docs()});
+	} else {
+	    auto new_codes{get_all_codes_and_docs(category.categories())};
+	    codes_and_docs.insert(codes_and_docs.end(),
+				  new_codes.begin(),
+				  new_codes.end());
+	}
+    }
+    return codes_and_docs;
+}
+
+std::vector<std::pair<std::string, std::string>>
+TopLevelCategory::all_codes_and_docs() const {
+    return get_all_codes_and_docs(categories_);
+}
+
+
+std::vector<std::pair<std::string, std::string>>
 get_codes_in_group(const std::string & group,
 		   const std::vector<Category> & categories) {
 
