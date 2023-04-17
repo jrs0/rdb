@@ -90,6 +90,23 @@ preprocess_data <- function(recipe) {
         juice()
 }
 
+retained_predictors <- function(recipe) {
+    nzv_cols <- near_zero_variance_columns(recipe)
+    recipe %>%
+        summary() %>%
+        filter(!(variable %in% nzv_cols),
+               role == "predictor") %>%
+        pull(variable)
+}
+
+retained_columns <- function(recipe) {
+    nzv_cols <- near_zero_variance_columns(recipe)
+    recipe %>%
+        summary() %>%
+        filter(!(variable %in% nzv_cols)) %>%
+        pull(variable)
+}
+
 ##' This function performs the step_nzv(), but not any of the
 ##' others, so that you can see the original data from the columns
 ##' that will be included in the model.
@@ -98,13 +115,10 @@ preprocess_data <- function(recipe) {
 ##' @return The dataset without the near-zero variance columns
 ##' 
 without_near_zero_variance_columns <- function(recipe, dataset) {
-    nzv_cols <- near_zero_variance_columns(recipe)
-    retained_cols <- recipe %>%
-        summary() %>%
-        filter(!(variable %in% nzv_cols)) %>%
-        pull(variable)
+    columns <- recipe %>%
+        retained_columns()
     dataset %>%
-        select(retained_cols)
+        select(columns)
 }
 
 ##' Do the fits for each resample. This it to assess the variability

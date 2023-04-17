@@ -13,3 +13,7 @@ get_flat_codes <- function(codes_file_path) {
     .Call('_rdb_get_flat_codes', PACKAGE = 'rdb', codes_file_path)
 }
 
+dump_groups <- function(file) {
+    .Call('_rdb_dump_groups', PACKAGE = 'rdb', file)
+}
+

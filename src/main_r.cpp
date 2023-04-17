@@ -238,3 +238,42 @@ Rcpp::List get_flat_codes(const Rcpp::CharacterVector & codes_file_path) {
     }
     return list_r;
 }
+
+/// Return a list of all the groups, and which codes they contain.
+/// The structure is a named list. The names are the groups, and
+/// the items are a list of codes (with name and docs). Pass the codes
+/// file which defines the groupings.
+// [[Rcpp::export]]
+Rcpp::List dump_groups(const Rcpp::CharacterVector & file) {
+
+    std::string file_ = Rcpp::as<std::string>(file);     
+    
+    try {
+	YAML::Node top_level_category_yaml = YAML::LoadFile(file_);
+	TopLevelCategory top_level_category{top_level_category_yaml};
+
+	Rcpp::List list;
+	for (const auto & group : top_level_category.all_groups()) {
+	    Rcpp::CharacterVector names_vec, docs_vec;
+	    auto codes_in_group{top_level_category.codes_in_group(group)};
+	    for (const auto & [name, docs] : codes_in_group) {
+		names_vec.push_back(name);
+		docs_vec.push_back(docs);
+	    }
+	    list[group] = Rcpp::List::create(Rcpp::Named("names")
+					     = names_vec,
+					     Rcpp::Named("docs")
+					     = docs_vec);
+	}
+
+	return list;
+	
+    } catch(const YAML::BadFile& e) {
+	throw std::runtime_error("Bad YAML file");
+    } catch(const YAML::ParserException& e) {
+	throw std::runtime_error("YAML parsing error");
+    } catch(const std::runtime_error & e) {
+	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+	return Rcpp::List{};
+    }
+}

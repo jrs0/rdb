@@ -8,7 +8,10 @@ output:
 ---
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-source("run_models.R")
+library(knitr)
+
+source("run_descriptive.R")
+##source("run_models.R")
 ```
 
 # Overview of the problem
@@ -28,26 +31,30 @@ all_model_auc_summary %>%
 
 Hospital episodes statistics (HES) contain diagnosis and procedure information from consultant episodes in secondary care. Each episode contains one or multiple diagnoses or procedures, which may be used to identify patients of interest, and track subsequent diagnoses and procedures in a follow-up period.
 
-Hospital episodes group episodes into spells. A spell defines one in-patient hospital visit for a patients. A spell may contain multiple episodes because a patient may be attended by multiple consultants over the course of their hospital stay.
+Hospital episodes are grouped into spells. A spell defines one in-patient hospital visit for a patient. A spell may contain multiple episodes because a patient may be attended by multiple consultants over the course of their hospital stay.
 
 # Dataset definition and characteristics
 
-Each row of the dataset corresponds to an episode with either an ACS or PCI code in any of the primary or secondary columns in the HES data. At most one index event is selected from each spell -- this is intended to avoid double counting the same underlying event (if, for example, two episodes are marked ACS in a single spell corresponding to one emergency admission due to a heart attack).
-
-The start date of the index episode is used as the index date. A flag records whether the triggering event was a diagnosis or a procedure. The patient age at that episode is recorded.
-
-For each patient, all other diagnoses and procedures in all primary and secondary fields of all other episodes are retrieved. The number of occurrences of diagnosis and procedure code groups (as defined in the codes definition file; see the appendix) are counted up in a defined period before and after the index event. The results of this tally form the majority of the columns of the dataset; there are two columns for each diagnosis and procedure group.
-
-\newpage
-## ACS event over time
-
-The graph below shows the volume of index events (any ACS or PCI) as a function of time, broken down by STEMI vs. NSTEMI presentation.
+Each row of the dataset corresponds to an episode with either an ACS or PCI code in any of the primary or secondary columns in the HES data. At most one index event is selected from each spell -- this is intended to avoid double counting the same underlying event (if, for example, two episodes are marked ACS in a single spell corresponding to one emergency admission due to a heart attack). The graph below shows the volume of index events (any ACS or PCI) as a function of time, broken down by STEMI (ST-elevation myocardial infarction) vs. NSTEMI (not STEMI) presentation.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
 plot_index_with_time(raw_dataset)
 ```
 
-There are `r num_acs_patients` index events in the dataset, between the dates `r start` and `r end`.
+The start date of the first episode of the index spell is used as the index date. A flag records whether the triggering event was a diagnosis (ACS) or a procedure (PCI). The patient age at that episode is recorded. There are `r num_index_events` index events in the dataset, from `r num_patients` patients, between the dates `r first_index_date` and `r last_index_date`. 
+
+For each patient, all other diagnoses and procedures in all primary and secondary fields of all other episodes are retrieved. The number of occurrences of diagnosis and procedure code groups (as defined in the codes definition file; see the appendix) are counted up in a defined period before and after the index event. The results of this tally form the majority of the columns of the dataset. 
+
+Mortality information, obtained from the Civil Registration of Deaths, is included in the dataset. Where a patient has died, the primary cause of death is recorded (an ICD 10 code), along with the date of death. This information is used to establish the patient survival time after index (only present for patients who have died), and categorize the cause of death as cardiovascular death (due to ACS, other ischaemic heart diseases and ischaemic stroke), or all-cause (any other cause of death).
+
+The table below shows the proportion of different types of events occurring after the index event, broken down by STEMI vs. NSTEMI presentation.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
+percentage_events_after_index %>%
+    kable(caption = "Summary of proportion of different events occuring within 12 months of the index event, broken down by STEMI vs. NSTEMI presentation.")
+```
+
+
 
 \newpage
 ## Distribution of predictors by outcome
@@ -90,10 +97,6 @@ Optimal models of each type were obtained by average model performance (over a s
 In order to obtain a measure of variability of output risk predictions, the optimal model (i.e. with a fixed set of tuning parameters) was fitted to a set of bootstrapped resamples of the training data. The resulting set of models have slightly different ROC AUCs, and generate slightly different estimates for the bleeding and ischaemia risk for a given patient. This variability shows how randomness in the fitting process (due to variations in the training set used for fitting) translates to variations in the output probabilities.
 
 
-
-
-The data was split into a training and a test set with `r 100*train_prop`% of the data in the training set. The training data was then resampled with replacement (bootstrapping) `r num_resamples` times, and each model was fitted on each bootstrap resample, in order to simulate variability in the model fitting process. A primary model was also fitted on the full training set.
-
 Before fitting the models, near-zero variance predictors were removed as described in the section below.
 
 ## Variables selected in preprocessing
@@ -101,7 +104,10 @@ Before fitting the models, near-zero variance predictors were removed as describ
 The full set of predictors input into the modelling process were:
 
 ```{r echo=FALSE}
-predictors
+bleeding_recipe %>%
+    summary() %>%
+    filter(role == "predictor") %>%
+    pull(variable)
 ```
 
 The preprocessing steps filter out variables that do not have enough variability to contribute to model performance. The remaining predictors after the preprocessing steps are listed below.
@@ -112,6 +118,9 @@ The preprocessing steps filter out variables that do not have enough variability
 ##correlations = cor(for_correlations)
 ##corrplot(correlations)
 ##remaining_predictors
+
+bleeding_recipe %>%
+    retained_predictors()
 ```
 
 \newpage
@@ -121,22 +130,22 @@ The model predictions were compared against the test set to produce ROC curves, 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
 ## Plot the ROC curves
-roc_curves %>%
-    filter(outcome_name == "ischaemia") %>%
-    left_join(roc_summary, by = join_by(model_name, outcome_name))%>%
-    mutate(model_name = str_to_title(str_replace(model_name, "_", " "))) %>%
-    ggplot(aes(x = 1 - specificity, y = sensitivity,
-               color = primary,
-               group = interaction(model_name, outcome_name, model_id))) +
-    geom_line(data = . %>% filter(primary == "bootstrap"),aes(col = "Bootstrap"), alpha = 0.5, size =1.05) +
-    geom_line(data = . %>% filter(primary == "primary"),aes(col = "Primary"),size = 1.05) +
-    geom_abline(slope = 1, intercept = 0, size = 0.4) +
-    geom_text(aes(x = 0.75, y = 0.25, label = glue::glue("AUC = {round(`Mean AUC`[.data$primary == primary], digits = 2)}")),
-              col = "black",  hjust =0, vjust = 0) +
-    coord_fixed() +
-    theme_minimal(base_size = 16) +
-    labs(title = "ROC curves for the ischaemia risk models") +
-    facet_wrap( ~ model_name, ncol=2)
+## roc_curves %>%
+##     filter(outcome_name == "ischaemia") %>%
+##     left_join(roc_summary, by = join_by(model_name, outcome_name))%>%
+##     mutate(model_name = str_to_title(str_replace(model_name, "_", " "))) %>%
+##     ggplot(aes(x = 1 - specificity, y = sensitivity,
+##                color = primary,
+##                group = interaction(model_name, outcome_name, model_id))) +
+##     geom_line(data = . %>% filter(primary == "bootstrap"),aes(col = "Bootstrap"), alpha = 0.5, size =1.05) +
+##     geom_line(data = . %>% filter(primary == "primary"),aes(col = "Primary"),size = 1.05) +
+##     geom_abline(slope = 1, intercept = 0, size = 0.4) +
+##     geom_text(aes(x = 0.75, y = 0.25, label = glue::glue("AUC = {round(`Mean AUC`[.data$primary == primary], digits = 2)}")),
+##               col = "black",  hjust =0, vjust = 0) +
+##     coord_fixed() +
+##     theme_minimal(base_size = 16) +
+##     labs(title = "ROC curves for the ischaemia risk models") +
+##     facet_wrap( ~ model_name, ncol=2)
 ```
 
 \newpage
@@ -146,22 +155,22 @@ The ROC curves for the ischaemia prediction models are shown below.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
 ## Plot the ROC curves
-roc_curves %>%
-    filter(outcome_name == "ischaemia") %>%
-    left_join(roc_summary, by = join_by(model_name, outcome_name))%>%
-    mutate(model_name = str_to_title(str_replace(model_name, "_", " "))) %>%
-    ggplot(aes(x = 1 - specificity, y = sensitivity,
-               color = primary,
-               group = interaction(model_name, outcome_name, model_id))) +
-    geom_line(data = . %>% filter(primary == "bootstrap"),aes(col = "Bootstrap"), alpha = 0.5, size =1.05) +
-    geom_line(data = . %>% filter(primary == "primary"),aes(col = "Primary"),size = 1.05) +
-    geom_abline(slope = 1, intercept = 0, size = 0.4) +
-    geom_text(aes(x = 0.75, y = 0.25, label = glue::glue("AUC = {round(`Mean AUC`[primary == 'primary'], digits = 2)}")),
-              col = "black",  hjust =0, vjust = 0) +
-    coord_fixed() +
-    theme_minimal(base_size = 16) +
-    labs(title = "ROC curves for the ischaemia risk models") +
-    facet_wrap( ~ model_name, ncol=2)
+## roc_curves %>%
+##     filter(outcome_name == "ischaemia") %>%
+##     left_join(roc_summary, by = join_by(model_name, outcome_name))%>%
+##     mutate(model_name = str_to_title(str_replace(model_name, "_", " "))) %>%
+##     ggplot(aes(x = 1 - specificity, y = sensitivity,
+##                color = primary,
+##                group = interaction(model_name, outcome_name, model_id))) +
+##     geom_line(data = . %>% filter(primary == "bootstrap"),aes(col = "Bootstrap"), alpha = 0.5, size =1.05) +
+##     geom_line(data = . %>% filter(primary == "primary"),aes(col = "Primary"),size = 1.05) +
+##     geom_abline(slope = 1, intercept = 0, size = 0.4) +
+##     geom_text(aes(x = 0.75, y = 0.25, label = glue::glue("AUC = {round(`Mean AUC`[primary == 'primary'], digits = 2)}")),
+##               col = "black",  hjust =0, vjust = 0) +
+##     coord_fixed() +
+##     theme_minimal(base_size = 16) +
+##     labs(title = "ROC curves for the ischaemia risk models") +
+##    facet_wrap( ~ model_name, ncol=2)
 ```
 
 \newpage
@@ -173,24 +182,24 @@ The purpose of this plot is to assess the variability inherent in fitting each m
 ## For one patient, plot all the model predictions. This graph is supposed
 ## to test how well the models agree with one another. The bootstrap models
 ## and the primary model are all plotted as dots (not distinguished).
-grouped_pred %>%
-    ungroup() %>%
-    dplyr::select(index_id, model_name, outcome_name,
-                  primary, model_id, .pred_occurred) %>%
-    pivot_wider(names_from = "outcome_name",
-                values_from = ".pred_occurred") %>%
-    ## Pick only one patient. The idea is to plot all the predictions for just
-    ## that one patient
-    filter(index_id %in% sample(index_id, size = 4)) %>%
-    ## Uncomment to view all models for some patients
-    ##filter(id %in% c(1,20,23,43, 100, 101, 102)) %>%
-    ggplot(aes(x = bleed, y = ischaemia, color=model_name, shape = primary)) +
-    geom_point() +
-    ## scale_y_log10() +
-    ## scale_x_log10() +
-    labs(title = "Plot of risk predictions from all models for some patients") +
-    facet_wrap( ~ index_id, ncol=2) +
-    theme_minimal(base_size = 16)
+## grouped_pred %>%
+##     ungroup() %>%
+##     dplyr::select(index_id, model_name, outcome_name,
+##                   primary, model_id, .pred_occurred) %>%
+##     pivot_wider(names_from = "outcome_name",
+##                 values_from = ".pred_occurred") %>%
+##     ## Pick only one patient. The idea is to plot all the predictions for just
+##     ## that one patient
+##     filter(index_id %in% sample(index_id, size = 4)) %>%
+##     ## Uncomment to view all models for some patients
+##     ##filter(id %in% c(1,20,23,43, 100, 101, 102)) %>%
+##     ggplot(aes(x = bleed, y = ischaemia, color=model_name, shape = primary)) +
+##     geom_point() +
+##     ## scale_y_log10() +
+##     ## scale_x_log10() +
+##     labs(title = "Plot of risk predictions from all models for some patients") +
+##     facet_wrap( ~ index_id, ncol=2) +
+##    theme_minimal(base_size = 16)
 ```
 
 \newpage
@@ -200,15 +209,15 @@ Plots of risk trade-off for each model. The plot includes the model predictions 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
 ## Plot of the risk trade-off graph for each model (using the primary model)
-grouped_pred %>%
-    ungroup() %>%
-    filter(primary == "primary") %>%
-    dplyr::select(stemi_presentation, index_id, outcome_name, model_name, .pred_occurred) %>%
-    pivot_wider(names_from = outcome_name, values_from = .pred_occurred) %>%
-    ggplot(aes(x = bleed, y = ischaemia, color = stemi_presentation)) +
-    geom_point() +
-    facet_wrap( ~ model_name, ncol=2) +
-    theme_minimal(base_size = 16)
+## grouped_pred %>%
+##     ungroup() %>%
+##     filter(primary == "primary") %>%
+##     dplyr::select(stemi_presentation, index_id, outcome_name, model_name, .pred_occurred) %>%
+##     pivot_wider(names_from = outcome_name, values_from = .pred_occurred) %>%
+##     ggplot(aes(x = bleed, y = ischaemia, color = stemi_presentation)) +
+##     geom_point() +
+##     facet_wrap( ~ model_name, ncol=2) +
+##    theme_minimal(base_size = 16)
 ```
 
 \newpage

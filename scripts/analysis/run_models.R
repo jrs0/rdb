@@ -11,8 +11,8 @@ source("descriptive.R")
 
 ## Configure global options
 training_proportion <- 0.75
-num_cross_validation_folds <- 5
-num_bootstrap_resamples <- 6
+num_cross_validation_folds <- 2
+num_bootstrap_resamples <- 2
 
 ## Load the raw data from file or database
 raw_dataset <- processed_acs_dataset("../../config.yaml")
