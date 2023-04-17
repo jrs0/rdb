@@ -1,6 +1,7 @@
 library(tidymodels)
 library(tidyverse)
-
+library(discrim)
+library(mda)
 
 ##' Convert a factor column which two levels to a numeric
 ##' column containing 0/1. Specify the factor level corresponding
@@ -253,7 +254,7 @@ fit_model_on_bootstrap_resamples <- function(model_workflow, train, test,
 
 ##' A decision tree along with a specification for
 ##' tuning its hyper-parameters
-make_decision_tree <- function() {
+make_decision_tree <- function(num_cross_validation_folds) {
     list (
         model = decision_tree(
             tree_depth = tune(),
@@ -263,6 +264,34 @@ make_decision_tree <- function() {
             set_mode("classification"),
         tuning_grid = grid_regular(cost_complexity(),
                                    tree_depth(),
+                                   levels = 5),
+        num_cross_validation_folds = num_cross_validation_folds
+    )
+}
+
+
+make_linear_discriminant_analysis <- function(num_cross_validation_folds) {
+    list (
+        model = discrim_linear(
+            mode = "classification",
+            penalty = tune()
+        ) %>%
+            set_engine("mda"),
+        tuning_grid = grid_regular(penalty(),
+                                   levels = 5),
+        num_cross_validation_folds = num_cross_validation_folds
+    )
+}        
+    
+make_naive_bayes <- function(num_cross_validation_folds) {
+    list (
+        model = naive_Bayes(
+            mode = "classification",
+            smoothness = tune(),
+            Laplace = tune(),
+            engine = "klaR"),
+        tuning_grid = grid_regular(smoothness(),
+                                   Laplace(),
                                    levels = 5),
         num_cross_validation_folds = num_cross_validation_folds
     )
@@ -286,3 +315,40 @@ optimal_workflow <- function(model, recipe, train) {
         optimal_workflow_no_tuning(model$model, recipe, train)
     }
 }
+
+bootstrap_fit_results <- function(model, recipe, outcome_column, outcome_name) {
+    model %>%
+        optimal_workflow(recipe, train) %>%
+        fit_model_on_bootstrap_resamples(train, test, {{ outcome_column }},
+                                         outcome_name,
+                                         num_bootstrap_resamples)
+}
+
+bind_model_results <- function(a, b) {
+    predictions <- a$predictions %>%
+        bind_rows(b$predictions)
+
+    model_aucs <- a$model_aucs %>%
+        bind_rows(b$model_aucs)
+
+    roc_curves <- a$roc_curves %>%
+        bind_rows(b$roc_curves)
+
+    list (
+        predictions = predictions,
+        model_aucs = model_aucs,
+        roc_curves = roc_curves
+    )
+}
+
+model_results <- function(model, bleeding_recipe, ischaemia_recipe) {
+
+    bleeding_results <- model %>%
+        bootstrap_fit_results(bleeding_recipe, bleeding_after, "bleeding")
+    
+    ischaemia_results <- model %>%
+        bootstrap_fit_results(ischaemia_recipe, ischaemia_after, "ischaemia")
+    
+    bind_model_results(bleeding_results, ischaemia_results)
+}
+
