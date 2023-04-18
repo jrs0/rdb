@@ -10,8 +10,15 @@ output:
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(knitr)
 
-source("run_descriptive.R")
-##source("run_models.R")
+## This option helps keep printed R vectors within
+## the margins in the PDF
+options("width"=100)
+
+if (!exists("scripts_have_run")) {
+    source("run_descriptive.R")
+    source("run_models.R")
+    scripts_have_run <- TRUE
+}
 ```
 
 # Overview of the problem
@@ -54,6 +61,28 @@ percentage_events_after_index %>%
     kable(caption = "Summary of proportion of different events occuring within 12 months of the index event, broken down by STEMI vs. NSTEMI presentation.")
 ```
 
+The proportion of different events making up the ischaemia endpoint are shown in the table below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
+raw_dataset %>%
+    dplyr::select(acs_stemi_after,
+                  acs_nstemi_after,
+                  ischaemic_stroke_after,
+                  cause_of_death,
+                  ischaemia_after) %>%
+    mutate(cause_of_death = if_else(cause_of_death == "cardiac", 1, 0)) %>%
+    filter(ischaemia_after != 0) %>%
+    mutate(across(-ischaemia_after, ~ . / ischaemia_after)) %>%
+    group_by(ischaemia_after) %>%
+    summarize(`Mean ACS` = mean((acs_stemi_after + acs_nstemi_after)/ischaemia_after) %>% percent(),
+              `Mean Ischaemic Stroke` = mean(ischaemic_stroke_after/ischaemia_after) %>% percent(),
+              `Mean Cardiac Death` = mean(cause_of_death/ischaemia_after) %>% percent())
+              
+    
+
+percentage_events_after_index %>%
+    kable(caption = "Summary of proportion of different events occuring within 12 months of the index event, broken down by STEMI vs. NSTEMI presentation.")
+```
 
 
 \newpage
@@ -120,7 +149,7 @@ The preprocessing steps filter out variables that do not have enough variability
 ##remaining_predictors
 
 bleeding_recipe %>%
-    retained_predictors()
+    retained_predictors()    
 ```
 
 \newpage

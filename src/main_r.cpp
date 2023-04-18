@@ -6,8 +6,6 @@
 #include "patient.hpp"
 
 #include "acs.hpp"
-
-#include <Rcpp.h>
 #include "r_factor.hpp"
 
 #include <optional>
