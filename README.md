@@ -204,3 +204,14 @@ gprof -v
 
 Compiling and linking with -pg does work, and Rscript invocations attempt to write to gmon.out, but get permission denied. It is unclear where the process is attempting to write the file -- strace shows not chdir from the (writeable) working directory. 
 
+## Other misc issues
+
+If you are having issues with rmarkdown finding pandoc or texlive (in emacs), you may need to add the path to either of them in your `~/.Renviron`:
+
+```bash
+PATH="c:/texlive/2022/bin:${PATH}"
+# Replace with whatever Sys.getenv("RSTUDIO_PANDOC") returns in rstudio
+RSTUDIO_PANDOC="c:/Users/Administrator/AppData/Local/Programs/RStudio/bin/quarto/bin/tools"
+```
+
+

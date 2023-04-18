@@ -2,6 +2,8 @@ library(tidyverse)
 
 devtools::load_all("../../")
 
+source("descriptive.R")
+
 ## Load the raw data from file or database
 raw_dataset <- processed_acs_dataset("../../config.yaml")
 
