@@ -156,6 +156,14 @@ logistic_regression_results$lift_curves %>%
     plot_resample_lift_curves()
 ```
 
+The gain curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+logistic_regression_results$gain_curves %>%
+    plot_resample_gain_curves()
+```
+
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
 ## Plot the ROC curves
 ## roc_curves %>%

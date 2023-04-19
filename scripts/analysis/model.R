@@ -204,6 +204,13 @@ resample_model_lift_curves <- function(predictions, truth, probability) {
         lift_curve({{ truth }}, {{ probability }})
 }
 
+##' The test data resample predictions tibble, augmented by
+##' gain curves
+resample_model_gain_curves <- function(predictions, truth, probability) {
+    predictions %>%
+        group_by(resample_id) %>%
+        gain_curve({{ truth }}, {{ probability }})
+}
 
 ##' Get the optimal model over a grid of hyper-parameters
 ##' using cross-validation on the training set. Use this
@@ -269,6 +276,10 @@ fit_model_on_bootstrap_resamples <- function(model_workflow, train, test,
     lift_curves <- predictions %>%
         resample_model_lift_curves({{ outcome_column }}, .pred_occurred) %>%
         mutate(outcome = outcome_name)
+
+    gain_curves <- predictions %>%
+        resample_model_gain_curves({{ outcome_column }}, .pred_occurred) %>%
+        mutate(outcome = outcome_name)
     
     list (
         full_train_fit = full_train_fit,
@@ -276,7 +287,8 @@ fit_model_on_bootstrap_resamples <- function(model_workflow, train, test,
         predictions = predictions,
         model_aucs = model_aucs,
         roc_curves = roc_curves,
-        lift_curves = lift_curves
+        lift_curves = lift_curves,
+        gain_curves = gain_curves
     )
 }
 
@@ -364,17 +376,20 @@ bind_model_results <- function(a, b) {
 
     lift_curves <- a$lift_curves %>%
         bind_rows(b$lift_curves)
+
+    gain_curves <- a$gain_curves %>%
+        bind_rows(b$gain_curves)
     
     list (
         predictions = predictions,
         model_aucs = model_aucs,
         roc_curves = roc_curves,
-        lift_curves = lift_curves
+        lift_curves = lift_curves,
+        gain_curves = gain_curves
     )
 }
 
 model_results <- function(model, bleeding_recipe, ischaemia_recipe) {
-
     bleeding_results <- model %>%
         bootstrap_fit_results(bleeding_recipe, bleeding_after, "bleeding")
     

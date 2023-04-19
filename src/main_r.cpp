@@ -10,8 +10,18 @@
 
 #include <optional>
 
-
 // [[Rcpp::export]]
+void print_sql_query(const Rcpp::CharacterVector & config_path) {
+    std::string config_path_str{Rcpp::as<std::string>(config_path)};
+    try {
+	auto config{load_config_file(config_path_str)};
+	auto sql_query{make_acs_sql_query(config["sql_query"], true, std::nullopt)};
+	std::cout << sql_query << std::endl;
+    } catch (const std::runtime_error & e) {
+	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+    }
+}
+    // [[Rcpp::export]]
 Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
     std::string config_path_str{Rcpp::as<std::string>(config_path)};
