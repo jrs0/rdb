@@ -23,7 +23,7 @@ if (!exists("scripts_have_run")) {
 
 # Overview of the problem
 
-Patients on dual antiplatelet therapy to reduce their ischaemic risk are at increased risk of bleeding. Risk factors for both bleeding and ischaemia have been previously investigated in several studies, and several qualitative risk scores exist. These are often based on a mixture of patient characteristics at the time of the intervention (such as current comorbidities), and patient history of related diagnoses and procedures. The purpose of this report is to try to extract this information, or proxies for this information, from hospital episodes statistics (HES) data.
+Patients on dual antiplatelet therapy to reduce their ischaemic risk are at increased risk of bleeding. Risk factors for both bleeding and ischaemia have been previously investigated in several studies, and several qualitative risk scores exist. These are often based on a mixture of patient characteristics at the time of the intervention (such as current comorbidities), and patient history of related diagnoses and procedures. The purpose of this report is to try to extract this information, or proxies for this information, from hospital episodes statistics (HES) data and mortality data from the V.
 
 More detailed relevant information is available from other data sources -- for example, the record of blood test results stored in hospital systems. However, a trade-off exists between finding data sources that are generic enough that they are likely available everywhere, vs. data sources that may not be easily generalized. HES data is the simplest data sources that is guaranteed to be present for all hospitals in the UK. HES data is not a real-time data source, but can be used to initially develop and validate different approaches to ischaemia/bleeding risk modelling.
 
@@ -62,7 +62,6 @@ percentage_events_after_index %>%
 ```
 
 Distribution of non-zero bleeding/ischaemia counts (uses a cutoff of 20 events to remove the long tail).
-
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
 plot_non_zero_count_distributions(raw_dataset)
@@ -141,10 +140,21 @@ bleeding_recipe %>%
     retained_predictors()    
 ```
 
-\newpage
-## ROC curves for the bleeding risk models
+## Logistic Regression
 
-The model predictions were compared against the test set to produce ROC curves, which are shown below for the bleeding models.
+The ROC curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+logistic_regression_results$roc_curves %>%
+    plot_resample_roc_curves()
+```
+
+The lift curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+logistic_regression_results$lift_curves %>%
+    plot_resample_lift_curves()
+```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
 ## Plot the ROC curves

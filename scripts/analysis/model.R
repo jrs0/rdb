@@ -196,6 +196,15 @@ resample_model_roc_curves <- function(predictions, truth, probability) {
         roc_curve({{ truth }}, {{ probability }})
 }
 
+##' The test data resample predictions tibble, augmented by
+##' lift curves
+resample_model_lift_curves <- function(predictions, truth, probability) {
+    predictions %>%
+        group_by(resample_id) %>%
+        lift_curve({{ truth }}, {{ probability }})
+}
+
+
 ##' Get the optimal model over a grid of hyper-parameters
 ##' using cross-validation on the training set. Use this
 ##' function when the model has hyperparameters
@@ -257,12 +266,17 @@ fit_model_on_bootstrap_resamples <- function(model_workflow, train, test,
         resample_model_roc_curves({{ outcome_column }}, .pred_occurred) %>%
         mutate(outcome = outcome_name)
 
+    lift_curves <- predictions %>%
+        resample_model_lift_curves({{ outcome_column }}, .pred_occurred) %>%
+        mutate(outcome = outcome_name)
+    
     list (
         full_train_fit = full_train_fit,
         bootstrap_fits = bootstrap_fits,
         predictions = predictions,
         model_aucs = model_aucs,
-        roc_curves = roc_curves
+        roc_curves = roc_curves,
+        lift_curves = lift_curves
     )
 }
 
@@ -348,10 +362,14 @@ bind_model_results <- function(a, b) {
     roc_curves <- a$roc_curves %>%
         bind_rows(b$roc_curves)
 
+    lift_curves <- a$lift_curves %>%
+        bind_rows(b$lift_curves)
+    
     list (
         predictions = predictions,
         model_aucs = model_aucs,
-        roc_curves = roc_curves
+        roc_curves = roc_curves,
+        lift_curves = lift_curves
     )
 }
 

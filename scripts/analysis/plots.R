@@ -207,5 +207,20 @@ plot_resample_roc_curves <- function(resample_roc_curves) {
                    group = resample_id)) +
         geom_line() +
         facet_wrap(~ outcome) +
-        geom_abline(slope = 1, intercept = 0, size = 0.4)
+        geom_abline(slope = 1, intercept = 0, size = 0.4) +
+        theme_minimal(base_size = 16)        
+}
+
+##' Plot long-format lift curves from multiple resample (groups
+##' identified by resample_id)
+plot_resample_lift_curves <- function(resample_lift_curves) {
+    resample_lift_curves %>%
+        ggplot(aes(x = .percent_tested,
+                   y = .lift,
+                   colour = resample_id,
+                   group = resample_id)) +
+        geom_line() +
+        facet_wrap(~ outcome) +
+        theme_minimal(base_size = 16) +
+        labs(x = "% Tested", y = "Lift")
 }
