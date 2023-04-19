@@ -87,3 +87,14 @@ summarise_model_aucs <- function(all_model_aucs) {
                     names_vary = "slowest",
                     names_glue = "{.value} ({outcome})")
 }
+
+##' TODO fix this function
+get_correlations <- function(raw_dataset) {
+    for_correlations <- raw_dataset %>%
+        dplyr::select(bleeding_after,
+                      ischaemia_after,
+                      all_of(remaining_predictors))
+    correlations = cor(for_correlations)
+    corrplot(correlations)
+    remaining_predictors
+}

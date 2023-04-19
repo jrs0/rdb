@@ -83,15 +83,6 @@ plot_predictors_distributions(raw_dataset)
 ```
 
 \newpage
-## Other subsequent events
-
-This is a plot of the distribution of counts of other subsequent events (not just bleeding and ischaemia), broken down by the bleeding and ischaemia endpoints.
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
-plot_outcome_distributions(raw_dataset)
-```
-
-\newpage
 ## Age distributions by outcome
 
 The plots show the distribution of age in each of the outcome groups.
@@ -130,137 +121,104 @@ bleeding_recipe %>%
 The preprocessing steps filter out variables that do not have enough variability to contribute to model performance. The remaining predictors after the preprocessing steps are listed below.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-##for_correlations <- raw_dataset %>%
-##    dplyr::select(bleeding_after, ischaemia_after, all_of(remaining_predictors))
-##correlations = cor(for_correlations)
-##corrplot(correlations)
-##remaining_predictors
-
 bleeding_recipe %>%
     retained_predictors()    
 ```
 
+\newpage
 ## Logistic Regression
 
 The ROC curves for the bleeding and ischaemia models are shown below:
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
 logistic_regression_results %>%
     plot_resample_roc_curves()
 ```
 
 The gain curves for the bleeding and ischaemia models are shown below:
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
 logistic_regression_results %>%
     plot_resample_gain_curves()
 ```
 
+\newpage
 The lift curves for the bleeding and ischaemia models are shown below:
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
 logistic_regression_results %>%
     plot_resample_lift_curves()
 ```
 
 The precision-recall curves for the models are shown below:
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
 logistic_regression_results %>%
     plot_resample_precision_recall_curves()
 ```
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
-## Plot the ROC curves
-## roc_curves %>%
-##     filter(outcome_name == "ischaemia") %>%
-##     left_join(roc_summary, by = join_by(model_name, outcome_name))%>%
-##     mutate(model_name = str_to_title(str_replace(model_name, "_", " "))) %>%
-##     ggplot(aes(x = 1 - specificity, y = sensitivity,
-##                color = primary,
-##                group = interaction(model_name, outcome_name, model_id))) +
-##     geom_line(data = . %>% filter(primary == "bootstrap"),aes(col = "Bootstrap"), alpha = 0.5, size =1.05) +
-##     geom_line(data = . %>% filter(primary == "primary"),aes(col = "Primary"),size = 1.05) +
-##     geom_abline(slope = 1, intercept = 0, size = 0.4) +
-##     geom_text(aes(x = 0.75, y = 0.25, label = glue::glue("AUC = {round(`Mean AUC`[.data$primary == primary], digits = 2)}")),
-##               col = "black",  hjust =0, vjust = 0) +
-##     coord_fixed() +
-##     theme_minimal(base_size = 16) +
-##     labs(title = "ROC curves for the ischaemia risk models") +
-##     facet_wrap( ~ model_name, ncol=2)
+## Decision Tree
+
+The ROC curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+decision_tree_results %>%
+    plot_resample_roc_curves()
+```
+
+The gain curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+decision_tree_results %>%
+    plot_resample_gain_curves()
 ```
 
 \newpage
-## ROC curves for the ischaemia risk models
+The lift curves for the bleeding and ischaemia models are shown below:
 
-The ROC curves for the ischaemia prediction models are shown below.
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+decision_tree_results %>%
+    plot_resample_lift_curves()
+```
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
-## Plot the ROC curves
-## roc_curves %>%
-##     filter(outcome_name == "ischaemia") %>%
-##     left_join(roc_summary, by = join_by(model_name, outcome_name))%>%
-##     mutate(model_name = str_to_title(str_replace(model_name, "_", " "))) %>%
-##     ggplot(aes(x = 1 - specificity, y = sensitivity,
-##                color = primary,
-##                group = interaction(model_name, outcome_name, model_id))) +
-##     geom_line(data = . %>% filter(primary == "bootstrap"),aes(col = "Bootstrap"), alpha = 0.5, size =1.05) +
-##     geom_line(data = . %>% filter(primary == "primary"),aes(col = "Primary"),size = 1.05) +
-##     geom_abline(slope = 1, intercept = 0, size = 0.4) +
-##     geom_text(aes(x = 0.75, y = 0.25, label = glue::glue("AUC = {round(`Mean AUC`[primary == 'primary'], digits = 2)}")),
-##               col = "black",  hjust =0, vjust = 0) +
-##     coord_fixed() +
-##     theme_minimal(base_size = 16) +
-##     labs(title = "ROC curves for the ischaemia risk models") +
-##    facet_wrap( ~ model_name, ncol=2)
+The precision-recall curves for the models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+decision_tree_results %>%
+    plot_resample_precision_recall_curves()
+```
+
+## Linear Discriminant Analysis
+
+The ROC curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+linear_discriminant_analysis_results %>%
+    plot_resample_roc_curves()
+```
+
+The gain curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+linear_discriminant_analysis_results %>%
+    plot_resample_gain_curves()
 ```
 
 \newpage
-## Variability in risk predictions by model
+The lift curves for the bleeding and ischaemia models are shown below:
 
-The purpose of this plot is to assess the variability inherent in fitting each model, and the variability between models. Each model has a small cluster (from bootstrap resampling), and the proximity of the clusters shows how well the models agree.
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
-## For one patient, plot all the model predictions. This graph is supposed
-## to test how well the models agree with one another. The bootstrap models
-## and the primary model are all plotted as dots (not distinguished).
-## grouped_pred %>%
-##     ungroup() %>%
-##     dplyr::select(index_id, model_name, outcome_name,
-##                   primary, model_id, .pred_occurred) %>%
-##     pivot_wider(names_from = "outcome_name",
-##                 values_from = ".pred_occurred") %>%
-##     ## Pick only one patient. The idea is to plot all the predictions for just
-##     ## that one patient
-##     filter(index_id %in% sample(index_id, size = 4)) %>%
-##     ## Uncomment to view all models for some patients
-##     ##filter(id %in% c(1,20,23,43, 100, 101, 102)) %>%
-##     ggplot(aes(x = bleed, y = ischaemia, color=model_name, shape = primary)) +
-##     geom_point() +
-##     ## scale_y_log10() +
-##     ## scale_x_log10() +
-##     labs(title = "Plot of risk predictions from all models for some patients") +
-##     facet_wrap( ~ index_id, ncol=2) +
-##    theme_minimal(base_size = 16)
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+linear_discriminant_analysis_results %>%
+    plot_resample_lift_curves()
 ```
 
-\newpage
-## Risk trade-off plots for each model
+The precision-recall curves for the models are shown below:
 
-Plots of risk trade-off for each model. The plot includes the model predictions corresponding to STEMI presentations explicitly.
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
-## Plot of the risk trade-off graph for each model (using the primary model)
-## grouped_pred %>%
-##     ungroup() %>%
-##     filter(primary == "primary") %>%
-##     dplyr::select(stemi_presentation, index_id, outcome_name, model_name, .pred_occurred) %>%
-##     pivot_wider(names_from = outcome_name, values_from = .pred_occurred) %>%
-##     ggplot(aes(x = bleed, y = ischaemia, color = stemi_presentation)) +
-##     geom_point() +
-##     facet_wrap( ~ model_name, ncol=2) +
-##    theme_minimal(base_size = 16)
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+linear_discriminant_analysis_results %>%
+    plot_resample_precision_recall_curves()
 ```
+
 
 \newpage
 # Appendix
@@ -274,7 +232,7 @@ The groups of ICD 10 diagnosis codes used in the analysis are shown below:
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
 groups <- code_groups("../../icd10.yaml")
 for (n in seq_along(groups)) {
-    print(kable(groups[[n]], caption = paste("Diagnosis group", names(groups)[[n]])))
+    print(kable(groups[[n]], caption = paste("Diagnosis group", names(groups)[[n]]), align = "l"))
 }
 ```
 
@@ -285,7 +243,7 @@ The groups of OPCS 4 procedure codes used in the analysis are shown below:
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
 groups <- code_groups("../../opcs4.yaml")
 for (n in seq_along(groups)) {
-    print(kable(groups[[n]], caption = paste("Procedure group", names(groups)[[n]])))
+    print(kable(groups[[n]], caption = paste("Procedure group", names(groups)[[n]]), align = "l"))
 }
 ```
 

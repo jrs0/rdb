@@ -64,5 +64,6 @@ all_model_auc_summary <- model_aucs(logistic_regression_results,
                          "Linear Discriminant Analysis")) %>%
     bind_rows(model_aucs(decision_tree_results,
                          "Decision Tree")) %>%
-    summarise_model_aucs()
+    summarise_model_aucs() %>%
+    mutate(across(-model, signif, 2))
     
