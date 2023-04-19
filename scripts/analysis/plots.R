@@ -227,11 +227,21 @@ plot_resample_lift_curves <- function(resample_lift_curves) {
 
 ##' Plot long-format gain curves from multiple resample (groups
 ##' identified by resample_id)
-plot_resample_gain_curves <- function(resample_gain_curves) {
+plot_resample_gain_curves <- function(model_results) {
 
+    browser()
+    resample_gain_curves <- model_results$gain_curves
+    
+    
+    percentage_all_positve <- model_results$predictions %>%
+        .pred_class %>%
+    optimal_gain_slope <- 100/percentage_all_positive
+    
     line_segments <- tibble::tribble(
-                                 ~x0, ~y0, ~x1, ~y1, 
-                                 0,   0,   100,   100
+                                 ~x0, ~y0, ~x1, ~y1,  ~curve,
+                                 0,     0,  100,  100, "baseline",
+                                 0,     0,   70,  100, "optimal",
+                                 70,  100,  100,  100, "optimal"
     )
     resample_gain_curves %>%
         ggplot() +
@@ -241,7 +251,9 @@ plot_resample_gain_curves <- function(resample_gain_curves) {
                       group = resample_id),
                   data = resample_gain_curves) +
         facet_wrap(~ outcome) +
-        geom_segment(aes(x = x0, y = y0, xend = x1, yend = y1),
+        geom_segment(aes(x = x0, y = y0,
+                         xend = x1, yend = y1,
+                         color = curve),
                      data = line_segments) +
         theme_minimal(base_size = 16) +
         labs(x = "% Tested", y = "% Found")

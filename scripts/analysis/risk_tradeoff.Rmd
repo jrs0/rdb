@@ -159,7 +159,7 @@ logistic_regression_results$lift_curves %>%
 The gain curves for the bleeding and ischaemia models are shown below:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-logistic_regression_results$gain_curves %>%
+logistic_regression_results %>%
     plot_resample_gain_curves()
 ```
 
