@@ -196,41 +196,7 @@ plot_predictor_outcome_correlations <- function(after_nzv_removal) {
         theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 }
 
-
-##' Plot long-format ROC curves from multiple resample (groups
-##' identified by resample_id)
-plot_resample_roc_curves <- function(resample_roc_curves) {
-    resample_roc_curves %>%
-        ggplot(aes(x = 1 - specificity,
-                   y = sensitivity,
-                   colour = resample_id,
-                   group = resample_id)) +
-        geom_line() +
-        facet_wrap(~ outcome) +
-        geom_abline(slope = 1, intercept = 0, size = 0.4) +
-        theme_minimal(base_size = 16)        
-}
-
-##' Plot long-format lift curves from multiple resample (groups
-##' identified by resample_id)
-plot_resample_lift_curves <- function(resample_lift_curves) {
-    resample_lift_curves %>%
-        ggplot(aes(x = .percent_tested,
-                   y = .lift,
-                   colour = resample_id,
-                   group = resample_id)) +
-        geom_line() +
-        facet_wrap(~ outcome) +
-        theme_minimal(base_size = 16) +
-        labs(x = "% Tested", y = "Lift")
-}
-
-##' Plot long-format gain curves from multiple resample (groups
-##' identified by resample_id)
-plot_resample_gain_curves <- function(model_results) {
-
-    resample_gain_curves <- model_results$gain_curves
-
+optimal_gain_line_segments <- function(model_results) {
     percent_positive <- model_results$predictions %>%
         mutate(truth = if_else(
                    outcome == "bleeding",
@@ -251,15 +217,23 @@ plot_resample_gain_curves <- function(model_results) {
                     )            
         }) %>%
         bind_rows() %>%
-        unique()
-    
-    resample_gain_curves %>%
-        ggplot() +
+        unique()    
+}
+
+##' Plot long-format gain curves from multiple resample (groups
+##' identified by resample_id)
+plot_resample_gain_curves <- function(model_results) {
+
+    line_segments <- model_results %>%
+        optimal_gain_line_segments()
+
+    gain_curves <- model_results$gain_curves
+    ggplot() +
         geom_line(aes(x = .percent_tested,
                       y = .percent_found,
                       colour = resample_id,
                       group = resample_id),
-                  data = resample_gain_curves) +
+                  data = gain_curves) +
         facet_wrap(~ outcome) +
         geom_segment(aes(x = x0, y = y0,
                          xend = x1, yend = y1,
@@ -267,4 +241,62 @@ plot_resample_gain_curves <- function(model_results) {
                      data = line_segments) +
         theme_minimal(base_size = 16) +
         labs(x = "% Tested", y = "% Found")
+}
+
+
+##' Plot long-format ROC curves from multiple resample (groups
+##' identified by resample_id)
+plot_resample_roc_curves <- function(model_results) {
+
+    line_segments <- tibble::tribble(
+                ~x0, ~y0, ~x1, ~y1,  ~curve,
+                0,     0,  1,  1, "baseline",
+                0,     0,   0,  1, "optimal",
+                0,  1,  1,  1, "optimal"
+            )            
+
+    roc_curves <- model_results$roc_curves
+    ggplot() +
+        geom_line(aes(x = 1 - specificity,
+                      y = sensitivity,
+                      colour = resample_id,
+                      group = resample_id),
+                  data = roc_curves) +
+        geom_segment(aes(x = x0, y = y0,
+                         xend = x1, yend = y1,
+                         colour = curve),
+                     data = line_segments) +
+        facet_wrap(~ outcome) +
+        theme_minimal(base_size = 16)        
+}
+
+
+
+##' Plot long-format lift curves from multiple resample (groups
+##' identified by resample_id)
+plot_resample_lift_curves <- function(model_results) {
+    model_results$lift_curves %>%
+        ggplot(aes(x = .percent_tested,
+                   y = .lift,
+                   colour = resample_id,
+                   group = resample_id)) +
+        geom_line() +
+        facet_wrap(~ outcome) +
+        theme_minimal(base_size = 16) +
+        labs(x = "% Tested", y = "Lift")
+}
+
+##' Plot long-format lift curves from multiple resample (groups
+##' identified by resample_id)
+plot_resample_precision_recall_curves <- function(model_results) {
+    model_results$precision_recall_curves %>%
+        ggplot(aes(x = precision,
+                   y = recall,
+                   colour = resample_id,
+                   group = resample_id)) +
+        geom_line() +
+        facet_wrap(~ outcome) +
+        theme_minimal(base_size = 16) +
+        labs(x = "Recall (True Positive Rate)",
+             y = "Precision (Positive Predictive Value)")
 }

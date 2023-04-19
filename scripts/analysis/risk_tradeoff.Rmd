@@ -145,15 +145,8 @@ bleeding_recipe %>%
 The ROC curves for the bleeding and ischaemia models are shown below:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-logistic_regression_results$roc_curves %>%
+logistic_regression_results %>%
     plot_resample_roc_curves()
-```
-
-The lift curves for the bleeding and ischaemia models are shown below:
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-logistic_regression_results$lift_curves %>%
-    plot_resample_lift_curves()
 ```
 
 The gain curves for the bleeding and ischaemia models are shown below:
@@ -163,6 +156,19 @@ logistic_regression_results %>%
     plot_resample_gain_curves()
 ```
 
+The lift curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+logistic_regression_results %>%
+    plot_resample_lift_curves()
+```
+
+The precision-recall curves for the models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+logistic_regression_results %>%
+    plot_resample_precision_recall_curves()
+```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=11}
 ## Plot the ROC curves
