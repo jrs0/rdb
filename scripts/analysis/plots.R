@@ -254,8 +254,12 @@ plot_resample_roc_curves <- function(model_results) {
                 0,     0,   0,  1, "optimal",
                 0,  1,  1,  1, "optimal"
             )            
-
+    
     roc_curves <- model_results$roc_curves
+    roc_aucs <- model_results$model_aucs %>%
+        group_by(outcome) %>%
+        summarize(mean_auc = mean(.estimate) %>%
+                      round(digits = 2))
     ggplot() +
         geom_line(aes(x = 1 - specificity,
                       y = sensitivity,
@@ -266,6 +270,9 @@ plot_resample_roc_curves <- function(model_results) {
                          xend = x1, yend = y1,
                          colour = curve),
                      data = line_segments) +
+        geom_text(aes(x = 0.75, y = 0.25,
+                      label = paste("AUC =", mean_auc)),
+                  data = roc_aucs) +
         facet_wrap(~ outcome) +
         theme_minimal(base_size = 16)        
 }
