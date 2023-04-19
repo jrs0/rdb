@@ -174,11 +174,12 @@ plot_survival <- function(dataset) {
     dataset %>%
         filter(cause_of_death != "no_death") %>%
         select(stemi_presentation, cause_of_death, survival_time) %>%
+        mutate(survival_time = survival_time / (24*60*60)) %>%
         rename(`Cause of Death` = cause_of_death) %>%
         ggplot(aes(x = survival_time, fill = `Cause of Death`)) +
         geom_density(alpha = 0.3, position="stack") +
         facet_grid(~ stemi_presentation) +
-        labs(x = "Survival time (seconds)", y = "Distribution (normalised by totals)") +
+        labs(x = "Survival time (days)", y = "Distribution (normalised by totals)") +
         theme_minimal(base_size = 16)
 }
 

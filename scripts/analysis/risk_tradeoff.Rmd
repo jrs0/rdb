@@ -58,32 +58,21 @@ The table below shows the proportion of different types of events occurring afte
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
 percentage_events_after_index %>%
-    kable(caption = "Summary of proportion of different events occuring within 12 months of the index event, broken down by STEMI vs. NSTEMI presentation.")
+    kable(caption = "Summary of proportion of different events occuring within 12 months of the index event, broken down by STEMI vs. NSTEMI presentation (NOTE: any-cause death figures might be low).")
 ```
 
-The proportion of different events making up the ischaemia endpoint are shown in the table below:
+Distribution of non-zero bleeding/ischaemia counts (uses a cutoff of 20 events to remove the long tail).
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
-raw_dataset %>%
-    dplyr::select(acs_stemi_after,
-                  acs_nstemi_after,
-                  ischaemic_stroke_after,
-                  cause_of_death,
-                  ischaemia_after) %>%
-    mutate(cause_of_death = if_else(cause_of_death == "cardiac", 1, 0)) %>%
-    filter(ischaemia_after != 0) %>%
-    mutate(across(-ischaemia_after, ~ . / ischaemia_after)) %>%
-    group_by(ischaemia_after) %>%
-    summarize(`Mean ACS` = mean((acs_stemi_after + acs_nstemi_after)/ischaemia_after) %>% percent(),
-              `Mean Ischaemic Stroke` = mean(ischaemic_stroke_after/ischaemia_after) %>% percent(),
-              `Mean Cardiac Death` = mean(cause_of_death/ischaemia_after) %>% percent())
-              
-    
 
-percentage_events_after_index %>%
-    kable(caption = "Summary of proportion of different events occuring within 12 months of the index event, broken down by STEMI vs. NSTEMI presentation.")
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+plot_non_zero_count_distributions(raw_dataset)
 ```
 
+The plot below shows the distribution of survival times, broken down by STEMI/NSTEMI presentation and cause of death.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+plot_survival(raw_dataset)
+```
 
 \newpage
 ## Distribution of predictors by outcome
