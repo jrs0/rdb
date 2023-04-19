@@ -229,26 +229,30 @@ plot_resample_lift_curves <- function(resample_lift_curves) {
 ##' identified by resample_id)
 plot_resample_gain_curves <- function(model_results) {
 
-    browser()
     resample_gain_curves <- model_results$gain_curves
-    predictions <- model_results$predictions %>%
+
+    percent_positive <- model_results$predictions %>%
         mutate(truth = if_else(
                    outcome == "bleeding",
                    bleeding_after,
                    ischaemia_after
-               ))
+               )) %>%
+        group_by(outcome) %>%
+        summarize(mean = 100*sum(truth == "occurred") / n())
+
+
+    line_segments <- percent_positive %>%
+        pmap(function(outcome, mean) {
+            tibble::tribble(
+                        ~x0, ~y0, ~x1, ~y1,  ~curve, ~outcome,
+                        0,     0,  100,  100, "baseline", outcome, 
+                        0,     0,   mean,  100, "optimal", outcome,
+                        mean,  100,  100,  100, "optimal", outcome
+                    )            
+        }) %>%
+        bind_rows() %>%
+        unique()
     
-    
-    percentage_all_positve <- model_results$predictions %>%
-        .pred_class %>%
-    optimal_gain_slope <- 100/percentage_all_positive
-    
-    line_segments <- tibble::tribble(
-                                 ~x0, ~y0, ~x1, ~y1,  ~curve,
-                                 0,     0,  100,  100, "baseline",
-                                 0,     0,   70,  100, "optimal",
-                                 70,  100,  100,  100, "optimal"
-    )
     resample_gain_curves %>%
         ggplot() +
         geom_line(aes(x = .percent_tested,
@@ -259,7 +263,7 @@ plot_resample_gain_curves <- function(model_results) {
         facet_wrap(~ outcome) +
         geom_segment(aes(x = x0, y = y0,
                          xend = x1, yend = y1,
-                         color = curve),
+                         colour = curve),
                      data = line_segments) +
         theme_minimal(base_size = 16) +
         labs(x = "% Tested", y = "% Found")
