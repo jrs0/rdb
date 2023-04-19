@@ -231,6 +231,12 @@ plot_resample_gain_curves <- function(model_results) {
 
     browser()
     resample_gain_curves <- model_results$gain_curves
+    predictions <- model_results$predictions %>%
+        mutate(truth = if_else(
+                   outcome == "bleeding",
+                   bleeding_after,
+                   ischaemia_after
+               ))
     
     
     percentage_all_positve <- model_results$predictions %>%

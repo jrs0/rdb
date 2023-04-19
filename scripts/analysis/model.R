@@ -50,7 +50,7 @@ remove_mortality_columns <- function(dataset) {
 ##' numeric predictors.
 make_recipe <- function(train, outcome_to_model, outcome_to_ignore) {
     recipe(train) %>%
-        update_role(everything(), new_role = "predictor") %>%
+        update_role(everything(), new_role = "predictor") %>%        
         update_role({{ outcome_to_model }}, new_role = "outcome") %>%
         update_role({{ outcome_to_ignore }}, new_role = "ignored_outcome") %>%
         update_role(nhs_number, new_role = "nhs_number") %>%
