@@ -310,7 +310,7 @@ fit_model_on_bootstrap_resamples <- function(model_workflow, train, test,
 ##' tuning its hyper-parameters
 make_decision_tree <- function(num_cross_validation_folds) {
     list (
-        name = "decision_tree"
+        name = "decision_tree",
         model = decision_tree(
             tree_depth = tune(),
             cost_complexity = tune()
@@ -382,9 +382,10 @@ bootstrap_fit_results <- function(model, recipe, outcome_column, outcome_name) {
                                          num_bootstrap_resamples)
 }
 
-bind_model_results <- function(a, b) {
+bind_model_results <- function(a, b, model) {
     predictions <- a$predictions %>%
-        bind_rows(b$predictions)
+        bind_rows(b$predictions) %>%
+        mutate(model_name = model$name)
 
     model_aucs <- a$model_aucs %>%
         bind_rows(b$model_aucs)
@@ -400,7 +401,6 @@ bind_model_results <- function(a, b) {
 
     precision_recall_curves <- a$precision_recall_curves %>%
         bind_rows(b$precision_recall_curves)
-
     
     list (
         predictions = predictions,
@@ -419,6 +419,6 @@ model_results <- function(model, bleeding_recipe, ischaemia_recipe) {
     ischaemia_results <- model %>%
         bootstrap_fit_results(ischaemia_recipe, ischaemia_after, "ischaemia")
     
-    bind_model_results(bleeding_results, ischaemia_results)
+    bind_model_results(bleeding_results, ischaemia_results, model)
 }
 
