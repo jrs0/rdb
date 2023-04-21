@@ -375,17 +375,30 @@ make_boosted_tree <- function(num_cross_validation_folds) {
             mode = "classification",
             mtry = tune(),
             trees = tune(),
-            learn_rate = tune(),
         ) %>%
             set_engine("xgboost"),
         tuning_grid = grid_regular(mtry(),
                                    trees(),
-                                   learn_rate(),
                                    levels = 5),
         num_cross_validation_folds = num_cross_validation_folds
     )
 }        
 
+make_random_forest <- function(num_cross_validation_folds) {
+    list (
+        name = "random_forest",
+        model = rand_forest(
+            mode = "classification",
+            mtry = tune(),
+            trees = tune()
+        ) %>%
+            set_engine(engine = "ranger"),
+        tuning_grid = grid_regular(mtry(),
+                                   trees(),
+                                   levels = 5),
+        num_cross_validation_folds = num_cross_validation_folds
+    )
+}
 
 optimal_workflow <- function(model, recipe, train) {
     if (!is.null(model$tuning_grid)) {

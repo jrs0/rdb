@@ -315,7 +315,7 @@ plot_resample_precision_recall_curves <- function(model_results) {
 plot_variability_in_risk_predictions <- function(all_model_predictions) {
     all_model_predictions %>%
         select(index_id, model_name, outcome,
-                      resample_id, .pred_occurred) %>%
+               resample_id, .pred_occurred) %>%
         mutate(`Training Data` = as.factor(if_else(resample_id == "full_training_set",
                                                    "Full Training Set",
                                                    "Bootstrap Resample"))) %>%

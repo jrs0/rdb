@@ -41,7 +41,7 @@ naive_bayes_model <-
 decision_tree_model <-
     make_decision_tree(num_cross_validation_folds)
 boosted_tree_model <-
-    make_decision_tree(num_cross_validation_folds)
+    make_boosted_tree(num_cross_validation_folds)
 linear_discriminant_analysis_model <-
     make_linear_discriminant_analysis(num_cross_validation_folds)
 
