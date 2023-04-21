@@ -46,13 +46,20 @@ linear_discriminant_analysis_model <-
 
 ## Optimal model selection and bootstrap verification
 logistic_regression_results <- logistic_regression_model %>%
-    model_results(bleeding_recipe, ischaemia_recipe)
+    model_results(bleeding_recipe, ischaemia_recipe) %>%
+    mutate(model = "logistic_regression")
+    
 
 decision_tree_results <- decision_tree_model %>%
-    model_results(bleeding_recipe, ischaemia_recipe)
+    model_results(bleeding_recipe, ischaemia_recipe) %>%
+    mutate(model = "decision_tree")
 
 linear_discriminant_analysis_results <- linear_discriminant_analysis_model %>%
-    model_results(bleeding_recipe, ischaemia_recipe)
+    model_results(bleeding_recipe, ischaemia_recipe) %>%
+    mutate(model = "linear_discriminant_analysis")
+
+
+all_model_results <- logistic_
 
 ## naive_bayes_results <- naive_bayes_model %>%
 ##     model_results(bleeding_recipe, ischaemia_recipe)

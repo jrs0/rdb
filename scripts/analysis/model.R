@@ -310,6 +310,7 @@ fit_model_on_bootstrap_resamples <- function(model_workflow, train, test,
 ##' tuning its hyper-parameters
 make_decision_tree <- function(num_cross_validation_folds) {
     list (
+        name = "decision_tree"
         model = decision_tree(
             tree_depth = tune(),
             cost_complexity = tune()
@@ -326,6 +327,7 @@ make_decision_tree <- function(num_cross_validation_folds) {
 
 make_linear_discriminant_analysis <- function(num_cross_validation_folds) {
     list (
+        name = "linear_discriminant_analysis",
         model = discrim_linear(
             mode = "classification",
             penalty = tune()
@@ -339,6 +341,7 @@ make_linear_discriminant_analysis <- function(num_cross_validation_folds) {
     
 make_naive_bayes <- function(num_cross_validation_folds) {
     list (
+        name = "naive_bayes",
         model = naive_Bayes(
             mode = "classification",
             smoothness = tune(),
@@ -354,6 +357,7 @@ make_naive_bayes <- function(num_cross_validation_folds) {
 ##' A logistic regression model (no hyper-parameters)
 make_logistic_regression <- function() {
     list (
+        name = "logistic_regression",
         model = logistic_reg() %>% 
             set_engine('glm') %>% 
             set_mode('classification')

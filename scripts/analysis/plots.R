@@ -311,8 +311,7 @@ plot_resample_precision_recall_curves <- function(model_results) {
 ##' For one patient, plot all the model predictions. This graph is supposed
 ##' to test how well the models agree with one another. The bootstrap models
 ##' and the primary model are all plotted as dots (not distinguished).
-##'
-##' TODO: fix this function
+##' 
 plot_variability_in_risk_predictions <- function(all_model_results) {
     grouped_pred %>%
         ungroup() %>%
