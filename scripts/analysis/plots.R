@@ -312,26 +312,29 @@ plot_resample_precision_recall_curves <- function(model_results) {
 ##' to test how well the models agree with one another. The bootstrap models
 ##' and the primary model are all plotted as dots (not distinguished).
 ##' 
-plot_variability_in_risk_predictions <- function(all_model_results) {
-    grouped_pred %>%
-        ungroup() %>%
-        dplyr::select(index_id, model_name, outcome_name,
-                      primary, model_id, .pred_occurred) %>%
-        pivot_wider(names_from = "outcome_name",
+plot_variability_in_risk_predictions <- function(all_model_predictions) {
+    all_model_predictions %>%
+        dplyr::select(index_id, model_name, outcome,
+                      resample_id, .pred_occurred) %>%
+        mutate(`Training Data` = as.factor(if_else(resample_id == "full_training_set",
+                                                   "Full Training Set",
+                                                   "Bootstrap Resample"))) %>%
+        pivot_wider(names_from = "outcome",
                     values_from = ".pred_occurred") %>%
-        ## Pick only one patient. The idea is to plot all the predictions for just
+        ## Pick only one a few patients. The idea is to plot all the predictions for just
         ## that one patient
         filter(index_id %in% sample(index_id, size = 4)) %>%
         ## Uncomment to view all models for some patients
         ##filter(id %in% c(1,20,23,43, 100, 101, 102)) %>%
-        ggplot(aes(x = bleed, y = ischaemia, color=model_name, shape = primary)) +
+        ggplot(aes(x = bleeding, y = ischaemia, color = model_name,
+                   shape = `Training Data`)) +
         geom_point() +
         ## scale_y_log10() +
         ## scale_x_log10() +
         labs(title = "Plot of risk predictions from all models for some patients") +
-        facet_wrap( ~ index_id, ncol=2) +
-        theme_minimal(base_size = 16)
-
+        facet_wrap( ~ index_id, ncol = 2) +
+        theme_minimal(base_size = 16) +
+        theme(legend.position = "bottom", legend.box = "vertical")
 }
 
 ##' Plot of the risk trade-off graph for each model (using the primary model)

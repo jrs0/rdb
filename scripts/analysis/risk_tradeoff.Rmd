@@ -219,6 +219,14 @@ linear_discriminant_analysis_results %>%
     plot_resample_precision_recall_curves()
 ```
 
+# Risk Predictions
+
+## Variability of risk predictions between models
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
+all_model_predictions %>%
+    plot_variability_in_risk_predictions()
+```
 
 \newpage
 # Appendix
