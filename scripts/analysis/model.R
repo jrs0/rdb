@@ -348,13 +348,13 @@ make_naive_bayes <- function(num_cross_validation_folds) {
         name = "naive_bayes",
         model = naive_Bayes(
             mode = "classification",
-            smoothness = tune(),
-            Laplace = tune(),
-            engine = "klaR"),
-        tuning_grid = grid_regular(smoothness(),
-                                   Laplace(),
-                                   levels = 5),
-        num_cross_validation_folds = num_cross_validation_folds
+            ## smoothness = tune(),
+            ## Laplace = tune(),
+            engine = "naivebayes")
+        ## tuning_grid = grid_regular(smoothness(),
+        ##                            Laplace(),
+        ##                            levels = 5),
+        ## num_cross_validation_folds = num_cross_validation_folds
     )
 }
 

@@ -41,8 +41,8 @@ decision_tree_model <-
 linear_discriminant_analysis_model <-
     make_linear_discriminant_analysis(num_cross_validation_folds)
 
-## naive_bayes_model <-
-##     make_naive_bayes(num_cross_validation_folds)
+naive_bayes_model <-
+    make_naive_bayes(num_cross_validation_folds)
 
 ## Optimal model selection and bootstrap verification
 logistic_regression_results <- logistic_regression_model %>%
@@ -54,12 +54,13 @@ decision_tree_results <- decision_tree_model %>%
 linear_discriminant_analysis_results <- linear_discriminant_analysis_model %>%
     model_results(bleeding_recipe, ischaemia_recipe)
 
+naive_bayes_results <- naive_bayes_model %>%
+    model_results(bleeding_recipe, ischaemia_recipe)
+
 all_model_predictions <- logistic_regression_results$predictions %>%
     bind_rows(decision_tree_results$predictions) %>%
-    bind_rows(linear_discriminant_analysis_results$predictions)
-
-## naive_bayes_results <- naive_bayes_model %>%
-##     model_results(bleeding_recipe, ischaemia_recipe)
+    bind_rows(linear_discriminant_analysis_results$predictions) %>%
+    bind_rows(naive_bayes_results$predictions)
 
 ## The summary table of model AUCs
 all_model_auc_summary <- model_aucs(logistic_regression_results,
