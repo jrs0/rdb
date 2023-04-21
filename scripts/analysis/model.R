@@ -1,5 +1,7 @@
-library(tidymodels)
 library(tidyverse)
+library(tidymodels)
+library(themis)
+
 library(discrim)
 library(mda)
 
@@ -58,6 +60,8 @@ make_recipe <- function(train, outcome_to_model, outcome_to_ignore) {
         update_role(index_id, new_role = "index_id") %>%
         step_nzv(all_predictors()) %>%
         step_normalize(all_numeric_predictors())
+        ##step_rose({{ outcome_to_model }})
+        ##step_downsample({{ outcome_to_model }})
 }
 
 ##' Requires exactly one NZV (near-zero variance) step

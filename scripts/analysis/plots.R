@@ -337,17 +337,17 @@ plot_variability_in_risk_predictions <- function(all_model_predictions) {
         theme(legend.position = "bottom", legend.box = "vertical")
 }
 
-##' Plot of the risk trade-off graph for each model (using the primary model)
+##' Plot of the risk trade-off graph for each model
+##'
+##' The function uses the model developed on the entire training set
 ##'
 ##' TODO: fix this function
 plot_risk_tradeoffs <- function(model_results) {
-    grouped_pred %>%
-        ungroup() %>%
-        filter(primary == "primary") %>%
-        dplyr::select(stemi_presentation, index_id, outcome_name, model_name, .pred_occurred) %>%
-        pivot_wider(names_from = outcome_name, values_from = .pred_occurred) %>%
-        ggplot(aes(x = bleed, y = ischaemia, color = stemi_presentation)) +
+    model_results$predictions %>%
+        filter(resample_id == "full_training_set") %>%
+        dplyr::select(index_type, bleeding_before, pci_before, stemi_presentation, index_id, outcome, model_name, .pred_occurred) %>%
+        pivot_wider(names_from = outcome, values_from = .pred_occurred) %>%
+        ggplot(aes(x = bleeding, y = ischaemia, colour = index_type)) +
         geom_point() +
-        facet_wrap( ~ model_name, ncol=2) +
         theme_minimal(base_size = 16)
 }

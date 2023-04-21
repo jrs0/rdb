@@ -96,18 +96,7 @@ plot_age_distributions(raw_dataset)
 
 Four classification models were fitted to the data: logistic regression; linear discriminant analysis; a basic decision tree; and naive Bayes.
 
-## Finding the optimal model
-
-Optimal models of each type were obtained by average model performance (over a set of cross-validation folds) for a grid of model hyper-parameters, and selecting the model with the highest mean ROC AUC value. For models with no hyper-parameters (e.g. logistic regression), a single model was obtained by fitting to the whole training set. 
-
-## Identifying variability in the optimal model
-
-In order to obtain a measure of variability of output risk predictions, the optimal model (i.e. with a fixed set of tuning parameters) was fitted to a set of bootstrapped resamples of the training data. The resulting set of models have slightly different ROC AUCs, and generate slightly different estimates for the bleeding and ischaemia risk for a given patient. This variability shows how randomness in the fitting process (due to variations in the training set used for fitting) translates to variations in the output probabilities.
-
-
-Before fitting the models, near-zero variance predictors were removed as described in the section below.
-
-## Variables selected in preprocessing
+## Data preprocessing
 
 The full set of predictors input into the modelling process were:
 
@@ -118,12 +107,24 @@ bleeding_recipe %>%
     pull(variable)
 ```
 
-The preprocessing steps filter out variables that do not have enough variability to contribute to model performance. The remaining predictors after the preprocessing steps are listed below.
+Predictors without enough variability to contribute to model performance were removed (near-zero variance predictors). The remaining predictors after the preprocessing steps are listed below.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 bleeding_recipe %>%
     retained_predictors()    
 ```
+
+Numerical predictors were centered and scaled. Neither up-sampling nor down-sampling the data by the bleeding or ischaemia outcomes was found to improve model performance, and in some cases substantially reduced it. As a result, this preprocessing operation was not performed, even though its use is indicated by the class imbalance in the bleeding/ischaemia outcomes.
+
+## Finding the optimal model
+
+Optimal models of each type were obtained by averaging model performance (over a set of `r num_cross_validation_folds` cross-validation folds) for a grid of model hyper-parameters, and selecting the model with the highest mean ROC AUC value. For models with no hyper-parameters (e.g. logistic regression), a single model was obtained by fitting to the whole training set. 
+
+## Identifying variability in the optimal model
+
+In order to obtain a measure of variability of output risk predictions, the optimal model (i.e. with a fixed set of tuning parameters) was fitted to a set of `r num_bootstrap_resamples` bootstrapped resamples of the training data. The resulting set of models have slightly different ROC AUCs, and generate slightly different estimates for the bleeding and ischaemia risk for a given patient. This variability shows how randomness in the fitting process (due to variations in the training set used for fitting) translates to variations in the output probabilities.
+
+Before fitting the models, near-zero variance predictors were removed as described in the section below.
 
 \newpage
 ## Logistic Regression
@@ -227,6 +228,29 @@ linear_discriminant_analysis_results %>%
 all_model_predictions %>%
     plot_variability_in_risk_predictions()
 ```
+
+## Logistic Regression 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
+logistic_regression_results %>%
+    plot_risk_tradeoffs()
+```
+
+## Decision Tree
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
+decision_tree_results %>%
+    plot_risk_tradeoffs()
+```
+
+## Linear Discriminant Analysis
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
+linear_discriminant_analysis_results %>%
+    plot_risk_tradeoffs()
+```
+
+
 
 \newpage
 # Appendix
