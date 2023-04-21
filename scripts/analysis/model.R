@@ -58,6 +58,7 @@ make_recipe <- function(train, outcome_to_model, outcome_to_ignore) {
         update_role(nhs_number, new_role = "nhs_number") %>%
         update_role(index_date, new_role = "index_date") %>%
         update_role(index_id, new_role = "index_id") %>%
+        step_dummy(all_nominal_predictors()) %>%
         step_nzv(all_predictors()) %>%
         step_normalize(all_numeric_predictors())
         ##step_rose({{ outcome_to_model }})
@@ -342,7 +343,17 @@ make_linear_discriminant_analysis <- function(num_cross_validation_folds) {
         num_cross_validation_folds = num_cross_validation_folds
     )
 }        
-    
+
+make_quadratic_discriminant_analysis <- function(num_cross_validation_folds) {
+    list (
+        name = "quadratic_discriminant_analysis",
+        model = discrim_quad(
+            mode = "classification"
+        )
+    )
+}        
+
+
 make_naive_bayes <- function(num_cross_validation_folds) {
     list (
         name = "naive_bayes",
@@ -373,12 +384,10 @@ make_boosted_tree <- function(num_cross_validation_folds) {
         name = "boosted_tree",
         model = boost_tree(
             mode = "classification",
-            mtry = tune(),
             trees = tune(),
         ) %>%
             set_engine("xgboost"),
-        tuning_grid = grid_regular(mtry(),
-                                   trees(),
+        tuning_grid = grid_regular(trees(),
                                    levels = 5),
         num_cross_validation_folds = num_cross_validation_folds
     )
@@ -389,12 +398,10 @@ make_random_forest <- function(num_cross_validation_folds) {
         name = "random_forest",
         model = rand_forest(
             mode = "classification",
-            mtry = tune(),
             trees = tune()
         ) %>%
             set_engine(engine = "ranger"),
-        tuning_grid = grid_regular(mtry(),
-                                   trees(),
+        tuning_grid = grid_regular(trees(),
                                    levels = 5),
         num_cross_validation_folds = num_cross_validation_folds
     )

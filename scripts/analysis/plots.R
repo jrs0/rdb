@@ -14,7 +14,8 @@ plot_index_with_time <- function(dataset) {
         rename(Presentation = stemi_presentation) %>%
         ggplot() +
         geom_histogram(aes(x = index_date, fill = Presentation),
-                       bins = 75)
+                       bins = 75) +
+        theme_minimal(base_size = 16)
 }
 
 ##' Plot the distribution of predictor counts with the four possible outcomes

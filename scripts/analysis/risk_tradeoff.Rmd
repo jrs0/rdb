@@ -115,7 +115,7 @@ bleeding_recipe %>%
     retained_predictors()    
 ```
 
-Numerical predictors were centered and scaled. Neither up-sampling nor down-sampling the data by the bleeding or ischaemia outcomes was found to improve model performance, and in some cases substantially reduced it. As a result, this preprocessing operation was not performed, even though its use is indicated by the class imbalance in the bleeding/ischaemia outcomes.
+Numerical predictors were centered and scaled. Neither up-sampling nor down-sampling the data by the bleeding or ischaemia outcomes was found to improve model performance, and in some cases substantially reduced it.
 
 ## Finding the optimal model
 
@@ -284,6 +284,37 @@ linear_discriminant_analysis_results %>%
     plot_resample_precision_recall_curves()
 ```
 
+## Quadratic Discriminant Analysis
+
+The ROC curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+quadratic_discriminant_analysis_results %>%
+    plot_resample_roc_curves()
+```
+
+The gain curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+quadratic_discriminant_analysis_results %>%
+    plot_resample_gain_curves()
+```
+
+\newpage
+The lift curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+quadratic_discriminant_analysis_results %>%
+    plot_resample_lift_curves()
+```
+
+The precision-recall curves for the models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+quadratic_discriminant_analysis_results %>%
+    plot_resample_precision_recall_curves()
+```
+
 # Risk Predictions
 
 ## Variability of risk predictions between models
@@ -327,6 +358,14 @@ boosted_tree_results %>%
 linear_discriminant_analysis_results %>%
     plot_risk_tradeoffs()
 ```
+
+## Quadratic Discriminant Analysis
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
+quadratic_discriminant_analysis_results %>%
+    plot_risk_tradeoffs()
+```
+
 
 \newpage
 # Appendix

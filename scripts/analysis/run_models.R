@@ -42,8 +42,12 @@ decision_tree_model <-
     make_decision_tree(num_cross_validation_folds)
 boosted_tree_model <-
     make_boosted_tree(num_cross_validation_folds)
+## random_forest_model <-
+##     make_random_forest(num_cross_validation_folds)
 linear_discriminant_analysis_model <-
     make_linear_discriminant_analysis(num_cross_validation_folds)
+quadratic_discriminant_analysis_model <-
+    make_quadratic_discriminant_analysis(num_cross_validation_folds)
 
 ## Optimal model selection and bootstrap verification
 logistic_regression_results <- logistic_regression_model %>%
@@ -58,14 +62,23 @@ decision_tree_results <- decision_tree_model %>%
 boosted_tree_results <- boosted_tree_model %>%
     model_results(bleeding_recipe, ischaemia_recipe)
 
+## random_forest_results <- random_forest_model %>%
+##     model_results(bleeding_recipe, ischaemia_recipe)
+
 linear_discriminant_analysis_results <- linear_discriminant_analysis_model %>%
     model_results(bleeding_recipe, ischaemia_recipe)
+
+quadratic_discriminant_analysis_results <- quadratic_discriminant_analysis_model %>%
+    model_results(bleeding_recipe, ischaemia_recipe)
+
 
 all_model_predictions <- logistic_regression_results$predictions %>%
     bind_rows(naive_bayes_results$predictions) %>%
     bind_rows(decision_tree_results$predictions) %>%
     bind_rows(boosted_tree_results$predictions) %>%
-    bind_rows(linear_discriminant_analysis_results$predictions)
+    ##bind_rows(random_forest_results$predictions) %>%
+    bind_rows(linear_discriminant_analysis_results$predictions) %>%
+    bind_rows(quadratic_discriminant_analysis_results$predictions)
 
 ## The summary table of model AUCs
 all_model_auc_summary <- model_aucs(logistic_regression_results,
@@ -76,8 +89,12 @@ all_model_auc_summary <- model_aucs(logistic_regression_results,
                          "Decision Tree")) %>%
     bind_rows(model_aucs(boosted_tree_results,
                          "Boosted Tree")) %>%
+    ## bind_rows(model_aucs(random_forest_results,
+    ##                      "Random Forest")) %>%
     bind_rows(model_aucs(linear_discriminant_analysis_results,
                          "Linear Discriminant Analysis")) %>%
+    bind_rows(model_aucs(quadratic_discriminant_analysis_results,
+                         "Quadratic Discriminant Analysis")) %>%
     summarise_model_aucs() %>%
     mutate(across(-model, signif, 2))
     
