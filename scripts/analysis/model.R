@@ -368,6 +368,25 @@ make_logistic_regression <- function() {
     )
 }
 
+make_boosted_tree <- function(num_cross_validation_folds) {
+    list (
+        name = "boosted_tree",
+        model = boost_tree(
+            mode = "classification",
+            mtry = tune(),
+            trees = tune(),
+            learn_rate = tune(),
+        ) %>%
+            set_engine("xgboost"),
+        tuning_grid = grid_regular(mtry(),
+                                   trees(),
+                                   learn_rate(),
+                                   levels = 5),
+        num_cross_validation_folds = num_cross_validation_folds
+    )
+}        
+
+
 optimal_workflow <- function(model, recipe, train) {
     if (!is.null(model$tuning_grid)) {
         k <- model$num_cross_validation_folds

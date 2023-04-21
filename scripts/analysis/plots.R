@@ -1,6 +1,6 @@
-library(tidyverse)
 library(ggplot2)
 library(corrr)
+library(tidyverse)
 
 ##' @title Plot the distribution of index events with time
 ##'
@@ -51,7 +51,7 @@ plot_predictors_distributions <- function(dataset) {
                `Ischaemia Outcome` = factor(ischaemia_after > 0,
                                             labels = c("No Ischaemia",
                                                        "Ischaemia After"))) %>%
-        dplyr::select(- matches("(before|after)"))
+        select(- matches("(before|after)"))
     
     reduced %>%
         ## Use capital letter to identify predictor
@@ -99,7 +99,7 @@ plot_outcome_distributions <- function(dataset) {
                `Ischaemia Outcome` = factor(ischaemia_after > 0,
                                             labels = c("No Ischaemia",
                                                        "Ischaemia After"))) %>%
-        dplyr::select(- matches("(before|after)"))
+        select(- matches("(before|after)"))
     
     reduced %>%
         ## Use capital letter to identify predictor
@@ -148,7 +148,7 @@ plot_age_distributions <- function(dataset) {
                `Ischaemia Outcome` = factor(ischaemia_after > 0,
                                             labels = c("No Ischaemia",
                                                        "Ischaemia After"))) %>%
-        dplyr::select(- matches("(before|after)"))
+        select(- matches("(before|after)"))
 
     
     reduced %>%
@@ -314,7 +314,7 @@ plot_resample_precision_recall_curves <- function(model_results) {
 ##' 
 plot_variability_in_risk_predictions <- function(all_model_predictions) {
     all_model_predictions %>%
-        dplyr::select(index_id, model_name, outcome,
+        select(index_id, model_name, outcome,
                       resample_id, .pred_occurred) %>%
         mutate(`Training Data` = as.factor(if_else(resample_id == "full_training_set",
                                                    "Full Training Set",
@@ -345,7 +345,7 @@ plot_variability_in_risk_predictions <- function(all_model_predictions) {
 plot_risk_tradeoffs <- function(model_results) {
     model_results$predictions %>%
         filter(resample_id == "full_training_set") %>%
-        dplyr::select(index_type, bleeding_before, pci_before, stemi_presentation, index_id, outcome, model_name, .pred_occurred) %>%
+        select(index_type, bleeding_before, pci_before, stemi_presentation, index_id, outcome, model_name, .pred_occurred) %>%
         pivot_wider(names_from = outcome, values_from = .pred_occurred) %>%
         ggplot(aes(x = bleeding, y = ischaemia, colour = index_type)) +
         geom_point() +

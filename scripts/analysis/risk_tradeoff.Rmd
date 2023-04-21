@@ -31,7 +31,8 @@ In this report, several classification models are used to predict bleeding/ischa
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
 all_model_auc_summary %>%
-    kable(caption = "Summary of model performances. The mean area under the ROC curve was obtained by averaging bootstrapped resamples. The 95% error on this estimate is also shown.")
+    arrange(desc(`Mean AUC (Bleeding)` + `Mean AUC (Ischaemia)`)) %>%
+    kable(caption = "Summary of model performances (by average bleeding/ischaemia performace). The mean area under the ROC curve was obtained by averaging bootstrapped resamples. The 95% error on this estimate is also shown.")
 ```
 
 ## Hospital episode statistics
@@ -158,6 +159,38 @@ logistic_regression_results %>%
     plot_resample_precision_recall_curves()
 ```
 
+\newpage
+## Naive Bayes
+
+The ROC curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+naive_bayes_results %>%
+    plot_resample_roc_curves()
+```
+
+The gain curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+naive_bayes_results %>%
+    plot_resample_gain_curves()
+```
+
+\newpage
+The lift curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+naive_bayes_results %>%
+    plot_resample_lift_curves()
+```
+
+The precision-recall curves for the models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+naive_bayes_results %>%
+    plot_resample_precision_recall_curves()
+```
+
 ## Decision Tree
 
 The ROC curves for the bleeding and ischaemia models are shown below:
@@ -186,6 +219,37 @@ The precision-recall curves for the models are shown below:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
 decision_tree_results %>%
+    plot_resample_precision_recall_curves()
+```
+
+## Boosted Tree
+
+The ROC curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+boosted_tree_results %>%
+    plot_resample_roc_curves()
+```
+
+The gain curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+boosted_tree_results %>%
+    plot_resample_gain_curves()
+```
+
+\newpage
+The lift curves for the bleeding and ischaemia models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+boosted_tree_results %>%
+    plot_resample_lift_curves()
+```
+
+The precision-recall curves for the models are shown below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+boosted_tree_results %>%
     plot_resample_precision_recall_curves()
 ```
 
@@ -236,10 +300,24 @@ logistic_regression_results %>%
     plot_risk_tradeoffs()
 ```
 
+## Naive Bayes
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
+naive_bayes_results %>%
+    plot_risk_tradeoffs()
+```
+
 ## Decision Tree
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
 decision_tree_results %>%
+    plot_risk_tradeoffs()
+```
+
+## Boosted Tree
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
+boosted_tree_results %>%
     plot_risk_tradeoffs()
 ```
 
@@ -249,8 +327,6 @@ decision_tree_results %>%
 linear_discriminant_analysis_results %>%
     plot_risk_tradeoffs()
 ```
-
-
 
 \newpage
 # Appendix
