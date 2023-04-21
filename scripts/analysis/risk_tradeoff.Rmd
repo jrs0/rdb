@@ -23,7 +23,7 @@ if (!exists("scripts_have_run")) {
 
 # Overview of the problem
 
-Patients on dual antiplatelet therapy to reduce their ischaemic risk are at increased risk of bleeding. Risk factors for both bleeding and ischaemia have been previously investigated in several studies, and several qualitative risk scores exist. These are often based on a mixture of patient characteristics at the time of the intervention (such as current comorbidities), and patient history of related diagnoses and procedures. The purpose of this report is to try to extract this information, or proxies for this information, from hospital episodes statistics (HES) data and mortality data from the V.
+Patients on dual antiplatelet therapy to reduce their ischaemic risk are at increased risk of bleeding. Risk factors for both bleeding and ischaemia have been previously investigated in several studies, and several qualitative risk scores exist. These are often based on a mixture of patient characteristics at the time of the intervention (such as current comorbidities), and patient history of related diagnoses and procedures. The purpose of this report is to try to extract this information, or proxies for this information, from hospital episodes statistics (HES) data and mortality data from the civil registry of deaths.
 
 More detailed relevant information is available from other data sources -- for example, the record of blood test results stored in hospital systems. However, a trade-off exists between finding data sources that are generic enough that they are likely available everywhere, vs. data sources that may not be easily generalized. HES data is the simplest data sources that is guaranteed to be present for all hospitals in the UK. HES data is not a real-time data source, but can be used to initially develop and validate different approaches to ischaemia/bleeding risk modelling.
 
@@ -319,47 +319,68 @@ quadratic_discriminant_analysis_results %>%
 
 ## Variability of risk predictions between models
 
+The graphs below show four randomly selected index events, along with the risk predictions from each of the models. The purpose is to assess how well the models produced from the bootstrap resamples agree with each other, and how well different models agree with each other on the bleeding/ischaemia risk predictions.
+
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
 all_model_predictions %>%
     plot_variability_in_risk_predictions()
 ```
 
+\newpage
 ## Logistic Regression 
+
+The diagram below shows the risk trade-off graph for the model.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
 logistic_regression_results %>%
     plot_risk_tradeoffs()
 ```
 
+\newpage
 ## Naive Bayes
+
+The diagram below shows the risk trade-off graph for the model.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
 naive_bayes_results %>%
     plot_risk_tradeoffs()
 ```
 
+\newpage
 ## Decision Tree
+
+The diagram below shows the risk trade-off graph for the model.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
 decision_tree_results %>%
     plot_risk_tradeoffs()
 ```
 
+\newpage
 ## Boosted Tree
+
+The diagram below shows the risk trade-off graph for the model.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
 boosted_tree_results %>%
     plot_risk_tradeoffs()
 ```
 
+\newpage
 ## Linear Discriminant Analysis
+
+The diagram below shows the risk trade-off graph for the model.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
 linear_discriminant_analysis_results %>%
     plot_risk_tradeoffs()
 ```
 
+\newpage
 ## Quadratic Discriminant Analysis
+
+The diagram below shows the risk trade-off graph for the model.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
 quadratic_discriminant_analysis_results %>%

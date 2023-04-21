@@ -162,7 +162,7 @@ plot_age_distributions <- function(dataset) {
         labs(x = 'Predictor class', y = 'Count in bin') +
         theme_minimal(base_size = 16) +
         theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))    
-}
+}    
 
 ##' Plot the distribution of survival time from index for the
 ##' STEMI and NSTEMI groups
@@ -172,14 +172,13 @@ plot_age_distributions <- function(dataset) {
 ##' @return A ggplot object
 ##' 
 plot_survival <- function(dataset) {
-    dataset %>%
+    raw_dataset %>%
         filter(cause_of_death != "no_death") %>%
         select(stemi_presentation, cause_of_death, survival_time) %>%
         mutate(survival_time = survival_time / (24*60*60)) %>%
-        rename(`Cause of Death` = cause_of_death) %>%
-        ggplot(aes(x = survival_time, fill = `Cause of Death`)) +
-        geom_density(alpha = 0.3, position="stack") +
-        facet_grid(~ stemi_presentation) +
+        rename(`Presentation` = stemi_presentation) %>%
+        ggplot(aes(x = survival_time, colour = `Presentation`)) +
+        stat_ecdf() +
         labs(x = "Survival time (days)", y = "Distribution (normalised by totals)") +
         theme_minimal(base_size = 16)
 }
