@@ -68,7 +68,7 @@ Distribution of non-zero bleeding/ischaemia counts (uses a cutoff of 20 events t
 plot_non_zero_count_distributions(raw_dataset)
 ```
 
-The plot below shows the distribution of survival times, broken down by STEMI/NSTEMI presentation and cause of death.
+The plot below shows the distribution of survival times, broken down by STEMI/NSTEMI presentation (Note: work in progress, y-axis is upside down compared to a normal Kaplan-Meier curve).
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
 plot_survival(raw_dataset)
