@@ -155,7 +155,7 @@ private:
 
 /// The triple of information returned about each code
 /// by the parser and stored in the cache
-struct CacheEntry {
+class CacheEntry {
 public:
     CacheEntry(const Category & category,
 	       const std::set<std::string> & groups)
@@ -186,13 +186,22 @@ private:
 };
 
 /// Do some initial checks on the code (remove whitespace
-/// and non-alphanumeric characters). Throw runtime error
-/// if the string is all whitespace or "NULL"
+/// and non-alphanumeric characters). Throw Empty for
+/// an all-whitespace or empty string. 
 std::string preprocess(const std::string & code);
+
+namespace ParserException {
+    /// Thrown if the code is whitespace or empty
+    struct Empty {};
+
+    /// Thrown if the code is invalid
+    struct CodeNotFound {};    
+}
 
 /// Special case top level (contains a groups key)
 class TopLevelCategory {
 public:
+    
     TopLevelCategory(const YAML::Node & top_level_category);
 
     // Do not allow copies -- there is a huge tree in this class
@@ -204,32 +213,23 @@ public:
     }
     
     void print() const;
-    
-    /// Parse a raw code. Return the standard name of the code,
-    /// or the docs of the code if the bool flag is true.
-    /// Throw a runtime error if the code is invalid or not found.
-    /// Query results are cached and used to speed up the next
-    /// call to the function.
-    std::string code_name(const std::string & code) {	
-	auto code_alphanum{preprocess(code)};
-	return parser_.parse(code_alphanum, categories_, groups_).name();
-    }
 
-    /// Return the docs
-    std::string code_docs(const std::string & code) {	
+    /// Parse a raw code and return the results (name, docs and
+    /// groups), or get the results directly from the cache
+    CacheEntry parse(const std::string & code) {	
 	auto code_alphanum{preprocess(code)};
-	return parser_.parse(code_alphanum, categories_, groups_).docs();
-    }
-
-    std::set<std::string> code_groups(const std::string & code) {	
-	auto code_alphanum{preprocess(code)};
-	return parser_.parse(code_alphanum, categories_, groups_).groups();
+	return parser_.parse(code_alphanum, categories_, groups_);
     }
 
     /// Return all groups defined in the config file
     std::set<std::string> all_groups() const {
 	return groups_;
     }
+
+    /// Obtain a (flat) list of all codes along with code
+    /// documentation in the parser (i.e. in the file)
+    std::vector<std::pair<std::string, std::string>>
+    all_codes_and_docs() const;
 
     /// Return all the codes in a particular group. Throws
     /// std::runtime_error if the group does not exist.

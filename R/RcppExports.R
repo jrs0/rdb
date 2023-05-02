@@ -2,26 +2,22 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 test_cpp <- function(thing) {
-    .Call(`_rdb_test_cpp`, thing)
+    .Call('_rdb_test_cpp', PACKAGE = 'rdb', thing)
 }
 
-make_acs_dataset <- function(config_path_chr) {
-    .Call(`_rdb_make_acs_dataset`, config_path_chr)
+print_sql_query <- function(config_path) {
+    invisible(.Call('_rdb_print_sql_query', PACKAGE = 'rdb', config_path))
 }
 
-test_random_code <- function() {
-    invisible(.Call(`_rdb_test_random_code`))
+make_acs_dataset <- function(config_path) {
+    .Call('_rdb_make_acs_dataset', PACKAGE = 'rdb', config_path)
 }
 
-debug_sql <- function(dsn_character, query_character) {
-    invisible(.Call(`_rdb_debug_sql`, dsn_character, query_character))
-}
-
-parse_code <- function(file, code, what) {
-    .Call(`_rdb_parse_code`, file, code, what)
+get_flat_codes <- function(codes_file_path) {
+    .Call('_rdb_get_flat_codes', PACKAGE = 'rdb', codes_file_path)
 }
 
 dump_groups <- function(file) {
-    .Call(`_rdb_dump_groups`, file)
+    .Call('_rdb_dump_groups', PACKAGE = 'rdb', file)
 }
 

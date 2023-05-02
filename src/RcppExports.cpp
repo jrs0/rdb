@@ -21,47 +21,35 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// print_sql_query
+void print_sql_query(const Rcpp::CharacterVector& config_path);
+RcppExport SEXP _rdb_print_sql_query(SEXP config_pathSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type config_path(config_pathSEXP);
+    print_sql_query(config_path);
+    return R_NilValue;
+END_RCPP
+}
 // make_acs_dataset
-Rcpp::List make_acs_dataset(const Rcpp::CharacterVector& config_path_chr);
-RcppExport SEXP _rdb_make_acs_dataset(SEXP config_path_chrSEXP) {
+Rcpp::List make_acs_dataset(const Rcpp::CharacterVector& config_path);
+RcppExport SEXP _rdb_make_acs_dataset(SEXP config_pathSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type config_path_chr(config_path_chrSEXP);
-    rcpp_result_gen = Rcpp::wrap(make_acs_dataset(config_path_chr));
+    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type config_path(config_pathSEXP);
+    rcpp_result_gen = Rcpp::wrap(make_acs_dataset(config_path));
     return rcpp_result_gen;
 END_RCPP
 }
-// test_random_code
-void test_random_code();
-RcppExport SEXP _rdb_test_random_code() {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    test_random_code();
-    return R_NilValue;
-END_RCPP
-}
-// debug_sql
-void debug_sql(const Rcpp::CharacterVector& dsn_character, const Rcpp::CharacterVector& query_character);
-RcppExport SEXP _rdb_debug_sql(SEXP dsn_characterSEXP, SEXP query_characterSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type dsn_character(dsn_characterSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type query_character(query_characterSEXP);
-    debug_sql(dsn_character, query_character);
-    return R_NilValue;
-END_RCPP
-}
-// parse_code
-Rcpp::CharacterVector parse_code(const Rcpp::CharacterVector& file, const Rcpp::CharacterVector& code, const std::size_t what);
-RcppExport SEXP _rdb_parse_code(SEXP fileSEXP, SEXP codeSEXP, SEXP whatSEXP) {
+// get_flat_codes
+Rcpp::List get_flat_codes(const Rcpp::CharacterVector& codes_file_path);
+RcppExport SEXP _rdb_get_flat_codes(SEXP codes_file_pathSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type file(fileSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type code(codeSEXP);
-    Rcpp::traits::input_parameter< const std::size_t >::type what(whatSEXP);
-    rcpp_result_gen = Rcpp::wrap(parse_code(file, code, what));
+    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type codes_file_path(codes_file_pathSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_flat_codes(codes_file_path));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -79,10 +67,9 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_cpp", (DL_FUNC) &_rdb_test_cpp, 1},
+    {"_rdb_print_sql_query", (DL_FUNC) &_rdb_print_sql_query, 1},
     {"_rdb_make_acs_dataset", (DL_FUNC) &_rdb_make_acs_dataset, 1},
-    {"_rdb_test_random_code", (DL_FUNC) &_rdb_test_random_code, 0},
-    {"_rdb_debug_sql", (DL_FUNC) &_rdb_debug_sql, 2},
-    {"_rdb_parse_code", (DL_FUNC) &_rdb_parse_code, 3},
+    {"_rdb_get_flat_codes", (DL_FUNC) &_rdb_get_flat_codes, 1},
     {"_rdb_dump_groups", (DL_FUNC) &_rdb_dump_groups, 1},
     {NULL, NULL, 0}
 };

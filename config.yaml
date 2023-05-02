@@ -27,74 +27,81 @@
 #      ICD code (NA if no death_after)
 #  
 
-parser_config:
-  # Defines how diagnoses are processed
-  diagnoses:
-    # The file defining the low-level ICD groups
-    file: icd10.yaml
-    # How the low-level groups are combined into
-    # output columns
-    source_columns:
-    - diagnosisprimary_icd
-    - diagnosis1stsecondary_icd
-    - diagnosis2ndsecondary_icd
-    - diagnosis3rdsecondary_icd
-    # - diagnosis4thsecondary_icd
-    # - diagnosis5thsecondary_icd
-    # - diagnosis6thsecondary_icd
-    # - diagnosis7thsecondary_icd
-    # - diagnosis8thsecondary_icd
-    # - diagnosis9thsecondary_icd
-    # - diagnosis10thsecondary_icd
-    # - diagnosis11thsecondary_icd
-    # - diagnosis12thsecondary_icd
-    # - diagnosis13thsecondary_icd
-    # - diagnosis14thsecondary_icd
-    # - diagnosis15thsecondary_icd
-    # - diagnosis16thsecondary_icd
-    # - diagnosis17thsecondary_icd
-    # - diagnosis18thsecondary_icd
-    # - diagnosis19thsecondary_icd
-    # - diagnosis20thsecondary_icd
-    # - diagnosis21stsecondary_icd
-    # - diagnosis22ndsecondary_icd
-    # - diagnosis23rdsecondary_icd
+# Set to true to load the dataset from a file, otherwise
+# load from the database
+load_from_file: true
+
+file:
+  directory: gendata/
+  file_name: acs_dataset.rds
+  
+connection: 
+  dsn: xsw
+  #cred: /root/db.secret.yaml
+
+parser:
+  #diagnosis_file: ../../icd10.yaml
+  #procedure_file: ../../opcs4.yaml
+  diagnosis_file: icd10.yaml
+  procedure_file: opcs4.yaml
+  
+sql_query:
+  # Set a limit on the number of returned rows (optional)
+  #result_limit: 500000
+  #result_limit: 50000
+  primary_diagnosis: diagnosisprimary_icd
+  secondary_diagnoses:
+  - diagnosis1stsecondary_icd
+  - diagnosis2ndsecondary_icd
+  - diagnosis3rdsecondary_icd
+  - diagnosis4thsecondary_icd
+  - diagnosis5thsecondary_icd
+  - diagnosis6thsecondary_icd
+  - diagnosis7thsecondary_icd
+  - diagnosis8thsecondary_icd
+  - diagnosis9thsecondary_icd
+  - diagnosis10thsecondary_icd
+  - diagnosis11thsecondary_icd
+  - diagnosis12thsecondary_icd
+  - diagnosis13thsecondary_icd
+  - diagnosis14thsecondary_icd
+  - diagnosis15thsecondary_icd
+  - diagnosis16thsecondary_icd
+  - diagnosis17thsecondary_icd
+  - diagnosis18thsecondary_icd
+  - diagnosis19thsecondary_icd
+  - diagnosis20thsecondary_icd
+  - diagnosis21stsecondary_icd
+  - diagnosis22ndsecondary_icd
+  - diagnosis23rdsecondary_icd
+
   # Defines how procedures are processed
-  procedures:
-    # Where to get the low-level groups
-    file: opcs4.yaml
-    # How to combine the groups into output
-    source_columns:
-    - primaryprocedure_opcs
-    # Note the first secondary is labelled 2nd
-    - procedure2nd_opcs
-    - procedure3rd_opcs
-    - procedure4th_opcs
-    # - procedure5th_opcs
-    # - procedure6th_opcs
-    # - procedure7th_opcs
-    # - procedure8th_opcs
-    # - procedure9th_opcs
-    # - procedure10th_opcs
-    # - procedure11th_opcs
-    # - procedure12th_opcs
-    # - procedure13th_opcs
-    # - procedure14th_opcs
-    # - procedure15th_opcs
-    # - procedure16th_opcs
-    # - procedure17th_opcs
-    # - procedure18th_opcs
-    # - procedure19th_opcs
-    # - procedure20th_opcs
-    # - procedure21st_opcs
-    # - procedure22nd_opcs
-    # - procedure23rd_opcs
-    # - procedure24th_opcs
-  # If the all key is specified, then codes that
-  # are not in any group are still included, and
-  # marked as being in a group called "_all". This
-  # is for testing purposes
-  all: no
+  primary_procedure: primaryprocedure_opcs
+  secondary_procedures: 
+  # Note the first secondary is labelled 2nd
+  - procedure2nd_opcs
+  - procedure3rd_opcs
+  - procedure4th_opcs
+  - procedure5th_opcs
+  - procedure6th_opcs
+  - procedure7th_opcs
+  - procedure8th_opcs
+  - procedure9th_opcs
+  - procedure10th_opcs
+  - procedure11th_opcs
+  - procedure12th_opcs
+  - procedure13th_opcs
+  - procedure14th_opcs
+  - procedure15th_opcs
+  - procedure16th_opcs
+  - procedure17th_opcs
+  - procedure18th_opcs
+  - procedure19th_opcs
+  - procedure20th_opcs
+  - procedure21st_opcs
+  - procedure22nd_opcs
+  - procedure23rd_opcs
+  - procedure24th_opcs
 
 index_event:
   start_date: "2015-1-1" 
@@ -105,11 +112,18 @@ index_event:
     stemi_flag: acs_stemi
   
 code_groups:
-  acs: acs
-  diabetes: [type_1_diabetes, type_2_diabetes]  
+  acs: [acs_stemi, acs_nstemi, acs_unstable_angina]
+  pci: [pci]
+  cardiac_death:
+  - acs_stemi
+  - acs_nstemi
+  - acs_unstable_angina
+  - atrial_fib
+  - chronic_ischaemia_heart_disease
+  - other_ischaemic_heart_diseases
+  stemi: [acs_stemi]
   
 data_sources:
-  dsn: xsw
   hospital_episodes:
     table: abi.dbo.vw_apc_sem_001
     nhs_number: aimtc_pseudo_nhs
@@ -125,6 +139,5 @@ in_memory:
   num_patients: 500
   seed: 47
 
-# Set a limit on the number of returned rows
-result_limit: 4000000
-#result_limit: 500000
+print: false
+

@@ -1,3 +1,4 @@
+
 library(tidyverse)
 
 ##' The functions in this file can be used to obtain a blank OPCS4
@@ -9,6 +10,7 @@ section_to_category <- function(name, docs, codes) {
     index <- codes %>%
         dplyr::select(code) %>%
         filter(code == max(code) | code == min(code)) %>%
+        arrange(code) %>%
         mutate(code = str_replace(code, "\\.", "")) %>%
         pull(code)
 
@@ -54,6 +56,8 @@ section_to_category <- function(name, docs, codes) {
 ##' items, representing the start and end of the code range in the
 ##' chapter (the end of the range includes codes which match after
 ##' truncation). The categories list is sorted by index.
+##'
+##' This function claims it sorts, but it doesn't
 ##'
 ##' @title Convert tibble to Category
 ##' @param name The chapter name
@@ -141,9 +145,25 @@ opcs_get_codes <- function(input_file_path, output_name = "opcs.yaml") {
             chapter_to_category(name, docs, contents)
         })
     
-
-    top_level_category <- list(
+    ## Place the chapters inside one top level category
+    opcs_category <- list(
         categories = categories,
+        docs = "OPCS-4 Classification of Interventions and Procedures (OPCS-4)",
+        name = "OPCS-4",
+        index = categories %>%
+            map(~ .x %>%
+                    pluck("index") %>%
+                    as_tibble()) %>%
+            list_rbind() %>%
+            filter(value == max(value) | value == min(value)) %>%
+            arrange(value) %>%
+            pull(value)
+    )
+    
+    ## Place the entire classification inside one top level category
+    top_level_category <- list(
+        ## Only has one element, but must be a list
+        categories = list(opcs_category),
         groups = list()
     )
 

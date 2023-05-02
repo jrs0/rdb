@@ -3,13 +3,8 @@
 
 #include <yaml-cpp/yaml.h>
 #include "category.hpp"
-
-template<class T>
-concept RowBuffer = requires(T t, const std::string & s) {
-    t.size();
-    //t.at(s);
-    t.fetch_next_row();   
-};
+#include "row_buffer.hpp"
+#include "random.hpp"
 
 /// Load a top_level_category YAML Node from file
 YAML::Node load_codes_helper(const YAML::Node & config) {
@@ -75,10 +70,10 @@ public:
 		    // Push the episode rows
 		    table_["nhs_number"].push_back(std::to_string(n));
 		    table_["spell_id"].push_back(std::to_string(s));
-		     table_["diagnosisprimary_icd"].push_back(icd10.random_code(gen));
-		      table_["diagnosis1stsecondary_icd"].push_back(icd10.random_code(gen));
-		      table_["primaryprocedure_opcs"].push_back(opcs4.random_code(gen));
-		      table_["procedure2nd_opcs"].push_back(opcs4.random_code(gen));
+		    table_["diagnosisprimary_icd"].push_back(icd10.random_code(gen));
+		    table_["diagnosis1stsecondary_icd"].push_back(icd10.random_code(gen));
+		    table_["primaryprocedure_opcs"].push_back(opcs4.random_code(gen));
+		    table_["procedure2nd_opcs"].push_back(opcs4.random_code(gen));
 		}
 	    }
 	}
@@ -112,8 +107,6 @@ public:
 	    throw std::logic_error("No more rows");
 	}
     }
-
-    
     
 private:
 

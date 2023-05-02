@@ -20,3 +20,11 @@ inst/doc
 *.html
 
 callgrind.out*
+gmon.out
+profile.txt
+perf.data*
+*.perf
+*.folded
+
+build/
+gendata

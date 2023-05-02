@@ -108,8 +108,7 @@ locate_code_in_categories(const std::string & code,
     // may be possible to return the category above as a fuzzy
     // match -- consider implementing
     if (!found) {
-	throw std::runtime_error("Code " + code
-				 + " not found in any category");
+	throw ParserException::CodeNotFound {};
     }
 
     // Decrement the position to point to the largest category
@@ -119,6 +118,28 @@ locate_code_in_categories(const std::string & code,
     return *position;
 
 }
+
+std::vector<std::pair<std::string, std::string>>
+get_all_codes_and_docs(const std::vector<Category> & categories) {
+    std::vector<std::pair<std::string, std::string>> codes_and_docs;
+    for (const auto & category : categories) {
+	if (category.is_leaf()) {
+	    codes_and_docs.push_back({category.name(), category.docs()});
+	} else {
+	    auto new_codes{get_all_codes_and_docs(category.categories())};
+	    codes_and_docs.insert(codes_and_docs.end(),
+				  new_codes.begin(),
+				  new_codes.end());
+	}
+    }
+    return codes_and_docs;
+}
+
+std::vector<std::pair<std::string, std::string>>
+TopLevelCategory::all_codes_and_docs() const {
+    return get_all_codes_and_docs(categories_);
+}
+
 
 std::vector<std::pair<std::string, std::string>>
 get_codes_in_group(const std::string & group,
@@ -244,10 +265,7 @@ std::string remove_non_alphanum(const std::string & code) {
 std::string preprocess(const std::string & code) {
     // Cover two common cases of invalid codes here
     if (std::ranges::all_of(code, isspace)) {
-	throw std::runtime_error("Code is empty");
-    }
-    if (code == "NULL") {
-	throw std::runtime_error("Code is NULL");
+	throw ParserException::Empty{};
     }
 
     /// Strip alphanumeric for the parser

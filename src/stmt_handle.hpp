@@ -7,7 +7,6 @@
 
 /// Make a column binding for a VARCHAR column
 BufferType make_varchar_binding(std::size_t index,
-				const std::string & col_name,
 				Handle hstmt) {
     
     /// Get length of the character
@@ -22,7 +21,6 @@ BufferType make_varchar_binding(std::size_t index,
 
 /// Make a column binding for an INTEGER column
 BufferType make_integer_binding(std::size_t index,
-				 const std::string & col_name,
 				 Handle hstmt) {
     
     /// Use SQL_C_LONG
@@ -31,7 +29,6 @@ BufferType make_integer_binding(std::size_t index,
 
 /// Make a column binding for a date/datetime/timestamp column
 BufferType make_timestamp_binding(std::size_t index,
-				  const std::string & col_name,
 				  Handle hstmt) {
     
     /// Use SQL_C_LONG
@@ -108,34 +105,31 @@ public:
 	case SQL_VARCHAR:
 	    /// Store a varchar in a std::string. Convert to
 	    /// a char string
-	    std::cout << "Found varchar column " << col_name << std::endl;
-	    return make_varchar_binding(index, col_name, get_handle());
+	    return make_varchar_binding(index, get_handle());
 	    
 	case SQL_INTEGER:
 	    // 32-bit signed or unsigned integer -> map to SqlInteger
 	    // Map
 	    //target_type =
-	    std::cout << "Found integer column " << col_name << std::endl;
-	    return make_integer_binding(index, col_name, get_handle());    
+	    return make_integer_binding(index, get_handle());    
 	case SQL_BIGINT:
 	    // 64-bit signed or unsigned int -> map to SqlInteger
-	    std::cout << "Found big integer column " << col_name << std::endl;
-	    return make_integer_binding(index, col_name, get_handle());
+	    return make_integer_binding(index, get_handle());
 	    
 	case SQL_TYPE_TIMESTAMP:
 	    // Year, month, day, hour, minute, and second
 	    // -> map to SqlDatetime
-	    std::cout << "Found timestamp column " << col_name << std::endl;
-	    return make_timestamp_binding(index, col_name, get_handle());
+	    return make_timestamp_binding(index, get_handle());
 	    break;
 	    
 	case SQL_TYPE_DATE:
-	    std::cout << "Found date column " << col_name << std::endl;
-	    return make_timestamp_binding(index, col_name, get_handle());
+	    return make_timestamp_binding(index, get_handle());
 	    break;
 	    
 	default: {
 	    throw_unimpl_sql_type("Unknown: " + std::to_string(type));
+	    // To remove compiler warning "control reaches end of non-void function"
+	    throw std::runtime_error("Not expecting to get here in make_buffer()");
 	}
 	}	
     }

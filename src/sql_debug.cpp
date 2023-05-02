@@ -1,19 +1,14 @@
-#ifndef DEBUG_HPP
-#define DEBUG_HPP
-
-#include <string>
+#include "sql_debug.hpp"
 #include <sstream>
-#include <iostream>
-#include <stdexcept>
 
-#include <windows.h>
-#include <sql.h>
-#include <sqlext.h>
-#include <memory>
+void throw_unimpl_sql_type(const std::string & type) {
+    std::stringstream ss;
+    ss << "Type '" << type << "' not yet implemented";
+    throw std::runtime_error(ss.str());
+}
 
-//#define DEBUG
-
-void debug_msg(const std::string & msg) {
+/// Maybe unused is because the debug flag might make the body empty
+void debug_msg([[maybe_unused]] const std::string & msg) {
 #ifdef DEBUG
     std::cout << msg << std::endl;
 #endif
@@ -53,17 +48,6 @@ void handle_diagnostic_record(SQLHANDLE handle, SQLSMALLINT type, RETCODE ret_co
     throw std::runtime_error(ss.str());
 }
 
-class Handle {
-public:
-    Handle(SQLHANDLE handle, SQLSMALLINT type)
-	: handle_{handle}, type_{type} {}
-    SQLHANDLE handle() const { return handle_; }
-    SQLSMALLINT type() const { return type_; }
-private:
-    SQLHANDLE handle_;
-    SQLSMALLINT type_;
-};
-
 /// Test an ODBC return code, return
 /// true for success and false for failure
 bool result_ok(const Handle & handle, SQLRETURN ret_code) {
@@ -79,12 +63,14 @@ bool result_ok(const Handle & handle, SQLRETURN ret_code) {
     case SQL_ERROR:
 	// Throws runtime_error
 	handle_diagnostic_record(handle.handle(), handle.type(), ret_code);
-	
+        break;
     default:
 	std::stringstream ss;
 	ss << "Unexpected return code in SQLRETURN: " << ret_code; 
 	throw std::runtime_error(ss.str());
     }
+    // To remove compiler warning "control reaches end of non-void function"
+    throw std::runtime_error("Not expecting to get here in result_ok()");
 }
 
 void ok_or_throw(const Handle & handle, SQLRETURN r, const std::string & description) {
@@ -98,5 +84,3 @@ void ok_or_throw(const Handle & handle, SQLRETURN r, const std::string & descrip
     }
 
 }
-
-#endif

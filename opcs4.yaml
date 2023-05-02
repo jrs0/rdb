@@ -8197,8 +8197,8 @@ categories:
         name: G06.0
       docs: Attention to connection of oesophagus
       index:
-      - G069
       - G060
+      - G069
       name: G06
     - categories:
       - docs: Closure of tracheo-oesophageal fistula
@@ -8785,8 +8785,8 @@ categories:
         name: G31.0
       docs: Connection of stomach to duodenum
       index:
-      - G319
       - G310
+      - G319
       name: G31
     - categories:
       - docs: Bypass of stomach by anastomosis of stomach to transposed jejunum
@@ -8815,8 +8815,8 @@ categories:
         name: G32.0
       docs: Connection of stomach to transposed jejunum
       index:
-      - G329
       - G320
+      - G329
       name: G32
     - categories:
       - docs: Bypass of stomach by anastomosis of stomach to jejunum NEC
@@ -8848,8 +8848,8 @@ categories:
         name: G33.0
       docs: Other connection of stomach to jejunum
       index:
-      - G339
       - G330
+      - G339
       name: G33
     - categories:
       - docs: Creation of permanent gastrostomy
@@ -29936,8 +29936,8 @@ categories:
         name: W37.0
       docs: Total prosthetic replacement of hip joint using cement
       index:
-      - W379
       - W370
+      - W379
       name: W37
     - categories:
       - docs: Primary total prosthetic replacement of hip joint not using cement
@@ -29963,8 +29963,8 @@ categories:
         name: W38.0
       docs: Total prosthetic replacement of hip joint not using cement
       index:
-      - W389
       - W380
+      - W389
       name: W38
     - categories:
       - docs: Primary total prosthetic replacement of hip joint NEC
@@ -29996,8 +29996,8 @@ categories:
         name: W39.0
       docs: Other total prosthetic replacement of hip joint
       index:
-      - W399
       - W390
+      - W399
       name: W39
     - categories:
       - docs: Primary total prosthetic replacement of knee joint using cement
@@ -30023,8 +30023,8 @@ categories:
         name: W40.0
       docs: Total prosthetic replacement of knee joint using cement
       index:
-      - W409
       - W400
+      - W409
       name: W40
     - categories:
       - docs: Primary total prosthetic replacement of knee joint not using cement
@@ -30050,8 +30050,8 @@ categories:
         name: W41.0
       docs: Total prosthetic replacement of knee joint not using cement
       index:
-      - W419
       - W410
+      - W419
       name: W41
     - categories:
       - docs: Primary total prosthetic replacement of knee joint NEC
@@ -30083,8 +30083,8 @@ categories:
         name: W42.0
       docs: Other total prosthetic replacement of knee joint
       index:
-      - W429
       - W420
+      - W429
       name: W42
     - categories:
       - docs: Primary total prosthetic replacement of joint using cement NEC
@@ -30110,8 +30110,8 @@ categories:
         name: W43.0
       docs: Total prosthetic replacement of other joint using cement
       index:
-      - W439
       - W430
+      - W439
       name: W43
     - categories:
       - docs: Primary total prosthetic replacement of joint not using cement NEC
@@ -30137,8 +30137,8 @@ categories:
         name: W44.0
       docs: Total prosthetic replacement of other joint not using cement
       index:
-      - W449
       - W440
+      - W449
       name: W44
     - categories:
       - docs: Primary total prosthetic replacement of joint NEC
@@ -30167,8 +30167,8 @@ categories:
         name: W45.0
       docs: Other total prosthetic replacement of other joint
       index:
-      - W459
       - W450
+      - W459
       name: W45
     - categories:
       - docs: Primary prosthetic replacement of head of femur using cement
@@ -30191,8 +30191,8 @@ categories:
         name: W46.0
       docs: Prosthetic replacement of head of femur using cement
       index:
-      - W469
       - W460
+      - W469
       name: W46
     - categories:
       - docs: Primary prosthetic replacement of head of femur not using cement
@@ -30215,8 +30215,8 @@ categories:
         name: W47.0
       docs: Prosthetic replacement of head of femur not using cement
       index:
-      - W479
       - W470
+      - W479
       name: W47
     - categories:
       - docs: Primary prosthetic replacement of head of femur NEC
@@ -30245,8 +30245,8 @@ categories:
         name: W48.0
       docs: Other prosthetic replacement of head of femur
       index:
-      - W489
       - W480
+      - W489
       name: W48
     - categories:
       - docs: Primary prosthetic replacement of head of humerus using cement
@@ -30272,8 +30272,8 @@ categories:
         name: W49.0
       docs: Prosthetic replacement of head of humerus using cement
       index:
-      - W499
       - W490
+      - W499
       name: W49
     - categories:
       - docs: Primary prosthetic replacement of head of humerus not using cement
@@ -30299,8 +30299,8 @@ categories:
         name: W50.0
       docs: Prosthetic replacement of head of humerus not using cement
       index:
-      - W509
       - W500
+      - W509
       name: W50
     - categories:
       - docs: Primary prosthetic replacement of head of humerus NEC
@@ -30329,8 +30329,8 @@ categories:
         name: W51.0
       docs: Other prosthetic replacement of head of humerus
       index:
-      - W519
       - W510
+      - W519
       name: W51
     - categories:
       - docs: Primary prosthetic replacement of articulation of bone using cement NEC
@@ -30353,8 +30353,8 @@ categories:
         name: W52.0
       docs: Prosthetic replacement of articulation of other bone using cement
       index:
-      - W529
       - W520
+      - W529
       name: W52
     - categories:
       - docs: Primary prosthetic replacement of articulation of bone not using cement NEC
@@ -30377,8 +30377,8 @@ categories:
         name: W53.0
       docs: Prosthetic replacement of articulation of other bone not using cement
       index:
-      - W539
       - W530
+      - W539
       name: W53
     - categories:
       - docs: Primary prosthetic replacement of articulation of bone NEC
@@ -30404,8 +30404,8 @@ categories:
         name: W54.0
       docs: Other prosthetic replacement of articulation of other bone
       index:
-      - W549
       - W540
+      - W549
       name: W54
     - categories:
       - docs: Primary prosthetic interposition arthroplasty of joint
@@ -30431,8 +30431,8 @@ categories:
         name: W55.0
       docs: Prosthetic interposition reconstruction of joint
       index:
-      - W559
       - W550
+      - W559
       name: W55
     - categories:
       - docs: Primary interposition arthroplasty of metatarsophalangeal joint NEC
@@ -30458,8 +30458,8 @@ categories:
         name: W56.0
       docs: Other interposition reconstruction of joint
       index:
-      - W569
       - W560
+      - W569
       name: W56
     - categories:
       - docs: Primary excision arthroplasty of first metatarsophalangeal joint
@@ -30485,8 +30485,8 @@ categories:
         name: W57.0
       docs: Excision reconstruction of joint
       index:
-      - W579
       - W570
+      - W579
       name: W57
     - categories:
       - docs: Primary resurfacing arthroplasty of joint
@@ -30509,8 +30509,8 @@ categories:
         name: W58.0
       docs: Other reconstruction of joint
       index:
-      - W589
       - W580
+      - W589
       name: W58
     - categories:
       - docs: Fusion of first metatarsophalangeal joint and replacement of lesser metatarsophalangeal joint
@@ -30563,8 +30563,8 @@ categories:
         name: W60.0
       docs: Fusion of other joint and extra-articular bone graft
       index:
-      - W609
       - W600
+      - W609
       name: W60
     - categories:
       - docs: Primary arthrodesis and articular bone graft NEC
@@ -30587,8 +30587,8 @@ categories:
         name: W61.0
       docs: Fusion of other joint and other articular bone graft
       index:
-      - W619
       - W610
+      - W619
       name: W61
     - categories:
       - docs: Primary arthrodesis and internal fixation of joint NEC
@@ -30644,8 +30644,8 @@ categories:
         name: W64.0
       docs: Conversion to fusion of other joint
       index:
-      - W649
       - W640
+      - W649
       name: W64
     - categories:
       - docs: Primary open reduction of fracture dislocation of joint and skeletal traction HFQ
@@ -31382,8 +31382,8 @@ categories:
         name: W93.0
       docs: Hybrid prosthetic replacement of hip joint using cemented acetabular component
       index:
-      - W939
       - W930
+      - W939
       name: W93
     - categories:
       - docs: Primary hybrid prosthetic replacement of hip joint using cemented femoral component
@@ -31409,8 +31409,8 @@ categories:
         name: W94.0
       docs: Hybrid prosthetic replacement of hip joint using cemented femoral component
       index:
-      - W949
       - W940
+      - W949
       name: W94
     - categories:
       - docs: Primary hybrid prosthetic replacement of hip joint using cement NEC
@@ -31439,8 +31439,8 @@ categories:
         name: W95.0
       docs: Hybrid prosthetic replacement of hip joint using cement
       index:
-      - W959
       - W950
+      - W959
       name: W95
     - categories:
       - docs: Primary total prosthetic replacement of shoulder joint using cement
@@ -31472,8 +31472,8 @@ categories:
         name: W96.0
       docs: Total prosthetic replacement of shoulder joint using cement
       index:
-      - W969
       - W960
+      - W969
       name: W96
     - categories:
       - docs: Primary total prosthetic replacement of shoulder joint not using cement
@@ -31505,8 +31505,8 @@ categories:
         name: W97.0
       docs: Total prosthetic replacement of shoulder joint not using cement
       index:
-      - W979
       - W970
+      - W979
       name: W97
     - categories:
       - docs: Primary total prosthetic replacement of shoulder joint NEC
@@ -31541,8 +31541,8 @@ categories:
         name: W98.0
       docs: Total prosthetic replacement of shoulder joint
       index:
-      - W989
       - W980
+      - W989
       name: W98
     - categories:
       - docs: Allograft of cord blood stem cells to bone marrow
@@ -38831,11 +38831,11 @@ categories:
     - Z01
     - Z99
     name: Z
-  docs: OPCS-4 Classification of Interventions and Procedures (OPCS-4), Nov 2022
+  docs: OPCS-4 Classification of Interventions and Procedures (OPCS-4)
   index:
   - A01
   - Z99
-  name: OPCS-4.1
+  name: OPCS-4
 groups:
 - pci
 - cabg

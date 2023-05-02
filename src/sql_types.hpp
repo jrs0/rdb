@@ -5,20 +5,37 @@
 #include <ctime>
 #include <iomanip>
 
-void throw_unimpl_sql_type(const std::string & type) {
-    std::stringstream ss;
-    ss << "Type '" << type << "' not yet implemented";
-    throw std::runtime_error(ss.str());
-}
+#ifdef _WIN64
+#include <windows.h>
+#endif
 
-// Exception thrown on NULL value
-struct NullValue{};
+#include <sql.h>
+#include <sqlext.h>
+#include "sql_debug.hpp"
 
 // Could not determine the returned data length
 struct SqlNoTotal{};
 
+/// For a time offset (seconds) relative to a Timestamp
+class TimestampOffset {
+public:
+    explicit TimestampOffset(long long offset)
+	: offset_{offset} {}
+    auto value() const {
+	return offset_;
+    }
+    friend auto operator<=>(const TimestampOffset &, const TimestampOffset &) = default;
+private:
+    long long offset_;
+};
+
+TimestampOffset years(long long value);
+
+std::ostream & operator << (std::ostream & os, const TimestampOffset & offset);
+
 class Varchar {
 public:
+    struct Null {};
     using Buffer = class VarcharBuffer;
     // Will default construct to a null varchar
     Varchar() = default;
@@ -28,15 +45,15 @@ public:
 	if (not null_) {
 	    return value_;
 	} else {
-	    throw NullValue{};
+	    throw Null{};
 	}
     }
-    void print() const {
-	std::cout << "Integer: ";
+    void print(std::ostream & os = std::cout) const {
+	os << "Integer: ";
 	if (null_) {
-	    std::cout << "NULL" << std::endl;
+	    os << "NULL" << std::endl;
 	} else {
-	    std::cout << value_ << std::endl;	    
+	    os << value_ << std::endl;	    
 	}
     }
     bool null() const { return null_; }
@@ -48,6 +65,7 @@ private:
 // Will default construct to a null integer
 class Integer {
 public:
+    struct Null {};
     using Buffer = class IntegerBuffer;
     // Will default construct to a null integer
     Integer() = default;
@@ -56,15 +74,15 @@ public:
 	if (not null_) {
 	    return value_;
 	} else {
-	    throw NullValue{};
+	    throw Null{};
 	}
     }
-    void print() const {
-	std::cout << "Integer: ";
+    void print(std::ostream & os = std::cout) const {
+	os << "Integer: ";
 	if (null_) {
-	    std::cout << "NULL" << std::endl;
+	    os << "NULL";
 	} else {
-	    std::cout << value_ << std::endl;	    
+	    os << value_;	    
 	}
     }
     bool null() const { return null_; }
@@ -73,10 +91,13 @@ private:
     unsigned long long value_{0};
 };
 
+std::ostream &operator<<(std::ostream &os, const Integer &integer);
+
 // Stores an absolute time as a unix timestamp, constructed from
 // date components assuming that BST may be in effect.
 class Timestamp {
 public:
+    struct Null {};
     using Buffer = class TimestampBuffer;
 
     // Will default construct to a null timestamp
@@ -133,15 +154,15 @@ public:
 	if (not null_) {
 	    return unix_timestamp_;
 	} else {
-	    throw NullValue{};
+	    throw Null{};
 	}
     }
-    void print() const {
+    void print(std::ostream & os = std::cout) const {
 	if (null_) {
-	    std::cout << "NULL";
+	    os << "NULL";
 	} else {
 	    auto t{static_cast<std::time_t>(unix_timestamp_)};
-	    std::cout << std::put_time(std::localtime(&t), "%F %T");
+	    os << std::put_time(std::localtime(&t), "%F %T");
 	}
     }
     bool null() const { return null_; }
@@ -150,10 +171,14 @@ private:
     unsigned long long unix_timestamp_{0};
 };
 
+std::ostream &operator<<(std::ostream &os, const Timestamp &timestamp);
+
 template<std::integral T>
 Timestamp operator+(const Timestamp & time, T offset_seconds) {
     return Timestamp{time.read() + offset_seconds};
 }
+
+TimestampOffset operator-(const Timestamp & a, const Timestamp & b);
 
 using SqlType = std::variant<Varchar,
 			     Integer,
@@ -263,7 +288,7 @@ public:
 		throw std::runtime_error("Fixed type size not equal to C "
 					 "type. Returned size = "
 					 + std::to_string(*data_size_) +
-					 " but size of long = "
+					 " but size of DATETIME = "
 					 + std::to_string(sizeof(SQL_TIMESTAMP_STRUCT)));
 	    }
 
@@ -281,6 +306,8 @@ private:
     /// or equal to the buffer size to avoid memory errors.
     std::unique_ptr<SQLLEN> data_size_;
 };
+
+
 
 using BufferType = std::variant<VarcharBuffer,
 				IntegerBuffer,
