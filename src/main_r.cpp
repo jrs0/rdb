@@ -44,6 +44,40 @@ YAML::Emitter & operator<<(YAML::Emitter & ys, const Integer & value) {
 /// optional groups field. If the code is invalid, the docs field contains the
 /// string "Unknown".
 ///
+void write_yaml_stream(YAML::Emitter & ys, const EventCounter & event_counter,
+		       const std::shared_ptr<StringLookup> & lookup) {
+    ys << YAML::BeginMap;
+    if (not event_counter.counts_before().empty()) {
+	ys << YAML::Key << "before"
+	   << YAML::Value
+	   << YAML::BeginSeq;
+	for (const auto & [group, count] : event_counter.counts_before()) {
+	    ys << YAML::Key << group.name(lookup)
+	       << YAML::Value << count;
+	}
+	ys << YAML::EndSeq;
+    }
+
+    if (not event_counter.counts_after().empty()) {
+	ys << YAML::Key << "after"
+	   << YAML::Value
+	   << YAML::BeginSeq;
+	for (const auto & [group, count] : event_counter.counts_after()) {
+	    ys << YAML::Key << group.name(lookup)
+	       << YAML::Value << count;
+	}
+	ys << YAML::EndSeq;
+    }
+    ys << YAML::EndMap;
+}
+
+/// Write a ClinicalCode to a YAML stream. Not a normal operator << because of
+/// the need for the lookup. If the code is null, then nothing is printed to
+/// the stream. Otherwise, a "name" and "docs" field is added for the code. In
+/// addition, if the code is present in any groups, these are included in an
+/// optional groups field. If the code is invalid, the docs field contains the
+/// string "Unknown".
+///
 void write_yaml_stream(YAML::Emitter & ys, const ClinicalCode & code,
 		       const std::shared_ptr<StringLookup> & lookup) {
     if (not code.null()) {
@@ -421,6 +455,11 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 			    }
 			    patient_record << YAML::EndSeq;
 			}
+
+			patient_record << YAML::Key << "event_counts"
+				       << YAML::Value;
+			write_yaml_stream(patient_record, event_counter, lookup);			
+
 			
 			//////////////// end yaml
 

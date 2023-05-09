@@ -7,7 +7,6 @@ std::ostream &operator<<(std::ostream &os, const Integer &integer) {
 
 std::ostream &operator<<(std::ostream &os, const Timestamp &timestamp) {
     timestamp.print(os);
-    std::cout << " " << timestamp.read();
     return os;
 }
 
