@@ -62,9 +62,9 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	unsigned ctrl_c_counter_limit{10};
 	const auto all_groups{parser->all_groups(lookup)};
 
-	YAML::Emitter patient_records;
-	patient_records << YAML::BeginSeq;
-
+	std::ofstream patient_records_file{"gendata/records.yaml"};
+	patient_records_file << "# Each item in this list is an ACS/PCI record" << std::endl;
+	
         while (true) {
 
 	    if (++cancel_counter > ctrl_c_counter_limit) {
@@ -180,26 +180,62 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
 		    if (save_records) {
 
-			patient_records << nhs_number;
-
 			std::cout << "====================================" << std::endl;
 			std::cout << "PCI/ACS RECORD" << std::endl;
 			std::cout << "------------------------------------" << std::endl;
-
 			
+			// Provided the top level file is a list, it is fine (from the
+			// perspective of yaml syntax) to just join multiple files together.
+			// This avoids storing the entire YAML document in memory. Note that
+			// you need newlines between the list items. One is inserted below
+			// as insurance.
+			YAML::Emitter patient_record;
+			patient_record << YAML::BeginSeq;
+
 			std::cout << "Pseudo NHS Number: " << nhs_number << std::endl;
 			std::cout << "Age at index: " << age_at_index << std::endl;
 			std::cout << "Index date: " << date_of_index << std::endl;
+
+			patient_record << YAML::BeginMap
+				       << YAML::Key << "nhs_number"
+				       << YAML::Value << nhs_number;
+
+			if (not age_at_index.null()) {
+			    patient_record << YAML::Key << "age_at_index"
+					   << YAML::Value << age_at_index.read();
+			}
+
+			if (not date_of_index.null()) {
+			    patient_record << YAML::Key << "date_of_index"
+					   << YAML::Value << date_of_index.read();
+			}
+			
 			if (stemi_flag) {
 			    std::cout << "Presentation: STEMI" << std::endl;
 			} else {
 			    std::cout << "Presentation: NSTEMI" << std::endl;
 			}
+
+			patient_record << YAML::Key << "presentation";
+			if (stemi_flag) {
+			    patient_record << YAML::Value << "STEMI";
+			} else {
+			    patient_record << YAML::Value << "NSTEMI";
+			}
+
 			if (pci_triggered) {
 			    std::cout << "Inclusion trigger: PCI" << std::endl;
 			} else {
 			    std::cout << "Inclusion trigger: ACS" << std::endl;
-			}   
+			}
+
+			patient_record << YAML::Key << "inclusion_trigger";
+			if (stemi_flag) {
+			    patient_record << YAML::Value << "PCI";
+			} else {
+			    patient_record << YAML::Value << "ACS";
+			}
+			
                         mortality.print(lookup);
 			if (survival_time.has_value()) {
 			    std::cout << "Survival time: " << survival_time.value() << std::endl;
@@ -217,6 +253,11 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 			for (const auto & spell : spells_before) {
 			    spell.print(lookup, 4);
 			}
+
+			patient_record << YAML::EndMap;
+			patient_record << YAML::EndSeq;
+			// Includes newline for insurance (concatenating yaml lists)
+                        patient_records_file << std::endl << patient_record.c_str();
 		    }
 		}
 	    } catch (const RowBufferException::NoMoreRows &) {
@@ -224,11 +265,6 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		break;
 	    }
 	}
-
-	patient_records << YAML::EndSeq;
-
-	std::ofstream patient_records_file{"gendata/records.yaml", std::ofstream::out};
-	patient_records_file << patient_records.c_str();
 
 	Rcpp::List table_r;
 	table_r["nhs_number"] = nhs_numbers.get();
