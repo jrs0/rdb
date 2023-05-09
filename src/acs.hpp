@@ -91,7 +91,6 @@ auto get_all_groups(std::ranges::range auto && spells) {
 	std::views::join |
 	std::views::filter(&ClinicalCode::valid) |
 	std::views::transform(&ClinicalCode::groups) |
-	// BUG: removes duplicates incorrectly before count (std::set)
 	std::views::join;
 }
 
