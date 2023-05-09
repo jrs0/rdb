@@ -50,23 +50,23 @@ void write_yaml_stream(YAML::Emitter & ys, const EventCounter & event_counter,
     if (not event_counter.counts_before().empty()) {
 	ys << YAML::Key << "before"
 	   << YAML::Value
-	   << YAML::BeginSeq;
+	   << YAML::BeginMap;
 	for (const auto & [group, count] : event_counter.counts_before()) {
 	    ys << YAML::Key << group.name(lookup)
 	       << YAML::Value << count;
 	}
-	ys << YAML::EndSeq;
+	ys << YAML::EndMap;
     }
-
+    
     if (not event_counter.counts_after().empty()) {
 	ys << YAML::Key << "after"
 	   << YAML::Value
-	   << YAML::BeginSeq;
-	for (const auto & [group, count] : event_counter.counts_after()) {
-	    ys << YAML::Key << group.name(lookup)
-	       << YAML::Value << count;
-	}
-	ys << YAML::EndSeq;
+	   << YAML::BeginMap;              
+	    for (const auto & [group, count] : event_counter.counts_after()) {
+		ys << YAML::Key << group.name(lookup)
+		   << YAML::Value << count;
+	    }
+	ys << YAML::EndMap;
     }
     ys << YAML::EndMap;
 }
