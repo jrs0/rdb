@@ -139,5 +139,5 @@ in_memory:
   num_patients: 500
   seed: 47
 
-print: false
+save_records: true
 

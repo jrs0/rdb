@@ -31,17 +31,6 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// get_patient_records
-Rcpp::List get_patient_records(const Rcpp::CharacterVector& config_path);
-RcppExport SEXP _rdb_get_patient_records(SEXP config_pathSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type config_path(config_pathSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_patient_records(config_path));
-    return rcpp_result_gen;
-END_RCPP
-}
 // make_acs_dataset
 Rcpp::List make_acs_dataset(const Rcpp::CharacterVector& config_path);
 RcppExport SEXP _rdb_make_acs_dataset(SEXP config_pathSEXP) {
@@ -79,7 +68,6 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_rdb_test_cpp", (DL_FUNC) &_rdb_test_cpp, 1},
     {"_rdb_print_sql_query", (DL_FUNC) &_rdb_print_sql_query, 1},
-    {"_rdb_get_patient_records", (DL_FUNC) &_rdb_get_patient_records, 1},
     {"_rdb_make_acs_dataset", (DL_FUNC) &_rdb_make_acs_dataset, 1},
     {"_rdb_get_flat_codes", (DL_FUNC) &_rdb_get_flat_codes, 1},
     {"_rdb_dump_groups", (DL_FUNC) &_rdb_dump_groups, 1},

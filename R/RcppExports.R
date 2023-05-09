@@ -9,10 +9,6 @@ print_sql_query <- function(config_path) {
     invisible(.Call('_rdb_print_sql_query', PACKAGE = 'rdb', config_path))
 }
 
-get_patient_records <- function(config_path) {
-    .Call('_rdb_get_patient_records', PACKAGE = 'rdb', config_path)
-}
-
 make_acs_dataset <- function(config_path) {
     .Call('_rdb_make_acs_dataset', PACKAGE = 'rdb', config_path)
 }

@@ -7,6 +7,7 @@
 
 #include "acs.hpp"
 #include "r_factor.hpp"
+#include <fstream>
 
 #include <optional>
 
@@ -44,7 +45,7 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	std::cout << "Executing query" << std::endl;
         auto row{sql_connection.execute_direct(sql_query)};
 
-        auto print{config["print"].as<bool>()};
+        auto save_records{config["save_records"].as<bool>()};
 
 	std::cout << "Started fetching rows" << std::endl;
 
@@ -60,6 +61,10 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	unsigned cancel_counter{0};
 	unsigned ctrl_c_counter_limit{10};
 	const auto all_groups{parser->all_groups(lookup)};
+
+	YAML::Emitter patient_records;
+	patient_records << YAML::BeginSeq;
+
         while (true) {
 
 	    if (++cancel_counter > ctrl_c_counter_limit) {
@@ -67,7 +72,7 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		cancel_counter = 0;
 	    }
 
-	    try {
+            try {
 		Patient patient{row, parser};
 		auto index_spells{get_acs_and_pci_spells(patient.spells(), acs_metagroup, pci_metagroup)};
 		if (index_spells.empty()) {
@@ -173,10 +178,15 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 			causes_of_death.push_back("no_death");
 		    }
 
-		    if (print) {
+		    if (save_records) {
+
+			patient_records << nhs_number;
+
 			std::cout << "====================================" << std::endl;
 			std::cout << "PCI/ACS RECORD" << std::endl;
 			std::cout << "------------------------------------" << std::endl;
+
+			
 			std::cout << "Pseudo NHS Number: " << nhs_number << std::endl;
 			std::cout << "Age at index: " << age_at_index << std::endl;
 			std::cout << "Index date: " << date_of_index << std::endl;
@@ -209,12 +219,16 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 			}
 		    }
 		}
-		
 	    } catch (const RowBufferException::NoMoreRows &) {
 		std::cout << "Finished fetching all rows" << std::endl;
 		break;
 	    }
 	}
+
+	patient_records << YAML::EndSeq;
+
+	std::ofstream patient_records_file{"gendata/records.yaml", std::ofstream::out};
+	patient_records_file << patient_records.c_str();
 
 	Rcpp::List table_r;
 	table_r["nhs_number"] = nhs_numbers.get();
