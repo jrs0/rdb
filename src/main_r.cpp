@@ -24,11 +24,6 @@ void print_sql_query(const Rcpp::CharacterVector & config_path) {
 
 // [[Rcpp::export]]
 Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
-    
-}
-
-// [[Rcpp::export]]
-Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
     std::string config_path_str{Rcpp::as<std::string>(config_path)};
     
