@@ -192,10 +192,25 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 			YAML::Emitter patient_record;
 			patient_record << YAML::BeginSeq;
 
+			/////////// print
 			std::cout << "Pseudo NHS Number: " << nhs_number << std::endl;
 			std::cout << "Age at index: " << age_at_index << std::endl;
 			std::cout << "Index date: " << date_of_index << std::endl;
 
+			if (stemi_flag) {
+			    std::cout << "Presentation: STEMI" << std::endl;
+			} else {
+			    std::cout << "Presentation: NSTEMI" << std::endl;
+			}
+
+			if (pci_triggered) {
+			    std::cout << "Inclusion trigger: PCI" << std::endl;
+			} else {
+			    std::cout << "Inclusion trigger: ACS" << std::endl;
+			}
+
+			/////////// end print
+			
 			patient_record << YAML::BeginMap
 				       << YAML::Key << "nhs_number"
 				       << YAML::Value << nhs_number;
@@ -206,35 +221,36 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 			}
 
 			if (not date_of_index.null()) {
-			    patient_record << YAML::Key << "date_of_index"
+			    patient_record << YAML::Key << "date_of_index_timestamp"
 					   << YAML::Value << date_of_index.read();
+			    std::stringstream ss;
+			    ss << date_of_index;
+			    patient_record << YAML::Key << "date_of_index_string"
+					   << YAML::Value << ss.str();
 			}
 			
-			if (stemi_flag) {
-			    std::cout << "Presentation: STEMI" << std::endl;
-			} else {
-			    std::cout << "Presentation: NSTEMI" << std::endl;
-			}
-
 			patient_record << YAML::Key << "presentation";
 			if (stemi_flag) {
 			    patient_record << YAML::Value << "STEMI";
 			} else {
 			    patient_record << YAML::Value << "NSTEMI";
 			}
-
-			if (pci_triggered) {
-			    std::cout << "Inclusion trigger: PCI" << std::endl;
-			} else {
-			    std::cout << "Inclusion trigger: ACS" << std::endl;
-			}
-
+			
 			patient_record << YAML::Key << "inclusion_trigger";
 			if (stemi_flag) {
 			    patient_record << YAML::Value << "PCI";
 			} else {
 			    patient_record << YAML::Value << "ACS";
 			}
+
+			if (not mortality.alive()) {
+			    patient_record << YAML::Key << "mortality"
+					   << YAML::Key << "date_of_death_timestamp"
+					   << 
+				}
+			
+			//////////////// end yaml
+
 			
                         mortality.print(lookup);
 			if (survival_time.has_value()) {
