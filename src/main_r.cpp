@@ -21,7 +21,13 @@ void print_sql_query(const Rcpp::CharacterVector & config_path) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
     }
 }
-    // [[Rcpp::export]]
+
+// [[Rcpp::export]]
+Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
+    
+}
+
+// [[Rcpp::export]]
 Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
     std::string config_path_str{Rcpp::as<std::string>(config_path)};
@@ -31,7 +37,9 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	auto config{load_config_file(config_path_str)};
 	auto parser{new_clinical_code_parser(config["parser"], lookup)};
 	auto sql_connection{new_sql_connection(config["connection"])};
-	auto sql_query{make_acs_sql_query(config["sql_query"], true, std::nullopt)};
+	auto nhs_number_filter{std::nullopt};
+	auto with_mortality{true};
+	auto sql_query{make_acs_sql_query(config["sql_query"], with_mortality, nhs_number_filter)};
 
 	ClinicalCodeMetagroup acs_metagroup{config["code_groups"]["acs"], lookup};
 	ClinicalCodeMetagroup pci_metagroup{config["code_groups"]["pci"], lookup};

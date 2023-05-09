@@ -44,7 +44,6 @@ load_acs_dataset <- function(config_path = "config.yaml") {
     }
 }
 
-
 processed_acs_dataset <- function(config_file = "config.yaml") {
 
     dataset <- load_acs_dataset(config_file)
