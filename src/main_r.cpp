@@ -47,19 +47,25 @@ YAML::Emitter & operator<<(YAML::Emitter & ys, const Integer & value) {
 void write_yaml_stream(YAML::Emitter & ys, const ClinicalCode & code,
 		       const std::shared_ptr<StringLookup> & lookup) {
     if (not code.null()) {
-
 	ys << YAML::BeginMap;
-
 	ys << YAML::Key << "name"
 	   << YAML::Value << code.name(lookup);
-	
 	ys << YAML::Key << "docs";
         if (code.valid()) {
 	    ys << YAML::Value << code.docs(lookup);
 	} else {
 	    ys << YAML::Value << "Unknown";
 	}
-
+	auto code_groups{code.groups()};
+	if (not code_groups.empty()) {
+	    ys << YAML::Key << "groups"
+	       << YAML::Value
+	       << YAML::BeginSeq;
+	    for (const auto & group : code_groups) {
+		ys << group.name(lookup);	
+	    }
+	    ys << YAML::EndSeq;
+	}
 	ys << YAML::EndMap;
     }
 }
@@ -91,6 +97,68 @@ void write_yaml_stream(YAML::Emitter & ys, const Mortality & mortality,
 	}
     }
     ys << YAML::EndMap;
+}
+
+/// Write an episode to a yaml stream.
+void write_yaml_stream(YAML::Emitter & ys, const Episode & episode,
+		       const std::shared_ptr<StringLookup> & lookup) {
+
+    ys << YAML::BeginMap
+       << YAML::Key << "start_date"
+       << YAML::Value << episode.episode_start()
+       << YAML::Key << "end_date"
+       << YAML::Value << episode.episode_end()
+       << YAML::Key << "primary_diagnosis"
+       << YAML::Value;
+    write_yaml_stream(ys, episode.primary_diagnosis(), lookup);
+    ys << YAML::Key << "primary_procedure"
+       << YAML::Value;
+    write_yaml_stream(ys, episode.primary_procedure(), lookup);
+
+    if (episode.secondary_diagnoses().size() > 0) {
+	ys << YAML::Key << "secondary_diagnoses"
+	   << YAML::Value
+	   << YAML::BeginSeq;
+	for (const auto & diagnosis : episode.secondary_diagnoses()) {
+	    write_yaml_stream(ys, diagnosis, lookup);
+	}
+	ys << YAML::EndSeq;
+    }
+
+    if (episode.secondary_procedures().size() > 0) {
+	ys << YAML::Key << "secondary_procedures"
+	   << YAML::Value
+	   << YAML::BeginSeq;
+	for (const auto & diagnosis : episode.secondary_procedures()) {
+	    write_yaml_stream(ys, diagnosis, lookup);
+	}
+	ys << YAML::EndSeq;
+    }
+    ys << YAML::EndMap;
+}
+
+/// Write a spell to a yaml stream.
+void write_yaml_stream(YAML::Emitter & ys, const Spell & spell,
+		       const std::shared_ptr<StringLookup> & lookup) {
+    ys << YAML::BeginMap
+       << YAML::Key << "id"
+       << YAML::Value << spell.id()
+       << YAML::Key << "start_date"
+       << YAML::Value << spell.start_date()
+       << YAML::Key << "end_date"
+       << YAML::Value << spell.end_date();
+
+    if (spell.episodes().size() > 0) {
+	ys << YAML::Key << "episodes"
+	   << YAML::Value
+	   << YAML::BeginSeq;
+	for (const auto & episode : spell.episodes()) {
+	    write_yaml_stream(ys, episode, lookup);
+	}
+	ys << YAML::EndSeq;
+    }
+    ys << YAML::EndMap;
+
 }
 
 // [[Rcpp::export]]
@@ -323,6 +391,29 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
 			patient_record << YAML::Key << "mortality";
 			write_yaml_stream(patient_record, mortality, lookup);
+
+			patient_record << YAML::Key << "index_spell";
+			write_yaml_stream(patient_record, index_spell, lookup);
+
+			if (not spells_after.empty()) {
+			    patient_record << YAML::Key << "spells_after"
+					   << YAML::Value
+					   << YAML::BeginSeq;
+			    for (const auto & spell : spells_after) {
+				write_yaml_stream(patient_record, spell, lookup);	
+			    }
+			    patient_record << YAML::EndSeq;
+			}
+
+			if (not spells_before.empty()) {
+			    patient_record << YAML::Key << "spells_before"
+					   << YAML::Value
+					   << YAML::BeginSeq;
+			    for (const auto & spell : spells_after) {
+				write_yaml_stream(patient_record, spell, lookup);	
+			    }
+			    patient_record << YAML::EndSeq;
+			}
 			
 			//////////////// end yaml
 

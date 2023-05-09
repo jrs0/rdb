@@ -24,7 +24,6 @@ auto primary_pci(const Episode & episode, const ClinicalCodeMetagroup & pci_grou
     return pci_group.contains(episode.primary_procedure());
 }
 
-
 /// Is index event if there is a primary ACS or PCI
 /// in the _first_ episode of the spell
 auto get_acs_and_pci_spells(const std::vector<Spell> & spells,

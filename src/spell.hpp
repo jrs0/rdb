@@ -35,6 +35,10 @@ public:
 	sort_episodes();
     }
 
+    auto id() const {
+	return spell_id_;
+    }
+    
     /// Sort the episodes by start date
     void sort_episodes() {
         std::ranges::sort(episodes_, {}, &Episode::episode_start);	
@@ -62,6 +66,20 @@ public:
 	    return Timestamp{};
 	}
     }
+
+    /// Return the spell end date, or fall back
+    /// to the end date of the last episode. If
+    /// that is empty, return null
+    auto end_date() const {
+	if (not spell_end_.null()) {
+	    return spell_end_;
+	} else if (not episodes_.empty()){
+	    return episodes_.back().episode_end();
+	} else {
+	    return Timestamp{};
+	}
+    }
+
     
     void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
 	std::cout << std::string(pad, ' ');
