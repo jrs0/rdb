@@ -2,6 +2,7 @@
 #define YAML_HPP
 
 #include <yaml-cpp/yaml.h>
+#include "sql_types.hpp"
 
 // Expect a key called field_name containing a string (else throw runtime error
 // if it is not present or cannot be converted). 

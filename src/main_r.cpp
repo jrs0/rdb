@@ -11,6 +11,88 @@
 
 #include <optional>
 
+/// Writes a timestamp object to a YAML stream. Includes the unix timestamp
+/// with the "timestamp" key, and a human-readable string with the "readable"
+/// key. Does not modify the stream if the Timestamp is NULL
+YAML::Emitter & operator<<(YAML::Emitter & ys, const Timestamp & timestamp) {
+    if (not timestamp.null()) {
+	ys << YAML::BeginMap
+	   << YAML::Key << "timestamp"
+	   << YAML::Value << timestamp.read();
+	std::stringstream ss;
+	ss << timestamp;
+	ys << YAML::Key << "readable"
+	   << YAML::Value << ss.str()
+	   << YAML::EndMap;
+    }
+    return ys;
+}
+
+/// Writes an Integer to an YAML stream. If the integer is null, no operation is
+/// performed on the stream
+YAML::Emitter & operator<<(YAML::Emitter & ys, const Integer & value) {
+    if (not value.null()) {
+	ys << value.read();
+    }
+    return ys;
+}
+
+/// Write a ClinicalCode to a YAML stream. Not a normal operator << because of
+/// the need for the lookup. If the code is null, then nothing is printed to
+/// the stream. Otherwise, a "name" and "docs" field is added for the code. In
+/// addition, if the code is present in any groups, these are included in an
+/// optional groups field. If the code is invalid, the docs field contains the
+/// string "Unknown".
+///
+void write_yaml_stream(YAML::Emitter & ys, const ClinicalCode & code,
+		       const std::shared_ptr<StringLookup> & lookup) {
+    if (not code.null()) {
+
+	ys << YAML::BeginMap;
+
+	ys << YAML::Key << "name"
+	   << YAML::Value << code.name(lookup);
+	
+	ys << YAML::Key << "docs";
+        if (code.valid()) {
+	    ys << YAML::Value << code.docs(lookup);
+	} else {
+	    ys << YAML::Value << "Unknown";
+	}
+
+	ys << YAML::EndMap;
+    }
+}
+
+/// Write the mortality data to a YAML map. Contains the compulsory key "alive",
+/// which is true unless there is mortality data. If there is mortality data,
+/// it consists of the keys "date_of_death" (a timestamp) and "cause_of_death"
+/// (a clinical code).
+void write_yaml_stream(YAML::Emitter & ys, const Mortality & mortality,
+		       const std::shared_ptr<StringLookup> & lookup) {
+
+    ys << YAML::BeginMap;
+    ys << YAML::Key << "alive"
+       << YAML::Value << mortality.alive();
+
+    if (not mortality.alive()) {
+	if (not mortality.date_of_death().null()) {
+	    ys << YAML::Key << "date_of_death"
+	       << YAML::Value << mortality.date_of_death();
+	}
+	if (mortality.cause_of_death().has_value()) {
+	    ys << YAML::Key << "cause_of_death";
+	    ys << YAML::Value;
+	    write_yaml_stream(ys, mortality.cause_of_death().value(), lookup);
+	}
+	if (not mortality.age_at_death().null()) {
+	    ys << YAML::Key << "age_at_death";
+	    ys << YAML::Value << mortality.age_at_death();
+	}
+    }
+    ys << YAML::EndMap;
+}
+
 // [[Rcpp::export]]
 void print_sql_query(const Rcpp::CharacterVector & config_path) {
     std::string config_path_str{Rcpp::as<std::string>(config_path)};
@@ -217,16 +299,12 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
 			if (not age_at_index.null()) {
 			    patient_record << YAML::Key << "age_at_index"
-					   << YAML::Value << age_at_index.read();
+					   << YAML::Value << age_at_index;
 			}
 
 			if (not date_of_index.null()) {
-			    patient_record << YAML::Key << "date_of_index_timestamp"
-					   << YAML::Value << date_of_index.read();
-			    std::stringstream ss;
-			    ss << date_of_index;
-			    patient_record << YAML::Key << "date_of_index_string"
-					   << YAML::Value << ss.str();
+			    patient_record << YAML::Key << "date_of_index"
+					   << YAML::Value << date_of_index;
 			}
 			
 			patient_record << YAML::Key << "presentation";
@@ -243,11 +321,8 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 			    patient_record << YAML::Value << "ACS";
 			}
 
-			if (not mortality.alive()) {
-			    patient_record << YAML::Key << "mortality"
-					   << YAML::Key << "date_of_death_timestamp"
-					   << 
-				}
+			patient_record << YAML::Key << "mortality";
+			write_yaml_stream(patient_record, mortality, lookup);
 			
 			//////////////// end yaml
 
