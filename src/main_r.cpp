@@ -107,14 +107,21 @@ void write_yaml_stream(YAML::Emitter & ys, const Episode & episode,
        << YAML::Key << "start_date"
        << YAML::Value << episode.episode_start()
        << YAML::Key << "end_date"
-       << YAML::Value << episode.episode_end()
-       << YAML::Key << "primary_diagnosis"
-       << YAML::Value;
-    write_yaml_stream(ys, episode.primary_diagnosis(), lookup);
-    ys << YAML::Key << "primary_procedure"
-       << YAML::Value;
-    write_yaml_stream(ys, episode.primary_procedure(), lookup);
+       << YAML::Value << episode.episode_end();
+    
+    if (not episode.primary_diagnosis().null()) {
+	ys << YAML::Key << "primary_diagnosis"
+	   << YAML::Value;
+	write_yaml_stream(ys, episode.primary_diagnosis(), lookup);
+    }
 
+    
+    if (not episode.primary_procedure().null()) {    
+	ys << YAML::Key << "primary_procedure"
+	   << YAML::Value;
+	write_yaml_stream(ys, episode.primary_procedure(), lookup);
+    }
+	
     if (episode.secondary_diagnoses().size() > 0) {
 	ys << YAML::Key << "secondary_diagnoses"
 	   << YAML::Value
