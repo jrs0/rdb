@@ -37,6 +37,21 @@ YAML::Emitter & operator<<(YAML::Emitter & ys, const Integer & value) {
     return ys;
 }
 
+void write_event_count(YAML::Emitter & ys,
+		       const std::map<ClinicalCodeGroup, std::size_t> & counts,
+		       std::shared_ptr<StringLookup> lookup) {
+    ys << YAML::BeginSeq;
+    for (const auto & [group, count] : counts) {
+	ys << YAML::BeginMap
+	   << YAML::Key << "name"
+	   << YAML::Value << group.name(lookup)
+	   << YAML::Key << "count"
+	   << YAML::Value << count
+	   << YAML::EndMap;
+    }
+    ys << YAML::EndSeq;
+}
+
 /// Write a ClinicalCode to a YAML stream. Not a normal operator << because of
 /// the need for the lookup. If the code is null, then nothing is printed to
 /// the stream. Otherwise, a "name" and "docs" field is added for the code. In
@@ -45,28 +60,18 @@ YAML::Emitter & operator<<(YAML::Emitter & ys, const Integer & value) {
 /// string "Unknown".
 ///
 void write_yaml_stream(YAML::Emitter & ys, const EventCounter & event_counter,
-		       const std::shared_ptr<StringLookup> & lookup) {
+		       std::shared_ptr<StringLookup> lookup) {
     ys << YAML::BeginMap;
     if (not event_counter.counts_before().empty()) {
 	ys << YAML::Key << "before"
-	   << YAML::Value
-	   << YAML::BeginMap;
-	for (const auto & [group, count] : event_counter.counts_before()) {
-	    ys << YAML::Key << group.name(lookup)
-	       << YAML::Value << count;
-	}
-	ys << YAML::EndMap;
-    }
+	   << YAML::Value;
+	write_event_count(ys, event_counter.counts_before(), lookup);
+     }
     
     if (not event_counter.counts_after().empty()) {
 	ys << YAML::Key << "after"
-	   << YAML::Value
-	   << YAML::BeginMap;              
-	    for (const auto & [group, count] : event_counter.counts_after()) {
-		ys << YAML::Key << group.name(lookup)
-		   << YAML::Value << count;
-	    }
-	ys << YAML::EndMap;
+	   << YAML::Value;
+	write_event_count(ys, event_counter.counts_after(), lookup);
     }
     ys << YAML::EndMap;
 }
@@ -79,7 +84,7 @@ void write_yaml_stream(YAML::Emitter & ys, const EventCounter & event_counter,
 /// string "Unknown".
 ///
 void write_yaml_stream(YAML::Emitter & ys, const ClinicalCode & code,
-		       const std::shared_ptr<StringLookup> & lookup) {
+		       std::shared_ptr<StringLookup> lookup) {
     if (not code.null()) {
 	ys << YAML::BeginMap;
 	ys << YAML::Key << "name"
@@ -109,7 +114,7 @@ void write_yaml_stream(YAML::Emitter & ys, const ClinicalCode & code,
 /// it consists of the keys "date_of_death" (a timestamp) and "cause_of_death"
 /// (a clinical code).
 void write_yaml_stream(YAML::Emitter & ys, const Mortality & mortality,
-		       const std::shared_ptr<StringLookup> & lookup) {
+		       std::shared_ptr<StringLookup> lookup) {
 
     ys << YAML::BeginMap;
     ys << YAML::Key << "alive"
@@ -135,7 +140,7 @@ void write_yaml_stream(YAML::Emitter & ys, const Mortality & mortality,
 
 /// Write an episode to a yaml stream.
 void write_yaml_stream(YAML::Emitter & ys, const Episode & episode,
-		       const std::shared_ptr<StringLookup> & lookup) {
+		       std::shared_ptr<StringLookup> lookup) {
 
     ys << YAML::BeginMap
        << YAML::Key << "start_date"
@@ -180,7 +185,7 @@ void write_yaml_stream(YAML::Emitter & ys, const Episode & episode,
 
 /// Write a spell to a yaml stream.
 void write_yaml_stream(YAML::Emitter & ys, const Spell & spell,
-		       const std::shared_ptr<StringLookup> & lookup) {
+		       std::shared_ptr<StringLookup> lookup) {
     ys << YAML::BeginMap
        << YAML::Key << "id"
        << YAML::Value << spell.id()
@@ -199,7 +204,6 @@ void write_yaml_stream(YAML::Emitter & ys, const Spell & spell,
 	ys << YAML::EndSeq;
     }
     ys << YAML::EndMap;
-
 }
 
 // [[Rcpp::export]]
