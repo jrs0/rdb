@@ -287,7 +287,7 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		    
 		    const auto & first_episode_of_index{get_first_episode(index_spell)};
 
-		    auto pci_triggered{primary_pci(first_episode_of_index, pci_metagroup)};
+		    const auto pci_triggered{primary_pci(first_episode_of_index, pci_metagroup)};
 		    if (pci_triggered) {
 			index_types.push_back("PCI");
 		    } else {
