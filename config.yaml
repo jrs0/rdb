@@ -112,7 +112,7 @@ index_event:
     stemi_flag: acs_stemi
   
 code_groups:
-  acs: [acs_stemi, acs_nstemi, acs_unstable_angina]
+  acs: [acs_stemi, acs_nstemi]
   pci: [pci]
   cardiac_death:
   - acs_stemi
