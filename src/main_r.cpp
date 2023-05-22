@@ -1,3 +1,4 @@
+
 #include "string_lookup.hpp"
 #include "config.hpp"
 #include "clinical_code.hpp"
@@ -275,7 +276,7 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		}
 
 		auto row_number{row.current_row_number()};
-		if (row_number % 500000 == 0) {
+		if (row_number % 100000 == 0) {
 		    std::cout << "Got to row " << row_number << std::endl;
 		}
 
