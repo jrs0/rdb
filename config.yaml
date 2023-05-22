@@ -112,8 +112,11 @@ index_event:
     stemi_flag: acs_stemi
   
 code_groups:
-  acs: [acs_stemi, acs_nstemi]
-  pci: [pci]
+  acs:
+  - acs_stemi
+  - acs_nstemi
+  pci:
+  - pci
   cardiac_death:
   - acs_stemi
   - acs_nstemi
@@ -121,7 +124,8 @@ code_groups:
   - atrial_fib
   - chronic_ischaemia_heart_disease
   - other_ischaemic_heart_diseases
-  stemi: [acs_stemi]
+  stemi:
+  - acs_stemi
   
 data_sources:
   hospital_episodes:

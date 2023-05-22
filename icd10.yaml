@@ -86,7 +86,6 @@ categories:
           index: A042
           name: A04.2
         - docs: Enterohaemorrhagic Escherichia coli infection
-          highlight: true
           index: A043
           name: A04.3
         - docs: Other intestinal Escherichia coli infections
@@ -108,7 +107,6 @@ categories:
           index: A049
           name: A04.9
         docs: Other bacterial intestinal infections
-        highlight: true
         index: A04
         name: A04
       - categories:
@@ -225,7 +223,6 @@ categories:
         index: A09
         name: A09
       docs: Intestinal infectious diseases
-      highlight: true
       index:
       - A00
       - A09
@@ -512,7 +509,6 @@ categories:
         name: A26
       - categories:
         - docs: Leptospirosis icterohaemorrhagica
-          highlight: true
           index: A270
           name: A27.0
         - docs: Other forms of leptospirosis
@@ -522,7 +518,6 @@ categories:
           index: A279
           name: A27.9
         docs: Leptospirosis
-        highlight: true
         index: A27
         name: A27
       - categories:
@@ -545,7 +540,6 @@ categories:
         index: A28
         name: A28
       docs: Certain zoonotic bacterial diseases
-      highlight: true
       index:
       - A20
       - A28
@@ -1462,26 +1456,21 @@ categories:
         name: A95
       - categories:
         - docs: Junin haemorrhagic fever
-          highlight: true
           index: A960
           name: A96.0
         - docs: Machupo haemorrhagic fever
-          highlight: true
           index: A961
           name: A96.1
         - docs: Lassa fever
           index: A962
           name: A96.2
         - docs: Other arenaviral haemorrhagic fevers
-          highlight: true
           index: A968
           name: A96.8
         - docs: Arenaviral haemorrhagic fever, unspecified
-          highlight: true
           index: A969
           name: A96.9
         docs: Arenaviral haemorrhagic fever
-        highlight: true
         index: A96
         name: A96
       - categories:
@@ -1502,11 +1491,9 @@ categories:
         name: A97
       - categories:
         - docs: Crimean-Congo haemorrhagic fever
-          highlight: true
           index: A980
           name: A98.0
         - docs: Omsk haemorrhagic fever
-          highlight: true
           index: A981
           name: A98.1
         - docs: Kyasanur Forest disease
@@ -1519,23 +1506,18 @@ categories:
           index: A984
           name: A98.4
         - docs: Haemorrhagic fever with renal syndrome
-          highlight: true
           index: A985
           name: A98.5
         - docs: Other specified viral haemorrhagic fevers
-          highlight: true
           index: A988
           name: A98.8
         docs: Other viral haemorrhagic fevers, not elsewhere classified
-        highlight: true
         index: A98
         name: A98
       - docs: Unspecified viral haemorrhagic fever
-        highlight: true
         index: A99
         name: A99
       docs: Arthropod-borne viral fevers and viral haemorrhagic fevers
-      highlight: true
       index:
       - A92
       - A99
@@ -1945,7 +1927,6 @@ categories:
           index: B302
           name: B30.2
         - docs: Acute epidemic haemorrhagic conjunctivitis (enteroviral)
-          highlight: true
           index: B303
           name: B30.3
         - docs: Other viral conjunctivitis
@@ -1955,7 +1936,6 @@ categories:
           index: B309
           name: B30.9
         docs: Viral conjunctivitis
-        highlight: true
         index: B30
         name: B30
       - categories:
@@ -2006,7 +1986,6 @@ categories:
         index: B34
         name: B34
       docs: Other viral diseases
-      highlight: true
       index:
       - B25
       - B34
@@ -3067,9 +3046,8 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
-    highlight: true
     index:
     - A00
     - B99
@@ -5883,7 +5861,6 @@ categories:
           index: D472
           name: D47.2
         - docs: Essential (haemorrhagic) thrombocythaemia
-          highlight: true
           index: D473
           name: D47.3
         - docs: Osteomyelofibrosis
@@ -5899,7 +5876,6 @@ categories:
           index: D479
           name: D47.9
         docs: Other neoplasms of uncertain or unknown behaviour of lymphoid, haematopoietic and related tissue
-        highlight: true
         index: D47
         name: D47
       - categories:
@@ -5936,7 +5912,6 @@ categories:
       docs: Neoplasms of uncertain or unknown behaviour
       exclude:
       - cancer
-      highlight: true
       index:
       - D37
       - D48
@@ -5966,9 +5941,8 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
-    highlight: true
     index:
     - C00
     - D48
@@ -5980,7 +5954,6 @@ categories:
           index: D500
           name: D50.0
         - docs: Sideropenic dysphagia
-          highlight: true
           index: D501
           name: D50.1
         - docs: Other iron deficiency anaemias
@@ -5990,7 +5963,6 @@ categories:
           index: D509
           name: D50.9
         docs: Iron deficiency anaemia
-        highlight: true
         index: D50
         name: D50
       - categories:
@@ -6054,7 +6026,6 @@ categories:
       exclude:
       - bleeding
       - thrombocytopenia
-      highlight: true
       index:
       - D50
       - D53
@@ -6228,7 +6199,6 @@ categories:
         index: D61
         name: D61
       - docs: Acute posthaemorrhagic anaemia
-        highlight: true
         index: D62
         name: D62
       - categories:
@@ -6273,7 +6243,6 @@ categories:
       docs: Aplastic and other anaemias
       exclude:
       - thrombocytopenia
-      highlight: true
       index:
       - D60
       - D64
@@ -6314,7 +6283,6 @@ categories:
           index: D682
           name: D68.2
         - docs: Haemorrhagic disorder due to circulating anticoagulants
-          highlight: true
           index: D683
           name: D68.3
         - docs: Acquired coagulation factor deficiency
@@ -6345,7 +6313,6 @@ categories:
         docs: Other coagulation defects
         exclude:
         - thrombocytopenia
-        highlight: true
         index: D68
         name: D68
       - categories:
@@ -6390,23 +6357,19 @@ categories:
         - docs: Other specified haemorrhagic conditions
           exclude:
           - thrombocytopenia
-          highlight: true
           index: D698
           name: D69.8
         - docs: Haemorrhagic condition, unspecified
           exclude:
           - thrombocytopenia
-          highlight: true
           index: D699
           name: D69.9
         docs: Purpura and other haemorrhagic conditions
-        highlight: true
         index: D69
         name: D69
       docs: Coagulation defects, purpura and other haemorrhagic conditions
       exclude:
       - anaemia
-      highlight: true
       index:
       - D65
       - D69
@@ -6721,9 +6684,8 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
-    highlight: true
     index:
     - D50
     - D89
@@ -8137,7 +8099,7 @@ categories:
     - acs_nstemi
     - acs_unstable_angina
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
     index:
     - E00
@@ -8187,7 +8149,7 @@ categories:
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
-      - chronic_ischaemia_heart_disease
+      - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
       index:
       - I00
@@ -8302,7 +8264,7 @@ categories:
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
-      - chronic_ischaemia_heart_disease
+      - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
       index:
       - I05
@@ -8382,7 +8344,7 @@ categories:
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
-      - chronic_ischaemia_heart_disease
+      - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
       index:
       - I10
@@ -8415,7 +8377,7 @@ categories:
         - bleeding
         - acs_stemi
         - acs_nstemi
-        - chronic_ischaemia_heart_disease
+        - chronic_ischaemic_heart_disease
         index: I20
         name: I20
       - categories:
@@ -8451,15 +8413,15 @@ categories:
           name: I21.4
         - docs: Acute myocardial infarction, unspecified
           exclude:
-          - acs_stemi
           - acs_nstemi
+          - acs_stemi
           index: I219
           name: I21.9
         docs: Acute myocardial infarction
         exclude:
         - bleeding
         - acs_unstable_angina
-        - chronic_ischaemia_heart_disease
+        - chronic_ischaemic_heart_disease
         index: I21
         name: I21
       - categories:
@@ -8487,7 +8449,7 @@ categories:
         exclude:
         - bleeding
         - acs_unstable_angina
-        - chronic_ischaemia_heart_disease
+        - chronic_ischaemic_heart_disease
         - other_ischaemic_heart_diseases
         index: I22
         name: I22
@@ -8495,7 +8457,6 @@ categories:
         - docs: Haemopericardium as current complication following acute myocardial infarction
           exclude:
           - other_ischaemic_heart_diseases
-          highlight: true
           index: I230
           name: I23.0
         - docs: Atrial septal defect as current complication following acute myocardial infarction
@@ -8511,7 +8472,6 @@ categories:
         - docs: Rupture of cardiac wall without haemopericardium as current complication following acute myocardial infarction
           exclude:
           - bleeding
-          highlight: true
           index: I233
           name: I23.3
         - docs: Rupture of chordae tendineae as current complication following acute myocardial infarction
@@ -8539,8 +8499,7 @@ categories:
         - acs_stemi
         - acs_nstemi
         - acs_unstable_angina
-        - chronic_ischaemia_heart_disease
-        highlight: true
+        - chronic_ischaemic_heart_disease
         index: I23
         name: I23
       - categories:
@@ -8562,7 +8521,7 @@ categories:
         - acs_stemi
         - acs_nstemi
         - acs_unstable_angina
-        - chronic_ischaemia_heart_disease
+        - chronic_ischaemic_heart_disease
         index: I24
         name: I24
       - categories:
@@ -8608,7 +8567,6 @@ categories:
       - atrial_fib
       - portal_hypertension
       - ischaemic_stroke
-      highlight: true
       index:
       - I20
       - I25
@@ -8669,7 +8627,7 @@ categories:
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
-      - chronic_ischaemia_heart_disease
+      - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
       index:
       - I26
@@ -8707,7 +8665,6 @@ categories:
           index: I311
           name: I31.1
         - docs: Haemopericardium, not elsewhere classified
-          highlight: true
           index: I312
           name: I31.2
         - docs: Pericardial effusion (noninflammatory)
@@ -8728,7 +8685,6 @@ categories:
         docs: Other diseases of pericardium
         exclude:
         - atrial_fib
-        highlight: true
         index: I31
         name: I31
       - categories:
@@ -9205,9 +9161,8 @@ categories:
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
-      - chronic_ischaemia_heart_disease
+      - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
-      highlight: true
       index:
       - I30
       - I52
@@ -9215,111 +9170,86 @@ categories:
     - categories:
       - categories:
         - docs: Subarachnoid haemorrhage from carotid siphon and bifurcation
-          highlight: true
           index: I600
           name: I60.0
         - docs: Subarachnoid haemorrhage from middle cerebral artery
-          highlight: true
           index: I601
           name: I60.1
         - docs: Subarachnoid haemorrhage from anterior communicating artery
-          highlight: true
           index: I602
           name: I60.2
         - docs: Subarachnoid haemorrhage from posterior communicating artery
-          highlight: true
           index: I603
           name: I60.3
         - docs: Subarachnoid haemorrhage from basilar artery
-          highlight: true
           index: I604
           name: I60.4
         - docs: Subarachnoid haemorrhage from vertebral artery
-          highlight: true
           index: I605
           name: I60.5
         - docs: Subarachnoid haemorrhage from other intracranial arteries
-          highlight: true
           index: I606
           name: I60.6
         - docs: Subarachnoid haemorrhage from intracranial artery, unspecified
-          highlight: true
           index: I607
           name: I60.7
         - docs: Other subarachnoid haemorrhage
-          highlight: true
           index: I608
           name: I60.8
         - docs: Subarachnoid haemorrhage, unspecified
-          highlight: true
           index: I609
           name: I60.9
         docs: Subarachnoid haemorrhage
         exclude:
         - ischaemic_stroke
-        highlight: true
         index: I60
         name: I60
       - categories:
         - docs: Intracerebral haemorrhage in hemisphere, subcortical
-          highlight: true
           index: I610
           name: I61.0
         - docs: Intracerebral haemorrhage in hemisphere, cortical
-          highlight: true
           index: I611
           name: I61.1
         - docs: Intracerebral haemorrhage in hemisphere, unspecified
-          highlight: true
           index: I612
           name: I61.2
         - docs: Intracerebral haemorrhage in brain stem
-          highlight: true
           index: I613
           name: I61.3
         - docs: Intracerebral haemorrhage in cerebellum
-          highlight: true
           index: I614
           name: I61.4
         - docs: Intracerebral haemorrhage, intraventricular
-          highlight: true
           index: I615
           name: I61.5
         - docs: Intracerebral haemorrhage, multiple localized
-          highlight: true
           index: I616
           name: I61.6
         - docs: Other intracerebral haemorrhage
-          highlight: true
           index: I618
           name: I61.8
         - docs: Intracerebral haemorrhage, unspecified
-          highlight: true
           index: I619
           name: I61.9
         docs: Intracerebral haemorrhage
         exclude:
         - ischaemic_stroke
-        highlight: true
         index: I61
         name: I61
       - categories:
         - docs: Subdural haemorrhage (acute)(nontraumatic)
-          highlight: true
           index: I620
           name: I62.0
         - docs: Nontraumatic extradural haemorrhage
-          highlight: true
           index: I621
           name: I62.1
         - docs: Intracranial haemorrhage (nontraumatic), unspecified
-          highlight: true
           index: I629
           name: I62.9
         docs: Other nontraumatic intracranial haemorrhage
         exclude:
         - ischaemic_stroke
-        highlight: true
         index: I62
         name: I62
       - categories:
@@ -9359,7 +9289,6 @@ categories:
         exclude:
         - bleeding
         - ischaemic_stroke
-        highlight: true
         index: I64
         name: I64
       - categories:
@@ -9473,15 +9402,12 @@ categories:
         name: I68
       - categories:
         - docs: Sequelae of subarachnoid haemorrhage
-          highlight: true
           index: I690
           name: I69.0
         - docs: Sequelae of intracerebral haemorrhage
-          highlight: true
           index: I691
           name: I69.1
         - docs: Sequelae of other nontraumatic intracranial haemorrhage
-          highlight: true
           index: I692
           name: I69.2
         - docs: Sequelae of cerebral infarction
@@ -9492,7 +9418,6 @@ categories:
         - docs: Sequelae of stroke, not specified as haemorrhage or infarction
           exclude:
           - bleeding
-          highlight: true
           index: I694
           name: I69.4
         - docs: Sequelae of other and unspecified cerebrovascular diseases
@@ -9503,7 +9428,6 @@ categories:
         docs: Sequelae of cerebrovascular disease
         exclude:
         - ischaemic_stroke
-        highlight: true
         index: I69
         name: I69
       docs: Cerebrovascular diseases
@@ -9514,9 +9438,8 @@ categories:
       - acs_stemi
       - acs_nstemi
       - acs_unstable_angina
-      - chronic_ischaemia_heart_disease
+      - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
-      highlight: true
       index:
       - I60
       - I69
@@ -9680,7 +9603,6 @@ categories:
         name: I77
       - categories:
         - docs: Hereditary haemorrhagic telangiectasia
-          highlight: true
           index: I780
           name: I78.0
         - docs: Naevus, non-neoplastic
@@ -9693,7 +9615,6 @@ categories:
           index: I789
           name: I78.9
         docs: Diseases of capillaries
-        highlight: true
         index: I78
         name: I78
       - categories:
@@ -9722,9 +9643,8 @@ categories:
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
-      - chronic_ischaemia_heart_disease
+      - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
-      highlight: true
       index:
       - I70
       - I79
@@ -9807,17 +9727,14 @@ categories:
         name: I83
       - categories:
         - docs: Oesophageal varices with bleeding
-          highlight: true
           index: I850
           name: I85.0
         - docs: Oesophageal varices without bleeding
           exclude:
           - bleeding
-          highlight: true
           index: I859
           name: I85.9
         docs: Oesophageal varices
-        highlight: true
         index: I85
         name: I85
       - categories:
@@ -9922,9 +9839,8 @@ categories:
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
-      - chronic_ischaemia_heart_disease
+      - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
-      highlight: true
       index:
       - I80
       - I89
@@ -9990,11 +9906,9 @@ categories:
         - docs: Oesophageal varices without bleeding in diseases classified elsewhere
           exclude:
           - bleeding
-          highlight: true
           index: I982
           name: I98.2
         - docs: Oesophageal varices with bleeding in diseases classified elsewhere
-          highlight: true
           index: I983
           name: I98.3
         - docs: Other specified disorders of circulatory system in diseases classified elsewhere
@@ -10004,7 +9918,6 @@ categories:
           index: I988
           name: I98.8
         docs: Other disorders of circulatory system in diseases classified elsewhere
-        highlight: true
         index: I98
         name: I98
       - docs: Other and unspecified disorders of circulatory system
@@ -10021,9 +9934,8 @@ categories:
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
-      - chronic_ischaemia_heart_disease
+      - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
-      highlight: true
       index:
       - I95
       - I99
@@ -10046,7 +9958,6 @@ categories:
     - type_1_diabetes
     - type_2_diabetes
     - diabetes_unspecified
-    highlight: true
     index:
     - I00
     - I99
@@ -11658,7 +11569,7 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
     index:
     - F00
@@ -12038,7 +11949,6 @@ categories:
           index: G360
           name: G36.0
         - docs: Acute and subacute haemorrhagic leukoencephalitis [Hurst]
-          highlight: true
           index: G361
           name: G36.1
         - docs: Other specified acute disseminated demyelination
@@ -12048,7 +11958,6 @@ categories:
           index: G369
           name: G36.9
         docs: Other acute disseminated demyelination
-        highlight: true
         index: G36
         name: G36
       - categories:
@@ -12080,7 +11989,6 @@ categories:
         index: G37
         name: G37
       docs: Demyelinating diseases of the central nervous system
-      highlight: true
       index:
       - G35
       - G37
@@ -12985,9 +12893,8 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
-    highlight: true
     index:
     - G00
     - G99
@@ -13197,7 +13104,6 @@ categories:
           index: H112
           name: H11.2
         - docs: Conjunctival haemorrhage
-          highlight: true
           index: H113
           name: H11.3
         - docs: Other conjunctival vascular disorders and cysts
@@ -13216,7 +13122,6 @@ categories:
           index: H119
           name: H11.9
         docs: Other disorders of conjunctiva
-        highlight: true
         index: H11
         name: H11
       - categories:
@@ -13241,7 +13146,6 @@ categories:
         index: H13
         name: H13
       docs: Disorders of conjunctiva
-      highlight: true
       index:
       - H10
       - H13
@@ -13390,7 +13294,6 @@ categories:
         name: H20
       - categories:
         - docs: Hyphaema
-          highlight: true
           index: H210
           name: H21.0
         - docs: Other vascular disorders of iris and ciliary body
@@ -13429,7 +13332,6 @@ categories:
           index: H219
           name: H21.9
         docs: Other disorders of iris and ciliary body
-        highlight: true
         index: H21
         name: H21
       - categories:
@@ -13448,7 +13350,6 @@ categories:
         index: H22
         name: H22
       docs: Disorders of sclera, cornea, iris and ciliary body
-      highlight: true
       index:
       - H15
       - H22
@@ -13576,7 +13477,6 @@ categories:
           index: H312
           name: H31.2
         - docs: Choroidal haemorrhage and rupture
-          highlight: true
           index: H313
           name: H31.3
         - docs: Choroidal detachment
@@ -13595,7 +13495,6 @@ categories:
           index: H319
           name: H31.9
         docs: Other disorders of choroid
-        highlight: true
         index: H31
         name: H31
       - categories:
@@ -13687,7 +13586,6 @@ categories:
           index: H355
           name: H35.5
         - docs: Retinal haemorrhage
-          highlight: true
           index: H356
           name: H35.6
         - docs: Separation of retinal layers
@@ -13706,7 +13604,6 @@ categories:
           index: H359
           name: H35.9
         docs: Other retinal disorders
-        highlight: true
         index: H35
         name: H35
       - categories:
@@ -13722,7 +13619,6 @@ categories:
         index: H36
         name: H36
       docs: Disorders of choroid and retina
-      highlight: true
       index:
       - H30
       - H36
@@ -13784,7 +13680,6 @@ categories:
           index: H430
           name: H43.0
         - docs: Vitreous haemorrhage
-          highlight: true
           index: H431
           name: H43.1
         - docs: Crystalline deposits in vitreous body
@@ -13808,7 +13703,6 @@ categories:
           index: H439
           name: H43.9
         docs: Disorders of vitreous body
-        highlight: true
         index: H43
         name: H43
       - categories:
@@ -13849,7 +13743,6 @@ categories:
         name: H44
       - categories:
         - docs: Vitreous haemorrhage in diseases classified elsewhere
-          highlight: true
           index: H450
           name: H45.0
         - docs: Endophthalmitis in diseases classified elsewhere
@@ -13863,11 +13756,9 @@ categories:
           index: H458
           name: H45.8
         docs: Disorders of vitreous body and globe in diseases classified elsewhere
-        highlight: true
         index: H45
         name: H45
       docs: Disorders of vitreous body and globe
-      highlight: true
       index:
       - H43
       - H45
@@ -14180,9 +14071,8 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
-    highlight: true
     index:
     - H00
     - H59
@@ -14595,11 +14485,9 @@ categories:
           index: H921
           name: H92.1
         - docs: Otorrhagia
-          highlight: true
           index: H922
           name: H92.2
         docs: Otalgia and effusion of ear
-        highlight: true
         index: H92
         name: H92
       - categories:
@@ -14657,7 +14545,6 @@ categories:
         index: H95
         name: H95
       docs: Other disorders of ear
-      highlight: true
       index:
       - H90
       - H95
@@ -14687,9 +14574,8 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
-    highlight: true
     index:
     - H60
     - H95
@@ -15579,7 +15465,6 @@ categories:
           index: J941
           name: J94.1
         - docs: Haemothorax
-          highlight: true
           index: J942
           name: J94.2
         - docs: Other specified pleural conditions
@@ -15593,13 +15478,11 @@ categories:
           index: J949
           name: J94.9
         docs: Other pleural conditions
-        highlight: true
         index: J94
         name: J94
       docs: Other diseases of pleura
       exclude:
       - copd
-      highlight: true
       index:
       - J90
       - J94
@@ -15722,9 +15605,8 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
-    highlight: true
     index:
     - J00
     - J99
@@ -16178,7 +16060,6 @@ categories:
           index: K225
           name: K22.5
         - docs: Gastro-oesophageal laceration-haemorrhage syndrome
-          highlight: true
           index: K226
           name: K22.6
         - docs: Barrett oesophagus
@@ -16197,7 +16078,6 @@ categories:
           index: K229
           name: K22.9
         docs: Other diseases of oesophagus
-        highlight: true
         index: K22
         name: K22
       - categories:
@@ -16217,7 +16097,6 @@ categories:
         name: K23
       - categories:
         - docs: 'Gastric ulcer : acute with haemorrhage'
-          highlight: true
           index: K250
           name: K25.0
         - docs: 'Gastric ulcer : acute with perforation'
@@ -16226,17 +16105,14 @@ categories:
           index: K251
           name: K25.1
         - docs: 'Gastric ulcer : acute with both haemorrhage and perforation'
-          highlight: true
           index: K252
           name: K25.2
         - docs: 'Gastric ulcer : acute without haemorrhage or perforation'
           exclude:
           - bleeding
-          highlight: true
           index: K253
           name: K25.3
         - docs: 'Gastric ulcer : chronic or unspecified with haemorrhage'
-          highlight: true
           index: K254
           name: K25.4
         - docs: 'Gastric ulcer : chronic or unspecified with perforation'
@@ -16245,28 +16121,23 @@ categories:
           index: K255
           name: K25.5
         - docs: 'Gastric ulcer : chronic or unspecified with both haemorrhage and perforation'
-          highlight: true
           index: K256
           name: K25.6
         - docs: 'Gastric ulcer : chronic without haemorrhage or perforation'
           exclude:
           - bleeding
-          highlight: true
           index: K257
           name: K25.7
         - docs: 'Gastric ulcer : unspecified as acute or chronic, without haemorrhage or perforation'
           exclude:
           - bleeding
-          highlight: true
           index: K259
           name: K25.9
         docs: Gastric ulcer
-        highlight: true
         index: K25
         name: K25
       - categories:
         - docs: 'Duodenal ulcer : acute with haemorrhage'
-          highlight: true
           index: K260
           name: K26.0
         - docs: 'Duodenal ulcer : acute with perforation'
@@ -16275,17 +16146,14 @@ categories:
           index: K261
           name: K26.1
         - docs: 'Duodenal ulcer : acute with both haemorrhage and perforation'
-          highlight: true
           index: K262
           name: K26.2
         - docs: 'Duodenal ulcer : acute without haemorrhage or perforation'
           exclude:
           - bleeding
-          highlight: true
           index: K263
           name: K26.3
         - docs: 'Duodenal ulcer : chronic or unspecified with haemorrhage'
-          highlight: true
           index: K264
           name: K26.4
         - docs: 'Duodenal ulcer : chronic or unspecified with perforation'
@@ -16294,28 +16162,23 @@ categories:
           index: K265
           name: K26.5
         - docs: 'Duodenal ulcer : chronic or unspecified with both haemorrhage and perforation'
-          highlight: true
           index: K266
           name: K26.6
         - docs: 'Duodenal ulcer : chronic without haemorrhage or perforation'
           exclude:
           - bleeding
-          highlight: true
           index: K267
           name: K26.7
         - docs: 'Duodenal ulcer : unspecified as acute or chronic, without haemorrhage or perforation'
           exclude:
           - bleeding
-          highlight: true
           index: K269
           name: K26.9
         docs: Duodenal ulcer
-        highlight: true
         index: K26
         name: K26
       - categories:
         - docs: 'Peptic ulcer, site unspecified : acute with haemorrhage'
-          highlight: true
           index: K270
           name: K27.0
         - docs: 'Peptic ulcer, site unspecified : acute with perforation'
@@ -16324,17 +16187,14 @@ categories:
           index: K271
           name: K27.1
         - docs: 'Peptic ulcer, site unspecified : acute with both haemorrhage and perforation'
-          highlight: true
           index: K272
           name: K27.2
         - docs: 'Peptic ulcer, site unspecified : acute without haemorrhage or perforation'
           exclude:
           - bleeding
-          highlight: true
           index: K273
           name: K27.3
         - docs: 'Peptic ulcer, site unspecified : chronic or unspecified with haemorrhage'
-          highlight: true
           index: K274
           name: K27.4
         - docs: 'Peptic ulcer, site unspecified : chronic or unspecified with perforation'
@@ -16343,28 +16203,23 @@ categories:
           index: K275
           name: K27.5
         - docs: 'Peptic ulcer, site unspecified : chronic or unspecified with both haemorrhage and perforation'
-          highlight: true
           index: K276
           name: K27.6
         - docs: 'Peptic ulcer, site unspecified : chronic without haemorrhage or perforation'
           exclude:
           - bleeding
-          highlight: true
           index: K277
           name: K27.7
         - docs: 'Peptic ulcer, site unspecified : unspecified as acute or chronic, without haemorrhage or perforation'
           exclude:
           - bleeding
-          highlight: true
           index: K279
           name: K27.9
         docs: Peptic ulcer, site unspecified
-        highlight: true
         index: K27
         name: K27
       - categories:
         - docs: 'Gastrojejunal ulcer : acute with haemorrhage'
-          highlight: true
           index: K280
           name: K28.0
         - docs: 'Gastrojejunal ulcer : acute with perforation'
@@ -16373,17 +16228,14 @@ categories:
           index: K281
           name: K28.1
         - docs: 'Gastrojejunal ulcer : acute with both haemorrhage and perforation'
-          highlight: true
           index: K282
           name: K28.2
         - docs: 'Gastrojejunal ulcer : acute without haemorrhage or perforation'
           exclude:
           - bleeding
-          highlight: true
           index: K283
           name: K28.3
         - docs: 'Gastrojejunal ulcer : chronic or unspecified with haemorrhage'
-          highlight: true
           index: K284
           name: K28.4
         - docs: 'Gastrojejunal ulcer : chronic or unspecified with perforation'
@@ -16392,28 +16244,23 @@ categories:
           index: K285
           name: K28.5
         - docs: 'Gastrojejunal ulcer : chronic or unspecified with both haemorrhage and perforation'
-          highlight: true
           index: K286
           name: K28.6
         - docs: 'Gastrojejunal ulcer : chronic without haemorrhage or perforation'
           exclude:
           - bleeding
-          highlight: true
           index: K287
           name: K28.7
         - docs: 'Gastrojejunal ulcer : unspecified as acute or chronic, without haemorrhage or perforation'
           exclude:
           - bleeding
-          highlight: true
           index: K289
           name: K28.9
         docs: Gastrojejunal ulcer
-        highlight: true
         index: K28
         name: K28
       - categories:
         - docs: Acute haemorrhagic gastritis
-          highlight: true
           index: K290
           name: K29.0
         - docs: Other acute gastritis
@@ -16446,7 +16293,6 @@ categories:
           index: K299
           name: K29.9
         docs: Gastritis and duodenitis
-        highlight: true
         index: K29
         name: K29
       - docs: Functional dyspepsia
@@ -16495,7 +16341,6 @@ categories:
       - cirrhosis
       - hepatic_failure
       - portal_hypertension
-      highlight: true
       index:
       - K20
       - K31
@@ -16957,7 +16802,6 @@ categories:
           index: K624
           name: K62.4
         - docs: Haemorrhage of anus and rectum
-          highlight: true
           index: K625
           name: K62.5
         - docs: Ulcer of anus and rectum
@@ -16981,7 +16825,6 @@ categories:
           index: K629
           name: K62.9
         docs: Other diseases of anus and rectum
-        highlight: true
         index: K62
         name: K62
       - categories:
@@ -17049,7 +16892,6 @@ categories:
       - cirrhosis
       - hepatic_failure
       - portal_hypertension
-      highlight: true
       index:
       - K55
       - K64
@@ -17356,7 +17198,6 @@ categories:
           exclude:
           - hepatic_failure
           - portal_hypertension
-          highlight: true
           index: K762
           name: K76.2
         - docs: Infarction of liver
@@ -17409,7 +17250,6 @@ categories:
         docs: Other diseases of liver
         exclude:
         - cirrhosis
-        highlight: true
         index: K76
         name: K76
       - categories:
@@ -17428,7 +17268,6 @@ categories:
         index: K77
         name: K77
       docs: Diseases of liver
-      highlight: true
       index:
       - K70
       - K77
@@ -17658,7 +17497,6 @@ categories:
           index: K921
           name: K92.1
         - docs: Gastrointestinal haemorrhage, unspecified
-          highlight: true
           index: K922
           name: K92.2
         - docs: Other specified diseases of digestive system
@@ -17672,7 +17510,6 @@ categories:
           index: K929
           name: K92.9
         docs: Other diseases of digestive system
-        highlight: true
         index: K92
         name: K92
       - categories:
@@ -17695,7 +17532,6 @@ categories:
       - cirrhosis
       - hepatic_failure
       - portal_hypertension
-      highlight: true
       index:
       - K90
       - K93
@@ -17722,9 +17558,8 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
-    highlight: true
     index:
     - K00
     - K93
@@ -19062,7 +18897,7 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
     index:
     - L00
@@ -19689,7 +19524,6 @@ categories:
           name: M24
         - categories:
           - docs: Haemarthrosis
-            highlight: true
             index: M250
             name: M25.0
           - docs: Fistula of joint
@@ -19738,17 +19572,14 @@ categories:
             index: M259
             name: M25.9
           docs: Other joint disorders, not elsewhere classified
-          highlight: true
           index: M25
           name: M25
         docs: Other joint disorders
-        highlight: true
         index:
         - M20
         - M25
         name: M20-M25
       docs: Arthropathies
-      highlight: true
       index:
       - M00
       - M25
@@ -21203,9 +21034,8 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
-    highlight: true
     index:
     - M00
     - M99
@@ -22133,7 +21963,6 @@ categories:
           index: N420
           name: N42.0
         - docs: Congestion and haemorrhage of prostate
-          highlight: true
           index: N421
           name: N42.1
         - docs: Atrophy of prostate
@@ -22157,7 +21986,6 @@ categories:
           index: N429
           name: N42.9
         docs: Other disorders of prostate
-        highlight: true
         index: N42
         name: N42
       - categories:
@@ -22307,7 +22135,6 @@ categories:
       - ckd5
       - ckd
       - ckd.other
-      highlight: true
       index:
       - N40
       - N51
@@ -22895,11 +22722,9 @@ categories:
           index: N922
           name: N92.2
         - docs: Ovulation bleeding
-          highlight: true
           index: N923
           name: N92.3
         - docs: Excessive bleeding in the premenopausal period
-          highlight: true
           index: N924
           name: N92.4
         - docs: Other specified irregular menstruation
@@ -22913,24 +22738,19 @@ categories:
           index: N926
           name: N92.6
         docs: Excessive, frequent and irregular menstruation
-        highlight: true
         index: N92
         name: N92
       - categories:
         - docs: Postcoital and contact bleeding
-          highlight: true
           index: N930
           name: N93.0
         - docs: Other specified abnormal uterine and vaginal bleeding
-          highlight: true
           index: N938
           name: N93.8
         - docs: Abnormal uterine and vaginal bleeding, unspecified
-          highlight: true
           index: N939
           name: N93.9
         docs: Other abnormal uterine and vaginal bleeding
-        highlight: true
         index: N93
         name: N93
       - categories:
@@ -22968,7 +22788,6 @@ categories:
         name: N94
       - categories:
         - docs: Postmenopausal bleeding
-          highlight: true
           index: N950
           name: N95.0
         - docs: Menopausal and female climacteric states
@@ -22997,7 +22816,6 @@ categories:
           index: N959
           name: N95.9
         docs: Menopausal and other perimenopausal disorders
-        highlight: true
         index: N95
         name: N95
       - docs: Habitual aborter
@@ -23065,7 +22883,6 @@ categories:
       - ckd5
       - ckd
       - ckd.other
-      highlight: true
       index:
       - N80
       - N98
@@ -23131,9 +22948,8 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
-    highlight: true
     index:
     - N00
     - N99
@@ -23358,15 +23174,12 @@ categories:
           index: S063
           name: S06.3
         - docs: Epidural haemorrhage
-          highlight: true
           index: S064
           name: S06.4
         - docs: Traumatic subdural haemorrhage
-          highlight: true
           index: S065
           name: S06.5
         - docs: Traumatic subarachnoid haemorrhage
-          highlight: true
           index: S066
           name: S06.6
         - docs: Intracranial injury with prolonged coma
@@ -23385,7 +23198,6 @@ categories:
           index: S069
           name: S06.9
         docs: Intracranial injury
-        highlight: true
         index: S06
         name: S06
       - categories:
@@ -23449,7 +23261,6 @@ categories:
         index: S09
         name: S09
       docs: Injuries to the head
-      highlight: true
       index:
       - S00
       - S09
@@ -23800,7 +23611,6 @@ categories:
         name: S25
       - categories:
         - docs: Injury of heart with haemopericardium
-          highlight: true
           index: S260
           name: S26.0
         - docs: Other injuries of heart
@@ -23814,7 +23624,6 @@ categories:
           index: S269
           name: S26.9
         docs: Injury of heart
-        highlight: true
         index: S26
         name: S26
       - categories:
@@ -23824,7 +23633,6 @@ categories:
           index: S270
           name: S27.0
         - docs: Traumatic haemothorax
-          highlight: true
           index: S271
           name: S27.1
         - docs: Traumatic haemopneumothorax
@@ -23868,7 +23676,6 @@ categories:
           index: S279
           name: S27.9
         docs: Injury of other and unspecified intrathoracic organs
-        highlight: true
         index: S27
         name: S27
       - categories:
@@ -23902,7 +23709,6 @@ categories:
         index: S29
         name: S29
       docs: Injuries to the thorax
-      highlight: true
       index:
       - S20
       - S29
@@ -27447,7 +27253,6 @@ categories:
           index: T791
           name: T79.1
         - docs: Traumatic secondary and recurrent haemorrhage
-          highlight: true
           index: T792
           name: T79.2
         - docs: Post-traumatic wound infection, not elsewhere classified
@@ -27486,11 +27291,9 @@ categories:
           index: T799
           name: T79.9
         docs: Certain early complications of trauma, not elsewhere classified
-        highlight: true
         index: T79
         name: T79
       docs: Certain early complications of trauma
-      highlight: true
       index:
       - T79
       - T79
@@ -27531,7 +27334,6 @@ categories:
         name: T80
       - categories:
         - docs: Haemorrhage and haematoma complicating a procedure, not elsewhere classified
-          highlight: true
           index: T810
           name: T81.0
         - docs: Shock during or resulting from a procedure, not elsewhere classified
@@ -27580,7 +27382,6 @@ categories:
           index: T819
           name: T81.9
         docs: Complications of procedures, not elsewhere classified
-        highlight: true
         index: T81
         name: T81
       - categories:
@@ -27815,7 +27616,6 @@ categories:
         index: T88
         name: T88
       docs: Complications of surgical and medical care, not elsewhere classified
-      highlight: true
       index:
       - T80
       - T88
@@ -28028,9 +27828,8 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
-    highlight: true
     index:
     - S00
     - T98
@@ -28098,7 +27897,6 @@ categories:
           index: O030
           name: O03.0
         - docs: 'Spontaneous abortion : incomplete, complicated by delayed or excessive haemorrhage'
-          highlight: true
           index: O031
           name: O03.1
         - docs: 'Spontaneous abortion : incomplete, complicated by embolism'
@@ -28122,7 +27920,6 @@ categories:
           index: O035
           name: O03.5
         - docs: 'Spontaneous abortion : complete or unspecified, complicated by delayed or excessive haemorrhage'
-          highlight: true
           index: O036
           name: O03.6
         - docs: 'Spontaneous abortion : complete or unspecified, complicated by embolism'
@@ -28141,7 +27938,6 @@ categories:
           index: O039
           name: O03.9
         docs: Spontaneous abortion
-        highlight: true
         index: O03
         name: O03
       - categories:
@@ -28151,7 +27947,6 @@ categories:
           index: O040
           name: O04.0
         - docs: 'Medical abortion : incomplete, complicated by delayed or excessive haemorrhage'
-          highlight: true
           index: O041
           name: O04.1
         - docs: 'Medical abortion : incomplete, complicated by embolism'
@@ -28175,7 +27970,6 @@ categories:
           index: O045
           name: O04.5
         - docs: 'Medical abortion : complete or unspecified, complicated by delayed or excessive haemorrhage'
-          highlight: true
           index: O046
           name: O04.6
         - docs: 'Medical abortion : complete or unspecified, complicated by embolism'
@@ -28194,7 +27988,6 @@ categories:
           index: O049
           name: O04.9
         docs: Medical abortion
-        highlight: true
         index: O04
         name: O04
       - categories:
@@ -28204,7 +27997,6 @@ categories:
           index: O050
           name: O05.0
         - docs: 'Other abortion : incomplete, complicated by delayed or excessive haemorrhage'
-          highlight: true
           index: O051
           name: O05.1
         - docs: 'Other abortion : incomplete, complicated by embolism'
@@ -28228,7 +28020,6 @@ categories:
           index: O055
           name: O05.5
         - docs: 'Other abortion : complete or unspecified, complicated by delayed or excessive haemorrhage'
-          highlight: true
           index: O056
           name: O05.6
         - docs: 'Other abortion : complete or unspecified, complicated by embolism'
@@ -28247,7 +28038,6 @@ categories:
           index: O059
           name: O05.9
         docs: Other abortion
-        highlight: true
         index: O05
         name: O05
       - categories:
@@ -28257,7 +28047,6 @@ categories:
           index: O060
           name: O06.0
         - docs: 'Unspecified abortion : incomplete, complicated by delayed or excessive haemorrhage'
-          highlight: true
           index: O061
           name: O06.1
         - docs: 'Unspecified abortion : incomplete, complicated by embolism'
@@ -28281,7 +28070,6 @@ categories:
           index: O065
           name: O06.5
         - docs: 'Unspecified abortion : complete or unspecified, complicated by delayed or excessive haemorrhage'
-          highlight: true
           index: O066
           name: O06.6
         - docs: 'Unspecified abortion : complete or unspecified, complicated by embolism'
@@ -28300,7 +28088,6 @@ categories:
           index: O069
           name: O06.9
         docs: Unspecified abortion
-        highlight: true
         index: O06
         name: O06
       - categories:
@@ -28310,7 +28097,6 @@ categories:
           index: O070
           name: O07.0
         - docs: Failed medical abortion, complicated by delayed or excessive haemorrhage
-          highlight: true
           index: O071
           name: O07.1
         - docs: Failed medical abortion, complicated by embolism
@@ -28334,7 +28120,6 @@ categories:
           index: O075
           name: O07.5
         - docs: Other and unspecified failed attempted abortion, complicated by delayed or excessive haemorrhage
-          highlight: true
           index: O076
           name: O07.6
         - docs: Other and unspecified failed attempted abortion, complicated by embolism
@@ -28353,7 +28138,6 @@ categories:
           index: O079
           name: O07.9
         docs: Failed attempted abortion
-        highlight: true
         index: O07
         name: O07
       - categories:
@@ -28363,7 +28147,6 @@ categories:
           index: O080
           name: O08.0
         - docs: Delayed or excessive haemorrhage following abortion and ectopic and molar pregnancy
-          highlight: true
           index: O081
           name: O08.1
         - docs: Embolism following abortion and ectopic and molar pregnancy
@@ -28407,11 +28190,9 @@ categories:
           index: O089
           name: O08.9
         docs: Complications following abortion and ectopic and molar pregnancy
-        highlight: true
         index: O08
         name: O08
       docs: Pregnancy with abortive outcome
-      highlight: true
       index:
       - O00
       - O08
@@ -28506,15 +28287,12 @@ categories:
           index: O200
           name: O20.0
         - docs: Other haemorrhage in early pregnancy
-          highlight: true
           index: O208
           name: O20.8
         - docs: Haemorrhage in early pregnancy, unspecified
-          highlight: true
           index: O209
           name: O20.9
         docs: Haemorrhage in early pregnancy
-        highlight: true
         index: O20
         name: O20
       - categories:
@@ -28724,7 +28502,6 @@ categories:
         index: O29
         name: O29
       docs: Other maternal disorders predominantly related to pregnancy
-      highlight: true
       index:
       - O20
       - O29
@@ -29012,15 +28789,12 @@ categories:
         - docs: Placenta praevia specified as without haemorrhage
           exclude:
           - bleeding
-          highlight: true
           index: O440
           name: O44.0
         - docs: Placenta praevia with haemorrhage
-          highlight: true
           index: O441
           name: O44.1
         docs: Placenta praevia
-        highlight: true
         index: O44
         name: O44
       - categories:
@@ -29040,19 +28814,15 @@ categories:
         name: O45
       - categories:
         - docs: Antepartum haemorrhage with coagulation defect
-          highlight: true
           index: O460
           name: O46.0
         - docs: Other antepartum haemorrhage
-          highlight: true
           index: O468
           name: O46.8
         - docs: Antepartum haemorrhage, unspecified
-          highlight: true
           index: O469
           name: O46.9
         docs: Antepartum haemorrhage, not elsewhere classified
-        highlight: true
         index: O46
         name: O46
       - categories:
@@ -29076,7 +28846,6 @@ categories:
         index: O48
         name: O48
       docs: Maternal care related to the fetus and amniotic cavity and possible delivery problems
-      highlight: true
       index:
       - O30
       - O48
@@ -29255,19 +29024,15 @@ categories:
         name: O66
       - categories:
         - docs: Intrapartum haemorrhage with coagulation defect
-          highlight: true
           index: O670
           name: O67.0
         - docs: Other intrapartum haemorrhage
-          highlight: true
           index: O678
           name: O67.8
         - docs: Intrapartum haemorrhage, unspecified
-          highlight: true
           index: O679
           name: O67.9
         docs: Labour and delivery complicated by intrapartum haemorrhage, not elsewhere classified
-        highlight: true
         index: O67
         name: O67
       - categories:
@@ -29383,37 +29148,30 @@ categories:
         name: O71
       - categories:
         - docs: Third-stage haemorrhage
-          highlight: true
           index: O720
           name: O72.0
         - docs: Other immediate postpartum haemorrhage
-          highlight: true
           index: O721
           name: O72.1
         - docs: Delayed and secondary postpartum haemorrhage
-          highlight: true
           index: O722
           name: O72.2
         - docs: Postpartum coagulation defects
           index: O723
           name: O72.3
         docs: Postpartum haemorrhage
-        highlight: true
         index: O72
         name: O72
       - categories:
         - docs: Retained placenta without haemorrhage
-          highlight: true
           index: O730
           name: O73.0
         - docs: Retained portions of placenta and membranes, without haemorrhage
-          highlight: true
           index: O731
           name: O73.1
         docs: Retained placenta and membranes, without haemorrhage
         exclude:
         - bleeding
-        highlight: true
         index: O73
         name: O73
       - categories:
@@ -29489,7 +29247,6 @@ categories:
         index: O75
         name: O75
       docs: Complications of labour and delivery
-      highlight: true
       index:
       - O60
       - O75
@@ -29907,9 +29664,8 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
-    highlight: true
     index:
     - O00
     - O99
@@ -29995,7 +29751,6 @@ categories:
           index: P020
           name: P02.0
         - docs: Fetus and newborn atrial_fibfected by other forms of placental separation and haemorrhage
-          highlight: true
           index: P021
           name: P02.1
         - docs: Fetus and newborn atrial_fibfected by other and unspecified morphological and functional abnormalities of placenta
@@ -30039,7 +29794,6 @@ categories:
           index: P029
           name: P02.9
         docs: Fetus and newborn atrial_fibfected by complications of placenta, cord and membranes
-        highlight: true
         index: P02
         name: P02
       - categories:
@@ -30109,7 +29863,6 @@ categories:
         index: P04
         name: P04
       docs: Fetus and newborn atrial_fibfected by maternal factors and by complications of pregnancy, labour and delivery
-      highlight: true
       index:
       - P00
       - P04
@@ -30170,19 +29923,15 @@ categories:
     - categories:
       - categories:
         - docs: Subdural haemorrhage due to birth injury
-          highlight: true
           index: P100
           name: P10.0
         - docs: Cerebral haemorrhage due to birth injury
-          highlight: true
           index: P101
           name: P10.1
         - docs: Intraventricular haemorrhage due to birth injury
-          highlight: true
           index: P102
           name: P10.2
         - docs: Subarachnoid haemorrhage due to birth injury
-          highlight: true
           index: P103
           name: P10.3
         - docs: Tentorial tear due to birth injury
@@ -30191,15 +29940,12 @@ categories:
           index: P104
           name: P10.4
         - docs: Other intracranial lacerations and haemorrhages due to birth injury
-          highlight: true
           index: P108
           name: P10.8
         - docs: Unspecified intracranial laceration and haemorrhage due to birth injury
-          highlight: true
           index: P109
           name: P10.9
         docs: Intracranial laceration and haemorrhage due to birth injury
-        highlight: true
         index: P10
         name: P10
       - categories:
@@ -30241,7 +29987,6 @@ categories:
           index: P121
           name: P12.1
         - docs: Epicranial subaponeurotic haemorrhage due to birth injury
-          highlight: true
           index: P122
           name: P12.2
         - docs: Bruising of scalp due to birth injury
@@ -30265,7 +30010,6 @@ categories:
           index: P129
           name: P12.9
         docs: Birth injury to scalp
-        highlight: true
         index: P12
         name: P12
       - categories:
@@ -30353,7 +30097,6 @@ categories:
         index: P15
         name: P15
       docs: Birth trauma
-      highlight: true
       index:
       - P10
       - P15
@@ -30487,23 +30230,18 @@ categories:
         name: P25
       - categories:
         - docs: Tracheobronchial haemorrhage originating in the perinatal period
-          highlight: true
           index: P260
           name: P26.0
         - docs: Massive pulmonary haemorrhage originating in the perinatal period
-          highlight: true
           index: P261
           name: P26.1
         - docs: Other pulmonary haemorrhages originating in the perinatal period
-          highlight: true
           index: P268
           name: P26.8
         - docs: Unspecified pulmonary haemorrhage originating in the perinatal period
-          highlight: true
           index: P269
           name: P26.9
         docs: Pulmonary haemorrhage originating in the perinatal period
-        highlight: true
         index: P26
         name: P26
       - categories:
@@ -30582,7 +30320,6 @@ categories:
         index: P29
         name: P29
       docs: Respiratory and cardiovascular disorders specific to the perinatal period
-      highlight: true
       index:
       - P20
       - P29
@@ -30675,7 +30412,6 @@ categories:
       - docs: Omphalitis of newborn with or without mild haemorrhage
         exclude:
         - bleeding
-        highlight: true
         index: P38
         name: P38
       - categories:
@@ -30706,7 +30442,6 @@ categories:
         index: P39
         name: P39
       docs: Infections specific to the perinatal period
-      highlight: true
       index:
       - P35
       - P39
@@ -30723,11 +30458,9 @@ categories:
           index: P502
           name: P50.2
         - docs: Haemorrhage into co-twin
-          highlight: true
           index: P503
           name: P50.3
         - docs: Haemorrhage into maternal circulation
-          highlight: true
           index: P504
           name: P50.4
         - docs: Fetal blood loss from cut end of co-twin's cord
@@ -30742,71 +30475,55 @@ categories:
         docs: Fetal blood loss
         exclude:
         - bleeding
-        highlight: true
         index: P50
         name: P50
       - categories:
         - docs: Massive umbilical haemorrhage of newborn
-          highlight: true
           index: P510
           name: P51.0
         - docs: Other umbilical haemorrhages of newborn
-          highlight: true
           index: P518
           name: P51.8
         - docs: Umbilical haemorrhage of newborn, unspecified
-          highlight: true
           index: P519
           name: P51.9
         docs: Umbilical haemorrhage of newborn
-        highlight: true
         index: P51
         name: P51
       - categories:
         - docs: Intraventricular (nontraumatic) haemorrhage, grade 1, of fetus and newborn
-          highlight: true
           index: P520
           name: P52.0
         - docs: Intraventricular (nontraumatic) haemorrhage, grade 2, of fetus and newborn
-          highlight: true
           index: P521
           name: P52.1
         - docs: Intraventricular (nontraumatic) haemorrhage, grade 3, and grade 4 of fetus and newborn
-          highlight: true
           index: P522
           name: P52.2
         - docs: Unspecified intraventricular (nontraumatic) haemorrhage of fetus and newborn
-          highlight: true
           index: P523
           name: P52.3
         - docs: Intracerebral (nontraumatic) haemorrhage of fetus and newborn
-          highlight: true
           index: P524
           name: P52.4
         - docs: Subarachnoid (nontraumatic) haemorrhage of fetus and newborn
-          highlight: true
           index: P525
           name: P52.5
         - docs: Cerebellar (nontraumatic) and posterior fossa haemorrhage of fetus and newborn
-          highlight: true
           index: P526
           name: P52.6
         - docs: Other intracranial (nontraumatic) haemorrhages of fetus and newborn
-          highlight: true
           index: P528
           name: P52.8
         - docs: Intracranial (nontraumatic) haemorrhage of fetus and newborn, unspecified
-          highlight: true
           index: P529
           name: P52.9
         docs: Intracranial nontraumatic haemorrhage of fetus and newborn
-        highlight: true
         index: P52
         name: P52
       - docs: Haemorrhagic disease of fetus and newborn
         exclude:
         - bleeding
-        highlight: true
         index: P53
         name: P53
       - categories:
@@ -30817,35 +30534,27 @@ categories:
           index: P541
           name: P54.1
         - docs: Neonatal rectal haemorrhage
-          highlight: true
           index: P542
           name: P54.2
         - docs: Other neonatal gastrointestinal haemorrhage
-          highlight: true
           index: P543
           name: P54.3
         - docs: Neonatal adrenal haemorrhage
-          highlight: true
           index: P544
           name: P54.4
         - docs: Neonatal cutaneous haemorrhage
-          highlight: true
           index: P545
           name: P54.5
         - docs: Neonatal vaginal haemorrhage
-          highlight: true
           index: P546
           name: P54.6
         - docs: Other specified neonatal haemorrhages
-          highlight: true
           index: P548
           name: P54.8
         - docs: Neonatal haemorrhage, unspecified
-          highlight: true
           index: P549
           name: P54.9
         docs: Other neonatal haemorrhages
-        highlight: true
         index: P54
         name: P54
       - categories:
@@ -30898,7 +30607,6 @@ categories:
           index: P580
           name: P58.0
         - docs: Neonatal jaundice due to bleeding
-          highlight: true
           index: P581
           name: P58.1
         - docs: Neonatal jaundice due to infection
@@ -30932,7 +30640,6 @@ categories:
           index: P589
           name: P58.9
         docs: Neonatal jaundice due to other excessive haemolysis
-        highlight: true
         index: P58
         name: P58
       - categories:
@@ -30998,7 +30705,6 @@ categories:
         index: P61
         name: P61
       docs: Haemorrhagic and haematological disorders of fetus and newborn
-      highlight: true
       index:
       - P50
       - P61
@@ -31379,9 +31085,8 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
-    highlight: true
     index:
     - P00
     - P96
@@ -33707,7 +33412,7 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
     index:
     - Q00
@@ -33770,22 +33475,18 @@ categories:
           index: R040
           name: R04.0
         - docs: Haemorrhage from throat
-          highlight: true
           index: R041
           name: R04.1
         - docs: Haemoptysis
           index: R042
           name: R04.2
         - docs: Haemorrhage from other sites in respiratory passages
-          highlight: true
           index: R048
           name: R04.8
         - docs: Haemorrhage from respiratory passages, unspecified
-          highlight: true
           index: R049
           name: R04.9
         docs: Haemorrhage from respiratory passages
-        highlight: true
         index: R04
         name: R04
       - docs: Cough
@@ -33869,7 +33570,6 @@ categories:
         index: R09
         name: R09
       docs: Symptoms and signs involving the circulatory and respiratory systems
-      highlight: true
       index:
       - R00
       - R09
@@ -33901,7 +33601,6 @@ categories:
         index: R12
         name: R12
       - docs: Dysphagia
-        highlight: true
         index: R13
         name: R13
       - docs: Flatulence and related conditions
@@ -33960,7 +33659,6 @@ categories:
       docs: Symptoms and signs involving the digestive system and abdomen
       exclude:
       - bleeding
-      highlight: true
       index:
       - R10
       - R19
@@ -34471,7 +34169,6 @@ categories:
         index: R57
         name: R57
       - docs: Haemorrhage, not elsewhere classified
-        highlight: true
         index: R58
         name: R58
       - categories:
@@ -34542,7 +34239,6 @@ categories:
           index: R631
           name: R63.1
         - docs: Polyphagia
-          highlight: true
           index: R632
           name: R63.2
         - docs: Feeding difficulties and mismanagement
@@ -34563,7 +34259,6 @@ categories:
         docs: Symptoms and signs concerning food and fluid intake
         exclude:
         - bleeding
-        highlight: true
         index: R63
         name: R63
       - docs: Cachexia
@@ -34619,7 +34314,6 @@ categories:
         index: R69
         name: R69
       docs: General symptoms and signs
-      highlight: true
       index:
       - R50
       - R69
@@ -35164,9 +34858,8 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
-    highlight: true
     index:
     - R00
     - R99
@@ -40144,7 +39837,7 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
     index:
     - V01
@@ -42540,7 +42233,7 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
     index:
     - Z00
@@ -42729,14 +42422,15 @@ categories:
     - type_2_diabetes
     - diabetes_unspecified
     - ischaemic_stroke
-    - chronic_ischaemia_heart_disease
+    - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
     index:
     - U00
     - U85
     name: XXII
   docs: ICD-10 codes, 2016 release
-  highlight: true
+  exclude:
+  - all_ischaemia
   index:
   - A00
   - Z99
@@ -42746,8 +42440,9 @@ groups:
 - acs_nstemi
 - acs_unstable_angina
 - bleeding
-- chronic_ischaemia_heart_disease
+- chronic_ischaemic_heart_disease
 - other_ischaemic_heart_diseases
+- all_ischaemia
 - atrial_fib
 - ckd1
 - ckd2
@@ -42768,4 +42463,3 @@ groups:
 - type_2_diabetes
 - diabetes_unspecified
 - ischaemic_stroke
-highlight: true
