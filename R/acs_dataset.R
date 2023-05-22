@@ -59,6 +59,7 @@ processed_acs_dataset <- function(config_file = "config.yaml") {
     dataset <- dplyr::mutate(dataset,
                              ischaemia_after = acs_stemi_after +
                                  acs_nstemi_after +
+                                 all_ischaemia_after +
                                  ischaemic_stroke_after +
                                  (cause_of_death == "cardiac"))
 }
