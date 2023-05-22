@@ -29,7 +29,7 @@
 
 # Set to true to load the dataset from a file, otherwise
 # load from the database
-load_from_file: false
+load_from_file: true
 
 file:
   directory: gendata/
