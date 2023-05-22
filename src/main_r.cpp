@@ -274,6 +274,11 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		    continue;
 		}
 
+		auto row_number{row.current_row_number()};
+		if (row_number % 500000 == 0) {
+		    std::cout << "Got to row " << row_number << std::endl;
+		}
+
 		auto nhs_number{patient.nhs_number()};
 		const auto & mortality{patient.mortality()};
 
