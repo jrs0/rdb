@@ -428,7 +428,7 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 			}
 			
 			patient_record << YAML::Key << "inclusion_trigger";
-			if (stemi_flag) {
+			if (pci_triggered) {
 			    patient_record << YAML::Value << "PCI";
 			} else {
 			    patient_record << YAML::Value << "ACS";
@@ -532,6 +532,7 @@ Rcpp::List get_flat_codes(const Rcpp::CharacterVector & codes_file_path) {
     }
     return list_r;
 }
+
 
 /// Return a list of all the groups, and which codes they contain.
 /// The structure is a named list. The names are the groups, and
