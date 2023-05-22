@@ -3048,6 +3048,9 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - all_ischaemia
+    - heart_failure
+    - all_diabetes
     index:
     - A00
     - B99
@@ -5943,6 +5946,9 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - all_ischaemia
+    - heart_failure
+    - all_diabetes
     index:
     - C00
     - D48
@@ -6686,6 +6692,9 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - all_ischaemia
+    - heart_failure
+    - all_diabetes
     index:
     - D50
     - D89
@@ -6848,6 +6857,7 @@ categories:
       - type_1_diabetes
       - type_2_diabetes
       - diabetes_unspecified
+      - all_diabetes
       index:
       - E00
       - E07
@@ -7079,6 +7089,7 @@ categories:
       - type_1_diabetes
       - type_2_diabetes
       - diabetes_unspecified
+      - all_diabetes
       index:
       - E15
       - E16
@@ -7098,6 +7109,8 @@ categories:
           index: E209
           name: E20.9
         docs: Hypoparathyroidism
+        exclude:
+        - all_diabetes
         index: E20
         name: E20
       - categories:
@@ -7120,6 +7133,8 @@ categories:
           index: E215
           name: E21.5
         docs: Hyperparathyroidism and other disorders of parathyroid gland
+        exclude:
+        - all_diabetes
         index: E21
         name: E21
       - categories:
@@ -7139,25 +7154,37 @@ categories:
           index: E229
           name: E22.9
         docs: Hyperfunction of pituitary gland
+        exclude:
+        - all_diabetes
         index: E22
         name: E22
       - categories:
         - docs: Hypopituitarism
+          exclude:
+          - all_diabetes
           index: E230
           name: E23.0
         - docs: Drug-induced hypopituitarism
+          exclude:
+          - all_diabetes
           index: E231
           name: E23.1
         - docs: Diabetes insipidus
           index: E232
           name: E23.2
         - docs: Hypothalamic dysfunction, not elsewhere classified
+          exclude:
+          - all_diabetes
           index: E233
           name: E23.3
         - docs: Other disorders of pituitary gland
+          exclude:
+          - all_diabetes
           index: E236
           name: E23.6
         - docs: Disorder of pituitary gland, unspecified
+          exclude:
+          - all_diabetes
           index: E237
           name: E23.7
         docs: Hypofunction and other disorders of pituitary gland
@@ -7186,6 +7213,8 @@ categories:
           index: E249
           name: E24.9
         docs: Cushing syndrome
+        exclude:
+        - all_diabetes
         index: E24
         name: E24
       - categories:
@@ -7199,6 +7228,8 @@ categories:
           index: E259
           name: E25.9
         docs: Adrenogenital disorders
+        exclude:
+        - all_diabetes
         index: E25
         name: E25
       - categories:
@@ -7215,6 +7246,8 @@ categories:
           index: E269
           name: E26.9
         docs: Hyperaldosteronism
+        exclude:
+        - all_diabetes
         index: E26
         name: E26
       - categories:
@@ -7243,6 +7276,8 @@ categories:
           index: E279
           name: E27.9
         docs: Other disorders of adrenal gland
+        exclude:
+        - all_diabetes
         index: E27
         name: E27
       - categories:
@@ -7265,6 +7300,8 @@ categories:
           index: E289
           name: E28.9
         docs: Ovarian dysfunction
+        exclude:
+        - all_diabetes
         index: E28
         name: E28
       - categories:
@@ -7281,6 +7318,8 @@ categories:
           index: E299
           name: E29.9
         docs: Testicular dysfunction
+        exclude:
+        - all_diabetes
         index: E29
         name: E29
       - categories:
@@ -7297,6 +7336,8 @@ categories:
           index: E309
           name: E30.9
         docs: Disorders of puberty, not elsewhere classified
+        exclude:
+        - all_diabetes
         index: E30
         name: E30
       - categories:
@@ -7313,6 +7354,8 @@ categories:
           index: E319
           name: E31.9
         docs: Polyglandular dysfunction
+        exclude:
+        - all_diabetes
         index: E31
         name: E31
       - categories:
@@ -7329,6 +7372,8 @@ categories:
           index: E329
           name: E32.9
         docs: Diseases of thymus
+        exclude:
+        - all_diabetes
         index: E32
         name: E32
       - categories:
@@ -7357,6 +7402,8 @@ categories:
           index: E349
           name: E34.9
         docs: Other endocrine disorders
+        exclude:
+        - all_diabetes
         index: E34
         name: E34
       - categories:
@@ -7370,6 +7417,8 @@ categories:
           index: E358
           name: E35.8
         docs: Disorders of endocrine glands in diseases classified elsewhere
+        exclude:
+        - all_diabetes
         index: E35
         name: E35
       docs: Disorders of other endocrine glands
@@ -7415,6 +7464,7 @@ categories:
       - type_1_diabetes
       - type_2_diabetes
       - diabetes_unspecified
+      - all_diabetes
       index:
       - E40
       - E46
@@ -7604,6 +7654,7 @@ categories:
       - type_1_diabetes
       - type_2_diabetes
       - diabetes_unspecified
+      - all_diabetes
       index:
       - E50
       - E64
@@ -7658,6 +7709,7 @@ categories:
       - type_1_diabetes
       - type_2_diabetes
       - diabetes_unspecified
+      - all_diabetes
       index:
       - E65
       - E68
@@ -8072,6 +8124,7 @@ categories:
       - type_1_diabetes
       - type_2_diabetes
       - diabetes_unspecified
+      - all_diabetes
       index:
       - E70
       - E90
@@ -8101,6 +8154,8 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - all_ischaemia
+    - heart_failure
     index:
     - E00
     - E90
@@ -8151,6 +8206,8 @@ categories:
       - ischaemic_stroke
       - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
+      - all_ischaemia
+      - heart_failure
       index:
       - I00
       - I02
@@ -8266,6 +8323,8 @@ categories:
       - ischaemic_stroke
       - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
+      - all_ischaemia
+      - heart_failure
       index:
       - I05
       - I09
@@ -8274,6 +8333,7 @@ categories:
       - docs: Essential (primary) hypertension
         exclude:
         - ckd.other
+        - heart_failure
         index: I10
         name: I10
       - categories:
@@ -8281,6 +8341,8 @@ categories:
           index: I110
           name: I11.0
         - docs: Hypertensive heart disease without (congestive) heart failure
+          exclude:
+          - heart_failure
           index: I119
           name: I11.9
         docs: Hypertensive heart disease
@@ -8296,6 +8358,8 @@ categories:
           index: I129
           name: I12.9
         docs: Hypertensive renal disease
+        exclude:
+        - heart_failure
         index: I12
         name: I12
       - categories:
@@ -8303,12 +8367,16 @@ categories:
           index: I130
           name: I13.0
         - docs: Hypertensive heart and renal disease with renal failure
+          exclude:
+          - heart_failure
           index: I131
           name: I13.1
         - docs: Hypertensive heart and renal disease with both (congestive) heart failure and renal failure
           index: I132
           name: I13.2
         - docs: Hypertensive heart and renal disease, unspecified
+          exclude:
+          - heart_failure
           index: I139
           name: I13.9
         docs: Hypertensive heart and renal disease
@@ -8333,6 +8401,7 @@ categories:
         docs: Secondary hypertension
         exclude:
         - ckd.other
+        - heart_failure
         index: I15
         name: I15
       docs: Hypertensive diseases
@@ -8346,6 +8415,7 @@ categories:
       - ischaemic_stroke
       - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
+      - all_ischaemia
       index:
       - I10
       - I15
@@ -8378,6 +8448,7 @@ categories:
         - acs_stemi
         - acs_nstemi
         - chronic_ischaemic_heart_disease
+        - all_ischaemia
         index: I20
         name: I20
       - categories:
@@ -8422,6 +8493,7 @@ categories:
         - bleeding
         - acs_unstable_angina
         - chronic_ischaemic_heart_disease
+        - all_ischaemia
         index: I21
         name: I21
       - categories:
@@ -8451,6 +8523,7 @@ categories:
         - acs_unstable_angina
         - chronic_ischaemic_heart_disease
         - other_ischaemic_heart_diseases
+        - all_ischaemia
         index: I22
         name: I22
       - categories:
@@ -8500,6 +8573,7 @@ categories:
         - acs_nstemi
         - acs_unstable_angina
         - chronic_ischaemic_heart_disease
+        - all_ischaemia
         index: I23
         name: I23
       - categories:
@@ -8522,6 +8596,7 @@ categories:
         - acs_nstemi
         - acs_unstable_angina
         - chronic_ischaemic_heart_disease
+        - all_ischaemia
         index: I24
         name: I24
       - categories:
@@ -8559,6 +8634,7 @@ categories:
         - acs_nstemi
         - acs_unstable_angina
         - other_ischaemic_heart_diseases
+        - all_ischaemia
         index: I25
         name: I25
       docs: Ischaemic heart diseases
@@ -8567,6 +8643,7 @@ categories:
       - atrial_fib
       - portal_hypertension
       - ischaemic_stroke
+      - heart_failure
       index:
       - I20
       - I25
@@ -8629,6 +8706,8 @@ categories:
       - ischaemic_stroke
       - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
+      - all_ischaemia
+      - heart_failure
       index:
       - I26
       - I28
@@ -8651,6 +8730,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I30
         name: I30
       - categories:
@@ -8685,6 +8765,7 @@ categories:
         docs: Other diseases of pericardium
         exclude:
         - atrial_fib
+        - heart_failure
         index: I31
         name: I31
       - categories:
@@ -8701,6 +8782,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I32
         name: I32
       - categories:
@@ -8714,6 +8796,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I33
         name: I33
       - categories:
@@ -8736,6 +8819,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I34
         name: I34
       - categories:
@@ -8758,6 +8842,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I35
         name: I35
       - categories:
@@ -8780,6 +8865,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I36
         name: I36
       - categories:
@@ -8802,12 +8888,14 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I37
         name: I37
       - docs: Endocarditis, valve unspecified
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I38
         name: I38
       - categories:
@@ -8833,6 +8921,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I39
         name: I39
       - categories:
@@ -8852,6 +8941,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I40
         name: I40
       - categories:
@@ -8871,6 +8961,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I41
         name: I41
       - categories:
@@ -8908,6 +8999,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I42
         name: I42
       - categories:
@@ -8927,6 +9019,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I43
         name: I43
       - categories:
@@ -8958,6 +9051,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I44
         name: I44
       - categories:
@@ -8992,6 +9086,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I45
         name: I45
       - categories:
@@ -9008,6 +9103,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I46
         name: I46
       - categories:
@@ -9027,6 +9123,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I47
         name: I47
       - categories:
@@ -9051,6 +9148,7 @@ categories:
         docs: Atrial fibrillation and flutter
         exclude:
         - bleeding
+        - heart_failure
         index: I48
         name: I48
       - categories:
@@ -9082,6 +9180,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I49
         name: I49
       - categories:
@@ -9135,6 +9234,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I51
         name: I51
       - categories:
@@ -9151,6 +9251,7 @@ categories:
         exclude:
         - bleeding
         - atrial_fib
+        - heart_failure
         index: I52
         name: I52
       docs: Other forms of heart disease
@@ -9163,6 +9264,7 @@ categories:
       - ischaemic_stroke
       - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
+      - all_ischaemia
       index:
       - I30
       - I52
@@ -9440,6 +9542,8 @@ categories:
       - acs_unstable_angina
       - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
+      - all_ischaemia
+      - heart_failure
       index:
       - I60
       - I69
@@ -9645,6 +9749,8 @@ categories:
       - ischaemic_stroke
       - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
+      - all_ischaemia
+      - heart_failure
       index:
       - I70
       - I79
@@ -9841,6 +9947,8 @@ categories:
       - ischaemic_stroke
       - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
+      - all_ischaemia
+      - heart_failure
       index:
       - I80
       - I89
@@ -9936,6 +10044,8 @@ categories:
       - ischaemic_stroke
       - chronic_ischaemic_heart_disease
       - other_ischaemic_heart_diseases
+      - all_ischaemia
+      - heart_failure
       index:
       - I95
       - I99
@@ -9958,6 +10068,7 @@ categories:
     - type_1_diabetes
     - type_2_diabetes
     - diabetes_unspecified
+    - all_diabetes
     index:
     - I00
     - I99
@@ -11571,6 +11682,9 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - all_ischaemia
+    - heart_failure
+    - all_diabetes
     index:
     - F00
     - F99
@@ -11692,6 +11806,8 @@ categories:
         index: G09
         name: G09
       docs: Inflammatory diseases of the central nervous system
+      exclude:
+      - all_ischaemia
       index:
       - G00
       - G09
@@ -11764,6 +11880,8 @@ categories:
         index: G14
         name: G14
       docs: Systemic atrophies primarily atrial_fibfecting the central nervous system
+      exclude:
+      - all_ischaemia
       index:
       - G10
       - G14
@@ -11885,6 +12003,8 @@ categories:
         index: G26
         name: G26
       docs: Extrapyramidal and movement disorders
+      exclude:
+      - all_ischaemia
       index:
       - G20
       - G26
@@ -11936,6 +12056,8 @@ categories:
         index: G32
         name: G32
       docs: Other degenerative diseases of the nervous system
+      exclude:
+      - all_ischaemia
       index:
       - G30
       - G32
@@ -11989,6 +12111,8 @@ categories:
         index: G37
         name: G37
       docs: Demyelinating diseases of the central nervous system
+      exclude:
+      - all_ischaemia
       index:
       - G35
       - G37
@@ -12026,6 +12150,8 @@ categories:
           index: G409
           name: G40.9
         docs: Epilepsy
+        exclude:
+        - all_ischaemia
         index: G40
         name: G40
       - categories:
@@ -12045,6 +12171,8 @@ categories:
           index: G419
           name: G41.9
         docs: Status epilepticus
+        exclude:
+        - all_ischaemia
         index: G41
         name: G41
       - categories:
@@ -12067,6 +12195,8 @@ categories:
           index: G439
           name: G43.9
         docs: Migraine
+        exclude:
+        - all_ischaemia
         index: G43
         name: G43
       - categories:
@@ -12089,22 +12219,34 @@ categories:
           index: G448
           name: G44.8
         docs: Other headache syndromes
+        exclude:
+        - all_ischaemia
         index: G44
         name: G44
       - categories:
         - docs: Vertebro-basilar artery syndrome
+          exclude:
+          - all_ischaemia
           index: G450
           name: G45.0
         - docs: Carotid artery syndrome (hemispheric)
+          exclude:
+          - all_ischaemia
           index: G451
           name: G45.1
         - docs: Multiple and bilateral precerebral artery syndromes
+          exclude:
+          - all_ischaemia
           index: G452
           name: G45.2
         - docs: Amaurosis fugax
+          exclude:
+          - all_ischaemia
           index: G453
           name: G45.3
         - docs: Transient global amnesia
+          exclude:
+          - all_ischaemia
           index: G454
           name: G45.4
         - docs: Other transient cerebral ischaemic attacks and related syndromes
@@ -12145,6 +12287,8 @@ categories:
           index: G468
           name: G46.8
         docs: Vascular syndromes of brain in cerebrovascular diseases
+        exclude:
+        - all_ischaemia
         index: G46
         name: G46
       - categories:
@@ -12170,6 +12314,8 @@ categories:
           index: G479
           name: G47.9
         docs: Sleep disorders
+        exclude:
+        - all_ischaemia
         index: G47
         name: G47
       docs: Episodic and paroxysmal disorders
@@ -12399,6 +12545,8 @@ categories:
         index: G59
         name: G59
       docs: Nerve, nerve root and plexus disorders
+      exclude:
+      - all_ischaemia
       index:
       - G50
       - G59
@@ -12493,6 +12641,8 @@ categories:
         index: G64
         name: G64
       docs: Polyneuropathies and other disorders of the peripheral nervous system
+      exclude:
+      - all_ischaemia
       index:
       - G60
       - G64
@@ -12593,6 +12743,8 @@ categories:
         index: G73
         name: G73
       docs: Diseases of myoneural junction and muscle
+      exclude:
+      - all_ischaemia
       index:
       - G70
       - G73
@@ -12687,6 +12839,8 @@ categories:
         index: G83
         name: G83
       docs: Cerebral palsy and other paralytic syndromes
+      exclude:
+      - all_ischaemia
       index:
       - G80
       - G83
@@ -12863,6 +13017,8 @@ categories:
         index: G99
         name: G99
       docs: Other disorders of the nervous system
+      exclude:
+      - all_ischaemia
       index:
       - G90
       - G99
@@ -12895,6 +13051,8 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - heart_failure
+    - all_diabetes
     index:
     - G00
     - G99
@@ -14073,6 +14231,9 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - all_ischaemia
+    - heart_failure
+    - all_diabetes
     index:
     - H00
     - H59
@@ -14576,6 +14737,9 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - all_ischaemia
+    - heart_failure
+    - all_diabetes
     index:
     - H60
     - H95
@@ -15607,6 +15771,9 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - all_ischaemia
+    - heart_failure
+    - all_diabetes
     index:
     - J00
     - J99
@@ -17560,6 +17727,9 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - all_ischaemia
+    - heart_failure
+    - all_diabetes
     index:
     - K00
     - K93
@@ -18899,6 +19069,9 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - all_ischaemia
+    - heart_failure
+    - all_diabetes
     index:
     - L00
     - L99
@@ -19580,6 +19753,8 @@ categories:
         - M25
         name: M20-M25
       docs: Arthropathies
+      exclude:
+      - all_ischaemia
       index:
       - M00
       - M25
@@ -19748,6 +19923,7 @@ categories:
       docs: Systemic connective tissue disorders
       exclude:
       - bleeding
+      - all_ischaemia
       index:
       - M30
       - M36
@@ -20071,6 +20247,7 @@ categories:
       docs: Dorsopathies
       exclude:
       - bleeding
+      - all_ischaemia
       index:
       - M40
       - M54
@@ -20094,6 +20271,8 @@ categories:
             index: M609
             name: M60.9
           docs: Myositis
+          exclude:
+          - all_ischaemia
           index: M60
           name: M60
         - categories:
@@ -20119,34 +20298,52 @@ categories:
             index: M619
             name: M61.9
           docs: Calcification and ossification of muscle
+          exclude:
+          - all_ischaemia
           index: M61
           name: M61
         - categories:
           - docs: Diastasis of muscle
+            exclude:
+            - all_ischaemia
             index: M620
             name: M62.0
           - docs: Other rupture of muscle (nontraumatic)
+            exclude:
+            - all_ischaemia
             index: M621
             name: M62.1
           - docs: Ischaemic infarction of muscle
             index: M622
             name: M62.2
           - docs: Immobility syndrome (paraplegic)
+            exclude:
+            - all_ischaemia
             index: M623
             name: M62.3
           - docs: Contracture of muscle
+            exclude:
+            - all_ischaemia
             index: M624
             name: M62.4
           - docs: Muscle wasting and atrophy, not elsewhere classified
+            exclude:
+            - all_ischaemia
             index: M625
             name: M62.5
           - docs: Muscle strain
+            exclude:
+            - all_ischaemia
             index: M626
             name: M62.6
           - docs: Other specified disorders of muscle
+            exclude:
+            - all_ischaemia
             index: M628
             name: M62.8
           - docs: Disorder of muscle, unspecified
+            exclude:
+            - all_ischaemia
             index: M629
             name: M62.9
           docs: Other disorders of muscle
@@ -20169,6 +20366,8 @@ categories:
             index: M638
             name: M63.8
           docs: Disorders of muscle in diseases classified elsewhere
+          exclude:
+          - all_ischaemia
           index: M63
           name: M63
         docs: Disorders of muscles
@@ -20260,6 +20459,8 @@ categories:
           index: M68
           name: M68
         docs: Disorders of synovium and tendon
+        exclude:
+        - all_ischaemia
         index:
         - M65
         - M68
@@ -20490,6 +20691,8 @@ categories:
           index: M79
           name: M79
         docs: Other soft tissue disorders
+        exclude:
+        - all_ischaemia
         index:
         - M70
         - M79
@@ -20904,6 +21107,7 @@ categories:
       docs: Osteopathies and chondropathies
       exclude:
       - bleeding
+      - all_ischaemia
       index:
       - M80
       - M94
@@ -21005,6 +21209,7 @@ categories:
       docs: Other disorders of the musculoskeletal system and connective tissue
       exclude:
       - bleeding
+      - all_ischaemia
       index:
       - M95
       - M99
@@ -21036,6 +21241,8 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - heart_failure
+    - all_diabetes
     index:
     - M00
     - M99
@@ -21077,6 +21284,7 @@ categories:
         exclude:
         - bleeding
         - ckd.other
+        - all_diabetes
         index: N00
         name: N00
       - categories:
@@ -21113,6 +21321,7 @@ categories:
         docs: Rapidly progressive nephritic syndrome
         exclude:
         - bleeding
+        - all_diabetes
         index: N01
         name: N01
       - categories:
@@ -21147,6 +21356,8 @@ categories:
           index: N029
           name: N02.9
         docs: Recurrent and persistent haematuria
+        exclude:
+        - all_diabetes
         index: N02
         name: N02
       - categories:
@@ -21183,6 +21394,7 @@ categories:
         docs: Chronic nephritic syndrome
         exclude:
         - bleeding
+        - all_diabetes
         index: N03
         name: N03
       - categories:
@@ -21219,6 +21431,7 @@ categories:
         docs: Nephrotic syndrome
         exclude:
         - bleeding
+        - all_diabetes
         index: N04
         name: N04
       - categories:
@@ -21255,6 +21468,7 @@ categories:
         docs: Unspecified nephritic syndrome
         exclude:
         - bleeding
+        - all_diabetes
         index: N05
         name: N05
       - categories:
@@ -21291,6 +21505,7 @@ categories:
         docs: Isolated proteinuria with specified morphological lesion
         exclude:
         - bleeding
+        - all_diabetes
         index: N06
         name: N06
       - categories:
@@ -21327,28 +21542,41 @@ categories:
         docs: Hereditary nephropathy, not elsewhere classified
         exclude:
         - bleeding
+        - all_diabetes
         index: N07
         name: N07
       - categories:
         - docs: Glomerular disorders in infectious and parasitic diseases classified elsewhere
+          exclude:
+          - all_diabetes
           index: N080
           name: N08.0
         - docs: Glomerular disorders in neoplastic diseases
+          exclude:
+          - all_diabetes
           index: N081
           name: N08.1
         - docs: Glomerular disorders in blood diseases and disorders involving the immune mechanism
+          exclude:
+          - all_diabetes
           index: N082
           name: N08.2
         - docs: Glomerular disorders in diabetes mellitus
           index: N083
           name: N08.3
         - docs: Glomerular disorders in other endocrine, nutritional and metabolic diseases
+          exclude:
+          - all_diabetes
           index: N084
           name: N08.4
         - docs: Glomerular disorders in systemic connective tissue disorders
+          exclude:
+          - all_diabetes
           index: N085
           name: N08.5
         - docs: Glomerular disorders in other diseases classified elsewhere
+          exclude:
+          - all_diabetes
           index: N088
           name: N08.8
         docs: Glomerular disorders in diseases classified elsewhere
@@ -21364,6 +21592,7 @@ categories:
       - ckd4
       - ckd5
       - ckd
+      - all_ischaemia
       index:
       - N00
       - N08
@@ -21498,6 +21727,8 @@ categories:
       - ckd4
       - ckd5
       - ckd
+      - all_ischaemia
+      - all_diabetes
       index:
       - N10
       - N16
@@ -21600,6 +21831,8 @@ categories:
       exclude:
       - bleeding
       - ckd.other
+      - all_ischaemia
+      - all_diabetes
       index:
       - N17
       - N19
@@ -21660,6 +21893,8 @@ categories:
       - ckd5
       - ckd
       - ckd.other
+      - all_ischaemia
+      - all_diabetes
       index:
       - N20
       - N23
@@ -21667,21 +21902,32 @@ categories:
     - categories:
       - categories:
         - docs: Renal osteodystrophy
+          exclude:
+          - all_diabetes
           index: N250
           name: N25.0
         - docs: Nephrogenic diabetes insipidus
           index: N251
           name: N25.1
         - docs: Other disorders resulting from impaired renal tubular function
+          exclude:
+          - all_diabetes
           index: N258
           name: N25.8
         - docs: Disorder resulting from impaired renal tubular function, unspecified
+          exclude:
+          - all_diabetes
           index: N259
           name: N25.9
         docs: Disorders resulting from impaired renal tubular function
+        exclude:
+        - all_ischaemia
         index: N25
         name: N25
       - docs: Unspecified contracted kidney
+        exclude:
+        - all_ischaemia
+        - all_diabetes
         index: N26
         name: N26
       - categories:
@@ -21695,6 +21941,9 @@ categories:
           index: N279
           name: N27.9
         docs: Small kidney of unknown cause
+        exclude:
+        - all_ischaemia
+        - all_diabetes
         index: N27
         name: N27
       - categories:
@@ -21702,17 +21951,24 @@ categories:
           index: N280
           name: N28.0
         - docs: Cyst of kidney
+          exclude:
+          - all_ischaemia
           index: N281
           name: N28.1
         - docs: Other specified disorders of kidney and ureter
+          exclude:
+          - all_ischaemia
           index: N288
           name: N28.8
         - docs: Disorder of kidney and ureter, unspecified
+          exclude:
+          - all_ischaemia
           index: N289
           name: N28.9
         docs: Other disorders of kidney and ureter, not elsewhere classified
         exclude:
         - ckd.other
+        - all_diabetes
         index: N28
         name: N28
       - categories:
@@ -21728,6 +21984,8 @@ categories:
         docs: Other disorders of kidney and ureter in diseases classified elsewhere
         exclude:
         - ckd.other
+        - all_ischaemia
+        - all_diabetes
         index: N29
         name: N29
       docs: Other disorders of kidney and ureter
@@ -21922,6 +22180,8 @@ categories:
       - ckd5
       - ckd
       - ckd.other
+      - all_ischaemia
+      - all_diabetes
       index:
       - N30
       - N39
@@ -22135,6 +22395,8 @@ categories:
       - ckd5
       - ckd
       - ckd.other
+      - all_ischaemia
+      - all_diabetes
       index:
       - N40
       - N51
@@ -22212,6 +22474,8 @@ categories:
       - ckd5
       - ckd
       - ckd.other
+      - all_ischaemia
+      - all_diabetes
       index:
       - N60
       - N64
@@ -22366,6 +22630,8 @@ categories:
       - ckd5
       - ckd
       - ckd.other
+      - all_ischaemia
+      - all_diabetes
       index:
       - N70
       - N77
@@ -22883,6 +23149,8 @@ categories:
       - ckd5
       - ckd
       - ckd.other
+      - all_ischaemia
+      - all_diabetes
       index:
       - N80
       - N98
@@ -22926,6 +23194,8 @@ categories:
       - ckd5
       - ckd
       - ckd.other
+      - all_ischaemia
+      - all_diabetes
       index:
       - N99
       - N99
@@ -22950,6 +23220,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - heart_failure
     index:
     - N00
     - N99
@@ -27830,6 +28101,9 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - all_ischaemia
+    - heart_failure
+    - all_diabetes
     index:
     - S00
     - T98
@@ -28193,6 +28467,8 @@ categories:
         index: O08
         name: O08
       docs: Pregnancy with abortive outcome
+      exclude:
+      - all_diabetes
       index:
       - O00
       - O08
@@ -28277,6 +28553,7 @@ categories:
       docs: Oedema, proteinuria and hypertensive disorders in pregnancy, childbirth and the puerperium
       exclude:
       - bleeding
+      - all_diabetes
       index:
       - O10
       - O16
@@ -28293,6 +28570,8 @@ categories:
           index: O209
           name: O20.9
         docs: Haemorrhage in early pregnancy
+        exclude:
+        - all_diabetes
         index: O20
         name: O20
       - categories:
@@ -28314,6 +28593,7 @@ categories:
         docs: Excessive vomiting in pregnancy
         exclude:
         - bleeding
+        - all_diabetes
         index: O21
         name: O21
       - categories:
@@ -28344,6 +28624,7 @@ categories:
         docs: Venous complications and haemorrhoids in pregnancy
         exclude:
         - bleeding
+        - all_diabetes
         index: O22
         name: O22
       - categories:
@@ -28371,6 +28652,7 @@ categories:
         docs: Infections of genitourinary tract in pregnancy
         exclude:
         - bleeding
+        - all_diabetes
         index: O23
         name: O23
       - categories:
@@ -28400,6 +28682,7 @@ categories:
       - docs: Malnutrition in pregnancy
         exclude:
         - bleeding
+        - all_diabetes
         index: O25
         name: O25
       - categories:
@@ -28436,6 +28719,7 @@ categories:
         docs: Maternal care for other conditions predominantly related to pregnancy
         exclude:
         - bleeding
+        - all_diabetes
         index: O26
         name: O26
       - categories:
@@ -28466,6 +28750,7 @@ categories:
         docs: Abnormal findings on antenatal screening of mother
         exclude:
         - bleeding
+        - all_diabetes
         index: O28
         name: O28
       - categories:
@@ -28499,6 +28784,7 @@ categories:
         docs: Complications of anaesthesia during pregnancy
         exclude:
         - bleeding
+        - all_diabetes
         index: O29
         name: O29
       docs: Other maternal disorders predominantly related to pregnancy
@@ -28846,6 +29132,8 @@ categories:
         index: O48
         name: O48
       docs: Maternal care related to the fetus and amniotic cavity and possible delivery problems
+      exclude:
+      - all_diabetes
       index:
       - O30
       - O48
@@ -29247,6 +29535,8 @@ categories:
         index: O75
         name: O75
       docs: Complications of labour and delivery
+      exclude:
+      - all_diabetes
       index:
       - O60
       - O75
@@ -29356,6 +29646,7 @@ categories:
       docs: Delivery
       exclude:
       - bleeding
+      - all_diabetes
       index:
       - O80
       - O84
@@ -29530,6 +29821,7 @@ categories:
       docs: Complications predominantly related to the puerperium
       exclude:
       - bleeding
+      - all_diabetes
       index:
       - O85
       - O92
@@ -29635,6 +29927,7 @@ categories:
       docs: Other obstetric conditions, not elsewhere classified
       exclude:
       - bleeding
+      - all_diabetes
       index:
       - O94
       - O99
@@ -29666,6 +29959,8 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - all_ischaemia
+    - heart_failure
     index:
     - O00
     - O99
@@ -29863,6 +30158,9 @@ categories:
         index: P04
         name: P04
       docs: Fetus and newborn atrial_fibfected by maternal factors and by complications of pregnancy, labour and delivery
+      exclude:
+      - all_ischaemia
+      - all_diabetes
       index:
       - P00
       - P04
@@ -29916,6 +30214,8 @@ categories:
       docs: Disorders related to length of gestation and fetal growth
       exclude:
       - bleeding
+      - all_ischaemia
+      - all_diabetes
       index:
       - P05
       - P08
@@ -30097,6 +30397,9 @@ categories:
         index: P15
         name: P15
       docs: Birth trauma
+      exclude:
+      - all_ischaemia
+      - all_diabetes
       index:
       - P10
       - P15
@@ -30115,6 +30418,7 @@ categories:
         docs: Intrauterine hypoxia
         exclude:
         - bleeding
+        - all_ischaemia
         index: P20
         name: P20
       - categories:
@@ -30130,6 +30434,7 @@ categories:
         docs: Birth asphyxia
         exclude:
         - bleeding
+        - all_ischaemia
         index: P21
         name: P21
       - categories:
@@ -30148,6 +30453,7 @@ categories:
         docs: Respiratory distress of newborn
         exclude:
         - bleeding
+        - all_ischaemia
         index: P22
         name: P22
       - categories:
@@ -30181,6 +30487,7 @@ categories:
         docs: Congenital pneumonia
         exclude:
         - bleeding
+        - all_ischaemia
         index: P23
         name: P23
       - categories:
@@ -30205,6 +30512,7 @@ categories:
         docs: Neonatal aspiration syndromes
         exclude:
         - bleeding
+        - all_ischaemia
         index: P24
         name: P24
       - categories:
@@ -30226,6 +30534,7 @@ categories:
         docs: Interstitial emphysema and related conditions originating in the perinatal period
         exclude:
         - bleeding
+        - all_ischaemia
         index: P25
         name: P25
       - categories:
@@ -30242,6 +30551,8 @@ categories:
           index: P269
           name: P26.9
         docs: Pulmonary haemorrhage originating in the perinatal period
+        exclude:
+        - all_ischaemia
         index: P26
         name: P26
       - categories:
@@ -30260,6 +30571,7 @@ categories:
         docs: Chronic respiratory disease originating in the perinatal period
         exclude:
         - bleeding
+        - all_ischaemia
         index: P27
         name: P27
       - categories:
@@ -30290,28 +30602,41 @@ categories:
         docs: Other respiratory conditions originating in the perinatal period
         exclude:
         - bleeding
+        - all_ischaemia
         index: P28
         name: P28
       - categories:
         - docs: Neonatal cardiac failure
+          exclude:
+          - all_ischaemia
           index: P290
           name: P29.0
         - docs: Neonatal cardiac dysrhythmia
+          exclude:
+          - all_ischaemia
           index: P291
           name: P29.1
         - docs: Neonatal hypertension
+          exclude:
+          - all_ischaemia
           index: P292
           name: P29.2
         - docs: Persistent fetal circulation
+          exclude:
+          - all_ischaemia
           index: P293
           name: P29.3
         - docs: Transient myocardial ischaemia of newborn
           index: P294
           name: P29.4
         - docs: Other cardiovascular disorders originating in the perinatal period
+          exclude:
+          - all_ischaemia
           index: P298
           name: P29.8
         - docs: Cardiovascular disorder originating in the perinatal period, unspecified
+          exclude:
+          - all_ischaemia
           index: P299
           name: P29.9
         docs: Cardiovascular disorders originating in the perinatal period
@@ -30320,6 +30645,8 @@ categories:
         index: P29
         name: P29
       docs: Respiratory and cardiovascular disorders specific to the perinatal period
+      exclude:
+      - all_diabetes
       index:
       - P20
       - P29
@@ -30442,6 +30769,9 @@ categories:
         index: P39
         name: P39
       docs: Infections specific to the perinatal period
+      exclude:
+      - all_ischaemia
+      - all_diabetes
       index:
       - P35
       - P39
@@ -30705,6 +31035,9 @@ categories:
         index: P61
         name: P61
       docs: Haemorrhagic and haematological disorders of fetus and newborn
+      exclude:
+      - all_ischaemia
+      - all_diabetes
       index:
       - P50
       - P61
@@ -30712,24 +31045,38 @@ categories:
     - categories:
       - categories:
         - docs: Syndrome of infant of mother with gestational diabetes
+          exclude:
+          - all_diabetes
           index: P700
           name: P70.0
         - docs: Syndrome of infant of a diabetic mother
+          exclude:
+          - all_diabetes
           index: P701
           name: P70.1
         - docs: Neonatal diabetes mellitus
+          exclude:
+          - all_diabetes
           index: P702
           name: P70.2
         - docs: Iatrogenic neonatal hypoglycaemia
+          exclude:
+          - all_diabetes
           index: P703
           name: P70.3
         - docs: Other neonatal hypoglycaemia
+          exclude:
+          - all_diabetes
           index: P704
           name: P70.4
         - docs: Other transitory disorders of carbohydrate metabolism of fetus and newborn
+          exclude:
+          - all_diabetes
           index: P708
           name: P70.8
         - docs: Transitory disorder of carbohydrate metabolism of fetus and newborn, unspecified
+          exclude:
+          - all_diabetes
           index: P709
           name: P70.9
         docs: Transitory disorders of carbohydrate metabolism specific to fetus and newborn
@@ -30758,6 +31105,8 @@ categories:
           index: P719
           name: P71.9
         docs: Transitory neonatal disorders of calcium and magnesium metabolism
+        exclude:
+        - all_diabetes
         index: P71
         name: P71
       - categories:
@@ -30777,6 +31126,8 @@ categories:
           index: P729
           name: P72.9
         docs: Other transitory neonatal endocrine disorders
+        exclude:
+        - all_diabetes
         index: P72
         name: P72
       - categories:
@@ -30805,11 +31156,14 @@ categories:
           index: P749
           name: P74.9
         docs: Other transitory neonatal electrolyte and metabolic disturbances
+        exclude:
+        - all_diabetes
         index: P74
         name: P74
       docs: Transitory endocrine and metabolic disorders specific to fetus and newborn
       exclude:
       - bleeding
+      - all_ischaemia
       index:
       - P70
       - P74
@@ -30865,6 +31219,8 @@ categories:
       docs: Digestive system disorders of fetus and newborn
       exclude:
       - bleeding
+      - all_ischaemia
+      - all_diabetes
       index:
       - P75
       - P78
@@ -30930,6 +31286,8 @@ categories:
       docs: Conditions involving the integument and temperature regulation of fetus and newborn
       exclude:
       - bleeding
+      - all_ischaemia
+      - all_diabetes
       index:
       - P80
       - P83
@@ -31056,6 +31414,8 @@ categories:
       docs: Other disorders originating in the perinatal period
       exclude:
       - bleeding
+      - all_ischaemia
+      - all_diabetes
       index:
       - P90
       - P96
@@ -31087,6 +31447,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - heart_failure
     index:
     - P00
     - P96
@@ -33414,6 +33775,9 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - all_ischaemia
+    - heart_failure
+    - all_diabetes
     index:
     - Q00
     - Q99
@@ -34860,6 +35224,9 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - all_ischaemia
+    - heart_failure
+    - all_diabetes
     index:
     - R00
     - R99
@@ -39839,6 +40206,9 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - all_ischaemia
+    - heart_failure
+    - all_diabetes
     index:
     - V01
     - Y98
@@ -40171,6 +40541,8 @@ categories:
       docs: Persons encountering health services for examination and investigation
       exclude:
       - ckd
+      - all_ischaemia
+      - all_diabetes
       index:
       - Z00
       - Z13
@@ -40389,6 +40761,8 @@ categories:
       docs: Persons with potential health hazards related to communicable diseases
       exclude:
       - ckd
+      - all_ischaemia
+      - all_diabetes
       index:
       - Z20
       - Z29
@@ -40619,6 +40993,8 @@ categories:
       docs: Persons encountering health services in circumstances related to reproduction
       exclude:
       - ckd
+      - all_ischaemia
+      - all_diabetes
       index:
       - Z30
       - Z39
@@ -41010,6 +41386,9 @@ categories:
         index: Z54
         name: Z54
       docs: Persons encountering health services for specific procedures and health care
+      exclude:
+      - all_ischaemia
+      - all_diabetes
       index:
       - Z40
       - Z54
@@ -41347,6 +41726,8 @@ categories:
       docs: Persons with potential health hazards related to socioeconomic and psychosocial circumstances
       exclude:
       - ckd
+      - all_ischaemia
+      - all_diabetes
       index:
       - Z55
       - Z65
@@ -41551,6 +41932,8 @@ categories:
       docs: Persons encountering health services in other circumstances
       exclude:
       - ckd
+      - all_ischaemia
+      - all_diabetes
       index:
       - Z70
       - Z76
@@ -41590,6 +41973,8 @@ categories:
         docs: Family history of malignant neoplasm
         exclude:
         - ckd
+        - all_ischaemia
+        - all_diabetes
         index: Z80
         name: Z80
       - categories:
@@ -41614,69 +41999,103 @@ categories:
         docs: Family history of mental and behavioural disorders
         exclude:
         - ckd
+        - all_ischaemia
+        - all_diabetes
         index: Z81
         name: Z81
       - categories:
         - docs: Family history of epilepsy and other diseases of the nervous system
+          exclude:
+          - all_ischaemia
           index: Z820
           name: Z82.0
         - docs: Family history of blindness and visual loss
+          exclude:
+          - all_ischaemia
           index: Z821
           name: Z82.1
         - docs: Family history of deatrial_fibness and hearing loss
+          exclude:
+          - all_ischaemia
           index: Z822
           name: Z82.2
         - docs: Family history of stroke
+          exclude:
+          - all_ischaemia
           index: Z823
           name: Z82.3
         - docs: Family history of ischaemic heart disease and other diseases of the circulatory system
           index: Z824
           name: Z82.4
         - docs: Family history of asthma and other chronic lower respiratory diseases
+          exclude:
+          - all_ischaemia
           index: Z825
           name: Z82.5
         - docs: Family history of arthritis and other diseases of the musculoskeletal system and connective tissue
+          exclude:
+          - all_ischaemia
           index: Z826
           name: Z82.6
         - docs: Family history of congenital malformations, deformations and chromosomal abnormalities
+          exclude:
+          - all_ischaemia
           index: Z827
           name: Z82.7
         - docs: Family history of other disabilities and chronic diseases leading to disablement, not elsewhere classified
+          exclude:
+          - all_ischaemia
           index: Z828
           name: Z82.8
         docs: Family history of certain disabilities and chronic diseases leading to disablement
         exclude:
         - ckd
+        - all_diabetes
         index: Z82
         name: Z82
       - categories:
         - docs: Family history of human immunodeficiency virus [HIV] disease
+          exclude:
+          - all_diabetes
           index: Z830
           name: Z83.0
         - docs: Family history of other infectious and parasitic diseases
+          exclude:
+          - all_diabetes
           index: Z831
           name: Z83.1
         - docs: Family history of diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism
+          exclude:
+          - all_diabetes
           index: Z832
           name: Z83.2
         - docs: Family history of diabetes mellitus
           index: Z833
           name: Z83.3
         - docs: Family history of other endocrine, nutritional and metabolic diseases
+          exclude:
+          - all_diabetes
           index: Z834
           name: Z83.4
         - docs: Family history of eye and ear disorders
+          exclude:
+          - all_diabetes
           index: Z835
           name: Z83.5
         - docs: Family history of diseases of the respiratory system
+          exclude:
+          - all_diabetes
           index: Z836
           name: Z83.6
         - docs: Family history of diseases of the digestive system
+          exclude:
+          - all_diabetes
           index: Z837
           name: Z83.7
         docs: Family history of other specific disorders
         exclude:
         - ckd
+        - all_ischaemia
         index: Z83
         name: Z83
       - categories:
@@ -41698,6 +42117,8 @@ categories:
         docs: Family history of other conditions
         exclude:
         - ckd
+        - all_ischaemia
+        - all_diabetes
         index: Z84
         name: Z84
       - categories:
@@ -41734,6 +42155,8 @@ categories:
         docs: Personal history of malignant neoplasm
         exclude:
         - ckd
+        - all_ischaemia
+        - all_diabetes
         index: Z85
         name: Z85
       - categories:
@@ -41764,6 +42187,8 @@ categories:
         docs: Personal history of certain other diseases
         exclude:
         - ckd
+        - all_ischaemia
+        - all_diabetes
         index: Z86
         name: Z86
       - categories:
@@ -41797,6 +42222,8 @@ categories:
         docs: Personal history of other diseases and conditions
         exclude:
         - ckd
+        - all_ischaemia
+        - all_diabetes
         index: Z87
         name: Z87
       - categories:
@@ -41833,6 +42260,8 @@ categories:
         docs: Personal history of allergy to drugs, medicaments and biological substances
         exclude:
         - ckd
+        - all_ischaemia
+        - all_diabetes
         index: Z88
         name: Z88
       - categories:
@@ -41869,6 +42298,8 @@ categories:
         docs: Acquired absence of limb
         exclude:
         - ckd
+        - all_ischaemia
+        - all_diabetes
         index: Z89
         name: Z89
       - categories:
@@ -41902,6 +42333,8 @@ categories:
         docs: Acquired absence of organs, not elsewhere classified
         exclude:
         - ckd
+        - all_ischaemia
+        - all_diabetes
         index: Z90
         name: Z90
       - categories:
@@ -41935,6 +42368,8 @@ categories:
         docs: Personal history of risk-factors, not elsewhere classified
         exclude:
         - ckd
+        - all_ischaemia
+        - all_diabetes
         index: Z91
         name: Z91
       - categories:
@@ -41968,6 +42403,8 @@ categories:
         docs: Personal history of medical treatment
         exclude:
         - ckd
+        - all_ischaemia
+        - all_diabetes
         index: Z92
         name: Z92
       - categories:
@@ -42001,6 +42438,8 @@ categories:
         docs: Artificial opening status
         exclude:
         - ckd
+        - all_ischaemia
+        - all_diabetes
         index: Z93
         name: Z93
       - categories:
@@ -42053,6 +42492,9 @@ categories:
           index: Z949
           name: Z94.9
         docs: Transplanted organ and tissue status
+        exclude:
+        - all_ischaemia
+        - all_diabetes
         index: Z94
         name: Z94
       - categories:
@@ -42083,6 +42525,8 @@ categories:
         docs: Presence of cardiac and vascular implants and grafts
         exclude:
         - ckd
+        - all_ischaemia
+        - all_diabetes
         index: Z95
         name: Z95
       - categories:
@@ -42119,6 +42563,8 @@ categories:
         docs: Presence of other functional implants
         exclude:
         - ckd
+        - all_ischaemia
+        - all_diabetes
         index: Z96
         name: Z96
       - categories:
@@ -42146,6 +42592,8 @@ categories:
         docs: Presence of other devices
         exclude:
         - ckd
+        - all_ischaemia
+        - all_diabetes
         index: Z97
         name: Z97
       - categories:
@@ -42164,6 +42612,8 @@ categories:
         docs: Other postsurgical states
         exclude:
         - ckd
+        - all_ischaemia
+        - all_diabetes
         index: Z98
         name: Z98
       - categories:
@@ -42201,6 +42651,9 @@ categories:
           index: Z999
           name: Z99.9
         docs: Dependence on enabling machines and devices, not elsewhere classified
+        exclude:
+        - all_ischaemia
+        - all_diabetes
         index: Z99
         name: Z99
       docs: Persons with potential health hazards related to family and personal history and certain conditions influencing health status
@@ -42235,6 +42688,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - heart_failure
     index:
     - Z00
     - Z99
@@ -42424,13 +42878,14 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemic_heart_disease
     - other_ischaemic_heart_diseases
+    - all_ischaemia
+    - heart_failure
+    - all_diabetes
     index:
     - U00
     - U85
     name: XXII
   docs: ICD-10 codes, 2016 release
-  exclude:
-  - all_ischaemia
   index:
   - A00
   - Z99
@@ -42443,6 +42898,7 @@ groups:
 - chronic_ischaemic_heart_disease
 - other_ischaemic_heart_diseases
 - all_ischaemia
+- heart_failure
 - atrial_fib
 - ckd1
 - ckd2
@@ -42461,5 +42917,6 @@ groups:
 - portal_hypertension
 - type_1_diabetes
 - type_2_diabetes
+- all_diabetes
 - diabetes_unspecified
 - ischaemic_stroke
