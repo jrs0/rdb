@@ -470,7 +470,6 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 				       << YAML::Value;
 			write_yaml_stream(patient_record, event_counter, lookup);			
 
-			
 			//////////////// end yaml
 
 			
