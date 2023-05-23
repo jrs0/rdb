@@ -460,7 +460,7 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 			    patient_record << YAML::Key << "spells_before"
 					   << YAML::Value
 					   << YAML::BeginSeq;
-			    for (const auto & spell : spells_after) {
+			    for (const auto & spell : spells_before) {
 				write_yaml_stream(patient_record, spell, lookup);	
 			    }
 			    patient_record << YAML::EndSeq;
