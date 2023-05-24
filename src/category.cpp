@@ -1,7 +1,7 @@
 #include <iostream>
-#include "category.hpp"
+#include "category.h"
 #include <ranges>
-#include "yaml.hpp"
+#include "yaml.h"
 
 Index::Index(const YAML::Node & category) {
     if (category["index"]) {
@@ -82,7 +82,7 @@ void Category::print(std::ostream & os) const {
     os << "Category: " << name_ << std::endl;
     os << "- " << docs_ << std::endl;
     for (const auto & category : categories_) {
-        category.print();
+        category.print(os);
     }
 }
 
@@ -247,7 +247,7 @@ void TopLevelCategory::print(std::ostream & os) const {
 	os << "- " << group << std::endl;
     }
     for (const auto & category : categories_) {
-	category.print();
+	category.print(os);
     }
 }
 

@@ -1,4 +1,4 @@
-#include "sql_debug.hpp"
+#include "sql_debug.h"
 #include <sstream>
 
 void throw_unimpl_sql_type(const std::string & type) {

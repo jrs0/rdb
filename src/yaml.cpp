@@ -1,4 +1,4 @@
-#include "yaml.hpp"
+#include "yaml.h"
 
 // Expect a key called field_name containing a string (else throw runtime error
 // if it is not present or cannot be converted). 

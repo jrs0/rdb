@@ -4,7 +4,7 @@
  *
  */
 
-#include "random.hpp"
+#include "random.h"
 
 template<Numeric T, typename Gen>
 Random<T, Gen>::Random(T lower, T upper, const Seed<Gen> & seed)

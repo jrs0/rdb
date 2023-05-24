@@ -1,4 +1,4 @@
-#include "sql_types.hpp"
+#include "sql_types.h"
 
 std::ostream &operator<<(std::ostream &os, const Integer &integer) {
     integer.print(os);

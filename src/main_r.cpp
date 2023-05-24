@@ -1,13 +1,13 @@
 
-#include "string_lookup.hpp"
-#include "config.hpp"
-#include "clinical_code.hpp"
-#include "sql_query.hpp"
-#include "sql_connection.hpp"
-#include "patient.hpp"
+#include "string_lookup.h"
+#include "config.h"
+#include "clinical_code.h"
+#include "sql_query.h"
+#include "sql_connection.h"
+#include "patient.h"
 
-#include "acs.hpp"
-#include "r_factor.hpp"
+#include "acs.h"
+#include "r_factor.h"
 #include <fstream>
 
 #include <optional>

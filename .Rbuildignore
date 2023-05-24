@@ -17,3 +17,4 @@ gendata
 build
 .clangd
 CMakeLists.txt
+profiles
