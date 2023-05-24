@@ -1,7 +1,7 @@
 # Needed to make mac use gcc instead of clang
 # (for c++20 support)
-CC=gcc
-CXX=g++
+CC=gcc-13
+CXX=g++-13
 
 CXX_STD=CXX20
 
