@@ -214,4 +214,6 @@ PATH="c:/texlive/2022/bin:${PATH}"
 RSTUDIO_PANDOC="c:/Users/Administrator/AppData/Local/Programs/RStudio/bin/quarto/bin/tools"
 ```
 
+Go careful trying to debug a c++ function through an R call -- load_all does not know how to reload R functions properly that depend on a c++ function, so you can be changing the c++ and wondering why nothing is happening -- either call the c++ function directly to debug, or make a change to this file to force it to reload.
+
 

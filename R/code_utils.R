@@ -1,3 +1,6 @@
+##' @importFrom rlang .data
+NULL 
+
 ##' @title Read the code groups defined in the supplied file. 
 ##' @param file The code group file to read 
 ##' @return A named list mapping group names to a tibble of codes
@@ -24,7 +27,7 @@ find_code_duplicates <- function(code_groups) {
         purrr::list_rbind() %>%
         dplyr::group_by(names) %>%
         dplyr::mutate(duplicate_count = dplyr::n()) %>%
-        dplyr::filter(duplicate_count > 1) %>%
+        dplyr::filter(.data$duplicate_count > 1) %>%
         dplyr::ungroup() %>%
         dplyr::arrange(names)
 }

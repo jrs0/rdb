@@ -7,10 +7,10 @@
 load_acs_dataset(config_path = "config.yaml")
 }
 \arguments{
-\item{config}{The path to the YAML configuration file}
+\item{config_path}{The path to the YAML configuration file}
 }
 \value{
-A dataframe containing the dataset
+A tibble of the dataset
 }
 \description{
 Loading the full dataset from the database takes a long time
