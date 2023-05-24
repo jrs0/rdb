@@ -81,17 +81,17 @@ public:
     }
 
     
-    void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
-	std::cout << std::string(pad, ' ');
-	std::cout << "Spell " << spell_id_ << std::endl;
-	std::cout << std::string(pad, ' ');
+    void print(std::ostream & os, std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
+	os << std::string(pad, ' ');
+	os << "Spell " << spell_id_ << std::endl;
+	os << std::string(pad, ' ');
 	spell_start_.print();
-	std::cout << " - ";
+	os << " - ";
 	spell_end_.print();
-	std::cout << std::endl << std::endl;
+	os << std::endl << std::endl;
 	for (const auto & episode : episodes_) {
 	    episode.print(lookup, pad + 4);
-	    std::cout << std::endl;
+	    os << std::endl;
 	}
     }
     

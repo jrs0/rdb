@@ -177,39 +177,39 @@ public:
 	return episode_start_;
     }
     
-    void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
-	std::cout << std::string(pad, ' ');
-	std::cout << "Episode: ";
+    void print(std::ostream & os, std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
+	os << std::string(pad, ' ');
+	os << "Episode: ";
 	episode_start_.print();
-	std::cout << " - ";
+	os << " - ";
 	episode_end_.print();
-	std::cout << std::endl;
-	std::cout << std::string(' ', pad);
-	std::cout << std::string(pad, ' ');
-        std::cout << "Primary diagnosis: ";
+	os << std::endl;
+	os << std::string(' ', pad);
+	os << std::string(pad, ' ');
+        os << "Primary diagnosis: ";
 	::print(primary_diagnosis_, lookup);
-        std::cout << std::endl;
-	std::cout << std::string(' ', pad);
+        os << std::endl;
+	os << std::string(' ', pad);
 	if (secondary_diagnoses_.size() > 0) {
-	    std::cout << std::string(pad, ' ');
-	    std::cout << "Secondary diagnoses: " << std::endl;
+	    os << std::string(pad, ' ');
+	    os << "Secondary diagnoses: " << std::endl;
 	    for (const auto & diagnosis : secondary_diagnoses_) {
-		std::cout << std::string(pad, ' ') << "- ";
-		::print(diagnosis, lookup);
-		std::cout << std::endl;
+		os << std::string(pad, ' ') << "- ";
+		::print(os, diagnosis, lookup);
+		os << std::endl;
 	    }
 	}
-	std::cout << std::string(pad, ' ');	
-        std::cout << "Primary procedure: ";
+	os << std::string(pad, ' ');	
+        os << "Primary procedure: ";
 	::print(primary_procedure_, lookup);
-        std::cout << std::endl;
+        os << std::endl;
 	if (secondary_procedures_.size() > 0) {
-	    std::cout << std::string(pad, ' ');
-	    std::cout << "Secondary procedures: " << std::endl;
+	    os << std::string(pad, ' ');
+	    os << "Secondary procedures: " << std::endl;
 	    for (const auto & procedure : secondary_procedures_) {
-		std::cout << std::string(pad, ' ') << "- ";
-		::print(procedure, lookup);
-		std::cout << std::endl;
+		os << std::string(pad, ' ') << "- ";
+		::print(os, procedure, lookup);
+		os << std::endl;
 	    }
 	}	
     }

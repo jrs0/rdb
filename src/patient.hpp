@@ -42,8 +42,8 @@ public:
 	return mortality_;
     }
 
-    void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
-	std::cout << Colour::PINK <<"Patient: " << nhs_number_
+    void print(std::ostream & os, std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
+	os << Colour::PINK <<"Patient: " << nhs_number_
 		  << Colour::RESET << std::endl;
 	mortality_.print(lookup, pad);
 	for (const auto & spell : spells_) {

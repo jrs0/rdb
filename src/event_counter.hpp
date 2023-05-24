@@ -23,19 +23,19 @@ public:
 	return after_counts_;
     }
 
-    void print(std::shared_ptr<StringLookup> lookup) const {
-	std::cout << "- Counts before:" << std::endl;
+    void print(std::ostream & os, std::shared_ptr<StringLookup> lookup) const {
+	os << "- Counts before:" << std::endl;
 	for (const auto & [group, count] : before_counts_) {
-	    std::cout << "  - ";
+	    os << "  - ";
 	    group.print(lookup);
-	    std::cout << ": " << count
+	    os << ": " << count
 		      << std::endl;
 	}
-	std::cout << "- Counts after:" << std::endl;
+	os << "- Counts after:" << std::endl;
 	for (const auto & [group, count] : after_counts_) {
-	    std::cout << "  - ";
+	    os << "  - ";
 	    group.print(lookup);
-	    std::cout << ": " << count
+	    os << ": " << count
 		      << std::endl;
 	}
     }

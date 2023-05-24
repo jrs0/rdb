@@ -55,8 +55,8 @@ public:
 
     bool contains(const ClinicalCode & code) const;
 
-    void print(std::shared_ptr<StringLookup> lookup) const {
-	std::cout << lookup->at(group_id_);
+    void print(std::ostream & os, std::shared_ptr<StringLookup> lookup) const {
+	os << lookup->at(group_id_);
     }
 
     friend auto operator<=>(const ClinicalCodeGroup&, const ClinicalCodeGroup&) = default;
@@ -96,21 +96,21 @@ public:
 	    not_eq std::ranges::end(groups_);
     }
 
-    void print(std::shared_ptr<StringLookup> lookup) {
-	std::cout << "[";
+    void print(std::ostream & os, std::shared_ptr<StringLookup> lookup) {
+	os << "[";
 	for (const auto & group : groups_) {
-	    group.print(lookup);
-	    std::cout << ",";
+	    group.print(os, lookup);
+	    os << ",";
 	}
-	std::cout << "]";
+	os << "]";
     }
     
 private:
     std::vector<ClinicalCodeGroup> groups_;
 };
 
-inline void print(const ClinicalCodeGroup & group, std::shared_ptr<StringLookup> & lookup) {
-    std::cout << group.name(lookup) << std::endl;
+inline void print(std::ostream & os, const ClinicalCodeGroup & group, std::shared_ptr<StringLookup> & lookup) {
+    os << group.name(lookup) << std::endl;
 }
 
 /// Note that this class can be NULL, which is why
@@ -165,29 +165,29 @@ private:
 };
 
 /// Print a clinical code using strings from the lookup
-inline void print(const ClinicalCode & code, std::shared_ptr<StringLookup> lookup) {
+inline void print(std::ostream & os, const ClinicalCode & code, std::shared_ptr<StringLookup> lookup) {
     if (code.null()) {
-	std::cout << Colour::CYAN	
+	os << Colour::CYAN	
 		  << "Null"
 		  << Colour::RESET;
     } else if (not code.valid()) {
-	std::cout << Colour::CYAN	
+	os << Colour::CYAN	
 		  << code.name(lookup) << " (Unknown)"
 		  << Colour::RESET;
     } else {
 	auto code_groups{code.groups()};
 	if (not code_groups.empty()) {
-	    std::cout << Colour::ORANGE;
+	    os << Colour::ORANGE;
 	}
-	std::cout << code.name(lookup)
+	os << code.name(lookup)
 		  << " (" << code.docs(lookup) << ") "
 		  << " [";
         for (const auto & group : code_groups) {
-	    std::cout << group.name(lookup) << ",";
+	    os << group.name(lookup) << ",";
 	}
-	std::cout << "]";
+	os << "]";
 	if (not code_groups.empty()) {
-	    std::cout << Colour::RESET;
+	    os << Colour::RESET;
 	}
     }    
 }
