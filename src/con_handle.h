@@ -3,8 +3,8 @@
 
 #include <sstream>
 
-#include "env_handle.hpp"
-#include "yaml.hpp"
+#include "env_handle.h"
+#include "yaml.h"
 
 /// Throws runtime error if not present, adds to connection
 /// string in correct format
@@ -56,7 +56,7 @@ public:
 
 	// Get the connection information
 	auto con_string{make_connection_string(cred)};
-	std::cout << "COnnection string: " << con_string << std::endl;
+	//std::cout << "Connection string: " << con_string << std::endl;
 	r = SQLDriverConnect(hdbc_, NULL, (SQLCHAR*)con_string.c_str(), SQL_NTS,
 			     NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
 	ok_or_throw(get_handle(), r, "Attempting to connect to the server");

@@ -1,7 +1,7 @@
 #ifndef ROW_BUFFER_HPP
 #define ROW_BUFFER_HPP
 
-#include "sql_types.hpp"
+#include "sql_types.h"
 #include <string>
 
 template<class T>

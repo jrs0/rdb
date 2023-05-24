@@ -1,4 +1,4 @@
-#include "clinical_code.hpp"
+#include "clinical_code.h"
 
 /// Get the code name
 std::string ClinicalCode::name(std::shared_ptr<StringLookup> lookup) const {

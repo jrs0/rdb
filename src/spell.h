@@ -1,8 +1,8 @@
 #ifndef SPELL_HPP
 #define SPELL_HPP
 
-#include "episode.hpp"
-#include "row_buffer.hpp"
+#include "episode.h"
+#include "row_buffer.h"
 
 class Spell {
 public:
@@ -35,6 +35,10 @@ public:
 	sort_episodes();
     }
 
+    auto id() const {
+	return spell_id_;
+    }
+    
     /// Sort the episodes by start date
     void sort_episodes() {
         std::ranges::sort(episodes_, {}, &Episode::episode_start);	
@@ -62,18 +66,32 @@ public:
 	    return Timestamp{};
 	}
     }
+
+    /// Return the spell end date, or fall back
+    /// to the end date of the last episode. If
+    /// that is empty, return null
+    auto end_date() const {
+	if (not spell_end_.null()) {
+	    return spell_end_;
+	} else if (not episodes_.empty()){
+	    return episodes_.back().episode_end();
+	} else {
+	    return Timestamp{};
+	}
+    }
+
     
-    void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
-	std::cout << std::string(pad, ' ');
-	std::cout << "Spell " << spell_id_ << std::endl;
-	std::cout << std::string(pad, ' ');
-	spell_start_.print();
-	std::cout << " - ";
-	spell_end_.print();
-	std::cout << std::endl << std::endl;
+    void print(std::ostream & os, std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
+	os << std::string(pad, ' ');
+	os << "Spell " << spell_id_ << std::endl;
+	os << std::string(pad, ' ');
+	spell_start_.print(os);
+	os << " - ";
+	spell_end_.print(os);
+	os << std::endl << std::endl;
 	for (const auto & episode : episodes_) {
-	    episode.print(lookup, pad + 4);
-	    std::cout << std::endl;
+	    episode.print(os, lookup, pad + 4);
+	    os << std::endl;
 	}
     }
     

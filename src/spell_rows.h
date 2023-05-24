@@ -2,10 +2,10 @@
 #define SPELL_ROWSS
 
 #include <vector>
-#include "episode_row.hpp"
-#include "sql_types.hpp"
-#include "random.hpp"
-#include "row_buffer.hpp"
+#include "episode_row.h"
+#include "sql_types.h"
+#include "random.h"
+#include "row_buffer.h"
 
 class SpellRows {
 public:

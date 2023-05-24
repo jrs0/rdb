@@ -1,10 +1,10 @@
 #ifndef PATIENT_HPP
 #define PATIENT_HPP
 
-#include "row_buffer.hpp"
-#include "spell.hpp"
+#include "row_buffer.h"
+#include "spell.h"
 #include <ostream>
-#include "mortality.hpp"
+#include "mortality.h"
 
 class Patient {
 public:
@@ -42,12 +42,12 @@ public:
 	return mortality_;
     }
 
-    void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
-	std::cout << Colour::PINK <<"Patient: " << nhs_number_
+    void print(std::ostream & os, std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
+	os << Colour::PINK <<"Patient: " << nhs_number_
 		  << Colour::RESET << std::endl;
-	mortality_.print(lookup, pad);
+	mortality_.print(os, lookup, pad);
 	for (const auto & spell : spells_) {
-	    spell.print(lookup, pad + 4);
+	    spell.print(os, lookup, pad + 4);
 	}
     }    
     

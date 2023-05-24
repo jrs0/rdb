@@ -1,5 +1,5 @@
 /**
- * \file seed.hpp
+ * \file seed.h
  * \brief Contains a class for handling the seeds in the program
  *
  * The Seed class is important for enabling the repeatable execution of
@@ -64,7 +64,7 @@ public:
     /**
      * \brief Print the seed
      */
-    void print(std::ostream & os = std::cout) const {
+    void print(std::ostream & os) const {
 	os << "Seed(seed=" << seed_ << ")" << std::endl;
     }
 

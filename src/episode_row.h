@@ -3,11 +3,11 @@
 
 #include <map>
 #include <vector>
-#include "sql_types.hpp"
+#include "sql_types.h"
 #include <random>
-#include "clinical_code.hpp"
+#include "clinical_code.h"
 
-#include "random.hpp"
+#include "random.h"
 
 /// A mock row for testing the Episode row constructor
 class EpisodeRowBuffer {

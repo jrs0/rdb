@@ -1,5 +1,5 @@
 /**
- * \file random.hpp
+ * \file random.h
  * \brief A class for generating random numbers
  *
  * Standard library distributions such as std::uniform_int_distribution
@@ -20,7 +20,7 @@
 #define RANDOM_HPP
 
 #include <random>
-#include "seed.hpp"
+#include "seed.h"
 
 template<typename T>
 concept Numeric = std::floating_point<T> or std::integral<T>;

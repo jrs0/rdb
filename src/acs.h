@@ -3,11 +3,11 @@
 
 #include <vector>
 #include <ranges>
-#include "patient.hpp"
-#include "episode.hpp"
-#include "spell.hpp"
-#include "clinical_code.hpp"
-#include "event_counter.hpp"
+#include "patient.h"
+#include "episode.h"
+#include "spell.h"
+#include "clinical_code.h"
+#include "event_counter.h"
 
 const auto & get_first_episode(const Spell & spell) {
     if (spell.episodes().empty()) {
@@ -23,7 +23,6 @@ auto primary_acs(const Episode & episode, const ClinicalCodeMetagroup & acs_grou
 auto primary_pci(const Episode & episode, const ClinicalCodeMetagroup & pci_group) {
     return pci_group.contains(episode.primary_procedure());
 }
-
 
 /// Is index event if there is a primary ACS or PCI
 /// in the _first_ episode of the spell
@@ -91,7 +90,6 @@ auto get_all_groups(std::ranges::range auto && spells) {
 	std::views::join |
 	std::views::filter(&ClinicalCode::valid) |
 	std::views::transform(&ClinicalCode::groups) |
-	// BUG: removes duplicates incorrectly before count (std::set)
 	std::views::join;
 }
 

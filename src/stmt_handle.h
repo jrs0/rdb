@@ -1,8 +1,8 @@
 #ifndef STMT_HANDLE_HPP
 #define STMT_HANDLE_HPP
 
-#include "con_handle.hpp"
-#include "sql_types.hpp"
+#include "con_handle.h"
+#include "sql_types.h"
 
 
 /// Make a column binding for a VARCHAR column

@@ -14,3 +14,7 @@
 ^tools
 ^index.md$
 gendata
+build
+.clangd
+CMakeLists.txt
+profiles

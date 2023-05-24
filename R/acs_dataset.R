@@ -1,9 +1,5 @@
-## Go careful trying to debug a c++ function through an R call --
-## load_all does not know how to reload R functions properly that
-## depend on a c++ function, so you can be changing the c++ and
-## wondering why nothing is happening -- either call the c++ function
-## directly to debug, or make a change to this file to force it to
-## reload.
+##' @importFrom rlang .data
+NULL 
 
 ##' Loading the full dataset from the database takes a long time
 ##' (about 20 minutes), so this function is a wrapper around
@@ -14,8 +10,8 @@
 ##' in the location specified in the file block of the config file.
 ##'
 ##' @title Load the ACS dataset from the database or a file
-##' @param config The path to the YAML configuration file
-##' @return A dataframe containing the dataset
+##' @param config_path The path to the YAML configuration file
+##' @return A tibble of the dataset
 ##' 
 load_acs_dataset <- function(config_path = "config.yaml") {
     config <- yaml::read_yaml(config_path)
@@ -43,23 +39,29 @@ load_acs_dataset <- function(config_path = "config.yaml") {
         dataset
     }
 }
-
-
+##' This functions creates an ischaemia_after column by adding up the various
+##' ischaemia-related columns. In addition, the unix timestamp columns are
+##' converted to lubridate
+##'
+##' @title Convert the acs dataset to the form needed by the analysis scripts
+##' @param config_file The path to the config file for the dataset
+##' @return A tibble of the acs dataset
 processed_acs_dataset <- function(config_file = "config.yaml") {
 
     dataset <- load_acs_dataset(config_file)
 
     ## Convert the date from unix timestamps to lubridate
     dataset <- dplyr::mutate(dataset,
-                             index_date = lubridate::as_datetime(index_date),
-                             survival_time = lubridate::as.duration(survival_time))
+                             index_date = lubridate::as_datetime(.data$index_date),
+                             survival_time = lubridate::as.duration(.data$survival_time))
 
     ## Compute the outcome columns (only need ischaemia because bleed
     ## is already in there). The ischaemia endpoint is defined as
     ## subsequent ACS STEMI or NSTEMI, ischaemic stroke, or cardiac death.
     dataset <- dplyr::mutate(dataset,
-                             ischaemia_after = acs_stemi_after +
-                                 acs_nstemi_after +
-                                 ischaemic_stroke_after +
-                                 (cause_of_death == "cardiac"))
+                             ischaemia_after = .data$acs_stemi_after +
+                                 .data$acs_nstemi_after +
+                                 .data$all_ischaemia_after +
+                                 .data$ischaemic_stroke_after +
+                                 (.data$cause_of_death == "cardiac"))
 }

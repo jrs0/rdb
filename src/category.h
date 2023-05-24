@@ -1,5 +1,5 @@
 /**
- * \file category.hpp
+ * \file category.h
  *
  * This file contains the Category class, which is the basis for storing
  * the tree of code categories for ICD codes.
@@ -99,7 +99,7 @@ public:
 	return code < c.index_;
     }
     
-    void print() const;
+    void print(std::ostream & os) const;
 
     std::string name() const {
 	return name_;
@@ -212,7 +212,7 @@ public:
 	return parser_.cache_size();
     }
     
-    void print() const;
+    void print(std::ostream & os) const;
 
     /// Parse a raw code and return the results (name, docs and
     /// groups), or get the results directly from the cache

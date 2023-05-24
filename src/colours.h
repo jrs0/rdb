@@ -1,5 +1,5 @@
 /**
- * \file colours.hpp
+ * \file colours.h
  * \brief Colours codes for printing to the terminal
  */
 

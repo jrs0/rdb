@@ -1,8 +1,8 @@
 #ifndef MORTALITY_HPP
 #define MORTALITY_HPP
 
-#include "row_buffer.hpp"
-#include "clinical_code.hpp"
+#include "row_buffer.h"
+#include "clinical_code.h"
 
 class Mortality {
 public:
@@ -50,22 +50,22 @@ public:
 	return date_of_death_;
     }
 
-    void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
+    void print(std::ostream & os, std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
 	
-	std::cout << std::string(pad, ' ')
+	os << std::string(pad, ' ')
 		  << "Mortality: ";
 	if (alive()) {
-	    std::cout << "alive" << std::endl;
+	    os << "alive" << std::endl;
 	} else {
-	    std::cout << std::endl
+	    os << std::endl
 		      << std::string(pad, ' ') << "- date of death = " << date_of_death_ << std::endl
 		      << std::string(pad, ' ') << "- age at death = " << age_at_death_  << std::endl
 		      << std::string(pad, ' ') << "- cause of death = ";
 	    if (cause_of_death_) {
-		::print(cause_of_death_.value(), lookup);
-		std::cout << std::endl;
+		::print(os, cause_of_death_.value(), lookup);
+		os << std::endl;
 	    } else {
-		std::cout << "Unknown" << std::endl;
+		os << "Unknown" << std::endl;
 	    }
 	}	    
     }

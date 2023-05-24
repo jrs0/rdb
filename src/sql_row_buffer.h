@@ -3,11 +3,11 @@
 
 #include <functional>
 
-#include "stmt_handle.hpp"
-#include "yaml.hpp"
-#include "category.hpp"
-#include "random.hpp"
-#include "row_buffer.hpp"
+#include "stmt_handle.h"
+#include "yaml.h"
+#include "category.h"
+#include "random.h"
+#include "row_buffer.h"
 
 /// Holds the column bindings for an in-progress query. Allows
 /// rows to be fetched one at a time.

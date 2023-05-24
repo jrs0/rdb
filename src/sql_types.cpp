@@ -1,4 +1,4 @@
-#include "sql_types.hpp"
+#include "sql_types.h"
 
 std::ostream &operator<<(std::ostream &os, const Integer &integer) {
     integer.print(os);
@@ -7,7 +7,6 @@ std::ostream &operator<<(std::ostream &os, const Integer &integer) {
 
 std::ostream &operator<<(std::ostream &os, const Timestamp &timestamp) {
     timestamp.print(os);
-    std::cout << " " << timestamp.read();
     return os;
 }
 

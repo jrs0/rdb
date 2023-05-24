@@ -1,7 +1,7 @@
 #ifndef ENV_HANDLE_HPP
 #define ENV_HANDLE_HPP
 
-#include "sql_debug.hpp"
+#include "sql_debug.h"
 
 /// Global environment handle
 class EnvHandle {

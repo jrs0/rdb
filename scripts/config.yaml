@@ -29,7 +29,7 @@
 
 # Set to true to load the dataset from a file, otherwise
 # load from the database
-load_from_file: true
+load_from_file: false
 
 file:
   directory: gendata/
@@ -47,8 +47,8 @@ parser:
   
 sql_query:
   # Set a limit on the number of returned rows (optional)
-  #result_limit: 500000
   #result_limit: 50000
+  result_limit: 1000000
   primary_diagnosis: diagnosisprimary_icd
   secondary_diagnoses:
   - diagnosis1stsecondary_icd
@@ -112,8 +112,11 @@ index_event:
     stemi_flag: acs_stemi
   
 code_groups:
-  acs: [acs_stemi, acs_nstemi, acs_unstable_angina]
-  pci: [pci]
+  acs:
+  - acs_stemi
+  - acs_nstemi
+  pci:
+  - pci
   cardiac_death:
   - acs_stemi
   - acs_nstemi
@@ -121,7 +124,8 @@ code_groups:
   - atrial_fib
   - chronic_ischaemia_heart_disease
   - other_ischaemic_heart_diseases
-  stemi: [acs_stemi]
+  stemi:
+  - acs_stemi
   
 data_sources:
   hospital_episodes:
@@ -136,8 +140,8 @@ data_sources:
       cause_of_death: S_UNDERLYING_COD_ICD10
 
 in_memory:
-  num_patients: 500
+  num_patients: 5000
   seed: 47
 
-print: false
+save_records: true
 

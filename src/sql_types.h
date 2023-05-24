@@ -11,7 +11,7 @@
 
 #include <sql.h>
 #include <sqlext.h>
-#include "sql_debug.hpp"
+#include "sql_debug.h"
 
 // Could not determine the returned data length
 struct SqlNoTotal{};
@@ -48,7 +48,7 @@ public:
 	    throw Null{};
 	}
     }
-    void print(std::ostream & os = std::cout) const {
+    void print(std::ostream & os) const {
 	os << "Integer: ";
 	if (null_) {
 	    os << "NULL" << std::endl;
@@ -77,7 +77,7 @@ public:
 	    throw Null{};
 	}
     }
-    void print(std::ostream & os = std::cout) const {
+    void print(std::ostream & os) const {
 	os << "Integer: ";
 	if (null_) {
 	    os << "NULL";
@@ -157,7 +157,7 @@ public:
 	    throw Null{};
 	}
     }
-    void print(std::ostream & os = std::cout) const {
+    void print(std::ostream & os) const {
 	if (null_) {
 	    os << "NULL";
 	} else {

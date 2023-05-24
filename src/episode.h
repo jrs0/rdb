@@ -1,13 +1,13 @@
 #ifndef EPISODE_HPP
 #define EPISODE_HPP
 
-#include "row_buffer.hpp"
-#include "category.hpp"
+#include "row_buffer.h"
+#include "category.h"
 
-#include "set_utils.hpp"
-#include "clinical_code.hpp"
+#include "set_utils.h"
+#include "clinical_code.h"
 
-#include "sql_types.hpp"
+#include "sql_types.h"
 
 ClinicalCode
 read_clinical_code_column(const std::string & column_name,
@@ -177,39 +177,39 @@ public:
 	return episode_start_;
     }
     
-    void print(std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
-	std::cout << std::string(pad, ' ');
-	std::cout << "Episode: ";
-	episode_start_.print();
-	std::cout << " - ";
-	episode_end_.print();
-	std::cout << std::endl;
-	std::cout << std::string(' ', pad);
-	std::cout << std::string(pad, ' ');
-        std::cout << "Primary diagnosis: ";
-	::print(primary_diagnosis_, lookup);
-        std::cout << std::endl;
-	std::cout << std::string(' ', pad);
+    void print(std::ostream & os, std::shared_ptr<StringLookup> lookup, std::size_t pad = 0) const {
+	os << std::string(pad, ' ');
+	os << "Episode: ";
+	episode_start_.print(os);
+	os << " - ";
+	episode_end_.print(os);
+	os << std::endl;
+	os << std::string(' ', pad);
+	os << std::string(pad, ' ');
+        os << "Primary diagnosis: ";
+	::print(os, primary_diagnosis_, lookup);
+        os << std::endl;
+	os << std::string(' ', pad);
 	if (secondary_diagnoses_.size() > 0) {
-	    std::cout << std::string(pad, ' ');
-	    std::cout << "Secondary diagnoses: " << std::endl;
+	    os << std::string(pad, ' ');
+	    os << "Secondary diagnoses: " << std::endl;
 	    for (const auto & diagnosis : secondary_diagnoses_) {
-		std::cout << std::string(pad, ' ') << "- ";
-		::print(diagnosis, lookup);
-		std::cout << std::endl;
+		os << std::string(pad, ' ') << "- ";
+		::print(os, diagnosis, lookup);
+		os << std::endl;
 	    }
 	}
-	std::cout << std::string(pad, ' ');	
-        std::cout << "Primary procedure: ";
-	::print(primary_procedure_, lookup);
-        std::cout << std::endl;
+	os << std::string(pad, ' ');	
+        os << "Primary procedure: ";
+	::print(os, primary_procedure_, lookup);
+        os << std::endl;
 	if (secondary_procedures_.size() > 0) {
-	    std::cout << std::string(pad, ' ');
-	    std::cout << "Secondary procedures: " << std::endl;
+	    os << std::string(pad, ' ');
+	    os << "Secondary procedures: " << std::endl;
 	    for (const auto & procedure : secondary_procedures_) {
-		std::cout << std::string(pad, ' ') << "- ";
-		::print(procedure, lookup);
-		std::cout << std::endl;
+		os << std::string(pad, ' ') << "- ";
+		::print(os, procedure, lookup);
+		os << std::endl;
 	    }
 	}	
     }

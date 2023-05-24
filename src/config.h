@@ -1,7 +1,7 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
-#include "yaml.hpp"
+#include "yaml.h"
 #include <yaml-cpp/node/parse.h>
 
 /// Load a config file 

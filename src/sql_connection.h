@@ -6,9 +6,9 @@
 
 #include <string>
 #include <memory>
-#include "config.hpp"
-#include "stmt_handle.hpp"
-#include "sql_row_buffer.hpp"
+#include "config.h"
+#include "stmt_handle.h"
+#include "sql_row_buffer.h"
 
 /// A simple SQL
 class SQLConnection {

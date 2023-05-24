@@ -1,7 +1,7 @@
 #ifndef SQL_QUERY
 #define SQL_QUERY
 
-#include "yaml.hpp"
+#include "yaml.h"
 #include <optional>
 
 /**

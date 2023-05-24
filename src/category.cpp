@@ -1,7 +1,7 @@
 #include <iostream>
-#include "category.hpp"
+#include "category.h"
 #include <ranges>
-#include "yaml.hpp"
+#include "yaml.h"
 
 Index::Index(const YAML::Node & category) {
     if (category["index"]) {
@@ -78,11 +78,11 @@ bool Category::contains(const std::string & code) const {
     return index_.contains(code);
 }
 
-void Category::print() const {
-    std::cout << "Category: " << name_ << std::endl;
-    std::cout << "- " << docs_ << std::endl;
+void Category::print(std::ostream & os) const {
+    os << "Category: " << name_ << std::endl;
+    os << "- " << docs_ << std::endl;
     for (const auto & category : categories_) {
-	category.print();
+        category.print(os);
     }
 }
 
@@ -240,17 +240,16 @@ TopLevelCategory::TopLevelCategory(const YAML::Node & top_level_category)
     }
 }
 
-void TopLevelCategory::print() const {
-    std::cout << "TopLevelCategory:" << std::endl;
-    std::cout << "Groups: " << std::endl;
+void TopLevelCategory::print(std::ostream & os) const {
+    os << "TopLevelCategory:" << std::endl;
+    os << "Groups: " << std::endl;
     for (const auto & group : groups_) {
-	std::cout << "- " << group << std::endl;
+	os << "- " << group << std::endl;
     }
     for (const auto & category : categories_) {
-	category.print();
+	category.print(os);
     }
 }
-
 
 /// Remove non-alphanumeric characters from code (e.g. dots)
 std::string remove_non_alphanum(const std::string & code) {
