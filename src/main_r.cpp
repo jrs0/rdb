@@ -473,22 +473,22 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 			//////////////// end yaml
 
 			
-                        mortality.print(lookup);
+                        mortality.print(Rcpp::Rcout, lookup);
 			if (survival_time.has_value()) {
 			    Rcpp::Rcout << "Survival time: " << survival_time.value() << std::endl;
 			}
 			Rcpp::Rcout << "EVENT COUNTS" << std::endl;
-			event_counter.print(lookup);
+			event_counter.print(Rcpp::Rcout, lookup);
 			Rcpp::Rcout << "INDEX SPELL" << std::endl;
-			index_spell.print(lookup, 4);			
+			index_spell.print(Rcpp::Rcout, lookup, 4);			
 			Rcpp::Rcout << std::endl;
 			Rcpp::Rcout << "SPELLS AFTER" << std::endl;
 			for (const auto & spell : spells_after) {
-			    spell.print(lookup, 4);
+			    spell.print(Rcpp::Rcout, lookup, 4);
 			}
 			Rcpp::Rcout << "SPELLS BEFORE" << std::endl;
 			for (const auto & spell : spells_before) {
-			    spell.print(lookup, 4);
+			    spell.print(Rcpp::Rcout, lookup, 4);
 			}
 
 			patient_record << YAML::EndMap;

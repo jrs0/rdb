@@ -36,7 +36,7 @@ public:
 	return index_to_string_.at(index); 
     }
 
-    void print(const std::ostream & os = std::cout) const {
+    void print(std::ostream & os = std::cout) const {
 	os << "String lookup:" << std::endl;
 	for (const auto & [index, string] : index_to_string_) {
 	    os << index << ": " << string << std::endl;

@@ -62,7 +62,7 @@ public:
 		      << std::string(pad, ' ') << "- age at death = " << age_at_death_  << std::endl
 		      << std::string(pad, ' ') << "- cause of death = ";
 	    if (cause_of_death_) {
-		::print(cause_of_death_.value(), lookup);
+		::print(os, cause_of_death_.value(), lookup);
 		os << std::endl;
 	    } else {
 		os << "Unknown" << std::endl;

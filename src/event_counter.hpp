@@ -27,14 +27,14 @@ public:
 	os << "- Counts before:" << std::endl;
 	for (const auto & [group, count] : before_counts_) {
 	    os << "  - ";
-	    group.print(lookup);
+	    group.print(os, lookup);
 	    os << ": " << count
 		      << std::endl;
 	}
 	os << "- Counts after:" << std::endl;
 	for (const auto & [group, count] : after_counts_) {
 	    os << "  - ";
-	    group.print(lookup);
+	    group.print(os, lookup);
 	    os << ": " << count
 		      << std::endl;
 	}

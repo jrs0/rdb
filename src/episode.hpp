@@ -187,7 +187,7 @@ public:
 	os << std::string(' ', pad);
 	os << std::string(pad, ' ');
         os << "Primary diagnosis: ";
-	::print(primary_diagnosis_, lookup);
+	::print(os, primary_diagnosis_, lookup);
         os << std::endl;
 	os << std::string(' ', pad);
 	if (secondary_diagnoses_.size() > 0) {
@@ -201,7 +201,7 @@ public:
 	}
 	os << std::string(pad, ' ');	
         os << "Primary procedure: ";
-	::print(primary_procedure_, lookup);
+	::print(os, primary_procedure_, lookup);
         os << std::endl;
 	if (secondary_procedures_.size() > 0) {
 	    os << std::string(pad, ' ');

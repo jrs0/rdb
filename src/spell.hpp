@@ -90,7 +90,7 @@ public:
 	spell_end_.print();
 	os << std::endl << std::endl;
 	for (const auto & episode : episodes_) {
-	    episode.print(lookup, pad + 4);
+	    episode.print(os, lookup, pad + 4);
 	    os << std::endl;
 	}
     }
