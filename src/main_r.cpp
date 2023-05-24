@@ -213,7 +213,7 @@ void print_sql_query(const Rcpp::CharacterVector & config_path) {
     try {
 	auto config{load_config_file(config_path_str)};
 	auto sql_query{make_acs_sql_query(config["sql_query"], true, std::nullopt)};
-	std::cout << sql_query << std::endl;
+	Rcpp::Rcout << sql_query << std::endl;
     } catch (const std::runtime_error & e) {
 	Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
     }
@@ -238,12 +238,12 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 	ClinicalCodeMetagroup cardiac_death_metagroup{config["code_groups"]["cardiac_death"], lookup};
 	ClinicalCodeMetagroup stemi_metagroup{config["code_groups"]["stemi"], lookup};
 
-	std::cout << "Executing query" << std::endl;
+	Rcpp::Rcout << "Executing query" << std::endl;
         auto row{sql_connection.execute_direct(sql_query)};
 
         auto save_records{config["save_records"].as<bool>()};
 
-	std::cout << "Started fetching rows" << std::endl;
+	Rcpp::Rcout << "Started fetching rows" << std::endl;
 
 	std::map<std::string, Rcpp::NumericVector> event_counts;
 	RFactor nhs_numbers;
@@ -277,7 +277,7 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
 		auto row_number{row.current_row_number()};
 		if (row_number % 100000 == 0) {
-		    std::cout << "Got to row " << row_number << std::endl;
+		    Rcpp::Rcout << "Got to row " << row_number << std::endl;
 		}
 
 		auto nhs_number{patient.nhs_number()};
@@ -381,9 +381,9 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 
 		    if (save_records) {
 
-			std::cout << "====================================" << std::endl;
-			std::cout << "PCI/ACS RECORD" << std::endl;
-			std::cout << "------------------------------------" << std::endl;
+			Rcpp::Rcout << "====================================" << std::endl;
+			Rcpp::Rcout << "PCI/ACS RECORD" << std::endl;
+			Rcpp::Rcout << "------------------------------------" << std::endl;
 			
 			// Provided the top level file is a list, it is fine (from the
 			// perspective of yaml syntax) to just join multiple files together.
@@ -394,20 +394,20 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 			patient_record << YAML::BeginSeq;
 
 			/////////// print
-			std::cout << "Pseudo NHS Number: " << nhs_number << std::endl;
-			std::cout << "Age at index: " << age_at_index << std::endl;
-			std::cout << "Index date: " << date_of_index << std::endl;
+			Rcpp::Rcout << "Pseudo NHS Number: " << nhs_number << std::endl;
+			Rcpp::Rcout << "Age at index: " << age_at_index << std::endl;
+			Rcpp::Rcout << "Index date: " << date_of_index << std::endl;
 
 			if (stemi_flag) {
-			    std::cout << "Presentation: STEMI" << std::endl;
+			    Rcpp::Rcout << "Presentation: STEMI" << std::endl;
 			} else {
-			    std::cout << "Presentation: NSTEMI" << std::endl;
+			    Rcpp::Rcout << "Presentation: NSTEMI" << std::endl;
 			}
 
 			if (pci_triggered) {
-			    std::cout << "Inclusion trigger: PCI" << std::endl;
+			    Rcpp::Rcout << "Inclusion trigger: PCI" << std::endl;
 			} else {
-			    std::cout << "Inclusion trigger: ACS" << std::endl;
+			    Rcpp::Rcout << "Inclusion trigger: ACS" << std::endl;
 			}
 
 			/////////// end print
@@ -475,18 +475,18 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 			
                         mortality.print(lookup);
 			if (survival_time.has_value()) {
-			    std::cout << "Survival time: " << survival_time.value() << std::endl;
+			    Rcpp::Rcout << "Survival time: " << survival_time.value() << std::endl;
 			}
-			std::cout << "EVENT COUNTS" << std::endl;
+			Rcpp::Rcout << "EVENT COUNTS" << std::endl;
 			event_counter.print(lookup);
-			std::cout << "INDEX SPELL" << std::endl;
+			Rcpp::Rcout << "INDEX SPELL" << std::endl;
 			index_spell.print(lookup, 4);			
-			std::cout << std::endl;
-			std::cout << "SPELLS AFTER" << std::endl;
+			Rcpp::Rcout << std::endl;
+			Rcpp::Rcout << "SPELLS AFTER" << std::endl;
 			for (const auto & spell : spells_after) {
 			    spell.print(lookup, 4);
 			}
-			std::cout << "SPELLS BEFORE" << std::endl;
+			Rcpp::Rcout << "SPELLS BEFORE" << std::endl;
 			for (const auto & spell : spells_before) {
 			    spell.print(lookup, 4);
 			}
@@ -498,7 +498,7 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		    }
 		}
 	    } catch (const RowBufferException::NoMoreRows &) {
-		std::cout << "Finished fetching all rows" << std::endl;
+		Rcpp::Rcout << "Finished fetching all rows" << std::endl;
 		break;
 	    }
 	}

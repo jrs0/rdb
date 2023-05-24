@@ -78,13 +78,15 @@ bool Category::contains(const std::string & code) const {
     return index_.contains(code);
 }
 
+/*
 void Category::print() const {
     std::cout << "Category: " << name_ << std::endl;
     std::cout << "- " << docs_ << std::endl;
     for (const auto & category : categories_) {
-	category.print();
+        category.print();
     }
 }
+*/
 
 /// Return the category in the supplied vector that contains the code,
 /// or throw a runtime_error if the code is not found anywhere.
@@ -240,6 +242,7 @@ TopLevelCategory::TopLevelCategory(const YAML::Node & top_level_category)
     }
 }
 
+/*
 void TopLevelCategory::print() const {
     std::cout << "TopLevelCategory:" << std::endl;
     std::cout << "Groups: " << std::endl;
@@ -250,7 +253,7 @@ void TopLevelCategory::print() const {
 	category.print();
     }
 }
-
+*/
 
 /// Remove non-alphanumeric characters from code (e.g. dots)
 std::string remove_non_alphanum(const std::string & code) {

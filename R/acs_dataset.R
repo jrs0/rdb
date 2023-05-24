@@ -52,8 +52,8 @@ processed_acs_dataset <- function(config_file = "config.yaml") {
 
     ## Convert the date from unix timestamps to lubridate
     dataset <- dplyr::mutate(dataset,
-                             index_date = lubridate::as_datetime(index_date),
-                             survival_time = lubridate::as.duration(survival_time))
+                             index_date = lubridate::as_datetime(.data$index_date),
+                             survival_time = lubridate::as.duration(.data$survival_time))
 
     ## Compute the outcome columns (only need ischaemia because bleed
     ## is already in there). The ischaemia endpoint is defined as
