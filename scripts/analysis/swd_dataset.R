@@ -108,13 +108,30 @@ split <- acs_dataset %>%
 train <- training(split)
 test <- testing(split)
 
-bleeding_recipe <- recipe(train) %>%
+rec <- recipe(train) %>%
     update_role(everything(), new_role = "predictor") %>%        
     update_role(bleeding_after, new_role = "outcome") %>%
     update_role(ischaemia_after, new_role = "ignored_outcome") %>%
     update_role(nhs_number, new_role = "nhs_number") %>%
     update_role(index_date, new_role = "index_date") %>%
     update_role(index_id, new_role = "index_id") %>%
+    ## Exclude the following columns which has only one
+    ## factor level, causes a problem for LR.
+    update_role(gender_identity, new_role = "exclude") %>%
+    update_role(sexual_orient, new_role = "exclude") %>%
     step_dummy(all_nominal_predictors()) %>%
     step_nzv(all_predictors()) %>%
     step_normalize(all_numeric_predictors())
+
+lr_model <- logistic_reg() %>% 
+    set_engine('glm') %>% 
+    set_mode('classification')
+
+wflow <- 
+    workflow() %>% 
+    add_model(lr_model) %>% 
+    add_recipe(rec)
+
+fit <- wflow %>% 
+    fit(data = train)
+
