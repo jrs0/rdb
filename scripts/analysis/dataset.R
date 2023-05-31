@@ -1,4 +1,3 @@
-
 ##' Converts the outcome columns to two level factors and
 ##' removes mortality columns (mortality is still included
 ##' in the ischaemia outcome)
