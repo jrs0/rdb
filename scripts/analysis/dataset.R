@@ -7,7 +7,6 @@ modelling_dataset <- function(raw_dataset) {
         count_to_two_level_factor(ischaemia_after) %>%
         remove_other_outcome_columns() %>%
         remove_mortality_columns() %>%
-        drop_na() %>%
         mutate(index_id = as.factor(row_number()))
 
     ## Find columns with more than 90% NA (in particular,

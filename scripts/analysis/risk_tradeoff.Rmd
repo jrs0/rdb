@@ -37,10 +37,10 @@ all_model_auc_summary %>%
 
 ## Hospital episode statistics
 
-Hospital episodes statistics (HES) contain diagnosis and procedure information from consultant episodes in secondary care. Each episode contains one or multiple diagnoses or procedures, which may be used to identify patients of interest, and track subsequent diagnoses and procedures in a follow-up period.
+	Hospital episodes statistics (HES) contain diagnosis and procedure information from consultant episodes in secondary care. Each episode contains one or multiple diagnoses or procedures, which may be used to identify patients of interest, and track subsequent diagnoses and procedures in a follow-up period.
 
 Hospital episodes are grouped into spells. A spell defines one in-patient hospital visit for a patient. A spell may contain multiple episodes because a patient may be attended by multiple consultants over the course of their hospital stay.
-
+	
 # Dataset definition and characteristics
 
 Each row of the dataset corresponds to an episode with either an ACS or PCI code in any of the primary or secondary columns in the HES data. At most one index event is selected from each spell -- this is intended to avoid double counting the same underlying event (if, for example, two episodes are marked ACS in a single spell corresponding to one emergency admission due to a heart attack). The graph below shows the volume of index events (any ACS or PCI) as a function of time, broken down by STEMI (ST-elevation myocardial infarction) vs. NSTEMI (not STEMI) presentation.
@@ -160,160 +160,160 @@ logistic_regression_results %>%
 ```
 
 \newpage
-## Naive Bayes
+<!-- ## Naive Bayes -->
 
-The ROC curves for the bleeding and ischaemia models are shown below:
+<!-- The ROC curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-naive_bayes_results %>%
-    plot_resample_roc_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- naive_bayes_results %>% -->
+<!--     plot_resample_roc_curves() -->
+<!-- ``` -->
 
-The gain curves for the bleeding and ischaemia models are shown below:
+<!-- The gain curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-naive_bayes_results %>%
-    plot_resample_gain_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- naive_bayes_results %>% -->
+<!--     plot_resample_gain_curves() -->
+<!-- ``` -->
 
-\newpage
-The lift curves for the bleeding and ischaemia models are shown below:
+<!-- \newpage -->
+<!-- The lift curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-naive_bayes_results %>%
-    plot_resample_lift_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- naive_bayes_results %>% -->
+<!--     plot_resample_lift_curves() -->
+<!-- ``` -->
 
-The precision-recall curves for the models are shown below:
+<!-- The precision-recall curves for the models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-naive_bayes_results %>%
-    plot_resample_precision_recall_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- naive_bayes_results %>% -->
+<!--     plot_resample_precision_recall_curves() -->
+<!-- ``` -->
 
-## Decision Tree
+<!-- ## Decision Tree -->
 
-The ROC curves for the bleeding and ischaemia models are shown below:
+<!-- The ROC curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-decision_tree_results %>%
-    plot_resample_roc_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- decision_tree_results %>% -->
+<!--     plot_resample_roc_curves() -->
+<!-- ``` -->
 
-The gain curves for the bleeding and ischaemia models are shown below:
+<!-- The gain curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-decision_tree_results %>%
-    plot_resample_gain_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- decision_tree_results %>% -->
+<!--     plot_resample_gain_curves() -->
+<!-- ``` -->
 
-\newpage
-The lift curves for the bleeding and ischaemia models are shown below:
+<!-- \newpage -->
+<!-- The lift curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-decision_tree_results %>%
-    plot_resample_lift_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- decision_tree_results %>% -->
+<!--     plot_resample_lift_curves() -->
+<!-- ``` -->
 
-The precision-recall curves for the models are shown below:
+<!-- The precision-recall curves for the models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-decision_tree_results %>%
-    plot_resample_precision_recall_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- decision_tree_results %>% -->
+<!--     plot_resample_precision_recall_curves() -->
+<!-- ``` -->
 
-## Boosted Tree
+<!-- ## Boosted Tree -->
 
-The ROC curves for the bleeding and ischaemia models are shown below:
+<!-- The ROC curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-boosted_tree_results %>%
-    plot_resample_roc_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- boosted_tree_results %>% -->
+<!--     plot_resample_roc_curves() -->
+<!-- ``` -->
 
-The gain curves for the bleeding and ischaemia models are shown below:
+<!-- The gain curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-boosted_tree_results %>%
-    plot_resample_gain_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- boosted_tree_results %>% -->
+<!--     plot_resample_gain_curves() -->
+<!-- ``` -->
 
-\newpage
-The lift curves for the bleeding and ischaemia models are shown below:
+<!-- \newpage -->
+<!-- The lift curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-boosted_tree_results %>%
-    plot_resample_lift_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- boosted_tree_results %>% -->
+<!--     plot_resample_lift_curves() -->
+<!-- ``` -->
 
-The precision-recall curves for the models are shown below:
+<!-- The precision-recall curves for the models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-boosted_tree_results %>%
-    plot_resample_precision_recall_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- boosted_tree_results %>% -->
+<!--     plot_resample_precision_recall_curves() -->
+<!-- ``` -->
 
-## Linear Discriminant Analysis
+<!-- ## Linear Discriminant Analysis -->
 
-The ROC curves for the bleeding and ischaemia models are shown below:
+<!-- The ROC curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-linear_discriminant_analysis_results %>%
-    plot_resample_roc_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- linear_discriminant_analysis_results %>% -->
+<!--     plot_resample_roc_curves() -->
+<!-- ``` -->
 
-The gain curves for the bleeding and ischaemia models are shown below:
+<!-- The gain curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-linear_discriminant_analysis_results %>%
-    plot_resample_gain_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- linear_discriminant_analysis_results %>% -->
+<!--     plot_resample_gain_curves() -->
+<!-- ``` -->
 
-\newpage
-The lift curves for the bleeding and ischaemia models are shown below:
+<!-- \newpage -->
+<!-- The lift curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-linear_discriminant_analysis_results %>%
-    plot_resample_lift_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- linear_discriminant_analysis_results %>% -->
+<!--     plot_resample_lift_curves() -->
+<!-- ``` -->
 
-The precision-recall curves for the models are shown below:
+<!-- The precision-recall curves for the models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-linear_discriminant_analysis_results %>%
-    plot_resample_precision_recall_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- linear_discriminant_analysis_results %>% -->
+<!--     plot_resample_precision_recall_curves() -->
+<!-- ``` -->
 
-## Quadratic Discriminant Analysis
+<!-- ## Quadratic Discriminant Analysis -->
 
-The ROC curves for the bleeding and ischaemia models are shown below:
+<!-- The ROC curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-quadratic_discriminant_analysis_results %>%
-    plot_resample_roc_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- quadratic_discriminant_analysis_results %>% -->
+<!--     plot_resample_roc_curves() -->
+<!-- ``` -->
 
-The gain curves for the bleeding and ischaemia models are shown below:
+<!-- The gain curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-quadratic_discriminant_analysis_results %>%
-    plot_resample_gain_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- quadratic_discriminant_analysis_results %>% -->
+<!--     plot_resample_gain_curves() -->
+<!-- ``` -->
 
-\newpage
-The lift curves for the bleeding and ischaemia models are shown below:
+<!-- \newpage -->
+<!-- The lift curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-quadratic_discriminant_analysis_results %>%
-    plot_resample_lift_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- quadratic_discriminant_analysis_results %>% -->
+<!--     plot_resample_lift_curves() -->
+<!-- ``` -->
 
-The precision-recall curves for the models are shown below:
+<!-- The precision-recall curves for the models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-quadratic_discriminant_analysis_results %>%
-    plot_resample_precision_recall_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- quadratic_discriminant_analysis_results %>% -->
+<!--     plot_resample_precision_recall_curves() -->
+<!-- ``` -->
 
 # Risk Predictions
 
@@ -398,7 +398,7 @@ A bespoke program reads the ICD and OPCS codes in the HES database and parses th
 The groups of ICD 10 diagnosis codes used in the analysis are shown below:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
-groups <- code_groups("../../icd10.yaml")
+groups <- code_groups("../icd10.yaml")
 for (n in seq_along(groups)) {
     print(kable(groups[[n]], caption = paste("Diagnosis group", names(groups)[[n]]), align = "l"))
 }
@@ -409,7 +409,7 @@ for (n in seq_along(groups)) {
 The groups of OPCS 4 procedure codes used in the analysis are shown below:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
-groups <- code_groups("../../opcs4.yaml")
+groups <- code_groups("../opcs4.yaml")
 for (n in seq_along(groups)) {
     print(kable(groups[[n]], caption = paste("Procedure group", names(groups)[[n]]), align = "l"))
 }

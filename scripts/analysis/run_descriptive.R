@@ -2,6 +2,7 @@ library(tidyverse)
 
 devtools::load_all("../../")
 
+source("dataset.R")
 source("descriptive.R")
 
 ## Load the raw data from file or database (HES only)

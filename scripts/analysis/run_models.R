@@ -61,28 +61,28 @@ quadratic_discriminant_analysis_model <-
 logistic_regression_results <- logistic_regression_model %>%
     model_results(bleeding_recipe, ischaemia_recipe)
 
-naive_bayes_results <- naive_bayes_model %>%
-    model_results(bleeding_recipe, ischaemia_recipe)
+## naive_bayes_results <- naive_bayes_model %>%
+##     model_results(bleeding_recipe, ischaemia_recipe)
 
-decision_tree_results <- decision_tree_model %>%
-    model_results(bleeding_recipe, ischaemia_recipe)
+## decision_tree_results <- decision_tree_model %>%
+##     model_results(bleeding_recipe, ischaemia_recipe)
 
-boosted_tree_results <- boosted_tree_model %>%
-    model_results(bleeding_recipe, ischaemia_recipe)
+## boosted_tree_results <- boosted_tree_model %>%
+##     model_results(bleeding_recipe, ischaemia_recipe)
 
 ## random_forest_results <- random_forest_model %>%
 ##     model_results(bleeding_recipe, ischaemia_recipe)
 
-linear_discriminant_analysis_results <- linear_discriminant_analysis_model %>%
-    model_results(bleeding_recipe, ischaemia_recipe)
+## linear_discriminant_analysis_results <- linear_discriminant_analysis_model %>%
+##     model_results(bleeding_recipe, ischaemia_recipe)
 
-quadratic_discriminant_analysis_results <- quadratic_discriminant_analysis_model %>%
-    model_results(bleeding_recipe, ischaemia_recipe)
+## quadratic_discriminant_analysis_results <- quadratic_discriminant_analysis_model %>%
+##     model_results(bleeding_recipe, ischaemia_recipe)
 
 
-all_model_predictions <- logistic_regression_results$predictions %>%
-    bind_rows(naive_bayes_results$predictions) %>%
-    bind_rows(decision_tree_results$predictions)
+all_model_predictions <- logistic_regression_results$predictions
+    ## bind_rows(naive_bayes_results$predictions) %>%
+    ## bind_rows(decision_tree_results$predictions)
     ##bind_rows(boosted_tree_results$predictions) %>%
     ##bind_rows(random_forest_results$predictions) %>%
     ##bind_rows(linear_discriminant_analysis_results$predictions) %>%
@@ -91,10 +91,10 @@ all_model_predictions <- logistic_regression_results$predictions %>%
 ## The summary table of model AUCs
 all_model_auc_summary <- model_aucs(logistic_regression_results,
                                     "Logistic Regression") %>%
-    bind_rows(model_aucs(naive_bayes_results,
-                         "Naive Bayes")) %>%
-    bind_rows(model_aucs(decision_tree_results,
-                         "Decision Tree")) %>%
+    ## bind_rows(model_aucs(naive_bayes_results,
+    ##                      "Naive Bayes")) %>%
+    ## bind_rows(model_aucs(decision_tree_results,
+    ##                      "Decision Tree")) %>%
     ## bind_rows(model_aucs(boosted_tree_results,
     ##                      "Boosted Tree")) %>%
     ## bind_rows(model_aucs(random_forest_results,
@@ -104,5 +104,5 @@ all_model_auc_summary <- model_aucs(logistic_regression_results,
     ## bind_rows(model_aucs(quadratic_discriminant_analysis_results,
     ##                      "Quadratic Discriminant Analysis")) %>%
     summarise_model_aucs() %>%
-    mutate(across(-model, signif, 2))
+    mutate(across(-model, ~ signif(.,2)))
     
