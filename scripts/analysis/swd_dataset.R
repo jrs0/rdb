@@ -125,13 +125,6 @@ rec <- recipe(train) %>%
     step_nzv(all_predictors()) %>%
     step_normalize(all_numeric_predictors())
 
-prep <- preprocess_data(rec) %>%
-    na_proportions(0)
- 
-
-prep %>% drop_na()
-
-
 lr_model <- logistic_reg() %>% 
     set_engine('glm') %>% 
     set_mode('classification')
@@ -146,5 +139,4 @@ fit <- wflow %>%
 
 fit %>% 
     extract_fit_parsnip() %>% 
-    tidy() %>%
-    drop_na()
+    tidy()
