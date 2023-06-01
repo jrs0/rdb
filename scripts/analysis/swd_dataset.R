@@ -2,8 +2,8 @@ library(tidyverse)
 library(icdb)
 library(lubridate)
 
-## Load rdb package here. Set the working directory to
-## the location of this script
+## Load rdb package here. Assume current working directory repository
+## root. Set the working directory to the location of this script
 setwd("scripts/analysis")
 
 source("dataset.R")
@@ -76,7 +76,7 @@ na_means_zero <- c(
     "self_harm","sickle","smi","stomach","stroke",
     "tb","thyroid","uterine","vasc_dis","veteran","visual_impair")
 
-acs_dataset <- acs_index_with_all_attributes %>%
+acs_dataset_all_columns <- acs_index_with_all_attributes %>%
     ## Remove any rows with attributes from after the index
     ## event (the attributes are from month beginning attribute_period).
     filter(index_date > attribute_period %m+% months(1)) %>%
@@ -93,11 +93,16 @@ acs_dataset <- acs_index_with_all_attributes %>%
     ## zero.
     mutate_at(na_means_zero, ~ replace_na(.,0))
     
-## Find columns with high NA proportion
-acs_dataset %>%
-    summarise_all(~ mean(is.na(.x))) %>%
-    pivot_longer(cols = everything()) %>%
-    arrange(desc(value))
+## Find columns with more than 90% NA (in particular,
+## remove all-na columns)
+high_na_columns <- acs_dataset_all_columns %>%
+    na_proportions(0.9) %>%
+    pull(column_name)
+
+
+## Remove columns with more than 
+acs_dataset <- acs_dataset_all_columns %>%
+    select(-all_of(high_na_columns))
 
 ## Configure global options
 training_proportion <- 0.75
@@ -115,13 +120,17 @@ rec <- recipe(train) %>%
     update_role(nhs_number, new_role = "nhs_number") %>%
     update_role(index_date, new_role = "index_date") %>%
     update_role(index_id, new_role = "index_id") %>%
-    ## Exclude the following columns which has only one
-    ## factor level, causes a problem for LR.
-    update_role(gender_identity, new_role = "exclude") %>%
-    update_role(sexual_orient, new_role = "exclude") %>%
-    step_dummy(all_nominal_predictors()) %>%
+    step_unknown(all_nominal_predictors(), new_level = "na_level") %>%
+    step_dummy(all_nominal_predictors(), ) %>%
     step_nzv(all_predictors()) %>%
     step_normalize(all_numeric_predictors())
+
+prep <- preprocess_data(rec) %>%
+    na_proportions(0)
+ 
+
+prep %>% drop_na()
+
 
 lr_model <- logistic_reg() %>% 
     set_engine('glm') %>% 
@@ -135,3 +144,7 @@ wflow <-
 fit <- wflow %>% 
     fit(data = train)
 
+fit %>% 
+    extract_fit_parsnip() %>% 
+    tidy() %>%
+    drop_na()

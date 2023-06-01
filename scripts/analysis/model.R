@@ -5,6 +5,16 @@ library(themis)
 library(discrim)
 library(mda)
 
+##' Returns a tibble of columns that have a higher
+##' proportion of NAs than the threshold.
+na_proportions <- function(dataset, threshold) {
+    dataset %>%
+        summarise_all(~ mean(is.na(.x))) %>%
+        pivot_longer(cols = everything()) %>%
+        filter(value > threshold) %>%
+        rename(column_name = name, na_propoirtion = value)
+}
+
 ##' Convert a factor column which two levels to a numeric
 ##' column containing 0/1. Specify the factor level corresponding
 ##' to one as an argument.
