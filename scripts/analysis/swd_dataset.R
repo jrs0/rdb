@@ -120,10 +120,17 @@ rec <- recipe(train) %>%
     update_role(nhs_number, new_role = "nhs_number") %>%
     update_role(index_date, new_role = "index_date") %>%
     update_role(index_id, new_role = "index_id") %>%
+    ## Treat new factor levels that come up in the test data but not
+    ## the training data as their own level
+    step_novel(all_nominal_predictors(), new_level = "new_level") %>%
+    ## Treat NAs as their own factor level
     step_unknown(all_nominal_predictors(), new_level = "na_level") %>%
     step_dummy(all_nominal_predictors(), ) %>%
     step_nzv(all_predictors()) %>%
+    step_impute_mean(all_numeric_predictors()) %>%
     step_normalize(all_numeric_predictors())
+
+prep <- preprocess_data(rec)
 
 lr_model <- logistic_reg() %>% 
     set_engine('glm') %>% 
@@ -139,4 +146,17 @@ fit <- wflow %>%
 
 fit %>% 
     extract_fit_parsnip() %>% 
-    tidy()
+    tidy() %>%
+    print(n=100)
+
+aug <- augment(fit, test)
+
+aug %>%
+    select(bleeding_after, .pred_occurred)
+
+aug %>% 
+    roc_curve(truth = bleeding_after, .pred_occurred) %>% 
+    autoplot()
+
+aug %>% 
+    roc_auc(truth = bleeding_after, .pred_occurred)
