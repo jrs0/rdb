@@ -2,21 +2,28 @@
 ##' removes mortality columns (mortality is still included
 ##' in the ischaemia outcome)
 modelling_dataset <- function(raw_dataset) {
-    raw_dataset %>%
+    dataset <- raw_dataset %>%
         count_to_two_level_factor(bleeding_after) %>%
         count_to_two_level_factor(ischaemia_after) %>%
         remove_other_outcome_columns() %>%
         remove_mortality_columns() %>%
         drop_na() %>%
         mutate(index_id = as.factor(row_number()))
+
+    ## Find columns with more than 90% NA (in particular,
+    ## remove all-na columns)
+    high_na_columns <- dataset %>%
+        na_proportions(0.9) %>%
+        pull(column_name)
+    dataset %>%
+        select(-all_of(high_na_columns))
+
 }
 
 ##' Load the raw data from file or database and 
 ##' Process the dataset ready for modelling (HES only)
 load_hes_dataset <- function(config_path) {
-    raw_dataset <- processed_acs_dataset(config_path)
-    raw_dataset %>%
-        modelling_dataset()
+    processed_acs_dataset(config_path)
 }
 
 ##' Load the raw data from file or database and 
@@ -30,7 +37,8 @@ load_hes_dataset <- function(config_path) {
 ##' index event is taken for each patient.
 load_swd_dataset <- function(config_path) {
 
-    dataset <- load_hes_dataset(config_path)
+    dataset <- load_hes_dataset(config_path) %>%
+        mutate(index_id = row_number())
     
     use_cache(TRUE, lifetime = ddays(30))
     msrv <- mapped_server("xsw")
@@ -107,15 +115,7 @@ load_swd_dataset <- function(config_path) {
         ## Certain columns use Null to indicate zero. Replace these with
         ## zero.
         mutate_at(na_means_zero, ~ replace_na(.,0))
-    
-    ## Find columns with more than 90% NA (in particular,
-    ## remove all-na columns)
-    high_na_columns <- acs_dataset_all_columns %>%
-        na_proportions(0.9) %>%
-        pull(column_name)
 
-    ## Remove columns with more than 
-    acs_dataset_all_columns %>%
-        select(-all_of(high_na_columns))
+    acs_dataset_all_columns
 }
 

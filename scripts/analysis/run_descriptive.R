@@ -4,8 +4,11 @@ devtools::load_all("../../")
 
 source("descriptive.R")
 
-## Load the raw data from file or database
-raw_dataset <- processed_acs_dataset("../../config.yaml")
+## Load the raw data from file or database (HES only)
+##raw_dataset <- load_hes_dataset("../config.yaml")
+
+## Load the raw data from file or database (HES + SWD)
+raw_dataset <- load_swd_dataset("../config.yaml")
 
 num_index_events <- raw_dataset %>%
     nrow()

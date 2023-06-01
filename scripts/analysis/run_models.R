@@ -12,14 +12,16 @@ source("descriptive.R")
 
 ## Configure global options
 training_proportion <- 0.75
-num_cross_validation_folds <- 10
-num_bootstrap_resamples <- 10
+num_cross_validation_folds <- 3#10
+num_bootstrap_resamples <- 3#10
 
 ## HES only
-#dataset <- load_hes_dataset("../../scripts/config.yaml")
+## dataset <- load_hes_dataset("../../scripts/config.yaml") %>%
+##     modelling_dataset()
 
 ## HES + SWD
-dataset <- load_swd_dataset("../../scripts/config.yaml")
+dataset <- load_swd_dataset("../../scripts/config.yaml") %>%
+    modelling_dataset()
 
 ## Make test/train split
 split <- dataset %>%
@@ -80,12 +82,12 @@ quadratic_discriminant_analysis_results <- quadratic_discriminant_analysis_model
 
 all_model_predictions <- logistic_regression_results$predictions %>%
     bind_rows(naive_bayes_results$predictions) %>%
-    bind_rows(decision_tree_results$predictions) %>%
-    bind_rows(boosted_tree_results$predictions) %>%
+    bind_rows(decision_tree_results$predictions)
+    ##bind_rows(boosted_tree_results$predictions) %>%
     ##bind_rows(random_forest_results$predictions) %>%
-    bind_rows(linear_discriminant_analysis_results$predictions) %>%
-    bind_rows(quadratic_discriminant_analysis_results$predictions)
-
+    ##bind_rows(linear_discriminant_analysis_results$predictions) %>%
+    ##bind_rows(quadratic_discriminant_analysis_results$predictions)
+    
 ## The summary table of model AUCs
 all_model_auc_summary <- model_aucs(logistic_regression_results,
                                     "Logistic Regression") %>%
@@ -93,14 +95,14 @@ all_model_auc_summary <- model_aucs(logistic_regression_results,
                          "Naive Bayes")) %>%
     bind_rows(model_aucs(decision_tree_results,
                          "Decision Tree")) %>%
-    bind_rows(model_aucs(boosted_tree_results,
-                         "Boosted Tree")) %>%
+    ## bind_rows(model_aucs(boosted_tree_results,
+    ##                      "Boosted Tree")) %>%
     ## bind_rows(model_aucs(random_forest_results,
     ##                      "Random Forest")) %>%
-    bind_rows(model_aucs(linear_discriminant_analysis_results,
-                         "Linear Discriminant Analysis")) %>%
-    bind_rows(model_aucs(quadratic_discriminant_analysis_results,
-                         "Quadratic Discriminant Analysis")) %>%
+    ## bind_rows(model_aucs(linear_discriminant_analysis_results,
+    ##                      "Linear Discriminant Analysis")) %>%
+    ## bind_rows(model_aucs(quadratic_discriminant_analysis_results,
+    ##                      "Quadratic Discriminant Analysis")) %>%
     summarise_model_aucs() %>%
     mutate(across(-model, signif, 2))
     
