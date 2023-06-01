@@ -1,6 +1,7 @@
 library(tidymodels)
 library(ggplot2)
 library(corrr)
+library(icdb)
 
 devtools::load_all("../../")
 
@@ -14,12 +15,11 @@ training_proportion <- 0.75
 num_cross_validation_folds <- 10
 num_bootstrap_resamples <- 10
 
-## Load the raw data from file or database
-raw_dataset <- processed_acs_dataset("../../config.yaml")
+## HES only
+#dataset <- load_hes_dataset("../../scripts/config.yaml")
 
-## Process the dataset ready for modelling
-dataset <- raw_dataset %>%
-    modelling_dataset()
+## HES + SWD
+dataset <- load_swd_dataset("../../scripts/config.yaml")
 
 ## Make test/train split
 split <- dataset %>%
@@ -27,13 +27,19 @@ split <- dataset %>%
 train <- training(split)
 test <- testing(split)
 
-## Preprocessing specification
-bleeding_recipe <- train %>%
-    make_recipe(bleeding_after, ischaemia_after)
-ischaemia_recipe <- train %>%
-    make_recipe(ischaemia_after, bleeding_after)
+## Preprocessing specification (HES only)
+## bleeding_recipe <- train %>%
+##     make_recipe(bleeding_after, ischaemia_after)
+## ischaemia_recipe <- train %>%
+##     make_recipe(ischaemia_after, bleeding_after)
 
-## Model construction
+## Preprocessing specification (HES + SWD)
+bleeding_recipe <- train %>%
+    make_swd_recipe(bleeding_after, ischaemia_after)
+ischaemia_recipe <- train %>%
+    make_swd_recipe(ischaemia_after, bleeding_after)
+
+## model construction
 logistic_regression_model <-
     make_logistic_regression()
 naive_bayes_model <-
