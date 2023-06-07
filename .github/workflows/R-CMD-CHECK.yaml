@@ -49,7 +49,7 @@ jobs:
           CC=gcc-13
           CXX=g++-13
           CXX20=g++-13
-          CXXFLAGS=-I/opt/homebrew/include
+          CXX20FLAGS=-I/opt/homebrew/include
           EOF
           
       - uses: r-lib/actions/setup-r@v2
