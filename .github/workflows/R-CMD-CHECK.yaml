@@ -36,6 +36,10 @@ jobs:
         run: |
           sudo apt install unixodbc-dev libyaml-cpp-dev
 
+      # Use g++ to avoid c++20 build problems.
+      # As per https://github.com/Homebrew/homebrew-core/issues/95561
+      # it is necessary to specify the include path to
+      # brew installed libraries
       - name: Install mac system dependencies
         if: runner.os == 'macOS'
         run: |
@@ -45,6 +49,7 @@ jobs:
           CC=gcc-13
           CXX=g++-13
           CXX20=g++-13
+          CXXFLAGS=-I/opt/homebrew/include
           EOF
           
       - uses: r-lib/actions/setup-r@v2
