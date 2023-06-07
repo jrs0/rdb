@@ -46,7 +46,7 @@ jobs:
           brew install gcc unixodbc yaml-cpp
           mkdir ~/.R
           export YAML_INCLUDE_PATH=$(pkg-config --cflags --libs yaml-cpp)
-          cat > ~/.R/Makevars << 'EOF'
+          cat > ~/.R/Makevars << EOF
           CC=gcc-13
           CXX=g++-13
           CXX20=g++-13
