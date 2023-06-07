@@ -49,7 +49,7 @@ jobs:
           CC=gcc-13
           CXX=g++-13
           CXX20=g++-13
-          CXX20FLAGS=-I/opt/homebrew/include
+          CXX20FLAGS=-I$(pkg-config --cflags --libs yaml-cpp)
           EOF
           
       - uses: r-lib/actions/setup-r@v2
