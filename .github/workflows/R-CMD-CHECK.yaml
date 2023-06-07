@@ -54,6 +54,7 @@ jobs:
           CXX=g++-13
           CXX20=g++-13
           CXX20FLAGS=$YAML_FLAGS $UNIXODBC_FLAGS
+          LDFLAGS=$YAML_FLAGS $UNIXODBC_FLAGS
           EOF
           
       - uses: r-lib/actions/setup-r@v2
