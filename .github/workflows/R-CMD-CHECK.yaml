@@ -46,7 +46,7 @@ jobs:
           brew install gcc unixodbc yaml-cpp
           mkdir ~/.R
           export YAML_FLAGS=$(pkg-config --cflags --libs yaml-cpp)
-          export UNIXODBC_FLAGS=$(pkg-config --cflags --libs unixodbc)
+          export UNIXODBC_FLAGS=-I/opt/homebrew/Cellar/unixodbc/2.3.11/include -L/opt/homebrew/Cellar/unixodbc/2.3.11/lib
           cat > ~/.R/Makevars << EOF
           CC=gcc-13
           CXX=g++-13
