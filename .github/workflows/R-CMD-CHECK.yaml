@@ -45,11 +45,12 @@ jobs:
         run: |
           brew install gcc unixodbc yaml-cpp
           mkdir ~/.R
+          export YAML_INCLUDE_PATH=$(pkg-config --cflags --libs yaml-cpp)
           cat > ~/.R/Makevars << 'EOF'
           CC=gcc-13
           CXX=g++-13
           CXX20=g++-13
-          CXX20FLAGS=-I$(pkg-config --cflags --libs yaml-cpp)
+          CXX20FLAGS=-I$YAML_INCLUDE_PATH
           EOF
           
       - uses: r-lib/actions/setup-r@v2
