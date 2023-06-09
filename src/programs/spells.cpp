@@ -1,15 +1,15 @@
 #include <iostream>
 //#include "acs.hpp"
-#include "../clinical_code.hpp"
-#include "../episode.hpp"
-#include "../episode_row.hpp"
-#include "../spell_rows.hpp"
-#include "../spell.hpp"
-#include "../config.hpp"
-#include "../sql_query.hpp"
-#include "../sql_connection.hpp"
+#include "clinical_code.h"
+#include "episode.h"
+#include "episode_row.h"
+#include "spell_rows.h"
+#include "spell.h"
+#include "config.h"
+#include "sql_query.h"
+#include "sql_connection.h"
 
-#include "cmdline.hpp"
+#include "cmdline/cmdline.hpp"
 
 int main(int argc, char ** argv) {
 
@@ -60,7 +60,7 @@ int main(int argc, char ** argv) {
     std::ranges::sort(spells, by_start_date);
 
     for (const auto & spell : spells) {
-	spell.print(lookup);
-	std::cout << std::endl;
+	    spell.print(std::cout, lookup);
+	    std::cout << std::endl;
     }
 }
