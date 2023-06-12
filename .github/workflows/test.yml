@@ -30,4 +30,4 @@ jobs:
       with:
         source-dir: src
         build-dir: src/out
-        args: -DBUILD_TESTING=ON
+        args: -DBUILD_TESTING=ON -DODBC_LIB_NAME=odbc
