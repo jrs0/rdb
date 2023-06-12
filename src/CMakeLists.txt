@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(ODBC_LIB_NAME ocdb32)
+set(ODBC_LIB_NAME odbc32)
 
 add_compile_options(-Wall -Wextra -fmax-errors=5 -g -pg -fno-omit-frame-pointer)
 add_link_options(-pg -fno-omit-frame-pointer)
