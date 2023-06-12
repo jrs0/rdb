@@ -25,13 +25,9 @@ jobs:
         sudo apt install unixodbc-dev libyaml-cpp-dev
       shell: bash
 
-    - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/src/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-
-    - name: Build
-      run: cmake --build ${{github.workspace}}/src/build --config ${{env.BUILD_TYPE}} -DWITH_TESTS=yes
-
-    - name: Test
-      working-directory: ${{github.workspace}}/src/build
-      run: ./run-gtest
-
+    - name: Configure and build this project
+      uses: threeal/cmake-action@latest
+      with:
+        source-dir: src
+        build-dir: src/out
+        args: -DBUILD_TESTING=ON -DODBC_LIB_NAME=odbc
