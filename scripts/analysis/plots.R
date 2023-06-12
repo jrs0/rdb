@@ -153,7 +153,6 @@ plot_age_distributions <- function(dataset) {
 
     
     reduced %>%
-        drop_na() %>%
         ## Use capital letter to identify predictor
         group_by(`Bleeding Outcome`, `Ischaemia Outcome`) %>%
         ggplot(aes(x = Age)) +

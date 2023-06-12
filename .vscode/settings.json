@@ -1,0 +1,8 @@
+{
+    "cmake.buildDirectory": "${workspaceFolder}/src/build",
+    "cmake.sourceDirectory": "C:/Users/john.scott/Documents/git/rdb/src",
+    "cmake.generator": "MSYS Makefiles",
+    "terminal.integrated.env.windows": {
+        "PATH": "C:\\Users\\john.scott\\rtools43\\x86_64-w64-mingw32.static.posix\\bin;C:\\Users\\john.scott\\rtools43\\usr\\bin;${env:PATH}"
+    }
+}

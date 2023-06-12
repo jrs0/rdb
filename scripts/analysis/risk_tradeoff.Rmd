@@ -9,10 +9,15 @@ output:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(knitr)
+library(tidyverse)
+library(tidymodels)
+library(icdb)
 
 ## This option helps keep printed R vectors within
 ## the margins in the PDF
 options("width"=100)
+
+with_primary_care_attributes <- FALSE
 
 if (!exists("scripts_have_run")) {
     source("run_descriptive.R")
@@ -253,67 +258,67 @@ boosted_tree_results %>%
     plot_resample_precision_recall_curves()
 ```
 
-## Linear Discriminant Analysis
+<!-- ## Linear Discriminant Analysis -->
 
-The ROC curves for the bleeding and ischaemia models are shown below:
+<!-- The ROC curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-linear_discriminant_analysis_results %>%
-    plot_resample_roc_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- linear_discriminant_analysis_results %>% -->
+<!--     plot_resample_roc_curves() -->
+<!-- ``` -->
 
-The gain curves for the bleeding and ischaemia models are shown below:
+<!-- The gain curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-linear_discriminant_analysis_results %>%
-    plot_resample_gain_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- linear_discriminant_analysis_results %>% -->
+<!--     plot_resample_gain_curves() -->
+<!-- ``` -->
 
-\newpage
-The lift curves for the bleeding and ischaemia models are shown below:
+<!-- \newpage -->
+<!-- The lift curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-linear_discriminant_analysis_results %>%
-    plot_resample_lift_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- linear_discriminant_analysis_results %>% -->
+<!--     plot_resample_lift_curves() -->
+<!-- ``` -->
 
-The precision-recall curves for the models are shown below:
+<!-- The precision-recall curves for the models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-linear_discriminant_analysis_results %>%
-    plot_resample_precision_recall_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- linear_discriminant_analysis_results %>% -->
+<!--     plot_resample_precision_recall_curves() -->
+<!-- ``` -->
 
-## Quadratic Discriminant Analysis
+<!-- ## Quadratic Discriminant Analysis -->
 
-The ROC curves for the bleeding and ischaemia models are shown below:
+<!-- The ROC curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-quadratic_discriminant_analysis_results %>%
-    plot_resample_roc_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- quadratic_discriminant_analysis_results %>% -->
+<!--     plot_resample_roc_curves() -->
+<!-- ``` -->
 
-The gain curves for the bleeding and ischaemia models are shown below:
+<!-- The gain curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-quadratic_discriminant_analysis_results %>%
-    plot_resample_gain_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- quadratic_discriminant_analysis_results %>% -->
+<!--     plot_resample_gain_curves() -->
+<!-- ``` -->
 
-\newpage
-The lift curves for the bleeding and ischaemia models are shown below:
+<!-- \newpage -->
+<!-- The lift curves for the bleeding and ischaemia models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-quadratic_discriminant_analysis_results %>%
-    plot_resample_lift_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- quadratic_discriminant_analysis_results %>% -->
+<!--     plot_resample_lift_curves() -->
+<!-- ``` -->
 
-The precision-recall curves for the models are shown below:
+<!-- The precision-recall curves for the models are shown below: -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
-quadratic_discriminant_analysis_results %>%
-    plot_resample_precision_recall_curves()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6} -->
+<!-- quadratic_discriminant_analysis_results %>% -->
+<!--     plot_resample_precision_recall_curves() -->
+<!-- ``` -->
 
 # Risk Predictions
 
@@ -378,17 +383,17 @@ linear_discriminant_analysis_results %>%
 ```
 
 \newpage
-## Quadratic Discriminant Analysis
+<!-- ## Quadratic Discriminant Analysis -->
 
-The diagram below shows the risk trade-off graph for the model.
+<!-- The diagram below shows the risk trade-off graph for the model. -->
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10}
-quadratic_discriminant_analysis_results %>%
-    plot_risk_tradeoffs()
-```
+<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=10} -->
+<!-- quadratic_discriminant_analysis_results %>% -->
+<!--     plot_risk_tradeoffs() -->
+<!-- ``` -->
 
 
-\newpage
+<!-- \newpage -->
 # Appendix
 
 A bespoke program reads the ICD and OPCS codes in the HES database and parses them into code groups, shown in the sections below.
@@ -398,7 +403,7 @@ A bespoke program reads the ICD and OPCS codes in the HES database and parses th
 The groups of ICD 10 diagnosis codes used in the analysis are shown below:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
-groups <- code_groups("../../icd10.yaml")
+groups <- code_groups("../icd10.yaml")
 for (n in seq_along(groups)) {
     print(kable(groups[[n]], caption = paste("Diagnosis group", names(groups)[[n]]), align = "l"))
 }
@@ -409,7 +414,7 @@ for (n in seq_along(groups)) {
 The groups of OPCS 4 procedure codes used in the analysis are shown below:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
-groups <- code_groups("../../opcs4.yaml")
+groups <- code_groups("../opcs4.yaml")
 for (n in seq_along(groups)) {
     print(kable(groups[[n]], caption = paste("Procedure group", names(groups)[[n]]), align = "l"))
 }

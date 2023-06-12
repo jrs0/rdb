@@ -1,4 +1,6 @@
 library(tidyverse)
+library(tidymodels)
+library(icdb)
 library(scales)
 
 ##' Group by a set of custom named conditions and compute an average based

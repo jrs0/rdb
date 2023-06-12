@@ -5,6 +5,16 @@ library(themis)
 library(discrim)
 library(mda)
 
+##' Returns a tibble of columns that have a higher
+##' proportion of NAs than the threshold.
+na_proportions <- function(dataset, threshold) {
+    dataset %>%
+        summarise_all(~ mean(is.na(.x))) %>%
+        pivot_longer(cols = everything()) %>%
+        filter(value > threshold) %>%
+        rename(column_name = name, na_propoirtion = value)
+}
+
 ##' Convert a factor column which two levels to a numeric
 ##' column containing 0/1. Specify the factor level corresponding
 ##' to one as an argument.
@@ -63,6 +73,30 @@ make_recipe <- function(train, outcome_to_model, outcome_to_ignore) {
         step_normalize(all_numeric_predictors())
         ##step_rose({{ outcome_to_model }})
         ##step_downsample({{ outcome_to_model }})
+}
+
+##' Expects a dataset as input containing a set of columns to ignore
+##' (index_id, nhs_number, index_date), two outcome columns, one to model
+##' and one to ignore, and all other columns are predictors. Returns a recipe
+##' that drops near-zero-variance columns, and centers and scales all
+##' numeric predictors.
+make_swd_recipe <- function(train, outcome_to_model, outcome_to_ignore) {
+    recipe(train) %>%
+        update_role(everything(), new_role = "predictor") %>%        
+        update_role({{ outcome_to_model }}, new_role = "outcome") %>%
+        update_role({{ outcome_to_ignore }}, new_role = "ignored_outcome") %>%
+        update_role(nhs_number, new_role = "nhs_number") %>%
+        update_role(index_date, new_role = "index_date") %>%
+        update_role(index_id, new_role = "index_id") %>%
+        ## Treat new factor levels that come up in the test data but not
+        ## the training data as their own level
+        step_novel(all_nominal_predictors(), new_level = "new_level") %>%
+        ## Treat NAs as their own factor level
+        step_unknown(all_nominal_predictors(), new_level = "na_level") %>%
+        step_dummy(all_nominal_predictors(), ) %>%
+        step_nzv(all_predictors()) %>%
+        step_impute_mean(all_numeric_predictors()) %>%
+        step_normalize(all_numeric_predictors())
 }
 
 ##' Requires exactly one NZV (near-zero variance) step

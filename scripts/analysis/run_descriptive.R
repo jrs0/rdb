@@ -2,10 +2,16 @@ library(tidyverse)
 
 devtools::load_all("../../")
 
+source("dataset.R")
 source("descriptive.R")
 
-## Load the raw data from file or database
-raw_dataset <- processed_acs_dataset("../../config.yaml")
+if (with_primary_care_attributes) {
+    ## HES + SWD
+    raw_dataset <- load_swd_dataset("../../scripts/config.yaml")
+} else {
+    ## HES only
+    raw_dataset <- load_hes_dataset("../../scripts/config.yaml")
+}
 
 num_index_events <- raw_dataset %>%
     nrow()
