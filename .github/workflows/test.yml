@@ -22,7 +22,7 @@ jobs:
 
     - name: Setup
       run:   |
-        sudo 
+        sudo apt install unixodbc-dev libyaml-cpp-dev
       shell: bash
 
     - name: Configure CMake
