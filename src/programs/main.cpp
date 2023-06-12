@@ -40,7 +40,7 @@ int main(int argc, char ** argv) {
     auto nhs_number{cmd.get<std::string>('n')};
 
     auto lookup{new_string_lookup()};
-    auto config{load_config_file("../../config.yaml")};
+    auto config{load_config_file("../../scripts/config.yaml")};
     auto parser{new_clinical_code_parser(config["parser"], lookup)};
     auto sql_connection{new_sql_connection(config["connection"])};
     auto sql_query{make_acs_sql_query(config["sql_query"], false, nhs_number)};

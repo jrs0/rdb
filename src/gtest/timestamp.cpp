@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../sql_types.hpp"
+#include "sql_types.h"
 
 TEST(Timestamp, DefaultConstructNull) {
     Timestamp t;

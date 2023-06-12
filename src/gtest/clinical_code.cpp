@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../clinical_code.hpp"
+#include "clinical_code.h"
 
 /// Check that string can be inserted and then read
 TEST(ClinicalCode, NullOnDefaultConstruction) {
@@ -9,7 +9,7 @@ TEST(ClinicalCode, NullOnDefaultConstruction) {
 
 TEST(ClinicalCode, ParseInvalidCode) {
     auto lookup{new_string_lookup()};
-    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml", lookup};
+    ClinicalCodeParser parser{"../../scripts/opcs4.yaml", "../../scripts/icd10.yaml", lookup};
     auto code{parser.parse(CodeType::Diagnosis, "K85X")};
     EXPECT_FALSE(code.valid());
     EXPECT_EQ(code.name(lookup), "K85X");
@@ -18,7 +18,7 @@ TEST(ClinicalCode, ParseInvalidCode) {
 /// Parse a mixture of valid and invalid codes
 TEST(ClinicalCode, ParseValidInvalidCodes) {
     auto lookup{new_string_lookup()};
-    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml", lookup};
+    ClinicalCodeParser parser{"../../scripts/opcs4.yaml", "../../scripts/icd10.yaml", lookup};
 
     /// Valid
     {
@@ -55,7 +55,7 @@ TEST(ClinicalCode, ParseValidInvalidCodes) {
 TEST(ClinicalCodeGroup, Contains) {
 
     auto lookup{new_string_lookup()};
-    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml", lookup};
+    ClinicalCodeParser parser{"../../scripts/opcs4.yaml", "../../scripts/icd10.yaml", lookup};
     ClinicalCodeGroup group{"acs_stemi", lookup};
 
     {
@@ -75,7 +75,7 @@ TEST(ClinicalCodeGroup, Contains) {
 TEST(ClinicalCodeMetagroup, Contains) {
 
     auto lookup{new_string_lookup()};
-    ClinicalCodeParser parser{"../../opcs4.yaml", "../../icd10.yaml", lookup};
+    ClinicalCodeParser parser{"../../scripts/opcs4.yaml", "../../scripts/icd10.yaml", lookup};
     ClinicalCodeGroup acs_stemi{"acs_stemi", lookup};
     ClinicalCodeGroup bleeding{"bleeding", lookup};
 
