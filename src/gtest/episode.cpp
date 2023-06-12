@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include "../episode.hpp"
-#include "../episode_row.hpp"
-#include "../string_lookup.hpp"
-#include "../config.hpp"
+#include "episode.h"
+#include "episode_row.h"
+#include "string_lookup.h"
+#include "config.h"
 
 
 /// Note that this test uses the codes files in the top level of
@@ -10,7 +10,7 @@
 TEST(Episode, SetDiagnosesAndProcedures) {
 
     auto lookup{new_string_lookup()};
-    auto config{load_config_file("../../config.yaml")};
+    auto config{load_config_file("../../scripts/config.yaml")};
     auto parser{new_clinical_code_parser(config["parser"], lookup)};
     Episode episode;
     
@@ -56,7 +56,7 @@ TEST(Episode, DiagnosesAndProceduresFromRow) {
     row.set_secondary_procedures({"  K111 ", "K221", "  K221 "});
 
     auto lookup{new_string_lookup()};
-    auto config{load_config_file("../../config.yaml")};
+    auto config{load_config_file("../../scripts/config.yaml")};
     auto parser{new_clinical_code_parser(config["parser"], lookup)};
     Episode episode{row, parser};
 
@@ -88,7 +88,7 @@ TEST(Episode, DiagnosesAndProceduresShortCircuit) {
     row.set_secondary_procedures({"K221", "   " , "  "});
 
     auto lookup{new_string_lookup()};
-    auto config{load_config_file("../../config.yaml")};
+    auto config{load_config_file("../../scripts/config.yaml")};
     auto parser{new_clinical_code_parser(config["parser"], lookup)};
     Episode episode{row, parser};
    
@@ -102,7 +102,7 @@ TEST(Episode, DiagnosesAndProceduresShortCircuit) {
 TEST(Episode, EpisodeRowColumnCheck) {
 
     auto lookup{new_string_lookup()};
-    auto config{load_config_file("../../config.yaml")};
+    auto config{load_config_file("../../scripts/config.yaml")};
     auto parser{new_clinical_code_parser(config["parser"], lookup)};
     
     /// Missing primary diagnosis column

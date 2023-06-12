@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../string_lookup.hpp"
+#include "string_lookup.h"
 
 /// Check that string can be inserted and then read
 TEST(StringLookupTest, ReadAfterInsert) {
