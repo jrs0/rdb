@@ -18,9 +18,8 @@ add_link_options(-pg -fno-omit-frame-pointer)
 
 include_directories(${CMAKE_SOURCE_DIR}/)
 
-find_package(Python 3.6 COMPONENTS Interpreter Development REQUIRED)
-find_package(pybind11 REQUIRED)
-pybind11_add_module(example example.cpp)
+add_subdirectory(pybind11)
+pybind11_add_module(pybind_test main_python.cpp)
 
 add_executable(spells programs/spells.cpp yaml.cpp category.cpp clinical_code.cpp
   random.cpp string_lookup.cpp config.cpp cmdline/cmdline.cpp 
