@@ -8,14 +8,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(ODBC_LIB_NAME odbc32)
+if(NOT ODBC_LIB_NAME)
+    # The windows name
+    set(ODBC_LIB_NAME odbc32)
+endif()
 
 add_compile_options(-Wall -Wextra -fmax-errors=5 -g -pg -fno-omit-frame-pointer)
 add_link_options(-pg -fno-omit-frame-pointer)
 
 include_directories(${CMAKE_SOURCE_DIR}/)
 
-add_executable(spells programs/spells.cpp yaml.cpp category.cpp clinical_code.cpp random.cpp string_lookup.cpp config.cpp cmdline/cmdline.cpp sql_debug.cpp sql_types.cpp)
+add_executable(spells programs/spells.cpp yaml.cpp category.cpp clinical_code.cpp
+  random.cpp string_lookup.cpp config.cpp cmdline/cmdline.cpp 
+  sql_debug.cpp sql_types.cpp)
 target_link_libraries(spells ${ODBC_LIB_NAME} yaml-cpp)
 
 #add_executable(main programs/main.cpp)
@@ -37,7 +42,10 @@ if(WITH_TESTS)
 
   enable_testing()
 
-  add_executable(run-gtest gtest/string_lookup.cpp gtest/clinical_code.cpp gtest/episode.cpp gtest/parser.cpp gtest/timestamp.cpp yaml.cpp category.cpp clinical_code.cpp random.cpp string_lookup.cpp config.cpp cmdline/cmdline.cpp sql_debug.cpp sql_types.cpp)
+  add_executable(run-gtest gtest/string_lookup.cpp gtest/clinical_code.cpp 
+    gtest/episode.cpp gtest/parser.cpp gtest/timestamp.cpp yaml.cpp 
+    category.cpp clinical_code.cpp random.cpp string_lookup.cpp config.cpp
+    cmdline/cmdline.cpp sql_debug.cpp sql_types.cpp)
   target_link_libraries(run-gtest gtest_main yaml-cpp ${ODBC_LIB_NAME})
 
   include(GoogleTest)
