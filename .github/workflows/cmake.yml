@@ -1,4 +1,4 @@
-name: CMake
+name: CMake Build/Test
 
 on:
   push:
@@ -13,7 +13,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         tests: [yes, no]
