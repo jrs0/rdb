@@ -1,4 +1,9 @@
-# Faster data preprocessing
+[![CMake Build/Test](https://github.com/jrs0/rdb/actions/workflows/cmake.yml/badge.svg)](https://github.com/jrs0/rdb/actions/workflows/cmake.yml)
+[![R-CMD-check](https://github.com/jrs0/rdb/actions/workflows/R-CMD-CHECK.yaml/badge.svg)](https://github.com/jrs0/rdb/actions/workflows/R-CMD-CHECK.yaml)
+
+# Spells/Episodes Pre-processing Library
+
+This repository contains 
 
 The goal of this repository is to test out the idea of loading data in C++, doing the preprocessing in C++, and then passing it to R for the rest.
 
