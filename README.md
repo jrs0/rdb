@@ -22,9 +22,11 @@ This repository contains code that identifies valid/invalid codes using the foll
 2. Remove dots (.) from the code
 3. Compare the code with all valid codes that exist (input to the program as )
 
-The final step ensures that codes which are invalid are always identified. It is difficult to shortcut an exhaustive search over valid codes For example, it is not possible to write a simple regular expression for valid codes, because of the gaps in the code listings (for example, many code categories allow 0, 8 and 9 in the final position, but some do not).
+The final step ensures that codes which are invalid are always identified. It is difficult to shortcut an exhaustive search over valid codes. For example, it is not possible to write a simple regular expression for valid codes, because of the gaps in the code listings (for example, many code categories allow 0, 8 and 9 in the final position, but some do not).
 
 The main code parsing programs is written is C++, and uses a binary search tree to identify whether a given code is valid. Valid codes are cached, to improve the lookup speed for commonly occurring codes. The code performs adequately well for large tables (parsing about 10,000,000 episode rows, each containg about 50 codes that need looking up, takes about 15 minutes). There is scope for further optimisation.
+
+Both ICD-10 and OPCS-4 codes are treated in the same way -- the only difference is the input code definition file (listing valid ICD-10 and OPCS-4 codes).
 
 Currently, codes are only allowed if they exactly match a valid code (i.e. none of the logic described above for reinterpreting A09.X or D46.3 is performed). This choice optimises for correctness of codes, at the expense of including some codes that could probably be interpreted correctly.
 
