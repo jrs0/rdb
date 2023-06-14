@@ -1,7 +1,7 @@
 [![CMake Build/Test](https://github.com/jrs0/rdb/actions/workflows/cmake.yml/badge.svg)](https://github.com/jrs0/rdb/actions/workflows/cmake.yml)
 [![R-CMD-check](https://github.com/jrs0/rdb/actions/workflows/R-CMD-CHECK.yaml/badge.svg)](https://github.com/jrs0/rdb/actions/workflows/R-CMD-CHECK.yaml)
 
-**This code is under development.** Test coverage is quite sparse, and building has only properly been tested on Windows (using the R build toolchain) and Ubuntu.
+**This code is an early prototype.** Test coverage is quite sparse, and building has only properly been tested on Windows (using the R build toolchain) and Ubuntu, and the library is not in an easily usable state.
 
 # Spells/Episodes Pre-processing Library
 
@@ -13,12 +13,20 @@ One of the main goals of the C++ library is to parse ICD-10 in a way that is imm
 
 Many codes that are invalid contain a valid root part, with incorrect trailing material. For example, A09.X is invalid[^1] (because A09 has sub-categories), but it most likely means "some unknown code in the A09 category". Since the root A09 is a valid code, the trailing matter .X can be ignored, and the code can be interpreted as a partial code meaning "some code in this category".
 
-Codes that are invalid such as N18.0
-
-The goal of this repository is to test out the idea of loading data in C++, doing the preprocessing in C++, and then passing it to R for the rest.
-
-
 [^1]: The national clinical coding standards state "Where a three character category code is not subdivided into four character subdivisions the ‘X’ filler must be assigned in the fourth character field so the codes are of a standard length for data processing and validation. The code is still considered a three character code from a classification perspective". A09 has subcategories, so X cannot be used.
+
+Codes that are invalid such as D46.3 cannot easily be fixed, because it is not know what valid number (e.g. 2 or 4) the 3 should have been, although they could be treated the same way as above (i.e. as some code in the category D46).
+
+This repository contains code that identifies valid/invalid codes using the following procedure:
+1. Strip all leading and trailing whitespace from the code
+2. Remove dots (.) from the code
+3. Compare the code with all valid codes that exist (input to the program as )
+
+The final step ensures that codes which are invalid are always identified. It is difficult to shortcut an exhaustive search over valid codes For example, it is not possible to write a simple regular expression for valid codes, because of the gaps in the code listings (for example, many code categories allow 0, 8 and 9 in the final position, but some do not).
+
+The main code parsing programs is written is C++, and uses a binary search tree to identify whether a given code is valid. Valid codes are cached, to improve the lookup speed for commonly occurring codes. The code performs adequately well for large tables (parsing about 10,000,000 episode rows, each containg about 50 codes that need looking up, takes about 15 minutes). There is scope for further optimisation.
+
+Currently, codes are only allowed if they exactly match a valid code (i.e. none of the logic described above for reinterpreting A09.X or D46.3 is performed). This choice optimises for correctness of codes, at the expense of including some codes that could probably be interpreted correctly.
 
 ## Windows Development
 
