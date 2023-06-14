@@ -1,0 +1,30 @@
+name: CMake
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup
+      run:   |
+        sudo apt install unixodbc-dev libyaml-cpp-dev
+      shell: bash
+
+    - name: Configure and build this project
+      uses: threeal/cmake-action@latest
+      with:
+        source-dir: src
+        build-dir: src/out
+        args: -DWITH_TESTS=${{ matrix.tests }} -DODBC_LIB_NAME=odbc
