@@ -1,12 +1,24 @@
 [![CMake Build/Test](https://github.com/jrs0/rdb/actions/workflows/cmake.yml/badge.svg)](https://github.com/jrs0/rdb/actions/workflows/cmake.yml)
 [![R-CMD-check](https://github.com/jrs0/rdb/actions/workflows/R-CMD-CHECK.yaml/badge.svg)](https://github.com/jrs0/rdb/actions/workflows/R-CMD-CHECK.yaml)
 
+**This code is under development.** Test coverage is quite sparse, and building has only properly been tested on Windows (using the R build toolchain) and Ubuntu.
+
 # Spells/Episodes Pre-processing Library
 
-This repository contains 
+This repository contains a preprocessing library for cleaning the data in Hospital Episode Statistics tables, organising it into spells of episodes, and counting the occurances of different categories of ICD-10 and OPCS-4 codes in each patient's spells. 
+
+One of the main goals of the C++ library is to parse ICD-10 in a way that is immune to code errors in the tables. There are two types of errors:
+- Codes that are invalid, such as N18.0, D46.3, M72.58
+- Codes that are valid, but in a non-standard format, such as I210 instead of I21.0
+
+Many codes that are invalid contain a valid root part, with incorrect trailing material. For example, A09.X is invalid[^1] (because A09 has sub-categories), but it most likely means "some unknown code in the A09 category". Since the root A09 is a valid code, the trailing matter .X can be ignored, and the code can be interpreted as a partial code meaning "some code in this category".
+
+Codes that are invalid such as N18.0
 
 The goal of this repository is to test out the idea of loading data in C++, doing the preprocessing in C++, and then passing it to R for the rest.
 
+
+[^1]: The national clinical coding standards state "Where a three character category code is not subdivided into four character subdivisions the ‘X’ filler must be assigned in the fourth character field so the codes are of a standard length for data processing and validation. The code is still considered a three character code from a classification perspective". A09 has subcategories, so X cannot be used.
 
 ## Windows Development
 
