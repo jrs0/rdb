@@ -1,0 +1,5 @@
+{
+    "cmake.buildDirectory": "${workspaceFolder}/src/build",
+    "cmake.sourceDirectory": "${workspaceFolder}/src",
+    "cmake.generator": "MSYS Makefiles"
+}

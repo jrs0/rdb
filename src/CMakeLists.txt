@@ -8,6 +8,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(PYTHON_EXECUTABLE C:/Users/john.scott/AppData/Local/Programs/Python/Python311/python.exe)
+
 if(NOT ODBC_LIB_NAME)
     # The windows name
     set(ODBC_LIB_NAME odbc32)
