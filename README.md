@@ -250,3 +250,21 @@ To use pybind (in Windows, VS Code), create a python virtual environment, and ru
 ```bash
 pip install pybind11
 ```
+
+## Windows Development Take 2
+
+Based on [this page](https://github.com/HO-COOH/CPPDevOnWindows). Install MSYS2 and put it in the default place `C:\msys64`. In the `MSYS2 (MSYS)` terminal, run
+
+```bash
+pacman -Syu
+pacman -S mingw-w64-x86_64-gcc
+pacman -S mingw-w64-x86_64-make
+pacman -S mingw-w64-x86_64-gdb
+pacman -S mingw-w64-x86_64-python
+pacman -S mingw-w64-x86_64-python-pip
+```
+
+If you can add `C:\msys64\mingw64\bin` to your path, do it. If not (due to lack of admin rights), there are alternative methods to fix the path. To temporarily fix the path inside a given MSYS2 terminal, run `export PATH=/mingw64/bin:$PATH` (the change will not persist, but you can use this to check what programs are present). Do not use the binaries in `C:\msys64\bin`; the compiler there does not produce native binaries for windows.
+
+
+
