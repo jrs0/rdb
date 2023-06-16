@@ -18,7 +18,24 @@ add_link_options(-pg -fno-omit-frame-pointer)
 
 include_directories(${CMAKE_SOURCE_DIR}/)
 
-find_package(Python 3.6 COMPONENTS Interpreter Development REQUIRED)
+# We need the proper way to do this.
+#
+# The proper way to find python from the pybind documentation is this:
+#    find_package(Python 3.6 COMPONENTS Interpreter Development REQUIRED)
+#
+# However, you cannot use the native windows python version with the msys2
+# toolchain because it doesn't work (not sure why, it produces a pybind module
+# example.cp311-win_amd64.pyd, but it does not seem possible to import it, but
+# it does not seem possible to import it. Even though it says module not found,
+# I suspect it is some kind of ABI incompatibility issue between using msys2 for
+# compiling, and using the native windows python installation, because no amount 
+# of modifying any of the various paths fixed it. If I could find a way to emit more
+# verbose logs, it might be possible to fix).
+set(PYTHON_EXECUTABLE "/mingw64/bin/python3.10.exe")
+set(PYTHON_LIBRARY "/mingw64/lib/libpython3.10.dll.a")
+
+# To find the native-windows-installed python, 
+# 
 add_subdirectory(pybind11)
 pybind11_add_module(pbtest main_python.cpp)
 
