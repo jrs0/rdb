@@ -21,7 +21,7 @@ include_directories(${CMAKE_SOURCE_DIR}/)
 # We need the proper way to do this.
 #
 # The proper way to find python from the pybind documentation is this:
-#    find_package(Python 3.6 COMPONENTS Interpreter Development REQUIRED)
+   find_package(Python 3.6 COMPONENTS Interpreter Development REQUIRED)
 #
 # However, you cannot use the native windows python version with the msys2
 # toolchain because it doesn't work (not sure why, it produces a pybind module
@@ -33,6 +33,8 @@ include_directories(${CMAKE_SOURCE_DIR}/)
 # verbose logs, it might be possible to fix).
 #set(PYTHON_EXECUTABLE "/mingw64/bin/python3.10.exe")
 #set(PYTHON_LIBRARY "/mingw64/lib/libpython3.10.dll.a")
+#set(PYTHON_EXECUTABLE "/C/Users/john.scott/AppData/Local/Programs/Python/Python311/python.exe")
+#set(PYTHON_LIBRARY "/C/Users/john.scott/AppData/Local/Programs/Python/Python311/python311.dll")
 
 # To find the native-windows-installed python, 
 # 
