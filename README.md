@@ -266,5 +266,20 @@ pacman -S mingw-w64-x86_64-python-pip
 
 If you can add `C:\msys64\mingw64\bin` to your path, do it. If not (due to lack of admin rights), there are alternative methods to fix the path. To temporarily fix the path inside a given MSYS2 terminal, run `export PATH=/mingw64/bin:$PATH` (the change will not persist, but you can use this to check what programs are present). Do not use the binaries in `C:\msys64\bin`; the compiler there does not produce native binaries for windows.
 
+You can compile pybind11 fine with cmake inside MSYS2. It will find the native-windows python installation (if it exists -- the one at, e.g., `c:/users/your.user/AppData/Local/Programs/Python/Python311`), provided you use the following line in CMake (as explained in the pybind documentation):
 
+```cmake
+find_package(Python 3.6 COMPONENTS Interpreter Development REQUIRED)
+```
 
+The resulting dll for the module `example` is called `example.cp311-win_amd64.pyd`. It is not `example.cp310-mingw_x86_64.pyd`; if you get that, then cmake incorrectly used the MSYS2-distributed python.
+
+You should then be able to load the module `example` from the native-windows installation of python. To test, navigate to the same directory as the `.pyd` file and run python. You will need to add the MSYS2 shared library path to the dll search path, otherwise python will complain about DLLs not found:
+
+```python
+import os
+os.add_dll_directory("C:/msys64/mingw64/bin")
+import example
+```
+
+If you still get missing DLL errors, use [this tool](https://github.com/lucasg/Dependencies) to look at the DLL dependencies of `example.cp311-win_amd64.pyd`, and add any paths that are missing using `os.add_dll_directory`.
