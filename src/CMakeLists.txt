@@ -8,8 +8,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(PYTHON_EXECUTABLE C:/Users/john.scott/AppData/Local/Programs/Python/Python311/python.exe)
-
 if(NOT ODBC_LIB_NAME)
     # The windows name
     set(ODBC_LIB_NAME odbc32)
@@ -20,8 +18,9 @@ add_link_options(-pg -fno-omit-frame-pointer)
 
 include_directories(${CMAKE_SOURCE_DIR}/)
 
+find_package(Python 3.6 COMPONENTS Interpreter Development REQUIRED)
 add_subdirectory(pybind11)
-pybind11_add_module(pybind_test main_python.cpp)
+pybind11_add_module(pbtest main_python.cpp)
 
 add_executable(spells programs/spells.cpp yaml.cpp category.cpp clinical_code.cpp
   random.cpp string_lookup.cpp config.cpp cmdline/cmdline.cpp 
