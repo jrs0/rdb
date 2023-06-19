@@ -247,14 +247,13 @@ void print_sql_query(const std::string &config_path)
         std::cout << sql_query << std::endl;
     }
     catch (const std::runtime_error &e)
-    {
+    
         std::cout << "Failed with error: " << e.what() << std::endl;
     }
 }
 
 void make_acs_dataset(const std::string &config_path)
 {
-
     try
     {
         auto lookup{new_string_lookup()};
@@ -270,12 +269,12 @@ void make_acs_dataset(const std::string &config_path)
         ClinicalCodeMetagroup cardiac_death_metagroup{config["code_groups"]["cardiac_death"], lookup};
         ClinicalCodeMetagroup stemi_metagroup{config["code_groups"]["stemi"], lookup};
 
-        Rcpp::Rcout << "Executing query" << std::endl;
+        std::cout << "Executing query" << std::endl;
         auto row{sql_connection.execute_direct(sql_query)};
 
         auto save_records{config["save_records"].as<bool>()};
 
-        Rcpp::Rcout << "Started fetching rows" << std::endl;
+        std::cout << "Started fetching rows" << std::endl;
 
         std::map<std::string, Rcpp::NumericVector> event_counts;
         RFactor nhs_numbers;
@@ -296,11 +295,12 @@ void make_acs_dataset(const std::string &config_path)
         while (true)
         {
 
-            if (++cancel_counter > ctrl_c_counter_limit)
+            // TODO replace with pybind cancel 
+            /* if (++cancel_counter > ctrl_c_counter_limit)
             {
                 Rcpp::checkUserInterrupt();
                 cancel_counter = 0;
-            }
+            } */
 
             try
             {
@@ -314,7 +314,7 @@ void make_acs_dataset(const std::string &config_path)
                 auto row_number{row.current_row_number()};
                 if (row_number % 100000 == 0)
                 {
-                    Rcpp::Rcout << "Got to row " << row_number << std::endl;
+                    std::cout << "Got to row " << row_number << std::endl;
                 }
 
                 auto nhs_number{patient.nhs_number()};
@@ -444,9 +444,9 @@ void make_acs_dataset(const std::string &config_path)
                     if (save_records)
                     {
 
-                        Rcpp::Rcout << "====================================" << std::endl;
-                        Rcpp::Rcout << "PCI/ACS RECORD" << std::endl;
-                        Rcpp::Rcout << "------------------------------------" << std::endl;
+                        std::cout << "====================================" << std::endl;
+                        std::cout << "PCI/ACS RECORD" << std::endl;
+                        std::cout << "------------------------------------" << std::endl;
 
                         // Provided the top level file is a list, it is fine (from the
                         // perspective of yaml syntax) to just join multiple files together.
@@ -457,26 +457,26 @@ void make_acs_dataset(const std::string &config_path)
                         patient_record << YAML::BeginSeq;
 
                         /////////// print
-                        Rcpp::Rcout << "Pseudo NHS Number: " << nhs_number << std::endl;
-                        Rcpp::Rcout << "Age at index: " << age_at_index << std::endl;
-                        Rcpp::Rcout << "Index date: " << date_of_index << std::endl;
+                        std::cout << "Pseudo NHS Number: " << nhs_number << std::endl;
+                        std::cout << "Age at index: " << age_at_index << std::endl;
+                        std::cout << "Index date: " << date_of_index << std::endl;
 
                         if (stemi_flag)
                         {
-                            Rcpp::Rcout << "Presentation: STEMI" << std::endl;
+                            std::cout << "Presentation: STEMI" << std::endl;
                         }
                         else
                         {
-                            Rcpp::Rcout << "Presentation: NSTEMI" << std::endl;
+                            std::cout << "Presentation: NSTEMI" << std::endl;
                         }
 
                         if (pci_triggered)
                         {
-                            Rcpp::Rcout << "Inclusion trigger: PCI" << std::endl;
+                            std::cout << "Inclusion trigger: PCI" << std::endl;
                         }
                         else
                         {
-                            Rcpp::Rcout << "Inclusion trigger: ACS" << std::endl;
+                            std::cout << "Inclusion trigger: ACS" << std::endl;
                         }
 
                         /////////// end print
@@ -553,25 +553,25 @@ void make_acs_dataset(const std::string &config_path)
 
                         //////////////// end yaml
 
-                        mortality.print(Rcpp::Rcout, lookup);
+                        mortality.print(std::cout, lookup);
                         if (survival_time.has_value())
                         {
-                            Rcpp::Rcout << "Survival time: " << survival_time.value() << std::endl;
+                            std::cout << "Survival time: " << survival_time.value() << std::endl;
                         }
-                        Rcpp::Rcout << "EVENT COUNTS" << std::endl;
-                        event_counter.print(Rcpp::Rcout, lookup);
-                        Rcpp::Rcout << "INDEX SPELL" << std::endl;
-                        index_spell.print(Rcpp::Rcout, lookup, 4);
-                        Rcpp::Rcout << std::endl;
-                        Rcpp::Rcout << "SPELLS AFTER" << std::endl;
+                        std::cout << "EVENT COUNTS" << std::endl;
+                        event_counter.print(std::cout, lookup);
+                        std::cout << "INDEX SPELL" << std::endl;
+                        index_spell.print(std::cout, lookup, 4);
+                        std::cout << std::endl;
+                        std::cout << "SPELLS AFTER" << std::endl;
                         for (const auto &spell : spells_after)
                         {
-                            spell.print(Rcpp::Rcout, lookup, 4);
+                            spell.print(std::cout, lookup, 4);
                         }
-                        Rcpp::Rcout << "SPELLS BEFORE" << std::endl;
+                        std::cout << "SPELLS BEFORE" << std::endl;
                         for (const auto &spell : spells_before)
                         {
-                            spell.print(Rcpp::Rcout, lookup, 4);
+                            spell.print(std::cout, lookup, 4);
                         }
 
                         patient_record << YAML::EndMap;
@@ -584,7 +584,7 @@ void make_acs_dataset(const std::string &config_path)
             }
             catch (const RowBufferException::NoMoreRows &)
             {
-                Rcpp::Rcout << "Finished fetching all rows" << std::endl;
+                std::cout << "Finished fetching all rows" << std::endl;
                 break;
             }
         }
@@ -606,7 +606,7 @@ void make_acs_dataset(const std::string &config_path)
     }
     catch (const std::runtime_error &e)
     {
-        Rcpp::Rcout << "Failed with error: " << e.what() << std::endl;
+        std::cout << "Failed with error: " << e.what() << std::endl;
         return Rcpp::List{};
     }
 }
