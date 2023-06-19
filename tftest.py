@@ -6,43 +6,32 @@
 # Add path to msys2/mingw dependencies of pybind module. 
 import os
 os.add_dll_directory("C:/msys64/mingw64/bin")
-
 import pbtest
+import pandas as pd
+import numpy as np
 
 acs = pbtest.make_acs_dataset("scripts/config.yaml")
+df = pd.DataFrame.from_dict(acs)
+
+# Reduce the bleeding column to 1 (for some bleeding)
+# or 0 (for no bleeding)
+df["bleeding"] = df["bleeding"].apply(lambda x: 1 if x > 0 else 0)
+
+# Make the training and test sets
+msk = np.random.rand(len(df)) < 0.8
+df_train = df[msk]
+df_test = df[~msk]
+
+# Get the outcome column (bleeding)
+y_train = df_train["bleeding"].to_numpy()
+y_test = df_test["bleeding"].to_numpy()
+
+# Get the predictors 
+x_train = df_train.loc[:, df.columns != "bleeding"].to_numpy()
+x_test = df_test.loc[:, df.columns != "bleeding"].to_numpy()
 
 import tensorflow as tf
 from matplotlib import pyplot as plt
-import numpy as np
-
-print("TensorFlow version:", tf.__version__)
-
-mnist = tf.keras.datasets.mnist
-
-# The mnist dataset contains handwritten digits. There are
-# 60000 digits in the training set and 10000 in the test set.
-# Each set has x (the digit in pixel format) and y (what the
-# digit actually is). More context is available from here:
-# http://yann.lecun.com/exdb/mnist/. The data comes with 
-# greyscale one-byte-per-pixel (0-255), so the data are 
-# renormalised to values between 0 and 1
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
-x_train, x_test = x_train / 255.0, x_test / 255.0
-
-# x_train and x_test are 3D numpy arrays, where the first
-# dimension picks out a digit, and the second two contain the
-# pixel data.
-type(x_train)
-x_train.shape
-x_test.shape
-
-# You can plot one of them, for example. The first index
-# picks a digit dimension. Change n to pick a random digit
-# and plot it.
-n = 20
-plt.imshow(x_train[n], interpolation='nearest')
-plt.title(f"The digit is {y_train[n]}")
-plt.show()
 
 # Making a model involves specifying a list of steps
 # (layers). The flatten layer turns the 2D 28x28
@@ -58,10 +47,10 @@ plt.show()
 # each number is a log-odds for that class (so it can be converted
 # into a vector of probabilities for each class)
 model = tf.keras.models.Sequential([
-  tf.keras.layers.Flatten(input_shape=(28, 28)),
+  #tf.keras.layers.Flatten(input_shape=(28, 28)),
   tf.keras.layers.Dense(128, activation='relu'),
   tf.keras.layers.Dropout(0.2),
-  tf.keras.layers.Dense(10)
+  tf.keras.layers.Dense(2)
 ])
 
 # Pick out just the first digit, and run the (untrained)
@@ -108,9 +97,9 @@ model.evaluate(x_test,  y_test, verbose=2)
 # taking the index of the element with the largest class probability.
 #
 n = 5
-true_digit = y_test[n]
+true_result = y_test[n]
 log_odds = model(x_test[n:n+1])
 probs = tf.nn.softmax(log_odds).numpy()
-predicted_digit = np.argmax(probs, axis= -1)
-print(f"True digit: {true_digit}; predicted digit: {predicted_digit}")
+predicted_result = np.argmax(probs, axis= -1)
+print(f"True result: {true_result}; predicted result: {predicted_result}")
 
