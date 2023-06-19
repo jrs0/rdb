@@ -9,6 +9,8 @@ os.add_dll_directory("C:/msys64/mingw64/bin")
 
 import pbtest
 
+acs = pbtest.make_acs_dataset("scripts/config.yaml")
+
 import tensorflow as tf
 from matplotlib import pyplot as plt
 import numpy as np

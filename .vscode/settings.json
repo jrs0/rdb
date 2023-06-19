@@ -2,5 +2,8 @@
     "cmake.sourceDirectory": "${workspaceFolder}/src",
     "terminal.integrated.env.windows": {
         "PYTHONPATH": "${workspaceFolder}/src/build;${env:PYTHONPATH}"
+    },
+    "files.associations": {
+        "iostream": "cpp"
     }
 }

@@ -11,6 +11,7 @@
 #include <optional>
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 /// Writes a timestamp object to a YAML stream. Includes the unix timestamp
 /// with the "timestamp" key, and a human-readable string with the "readable"
@@ -247,12 +248,12 @@ void print_sql_query(const std::string &config_path)
         std::cout << sql_query << std::endl;
     }
     catch (const std::runtime_error &e)
-    
+    {
         std::cout << "Failed with error: " << e.what() << std::endl;
     }
 }
 
-void make_acs_dataset(const std::string &config_path)
+std::map<std::string, std::vector<std::size_t>> make_acs_dataset(const std::string &config_path)
 {
     try
     {
@@ -276,14 +277,14 @@ void make_acs_dataset(const std::string &config_path)
 
         std::cout << "Started fetching rows" << std::endl;
 
-        std::map<std::string, Rcpp::NumericVector> event_counts;
-        RFactor nhs_numbers;
-        Rcpp::NumericVector index_dates;
-        RFactor index_types;
-        Rcpp::NumericVector ages_at_index;
-        RFactor stemi_presentations;
-        Rcpp::NumericVector survival_times;
-        RFactor causes_of_death;
+        std::map<std::string, std::vector<std::size_t>> event_counts;
+        std::vector<std::string> nhs_numbers;
+        std::vector<long long> index_dates;
+        std::vector<std::string> index_types;
+        std::vector<int> ages_at_index;
+        std::vector<std::string> stemi_presentations;
+        std::vector<int> survival_times;
+        std::vector<std::string> causes_of_death;
 
         unsigned cancel_counter{0};
         unsigned ctrl_c_counter_limit{10};
@@ -349,7 +350,9 @@ void make_acs_dataset(const std::string &config_path)
                     }
                     catch (const Integer::Null &)
                     {
-                        ages_at_index.push_back(NA_REAL);
+                        //ages_at_index.push_back(NA_REAL);
+                        std::cout << "Not handled null age at index yet";
+                        abort();
                     }
 
                     auto date_of_index{first_episode_of_index.episode_start()};
@@ -437,7 +440,9 @@ void make_acs_dataset(const std::string &config_path)
                     }
                     else
                     {
-                        survival_times.push_back(NA_REAL);
+                        // survival_times.push_back(NA_REAL);
+                        std::cout << "Not handled null survival time yet";
+                        abort();
                         causes_of_death.push_back("no_death");
                     }
 
@@ -589,7 +594,7 @@ void make_acs_dataset(const std::string &config_path)
             }
         }
 
-        Rcpp::List table_r;
+        /* Rcpp::List table_r;
         table_r["nhs_number"] = nhs_numbers.get();
         table_r["index_date"] = index_dates;
         table_r["index_type"] = index_types.get();
@@ -600,37 +605,22 @@ void make_acs_dataset(const std::string &config_path)
         for (const auto &[column_name, counts] : event_counts)
         {
             table_r[column_name] = counts;
-        }
+        } */
 
-        return table_r;
+        return event_counts;
     }
     catch (const std::runtime_error &e)
     {
         std::cout << "Failed with error: " << e.what() << std::endl;
-        return Rcpp::List{};
+        return {};
     }
 }
 
-// [[Rcpp::export]]
-Rcpp::List get_flat_codes(const Rcpp::CharacterVector &codes_file_path)
-{
-
-    std::string codes_file_path_str{Rcpp::as<std::string>(codes_file_path)};
-    auto codes_file{YAML::LoadFile(codes_file_path_str)};
-    TopLevelCategory top_level_category{codes_file};
-    auto all_codes_and_docs{top_level_category.all_codes_and_docs()};
-
-    Rcpp::List list_r;
-    for (const auto &[code, docs] : all_codes_and_docs)
-    {
-        list_r[code] = docs;
-    }
-    return list_r;
-}
 
 PYBIND11_MODULE(pbtest, m)
 {
     m.doc() = "pybind11 bindings for acs dataset preprocessor";
 
     m.def("print_sql_query", &print_sql_query, "Print the SQL query that will be used to get the underlying data");
+    m.def("make_acs_dataset", &make_acs_dataset, "Get the ACS dataset");
 }
