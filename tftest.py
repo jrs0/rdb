@@ -46,9 +46,12 @@ from matplotlib import pyplot as plt
 # the number of classes (there are 10 digits); the idea is that
 # each number is a log-odds for that class (so it can be converted
 # into a vector of probabilities for each class)
+num_hidden_nodes = x_train.shape[1]
 model = tf.keras.models.Sequential([
   #tf.keras.layers.Flatten(input_shape=(28, 28)),
-  tf.keras.layers.Dense(60, activation='relu'),
+  tf.keras.layers.Dense(num_hidden_nodes, activation='relu'),
+  tf.keras.layers.Dropout(0.2),
+  tf.keras.layers.Dense(num_hidden_nodes, activation='relu'),
   tf.keras.layers.Dropout(0.2),
   tf.keras.layers.Dense(2)
 ])
