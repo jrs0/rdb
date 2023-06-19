@@ -283,3 +283,30 @@ import example
 ```
 
 If you still get missing DLL errors, use [this tool](https://github.com/lucasg/Dependencies) to look at the DLL dependencies of `example.cp311-win_amd64.pyd`, and add any paths that are missing using `os.add_dll_directory`.
+
+To setup visual studio code to use the MSYS2 cmake, refer to [these](https://github.com/microsoft/vscode-cmake-tools/blob/main/docs/cmake-settings.md) cmake-related settings. Use the following settings in `settings.json`:
+
+```json
+{
+    "cmake.buildDirectory": "${workspaceFolder}/src/build",
+    "cmake.sourceDirectory": "${workspaceFolder}/src",
+    "cmake.cmakePath": "C:/msys64/mingw64/bin/cmake.exe",
+    "cmake.generators": "MSYS Makefiles"
+    ...
+}
+```
+
+Add the following to the `cmake-tools-kits.json`:
+
+```json
+[
+  {
+    "name": "GCC MSYS2",
+    "compilers": {
+        "C": "C:\\msys64\\mingw64\\bin\\gcc.exe",
+        "CXX": "C:\\msys64\\mingw64\\bin\\g++.exe"
+    }
+  },
+
+  ...
+```
