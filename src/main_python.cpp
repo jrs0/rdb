@@ -350,9 +350,7 @@ std::map<std::string, std::vector<std::size_t>> make_acs_dataset(const std::stri
                     }
                     catch (const Integer::Null &)
                     {
-                        //ages_at_index.push_back(NA_REAL);
-                        std::cout << "Not handled null age at index yet";
-                        abort();
+                        ages_at_index.push_back(-1);
                     }
 
                     auto date_of_index{first_episode_of_index.episode_start()};
@@ -440,9 +438,7 @@ std::map<std::string, std::vector<std::size_t>> make_acs_dataset(const std::stri
                     }
                     else
                     {
-                        // survival_times.push_back(NA_REAL);
-                        std::cout << "Not handled null survival time yet";
-                        abort();
+                        survival_times.push_back(-1);
                         causes_of_death.push_back("no_death");
                     }
 
