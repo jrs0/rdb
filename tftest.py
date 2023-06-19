@@ -15,16 +15,16 @@ df = pd.DataFrame.from_dict(acs)
 
 # Reduce the bleeding column to 1 (for some bleeding)
 # or 0 (for no bleeding)
-df["bleeding"] = df["bleeding"].apply(lambda x: 1 if x > 0 else 0)
+df.bleeding = df.bleeding.apply(lambda x: 1 if x > 0 else 0)
 
 # Make the training and test sets
-msk = np.random.rand(len(df)) < 0.8
+msk = np.random.rand(len(df)) < 0.75
 df_train = df[msk]
 df_test = df[~msk]
 
 # Get the outcome column (bleeding)
-y_train = df_train["bleeding"].to_numpy()
-y_test = df_test["bleeding"].to_numpy()
+y_train = df_train.bleeding.to_numpy()
+y_test = df_test.bleeding.to_numpy()
 
 # Get the predictors 
 x_train = df_train.loc[:, df.columns != "bleeding"].to_numpy()
@@ -48,7 +48,7 @@ from matplotlib import pyplot as plt
 # into a vector of probabilities for each class)
 model = tf.keras.models.Sequential([
   #tf.keras.layers.Flatten(input_shape=(28, 28)),
-  tf.keras.layers.Dense(128, activation='relu'),
+  tf.keras.layers.Dense(60, activation='relu'),
   tf.keras.layers.Dropout(0.2),
   tf.keras.layers.Dense(2)
 ])
@@ -96,10 +96,19 @@ model.evaluate(x_test,  y_test, verbose=2)
 # models performance. This snippet makes a digit prediction by
 # taking the index of the element with the largest class probability.
 #
-n = 5
-true_result = y_test[n]
-log_odds = model(x_test[n:n+1])
+log_odds = model(x_test)
 probs = tf.nn.softmax(log_odds).numpy()
-predicted_result = np.argmax(probs, axis= -1)
-print(f"True result: {true_result}; predicted result: {predicted_result}")
+prob_of_bleeding = probs[:,1]
 
+import sklearn.metrics as metrics
+fpr, tpr, threshold = metrics.roc_curve(y_test, prob_of_bleeding)
+roc_auc = metrics.auc(fpr, tpr)
+plt.title('Receiver Operating Characteristic')
+plt.plot(fpr, tpr, 'b', label = 'AUC = %0.2f' % roc_auc)
+plt.legend(loc = 'lower right')
+plt.plot([0, 1], [0, 1],'r--')
+plt.xlim([0, 1])
+plt.ylim([0, 1])
+plt.ylabel('True Positive Rate')
+plt.xlabel('False Positive Rate')
+plt.show()
