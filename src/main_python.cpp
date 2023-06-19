@@ -286,8 +286,8 @@ std::map<std::string, std::vector<std::size_t>> make_acs_dataset(const std::stri
         std::vector<int> survival_times;
         std::vector<std::string> causes_of_death;
 
-        unsigned cancel_counter{0};
-        unsigned ctrl_c_counter_limit{10};
+        //unsigned cancel_counter{0};
+        //unsigned ctrl_c_counter_limit{10};
         const auto all_groups{parser->all_groups(lookup)};
 
         std::ofstream patient_records_file{"gendata/records.yaml"};
