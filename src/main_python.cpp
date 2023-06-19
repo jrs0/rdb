@@ -253,6 +253,10 @@ void print_sql_query(const std::string &config_path)
     }
 }
 
+/// @brief Return a vector of predictors for bleeding,
+/// @param config_path Path to the config file (e.g. "scripts/config.yaml")
+/// @return A map from names to numerical values. All the values ending with _before
+/// are predictors, and the "bleeding" column is the outcome
 std::map<std::string, std::vector<std::size_t>> make_acs_dataset(const std::string &config_path)
 {
     try
@@ -393,8 +397,15 @@ std::map<std::string, std::vector<std::size_t>> make_acs_dataset(const std::stri
                     for (const auto &group : all_groups)
                     {
                         event_counts[group.name(lookup) + "_before"].push_back(before[group]);
-                        event_counts[group.name(lookup) + "_after"].push_back(after[group]);
+                        
+                        // Don't include any after counts for now.
+                        //event_counts[group.name(lookup) + "_after"].push_back(after[group]);
                     }
+
+                    // Make the bleeding group. This shoud return the same clinical code
+                    // group as is present in the map key (because the lookup ids are unique)
+                    const ClinicalCodeGroup bleeding_group{"bleeding", lookup};
+                    event_counts["bleeding"].push_back(after[bleeding_group]);
 
                     // Record mortality info
                     auto death_after{false};
