@@ -281,12 +281,16 @@ std::map<std::string, std::vector<std::size_t>> make_acs_dataset(const std::stri
 
         std::cout << "Started fetching rows" << std::endl;
 
-        std::map<std::string, std::vector<std::size_t>> event_counts;
+        // Includes bleeding outcome counts, prior-event counts, age, stemi/nstemi
+        // (1 for stemi, 0 for nstemi), and pci/acs triggered inclusion (1 for pci,
+        // 0 for acs).
+        std::map<std::string, std::vector<std::size_t>> numerical_results;
+        
         std::vector<std::string> nhs_numbers;
         std::vector<long long> index_dates;
-        std::vector<std::string> index_types;
-        std::vector<int> ages_at_index;
-        std::vector<std::string> stemi_presentations;
+        //std::vector<std::string> index_types;
+        //std::vector<int> ages_at_index;
+        //std::vector<std::string> stemi_presentations;
         std::vector<int> survival_times;
         std::vector<std::string> causes_of_death;
 
@@ -340,21 +344,21 @@ std::map<std::string, std::vector<std::size_t>> make_acs_dataset(const std::stri
                     const auto pci_triggered{primary_pci(first_episode_of_index, pci_metagroup)};
                     if (pci_triggered)
                     {
-                        index_types.push_back("PCI");
+                        numerical_results["index_type"].push_back(1);
                     }
                     else
                     {
-                        index_types.push_back("ACS");
+                        numerical_results["index_type"].push_back(0);
                     }
 
                     auto age_at_index{first_episode_of_index.age_at_episode()};
                     try
                     {
-                        ages_at_index.push_back(age_at_index.read());
+                        numerical_results["age"].push_back(age_at_index.read());
                     }
                     catch (const Integer::Null &)
                     {
-                        ages_at_index.push_back(-1);
+                        numerical_results["age"].push_back(-1);
                     }
 
                     auto date_of_index{first_episode_of_index.episode_start()};
@@ -363,11 +367,11 @@ std::map<std::string, std::vector<std::size_t>> make_acs_dataset(const std::stri
                     auto stemi_flag{get_stemi_presentation(index_spell, stemi_metagroup)};
                     if (stemi_flag)
                     {
-                        stemi_presentations.push_back("STEMI");
+                        numerical_results["stemi"].push_back(1);
                     }
                     else
                     {
-                        stemi_presentations.push_back("NSTEMI");
+                        numerical_results["stemi"].push_back(0);
                     }
 
                     // Count events before/after
@@ -396,7 +400,7 @@ std::map<std::string, std::vector<std::size_t>> make_acs_dataset(const std::stri
                     auto after{event_counter.counts_after()};
                     for (const auto &group : all_groups)
                     {
-                        event_counts[group.name(lookup) + "_before"].push_back(before[group]);
+                        numerical_results[group.name(lookup) + "_before"].push_back(before[group]);
                         
                         // Don't include any after counts for now.
                         //event_counts[group.name(lookup) + "_after"].push_back(after[group]);
@@ -405,7 +409,7 @@ std::map<std::string, std::vector<std::size_t>> make_acs_dataset(const std::stri
                     // Make the bleeding group. This shoud return the same clinical code
                     // group as is present in the map key (because the lookup ids are unique)
                     const ClinicalCodeGroup bleeding_group{"bleeding", lookup};
-                    event_counts["bleeding"].push_back(after[bleeding_group]);
+                    numerical_results["bleeding"].push_back(after[bleeding_group]);
 
                     // Record mortality info
                     auto death_after{false};
@@ -614,7 +618,7 @@ std::map<std::string, std::vector<std::size_t>> make_acs_dataset(const std::stri
             table_r[column_name] = counts;
         } */
 
-        return event_counts;
+        return numerical_results;
     }
     catch (const std::runtime_error &e)
     {
