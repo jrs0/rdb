@@ -1,5 +1,5 @@
 # This is a proof-of-principle test for using neural networks
-# to analyse 
+# to analyse the numerical
 
 # Add path to msys2/mingw dependencies of pybind module. 
 import os
@@ -58,10 +58,10 @@ model = tf.keras.models.Sequential([
   tf.keras.layers.Dropout(0.2),
   tf.keras.layers.Dense(num_hidden_nodes, activation='relu'),
   tf.keras.layers.Dropout(0.2),
-  tf.keras.layers.Dense(2)
+  tf.keras.layers.Dense(2, activation = 'softmax')
 ])
 
-loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+loss_fn = tf.keras.losses.SparseCategoricalCrossentropy()
 model.compile(optimizer='adam',
               loss=loss_fn,
               metrics=['accuracy'])
