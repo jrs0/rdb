@@ -14,7 +14,7 @@ if(NOT ODBC_LIB_NAME)
 endif()
 
 add_compile_options(-Wall -Wextra -fmax-errors=5 -g -pg -fno-omit-frame-pointer)
-add_link_options(-pg -fno-omit-frame-pointer)
+add_link_options(-pg -no-pie -fno-omit-frame-pointer)
 
 include_directories(${CMAKE_SOURCE_DIR}/)
 
