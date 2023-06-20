@@ -34,14 +34,14 @@ df_test = df[~msk]
 
 # Normalise the age column in df using the data 
 # in the training set
-min_train_age = df_train.age.min()
-max_train_age = df_train.age.max()
+#min_train_age = df_train.age.min()
+#max_train_age = df_train.age.max()
 
-def min_max_scaler(age):
-    return (age - min_train_age) / (max_train_age - min_train_age)
+# def min_max_scaler(age):
+#     return (age - min_train_age) / (max_train_age - min_train_age)
 
-df_train['age'] = df_train['age'].apply(min_max_scaler)
-df_test['age'] = df_test['age'].apply(min_max_scaler)
+# df_train['age'] = df_train['age'].apply(min_max_scaler)
+# df_test['age'] = df_test['age'].apply(min_max_scaler)
 
 # Get the predictors 
 x_train = df_train.drop(columns = "bleeding").to_numpy()
@@ -50,6 +50,9 @@ x_test = df_test.drop(columns = "bleeding").to_numpy()
 # Get the outcome column (bleeding)
 y_train = df_train.bleeding.to_numpy()
 y_test = df_test.bleeding.to_numpy()
+
+normalizer = tf.keras.layers.Normalization(axis=-1)
+normalizer.adapt(x_train)
 
 # Neural network model
 num_hidden_nodes = x_train.shape[1]
