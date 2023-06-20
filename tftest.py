@@ -13,6 +13,7 @@ import sklearn.metrics as metrics
 import tensorflow as tf
 from matplotlib import pyplot as plt
 
+# Load the data
 acs = pbtest.make_acs_dataset("scripts/config.yaml")
 df = pd.DataFrame.from_dict(acs)
 df = df.drop(columns=["age","stemi","index_type"])
@@ -20,6 +21,16 @@ df = df.drop(columns=["age","stemi","index_type"])
 # Reduce the bleeding column to 1 (for some bleeding)
 # or 0 (for no bleeding)
 df.bleeding = df.bleeding.apply(lambda x: 1 if x > 0 else 0)
+
+predictors = df.drop(columns = "bleeding").to_numpy()
+outcome = df.bleeding.to_numpy()
+
+# Import dataset into tensorflow
+dataset = tf.data.Dataset.from_tensor_slices((predictors, outcome))
+
+
+
+
 
 # Make the training and test sets
 msk = np.random.rand(len(df)) < 0.75
