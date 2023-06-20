@@ -257,7 +257,7 @@ void print_sql_query(const std::string &config_path)
 /// @param config_path Path to the config file (e.g. "scripts/config.yaml")
 /// @return A map from names to numerical values. All the values ending with _before
 /// are predictors, and the "bleeding" column is the outcome
-std::map<std::string, std::vector<std::size_t>> make_acs_dataset(const std::string &config_path)
+std::map<std::string, std::vector<long long>> make_acs_dataset(const std::string &config_path)
 {
     try
     {
@@ -284,7 +284,7 @@ std::map<std::string, std::vector<std::size_t>> make_acs_dataset(const std::stri
         // Includes bleeding outcome counts, prior-event counts, age, stemi/nstemi
         // (1 for stemi, 0 for nstemi), and pci/acs triggered inclusion (1 for pci,
         // 0 for acs).
-        std::map<std::string, std::vector<std::size_t>> numerical_results;
+        std::map<std::string, std::vector<long long>> numerical_results;
         
         std::vector<std::string> nhs_numbers;
         std::vector<long long> index_dates;
