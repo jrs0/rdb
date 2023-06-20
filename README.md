@@ -323,3 +323,19 @@ This should produce `gmon.out` in the same directory. Run the `gprof` command be
 gprof spells.exe gmon.out > analysis.txt
 ```
 
+You can visualise the profile results using [gprof2dot](https://github.com/jrfonseca/gprof2dot):
+
+```bash
+# From inside a virtual env
+pip install gprof2dot
+
+# In the MSYS2 shell
+pacman -S mingw-w64-x86_64-graphviz
+```
+
+Next, run the following command from the directory of the executable you want to profile:
+
+```bash
+gprof .\spells.exe 
+| gprof2dot.exe | dot -Tpng -o output.png
+```
