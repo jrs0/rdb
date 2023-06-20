@@ -1,7 +1,5 @@
-# Run this script interactively, stepping through the lines 
-# one by one and reading the comments. It is just the tutorial
-# here: https://www.tensorflow.org/tutorials/quickstart/beginner
-# with a bit more information.
+# This is a proof-of-principle test for using neural networks
+# to analyse 
 
 # Add path to msys2/mingw dependencies of pybind module. 
 import os
@@ -11,12 +9,19 @@ import pandas as pd
 import numpy as np
 import sklearn.metrics as metrics
 import tensorflow as tf
+import tensorflow_transform as tft
 from matplotlib import pyplot as plt
 
 # Load the data
 acs = pbtest.make_acs_dataset("scripts/config.yaml")
 df = pd.DataFrame.from_dict(acs)
-df = df.drop(columns=["age"])
+
+# Pick out valid rows to keep in the training and test
+# data. (Currently, only predict when age is present.)
+def valid_rows(df):
+    return df.age != -1
+
+df = df[valid_rows(df)]
 
 # Reduce the bleeding column to 1 (for some bleeding)
 # or 0 (for no bleeding)
@@ -27,13 +32,24 @@ msk = np.random.rand(len(df)) < 0.75
 df_train = df[msk]
 df_test = df[~msk]
 
-# Get the outcome column (bleeding)
-y_train = df_train.bleeding.to_numpy()
-y_test = df_test.bleeding.to_numpy()
+# Normalise the age column in df using the data 
+# in the training set
+min_train_age = df_train.age.min()
+max_train_age = df_train.age.max()
+
+def min_max_scaler(age):
+    return (age - min_train_age) / (max_train_age - min_train_age)
+
+df_train['age'] = df_train['age'].apply(min_max_scaler)
+df_test['age'] = df_test['age'].apply(min_max_scaler)
 
 # Get the predictors 
 x_train = df_train.drop(columns = "bleeding").to_numpy()
 x_test = df_test.drop(columns = "bleeding").to_numpy()
+
+# Get the outcome column (bleeding)
+y_train = df_train.bleeding.to_numpy()
+y_test = df_test.bleeding.to_numpy()
 
 # Neural network model
 num_hidden_nodes = x_train.shape[1]
