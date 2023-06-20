@@ -336,6 +336,7 @@ pacman -S mingw-w64-x86_64-graphviz
 Next, run the following command from the directory of the executable you want to profile:
 
 ```bash
+./spells.exe # To get gmon.out
 gprof .\spells.exe 
 | gprof2dot.exe | dot -Tpng -o output.png
 ```

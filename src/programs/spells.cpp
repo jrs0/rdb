@@ -42,6 +42,7 @@ int main(int argc, char ** argv) {
     auto row{sql_connection.execute_direct(sql_query)};
     std::vector<Spell> spells;
     
+    int count{0}; 
     while (true) {
 	try {
 	    spells.push_back(Spell{row, parser});
@@ -49,7 +50,10 @@ int main(int argc, char ** argv) {
 	    std::cout << "Finished fetching all rows" << std::endl;
 	    break;
 	}
+    count++;
     }
+
+
 
     struct {
 	bool operator()(const Spell & a, const Spell & b) const {
@@ -59,8 +63,9 @@ int main(int argc, char ** argv) {
 
     std::ranges::sort(spells, by_start_date);
 
-    for (const auto & spell : spells) {
-	    spell.print(std::cout, lookup);
-	    std::cout << std::endl;
-    }
+    // for (const auto & spell : spells) {
+	//     spell.print(std::cout, lookup);
+	//     std::cout << std::endl;
+    // }
+    std::cout << "Done: count = " << count << std::endl; 
 }
