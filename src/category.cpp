@@ -207,26 +207,29 @@ CodeCacheEntry get_code_prop(const std::string code,
         // There are sub-categories -- parse the code at the next level
         // down (put a try catch here for the case where the next level
         // down isn't better)
-        return get_code_prop(code, cat.categories(), groups);
+        return get_code_prop(code, cat.categories(), groups, lookup);
     } else {
-        return CodeCacheEntry{cat, groups};
+        return CodeCacheEntry{cat, groups, lookup};
     }
 }
 
-CodeCacheEntry CachingParser::parse(const std::string &code,
+CodeCacheEntry CachingParser::parse(const std::string &preprocessed_code,
                                     const std::vector<Category> &categories,
                                     const std::set<std::string> &all_groups) {
+
+    auto code_id{lookup_->insert_string(preprocessed_code)};                                    
     try {
-        return cache_.at(code);
+        return cache_.at(code_id);
     } catch (const std::out_of_range &) {
-        auto result{get_code_prop(code, categories, all_groups)};
-        cache_.insert({code, result});
-        return result;
+        auto code_cache_entry{get_code_prop(preprocessed_code, categories, all_groups, lookup_)};
+        cache_.insert({code_id, code_cache_entry});
+        return code_cache_entry;
     }
 }
 
-TopLevelCategory::TopLevelCategory(const YAML::Node &top_level_category)
-    : groups_{expect_string_set(top_level_category, "groups")} {
+TopLevelCategory::TopLevelCategory(const YAML::Node &top_level_category,
+std::shared_ptr<StringLookup> lookup)
+    : groups_{expect_string_set(top_level_category, "groups")}, caching_parser_{lookup} {
     if (not top_level_category["categories"]) {
         throw std::runtime_error("Missing required 'categories' key at top level");
     } else {

@@ -4,7 +4,7 @@
 
 TEST(TopLevelCategory, CacheSize) {
     auto lookup{new_string_lookup()};
-    TopLevelCategory top_level_category{YAML::LoadFile("../../scripts/icd10.yaml")};
+    TopLevelCategory top_level_category{YAML::LoadFile("../../scripts/icd10.yaml"), lookup};
 
     EXPECT_EQ(top_level_category.cache_size(), 0);
 

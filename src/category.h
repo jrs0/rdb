@@ -9,27 +9,25 @@
 #ifndef CATEGORY_HPP
 #define CATEGORY_HPP
 
-#include <algorithm>
-#include <set>
-#include <random>
-
 #include <yaml-cpp/yaml.h>
+
+#include <algorithm>
+#include <random>
+#include <set>
 
 #include "string_lookup.h"
 
 /// Select a random element from a vector
 template <typename T>
 const T &select_random(const std::vector<T> &in,
-                       std::uniform_random_bit_generator auto &gen)
-{
+                       std::uniform_random_bit_generator auto &gen) {
     std::uniform_int_distribution<> rnd(0, in.size() - 1);
     return in[rnd(gen)];
 }
 
 /// Indexes the categories
-class Index
-{
-public:
+class Index {
+   public:
     /// Expects node to be the index node; i.e. a single string
     /// or a sequence (vector) of length 1 or 2. A runtime error
     /// is thrown for anything else.
@@ -41,21 +39,19 @@ public:
     friend auto operator<=>(const Index &, const Index &) = default;
     friend bool operator==(const Index &, const Index &) = default;
 
-    friend bool operator<(const std::string &code, const Index &n)
-    {
+    friend bool operator<(const std::string &code, const Index &n) {
         return code < n.start_;
     }
 
     /// This is the length of the index string. It is not whether or not their
     /// index has two components. For a one component index, the length of the
-    std::size_t size() const
-    {
+    std::size_t size() const {
         return start_.size();
     }
 
     bool contains(const std::string &code) const;
 
-private:
+   private:
     std::string start_;
     /// Note that the end of range also includes any string
     /// whose starting end_.size() characters agree with end_.
@@ -71,9 +67,8 @@ private:
  * optional list of sub-categories.
  *
  */
-class Category
-{
-public:
+class Category {
+   public:
     /// Create a category by parsing a node in the yaml file. This
     /// parses all the sub-categories too.
     Category(const YAML::Node &category);
@@ -93,67 +88,55 @@ public:
     /// Comparison is made with respect only to the index. All other
     /// fields are ignored (i.e. equality is valid even if name/docs are
     /// different). This comparison is used for the purpose of sorting.
-    friend auto operator<=>(const Category &c1, const Category &c2)
-    {
+    friend auto operator<=>(const Category &c1, const Category &c2) {
         return c1.index_ <=> c2.index_;
     }
-    friend bool operator==(const Category &c1, const Category &c2)
-    {
+    friend bool operator==(const Category &c1, const Category &c2) {
         return c1.index_ == c2.index_;
     }
 
-    friend bool operator<(const std::string &code, const Category &c)
-    {
+    friend bool operator<(const std::string &code, const Category &c) {
         return code < c.index_;
     }
 
     void print(std::ostream &os) const;
 
-    std::string name() const
-    {
+    std::string name() const {
         return name_;
     }
 
-    std::string docs() const
-    {
+    std::string docs() const {
         return docs_;
     }
 
     /// Get a view of the excluded groups at this level
-    const std::set<std::string> &exclude() const
-    {
+    const std::set<std::string> &exclude() const {
         return exclude_;
     }
 
     /// Get a view of the sub-categories
-    const std::vector<Category> &categories() const
-    {
+    const std::vector<Category> &categories() const {
         return categories_;
     }
 
     /// Check if this category is a leaf node (i.e. it has no
     /// sub-categories)
-    bool is_leaf() const
-    {
+    bool is_leaf() const {
         return categories_.size() == 0;
     }
 
     /// Get a uniformly randomly chosen code from this category
     std::string
-    random_code(std::uniform_random_bit_generator auto &gen) const
-    {
-        if (categories_.size() == 0)
-        {
+    random_code(std::uniform_random_bit_generator auto &gen) const {
+        if (categories_.size() == 0) {
             // At a leaf node, pick this code
             return name_;
-        }
-        else
-        {
+        } else {
             return select_random(categories_, gen).random_code(gen);
         }
     }
 
-private:
+   private:
     /// The category name
     std::string name_;
     /// The category description
@@ -170,32 +153,36 @@ private:
 };
 
 /// A wrapper for the set of IDs that describe a code
-class CodeCacheEntry
-{
-public:
-    CodeCacheEntry(std::size_t name_id, std::size_t docs_id,
-                   std::vector<std::size_t> group_ids)
-        : name_id_{name_id}, docs_id_{docs_id}, group_ids_{group_ids}
-
-    {
+class CodeCacheEntry {
+   public:
+    /// This is a function that should not get called too often.
+    /// It performs the expensive insertion of the string into the
+    /// lookup, which happens the first time a string is parsed.
+    /// After that, all other instances of the same code can preprocess
+    /// it, look it up in the string lookup (to get the code id), and
+    /// then use that id as a key into a cache to get this struct.
+    CodeCacheEntry(const Category &cat, const std::set<std::string> groups,
+                   std::shared_ptr<StringLookup> lookup) {
+        name_id_ = lookup->insert_string(cat.name());
+        docs_id_ = lookup->insert_string(cat.docs());
+        for (const auto &group : groups) {
+            group_ids_.insert(lookup->insert_string(group));
+        }
     }
 
-    const auto &name_id() const
-    {
+    const auto &name_id() const {
         return name_id_;
     }
 
-    const auto &docs_id() const
-    {
+    const auto &docs_id() const {
         return docs_id_;
     }
 
-    const auto &group_ids() const
-    {
+    const auto &group_ids() const {
         return group_ids_;
     }
 
-private:
+   private:
     std::size_t name_id_;
     std::size_t docs_id_;
     std::set<std::size_t> group_ids_;
@@ -204,15 +191,18 @@ private:
 /// Parses a code and caches the name, docs and groups. Make sure
 /// you do some preprocessing on the code before parsing it (i.e.
 /// remove whitespace etc.) to reduce the cache size.
-class CachingParser
-{
-public:
+class CachingParser {
+   public:
+    CachingParser(std::shared_ptr<StringLookup> lookup)
+        : lookup_{lookup} {}
+
     CodeCacheEntry parse(const std::string &code,
                          const std::vector<Category> &categories,
                          const std::set<std::string> &all_groups);
     std::size_t cache_size() const { return cache_.size(); }
 
-private:
+   private:
+    std::shared_ptr<StringLookup> lookup_;
     std::map<std::size_t, CodeCacheEntry> cache_;
 };
 
@@ -221,31 +211,27 @@ private:
 /// an all-whitespace or empty string.
 std::string preprocess(const std::string &code);
 
-namespace ParserException
-{
-    /// Thrown if the code is whitespace or empty
-    struct Empty
-    {
-    };
+namespace ParserException {
+/// Thrown if the code is whitespace or empty
+struct Empty {
+};
 
-    /// Thrown if the code is invalid
-    struct CodeNotFound
-    {
-    };
-}
+/// Thrown if the code is invalid
+struct CodeNotFound {
+};
+}  // namespace ParserException
 
 /// Special case top level (contains a groups key)
-class TopLevelCategory
-{
-public:
-    TopLevelCategory(const YAML::Node &top_level_category);
+class TopLevelCategory {
+   public:
+    TopLevelCategory(const YAML::Node &top_level_category,
+                     std::shared_ptr<StringLookup> lookup);
 
     // Do not allow copies -- there is a huge tree in this class
     TopLevelCategory(const TopLevelCategory &) = delete;
     const TopLevelCategory &operator=(const TopLevelCategory &) = delete;
 
-    std::size_t cache_size() const
-    {
+    std::size_t cache_size() const {
         return caching_parser_.cache_size();
     }
 
@@ -253,18 +239,13 @@ public:
 
     /// Take a code as a string, preprocess it, and insert it into
     /// (or get it from, if it is already there) the code lookup.
-    CodeCacheEntry parse(const std::string &code, std::shared_ptr<StringLookup> &lookup)
-    {
-
+    CodeCacheEntry parse(const std::string &code) {
         auto preprocessed_code{preprocess(code)};
-        auto code_id{lookup->insert_string(preprocessed_code)};
-
-        return caching_parser_.parse(code_alphanum, categories_, groups_);
+        return caching_parser_.parse(preprocessed_code, categories_, groups_);
     }
 
     /// Return all groups defined in the config file
-    std::set<std::string> all_groups() const
-    {
+    std::set<std::string> all_groups() const {
         return groups_;
     }
 
@@ -280,12 +261,11 @@ public:
 
     /// Get a uniformly randomly chosen code from the tree.
     std::string
-    random_code(std::uniform_random_bit_generator auto &gen) const
-    {
+    random_code(std::uniform_random_bit_generator auto &gen) const {
         return select_random(categories_, gen).random_code(gen);
     }
 
-private:
+   private:
     /// The list of groups present in the sub-catagories
     std::set<std::string> groups_;
     /// The list of sub-categories

@@ -4,6 +4,7 @@
         "PYTHONPATH": "${workspaceFolder}/src/build;${env:PYTHONPATH}",
         "PATH": "C:/msys64/mingw64/bin;${env:PATH}"
     },
+    "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}",
     "files.associations": {
         "iostream": "cpp",
         "deque": "cpp",
