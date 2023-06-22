@@ -215,14 +215,12 @@ CodeCacheEntry get_code_prop(const std::string code,
 
 CodeCacheEntry CachingParser::parse(const std::string &preprocessed_code,
                                     const std::vector<Category> &categories,
-                                    const std::set<std::string> &all_groups) {
-
-    auto code_id{lookup_->insert_string(preprocessed_code)};                                    
+                                    const std::set<std::string> &all_groups) {                                 
     try {
-        return cache_.at(code_id);
+        return cache_.at(preprocessed_code);
     } catch (const std::out_of_range &) {
         auto code_cache_entry{get_code_prop(preprocessed_code, categories, all_groups, lookup_)};
-        cache_.insert({code_id, code_cache_entry});
+        cache_.insert({preprocessed_code, code_cache_entry});
         return code_cache_entry;
     }
 }

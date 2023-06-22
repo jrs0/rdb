@@ -40,14 +40,14 @@ connection:
   #cred: /root/db.secret.yaml
 
 parser:
-  diagnosis_file: ../../scripts/icd10.yaml
-  procedure_file: ../../scripts/opcs4.yaml
+  diagnosis_file: scripts/icd10.yaml
+  procedure_file: scripts/opcs4.yaml
   #diagnosis_file: icd10.yaml
   #procedure_file: opcs4.yaml
   
 sql_query:
   # Set a limit on the number of returned rows (optional)
-  result_limit: 1000000
+  #result_limit: 1000000
   primary_diagnosis: diagnosisprimary_icd
   secondary_diagnoses:
   - diagnosis1stsecondary_icd
@@ -142,5 +142,4 @@ in_memory:
   num_patients: 5000
   seed: 47
 
-save_records: true
-
+save_records: false

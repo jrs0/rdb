@@ -13,6 +13,8 @@
 
 int main(int argc, char ** argv) {
 
+    std::cout << "Early" << std::endl;
+
     CommandLine cmd;
     
     const std::string program_name{ "spells" };
@@ -30,6 +32,8 @@ int main(int argc, char ** argv) {
     }
 
     auto nhs_number{cmd.get<std::string>('n')};
+
+    std::cout << "Starting" << std::endl;
 
     auto lookup{new_string_lookup()};
     auto config{load_config_file("../../scripts/config.yaml")};
@@ -52,9 +56,7 @@ int main(int argc, char ** argv) {
 	}
     count++;
     }
-
-
-
+    
     struct {
 	bool operator()(const Spell & a, const Spell & b) const {
 	    return a.start_date() < b.start_date();

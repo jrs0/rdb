@@ -203,7 +203,7 @@ class CachingParser {
 
    private:
     std::shared_ptr<StringLookup> lookup_;
-    std::map<std::size_t, CodeCacheEntry> cache_;
+    std::map<std::string, CodeCacheEntry> cache_;
 };
 
 /// Do some initial checks on the code (remove whitespace
