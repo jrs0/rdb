@@ -49,7 +49,7 @@ FetchContent_Declare(
 enable_testing()
 
 add_executable(run-gtest gtest/string_lookup.cpp gtest/clinical_code.cpp 
-  gtest/episode.cpp gtest/parser.cpp gtest/timestamp.cpp yaml.cpp 
+  gtest/episode.cpp gtest/parser.cpp gtest/timestamp.cpp yaml.cpp gtest/top_level_category.cpp
   category.cpp clinical_code.cpp random.cpp string_lookup.cpp config.cpp
   cmdline/cmdline.cpp sql_debug.cpp sql_types.cpp)
 target_link_libraries(run-gtest gtest_main yaml-cpp ${ODBC_LIB_NAME})

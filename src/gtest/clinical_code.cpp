@@ -2,12 +2,14 @@
 #include "clinical_code.h"
 
 /// Check that string can be inserted and then read
-TEST(ClinicalCode, NullOnDefaultConstruction) {
+TEST(ClinicalCode, NullOnDefaultConstruction)
+{
     ClinicalCode clinical_code;
     EXPECT_FALSE(clinical_code.valid());
 }
 
-TEST(ClinicalCode, ParseInvalidCode) {
+TEST(ClinicalCode, ParseInvalidCode)
+{
     auto lookup{new_string_lookup()};
     ClinicalCodeParser parser{"../../scripts/opcs4.yaml", "../../scripts/icd10.yaml", lookup};
     auto code{parser.parse(CodeType::Diagnosis, "K85X")};
@@ -16,63 +18,65 @@ TEST(ClinicalCode, ParseInvalidCode) {
 }
 
 /// Parse a mixture of valid and invalid codes
-TEST(ClinicalCode, ParseValidInvalidCodes) {
+TEST(ClinicalCode, ParseValidInvalidCodes)
+{
     auto lookup{new_string_lookup()};
     ClinicalCodeParser parser{"../../scripts/opcs4.yaml", "../../scripts/icd10.yaml", lookup};
 
     /// Valid
     {
-	auto code{parser.parse(CodeType::Diagnosis, "I210")};
-	EXPECT_TRUE(code.valid());
-	EXPECT_EQ(code.name(lookup), "I21.0");
+        auto code{parser.parse(CodeType::Diagnosis, "I210")};
+        EXPECT_TRUE(code.valid());
+        EXPECT_EQ(code.name(lookup), "I21.0");
     }
-    
+
     /// Invalid
     {
-	auto code{parser.parse(CodeType::Diagnosis, "K85X")};
-	EXPECT_FALSE(code.valid());
-	EXPECT_EQ(code.name(lookup), "K85X");
+        auto code{parser.parse(CodeType::Diagnosis, "K85X")};
+        EXPECT_FALSE(code.valid());
+        EXPECT_EQ(code.name(lookup), "K85X");
     }
 
     /// Valid
     {
-	auto code{parser.parse(CodeType::Diagnosis, "D73.1")};
-	EXPECT_TRUE(code.valid());
-	EXPECT_EQ(code.name(lookup), "D73.1");
+        auto code{parser.parse(CodeType::Diagnosis, "D73.1")};
+        EXPECT_TRUE(code.valid());
+        EXPECT_EQ(code.name(lookup), "D73.1");
     }
-    
+
     /// Invalid
     {
-	auto code{parser.parse(CodeType::Diagnosis, "abcd")};
-	EXPECT_FALSE(code.valid());
-	EXPECT_EQ(code.name(lookup), "abcd");
+        auto code{parser.parse(CodeType::Diagnosis, "abcd")};
+        EXPECT_FALSE(code.valid());
+        EXPECT_EQ(code.name(lookup), "abcd");
     }
 }
 
-
 /// Note this test relies on the current version of
 /// the groups in the codes files
-TEST(ClinicalCodeGroup, Contains) {
+TEST(ClinicalCodeGroup, Contains)
+{
 
     auto lookup{new_string_lookup()};
     ClinicalCodeParser parser{"../../scripts/opcs4.yaml", "../../scripts/icd10.yaml", lookup};
     ClinicalCodeGroup group{"acs_stemi", lookup};
 
     {
-	auto code{parser.parse(CodeType::Diagnosis, "I21.0")};
+        auto code{parser.parse(CodeType::Diagnosis, "I21.0")};
         EXPECT_TRUE(group.contains(code));
     }
 
     {
-	auto code{parser.parse(CodeType::Diagnosis, "A000")};
-	EXPECT_FALSE(group.contains(code));
+        auto code{parser.parse(CodeType::Diagnosis, "A000")};
+        EXPECT_FALSE(group.contains(code));
     }
 
     // Check the null code is not in the group
     EXPECT_FALSE(group.contains(ClinicalCode{}));
 }
 
-TEST(ClinicalCodeMetagroup, Contains) {
+TEST(ClinicalCodeMetagroup, Contains)
+{
 
     auto lookup{new_string_lookup()};
     ClinicalCodeParser parser{"../../scripts/opcs4.yaml", "../../scripts/icd10.yaml", lookup};
@@ -81,7 +85,7 @@ TEST(ClinicalCodeMetagroup, Contains) {
 
     ClinicalCodeMetagroup metagroup;
     metagroup.push_back(acs_stemi);
-    metagroup.push_back(bleeding);	
+    metagroup.push_back(bleeding);
 
     auto acs_code{parser.parse(CodeType::Diagnosis, "I21.0")};
     auto bleed_code{parser.parse(CodeType::Diagnosis, "D62")};
@@ -91,4 +95,3 @@ TEST(ClinicalCodeMetagroup, Contains) {
     EXPECT_TRUE(metagroup.contains(bleed_code));
     EXPECT_FALSE(metagroup.contains(something_else));
 }
-

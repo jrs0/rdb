@@ -16,39 +16,43 @@
 #include <yaml-cpp/yaml.h>
 
 /// Select a random element from a vector
-template<typename T>
-const T & select_random(const std::vector<T> & in,
-		std::uniform_random_bit_generator auto & gen) {
-    std::uniform_int_distribution<> rnd(0, in.size()-1);
+template <typename T>
+const T &select_random(const std::vector<T> &in,
+                       std::uniform_random_bit_generator auto &gen)
+{
+    std::uniform_int_distribution<> rnd(0, in.size() - 1);
     return in[rnd(gen)];
 }
 
 /// Indexes the categories
-class Index {
+class Index
+{
 public:
     /// Expects node to be the index node; i.e. a single string
     /// or a sequence (vector) of length 1 or 2. A runtime error
-    /// is thrown for anything else. 
-    Index(const YAML::Node & category);
+    /// is thrown for anything else.
+    Index(const YAML::Node &category);
 
     /// The comparison sorts by start_ before end_. This will always
     /// put indices in ascending order, because ranges do not overlap
     /// in the codes (although there may be gaps).
-    friend auto operator<=>(const Index&, const Index&) = default;
-    friend bool operator==(const Index&, const Index&) = default;
-    
-    friend bool operator<(const std::string & code, const Index& n) {
-	return code < n.start_;
-    }
-    
-    /// This is the length of the index string. It is not whether or not their
-    /// index has two components. For a one component index, the length of the 
-    std::size_t size() const {
-	return start_.size();
+    friend auto operator<=>(const Index &, const Index &) = default;
+    friend bool operator==(const Index &, const Index &) = default;
+
+    friend bool operator<(const std::string &code, const Index &n)
+    {
+        return code < n.start_;
     }
 
-    bool contains(const std::string & code) const;
-    
+    /// This is the length of the index string. It is not whether or not their
+    /// index has two components. For a one component index, the length of the
+    std::size_t size() const
+    {
+        return start_.size();
+    }
+
+    bool contains(const std::string &code) const;
+
 private:
     std::string start_;
     /// Note that the end of range also includes any string
@@ -62,82 +66,92 @@ private:
  * \brief Tree of categories
  *
  * Each level of the codes file is a tree with a name, documentation, and an
- * optional list of sub-categories. 
+ * optional list of sub-categories.
  *
  */
-class Category {
+class Category
+{
 public:
-    
-
     /// Create a category by parsing a node in the yaml file. This
     /// parses all the sub-categories too.
-    Category(const YAML::Node & category);
+    Category(const YAML::Node &category);
 
     // Do not allow copies -- there is a huge tree in this class
     Category(const Category &) = delete;
-    const Category & operator=(const Category &) = delete;
+    const Category &operator=(const Category &) = delete;
 
     // Define move operations for sort
-    Category(Category&& that) = default;
-    Category& operator=(Category&&) = default;
-    
+    Category(Category &&that) = default;
+    Category &operator=(Category &&) = default;
+
     // Return true if code is (lexicographically) contained
     // in the range specified by the index of this Cat
-    bool contains(const std::string & code) const;
+    bool contains(const std::string &code) const;
 
     /// Comparison is made with respect only to the index. All other
     /// fields are ignored (i.e. equality is valid even if name/docs are
     /// different). This comparison is used for the purpose of sorting.
-    friend auto operator<=>(const Category & c1, const Category & c2) {
+    friend auto operator<=>(const Category &c1, const Category &c2)
+    {
         return c1.index_ <=> c2.index_;
     }
-    friend bool operator==(const Category & c1, const Category & c2) {
+    friend bool operator==(const Category &c1, const Category &c2)
+    {
         return c1.index_ == c2.index_;
     }
 
-    friend bool operator<(const std::string & code, const Category & c) {
-	return code < c.index_;
-    }
-    
-    void print(std::ostream & os) const;
-
-    std::string name() const {
-	return name_;
+    friend bool operator<(const std::string &code, const Category &c)
+    {
+        return code < c.index_;
     }
 
-    std::string docs() const {
-	return docs_;
+    void print(std::ostream &os) const;
+
+    std::string name() const
+    {
+        return name_;
+    }
+
+    std::string docs() const
+    {
+        return docs_;
     }
 
     /// Get a view of the excluded groups at this level
-    const std::set<std::string> & exclude() const {
-	return exclude_;
+    const std::set<std::string> &exclude() const
+    {
+        return exclude_;
     }
 
     /// Get a view of the sub-categories
-    const std::vector<Category> & categories() const {
-	return categories_;
+    const std::vector<Category> &categories() const
+    {
+        return categories_;
     }
-    
+
     /// Check if this category is a leaf node (i.e. it has no
     /// sub-categories)
-    bool is_leaf() const {
-	return categories_.size() == 0;
+    bool is_leaf() const
+    {
+        return categories_.size() == 0;
     }
 
     /// Get a uniformly randomly chosen code from this category
     std::string
-    random_code(std::uniform_random_bit_generator auto & gen) const {
-	if (categories_.size() == 0) {
-	    // At a leaf node, pick this code
-	    return name_;
-	} else {
-	    return select_random(categories_, gen).random_code(gen);
-	}
+    random_code(std::uniform_random_bit_generator auto &gen) const
+    {
+        if (categories_.size() == 0)
+        {
+            // At a leaf node, pick this code
+            return name_;
+        }
+        else
+        {
+            return select_random(categories_, gen).random_code(gen);
+        }
     }
-    
+
 private:
-    
     /// The category name
     std::string name_;
     /// The category description
@@ -155,17 +169,20 @@ private:
 
 /// The triple of information returned about each code
 /// by the parser and stored in the cache
-class CacheEntry {
+class CacheEntry
+{
 public:
-    CacheEntry(const Category & category,
-	       const std::set<std::string> & groups)
-	: name_{category.name()},
-	  docs_{category.docs()},
-	  groups_{groups}
-    { }
-    const std::string & name() const { return name_; }
-    const std::string & docs() const { return docs_; }
-    const std::set<std::string> & groups() const { return groups_; }
+    CacheEntry(const Category &category,
+               const std::set<std::string> &groups)
+        : name_{category.name()},
+          docs_{category.docs()},
+          groups_{groups}
+    {
+    }
+    const std::string &name() const { return name_; }
+    const std::string &docs() const { return docs_; }
+    const std::set<std::string> &groups() const { return groups_; }
+
 private:
     std::string name_;
     std::string docs_;
@@ -175,55 +192,65 @@ private:
 /// Parses a code and caches the name, docs and groups. Make sure
 /// you do some preprocessing on the code before parsing it (i.e.
 /// remove whitespace etc.) to reduce the cache size.
-class CachingParser {
+class CachingParser
+{
 public:
-    CacheEntry parse(const std::string & code,
-		     const std::vector<Category> & categories,
-		     const std::set<std::string> & all_groups);
+    CacheEntry parse(const std::string &code,
+                     const std::vector<Category> &categories,
+                     const std::set<std::string> &all_groups);
     std::size_t cache_size() const { return cache_.size(); }
+
 private:
     std::map<std::string, CacheEntry> cache_;
 };
 
 /// Do some initial checks on the code (remove whitespace
 /// and non-alphanumeric characters). Throw Empty for
-/// an all-whitespace or empty string. 
-std::string preprocess(const std::string & code);
+/// an all-whitespace or empty string.
+std::string preprocess(const std::string &code);
 
-namespace ParserException {
+namespace ParserException
+{
     /// Thrown if the code is whitespace or empty
-    struct Empty {};
+    struct Empty
+    {
+    };
 
     /// Thrown if the code is invalid
-    struct CodeNotFound {};    
+    struct CodeNotFound
+    {
+    };
 }
 
 /// Special case top level (contains a groups key)
-class TopLevelCategory {
+class TopLevelCategory
+{
 public:
-    
-    TopLevelCategory(const YAML::Node & top_level_category);
+    TopLevelCategory(const YAML::Node &top_level_category);
 
     // Do not allow copies -- there is a huge tree in this class
     TopLevelCategory(const TopLevelCategory &) = delete;
-    const TopLevelCategory & operator=(const TopLevelCategory &) = delete;
-    
-    std::size_t cache_size() const {
-	return parser_.cache_size();
+    const TopLevelCategory &operator=(const TopLevelCategory &) = delete;
+
+    std::size_t cache_size() const
+    {
+        return parser_.cache_size();
     }
-    
-    void print(std::ostream & os) const;
+
+    void print(std::ostream &os) const;
 
     /// Parse a raw code and return the results (name, docs and
     /// groups), or get the results directly from the cache
-    CacheEntry parse(const std::string & code) {	
-	auto code_alphanum{preprocess(code)};
-	return parser_.parse(code_alphanum, categories_, groups_);
+    CacheEntry parse(const std::string &code)
+    {
+        auto code_alphanum{preprocess(code)};
+        return parser_.parse(code_alphanum, categories_, groups_);
     }
 
     /// Return all groups defined in the config file
-    std::set<std::string> all_groups() const {
-	return groups_;
+    std::set<std::string> all_groups() const
+    {
+        return groups_;
     }
 
     /// Obtain a (flat) list of all codes along with code
@@ -234,14 +261,15 @@ public:
     /// Return all the codes in a particular group. Throws
     /// std::runtime_error if the group does not exist.
     std::vector<std::pair<std::string, std::string>>
-    codes_in_group(const std::string & group);
-    
+    codes_in_group(const std::string &group);
+
     /// Get a uniformly randomly chosen code from the tree.
     std::string
-    random_code(std::uniform_random_bit_generator auto & gen) const {
-	return select_random(categories_, gen).random_code(gen);
+    random_code(std::uniform_random_bit_generator auto &gen) const
+    {
+        return select_random(categories_, gen).random_code(gen);
     }
-    
+
 private:
     /// The list of groups present in the sub-catagories
     std::set<std::string> groups_;
@@ -251,6 +279,5 @@ private:
     /// Parses a code name and stores the result
     CachingParser parser_;
 };
-
 
 #endif
