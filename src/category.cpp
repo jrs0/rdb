@@ -186,7 +186,8 @@ TopLevelCategory::codes_in_group(const std::string &group) {
 /// descending through the tree.
 CodeCacheEntry get_code_prop(const std::string code,
                              const std::vector<Category> &categories,
-                             std::set<std::string> groups) {
+                             std::set<std::string> groups,
+                             std::shared_ptr<StringLookup> lookup) {
     // Locate the category containing the code at the current level
     auto &cat{locate_code_in_categories(code, categories)};
 
