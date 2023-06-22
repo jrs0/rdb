@@ -15,6 +15,8 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include "string_lookup.h"
+
 /// Select a random element from a vector
 template <typename T>
 const T &select_random(const std::vector<T> &in,
@@ -167,26 +169,36 @@ private:
     std::set<std::string> exclude_;
 };
 
-/// The triple of information returned about each code
-/// by the parser and stored in the cache
-class CacheEntry
+/// A wrapper for the set of IDs that describe a code
+class CodeCacheEntry
 {
 public:
-    CacheEntry(const Category &category,
-               const std::set<std::string> &groups)
-        : name_{category.name()},
-          docs_{category.docs()},
-          groups_{groups}
+    CodeCacheEntry(std::size_t name_id, std::size_t docs_id,
+                   std::vector<std::size_t> group_ids)
+        : name_id_{name_id}, docs_id_{docs_id}, group_ids_{group_ids}
+
     {
     }
-    const std::string &name() const { return name_; }
-    const std::string &docs() const { return docs_; }
-    const std::set<std::string> &groups() const { return groups_; }
+
+    const auto &name_id() const
+    {
+        return name_id_;
+    }
+
+    const auto &docs_id() const
+    {
+        return docs_id_;
+    }
+
+    const auto &group_ids() const
+    {
+        return group_ids_;
+    }
 
 private:
-    std::string name_;
-    std::string docs_;
-    std::set<std::string> groups_;
+    std::size_t name_id_;
+    std::size_t docs_id_;
+    std::set<std::size_t> group_ids_;
 };
 
 /// Parses a code and caches the name, docs and groups. Make sure
@@ -195,13 +207,13 @@ private:
 class CachingParser
 {
 public:
-    CacheEntry parse(const std::string &code,
-                     const std::vector<Category> &categories,
-                     const std::set<std::string> &all_groups);
+    CodeCacheEntry parse(const std::string &code,
+                         const std::vector<Category> &categories,
+                         const std::set<std::string> &all_groups);
     std::size_t cache_size() const { return cache_.size(); }
 
 private:
-    std::map<std::string, CacheEntry> cache_;
+    std::map<std::size_t, CodeCacheEntry> cache_;
 };
 
 /// Do some initial checks on the code (remove whitespace
@@ -234,17 +246,20 @@ public:
 
     std::size_t cache_size() const
     {
-        return parser_.cache_size();
+        return caching_parser_.cache_size();
     }
 
     void print(std::ostream &os) const;
 
-    /// Parse a raw code and return the results (name, docs and
-    /// groups), or get the results directly from the cache
-    CacheEntry parse(const std::string &code)
+    /// Take a code as a string, preprocess it, and insert it into
+    /// (or get it from, if it is already there) the code lookup.
+    CodeCacheEntry parse(const std::string &code, std::shared_ptr<StringLookup> &lookup)
     {
-        auto code_alphanum{preprocess(code)};
-        return parser_.parse(code_alphanum, categories_, groups_);
+
+        auto preprocessed_code{preprocess(code)};
+        auto code_id{lookup->insert_string(preprocessed_code)};
+
+        return caching_parser_.parse(code_alphanum, categories_, groups_);
     }
 
     /// Return all groups defined in the config file
@@ -277,7 +292,7 @@ private:
     std::vector<Category> categories_;
 
     /// Parses a code name and stores the result
-    CachingParser parser_;
+    CachingParser caching_parser_;
 };
 
 #endif

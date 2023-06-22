@@ -16,41 +16,6 @@
 
 class ClinicalCode;
 
-/// A wrapper for the set of IDs that describe a code
-class ClinicalCodeData
-{
-public:
-	ClinicalCodeData(const CacheEntry &cache_entry, std::shared_ptr<StringLookup> lookup)
-	{
-		name_id_ = lookup->insert_string(cache_entry.name());
-		docs_id_ = lookup->insert_string(cache_entry.docs());
-		for (const auto &group : cache_entry.groups())
-		{
-			group_ids_.insert(lookup->insert_string(group));
-		}
-	}
-
-	const auto &name_id() const
-	{
-		return name_id_;
-	}
-
-	const auto &docs_id() const
-	{
-		return docs_id_;
-	}
-
-	const auto &group_ids() const
-	{
-		return group_ids_;
-	}
-
-private:
-	std::size_t name_id_;
-	std::size_t docs_id_;
-	std::set<std::size_t> group_ids_;
-};
-
 class ClinicalCodeParser;
 
 class ClinicalCodeGroup
