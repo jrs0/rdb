@@ -314,6 +314,7 @@ Add the following to the `cmake-tools-kits.json`:
 You can profile under MSYS2 using `gprof`, which will be installed by the commands above. Compile the code adding the `-pg` flag, and link using the `-no-pie` (an MSYS2-glibc-specific requirement, as described [here](https://stackoverflow.com/questions/47482131/gprof-output-is-empty)). Then, run one of the executables:
 
 ```bash
+# Make sure /mingw64/bin/ is in the path, in case any shared libraries need to be used
 ./spells.exe
 ```
 
