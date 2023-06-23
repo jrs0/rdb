@@ -14,14 +14,14 @@ from matplotlib import pyplot as plt
 
 # Load the data
 acs = pbtest.make_acs_dataset("scripts/config.yaml")
-df = pd.DataFrame.from_dict(acs)
+raw_df = pd.DataFrame.from_dict(acs)
 
 # Pick out valid rows to keep in the training and test
 # data. (Currently, only predict when age is present.)
 def valid_rows(df):
     return df.age != -1
 
-df = df[valid_rows(df)]
+df = raw_df[valid_rows(raw_df)]
 
 # Reduce the bleeding column to 1 (for some bleeding)
 # or 0 (for no bleeding)
