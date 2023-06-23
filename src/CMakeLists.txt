@@ -35,7 +35,7 @@ add_executable(spells programs/spells.cpp yaml.cpp category.cpp clinical_code.cp
 target_link_libraries(spells ${ODBC_LIB_NAME} yaml-cpp)
 
 add_executable(main programs/test.cpp)
-target_link_libraries(main)
+target_link_libraries(main ${ODBC_LIB_NAME})
 
 # Testing
 set(INSTALL_GTEST OFF)
