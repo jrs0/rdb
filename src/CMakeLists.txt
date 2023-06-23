@@ -34,8 +34,9 @@ add_executable(spells programs/spells.cpp yaml.cpp category.cpp clinical_code.cp
   sql_debug.cpp sql_types.cpp)
 target_link_libraries(spells ${ODBC_LIB_NAME} yaml-cpp)
 
-add_executable(main programs/test.cpp)
-target_link_libraries(main ${ODBC_LIB_NAME})
+# For playing with OTL -- removed as generates lots of warnings
+# add_executable(main programs/test.cpp)
+# target_link_libraries(main ${ODBC_LIB_NAME})
 
 # Testing
 set(INSTALL_GTEST OFF)

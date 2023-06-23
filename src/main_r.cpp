@@ -321,7 +321,7 @@ Rcpp::List make_acs_dataset(const Rcpp::CharacterVector & config_path) {
 		    // Do not add secondary procedures into the counts, because they
 		    // often represent the current index procedure (not prior procedures)
 		    EventCounter event_counter;
-		    for (const auto & group : get_index_secondaries(index_spell, CodeType::Diagnosis)) {
+		    for (const auto & group : get_index_secondary_groups(index_spell, CodeType::Diagnosis)) {
 			event_counter.push_before(group);
 		    }
 		    

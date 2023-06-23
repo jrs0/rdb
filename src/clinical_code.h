@@ -127,6 +127,17 @@ class ClinicalCode {
         }
     }
 
+    /// @brief Get the raw name id
+    /// @return The id for use with a string lookup
+    /// Throws an Invalid{} exception if code is not valid
+    std::size_t name_id() const {
+        if (not valid()) {
+            throw Invalid{};
+        } else {
+            return data_->name_id();
+        }
+    }
+
    private:
     std::optional<std::size_t> invalid_{std::nullopt};
     std::optional<CodeCacheEntry> data_{std::nullopt};
