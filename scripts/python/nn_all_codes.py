@@ -1,5 +1,18 @@
-# This is a proof-of-principle test for using neural networks
-# to analyse the numerical
+# Testing using all diagnosis/procedure codes as the input to a neural
+# network to predict bleeding. The outcome column, "bleeding", counts
+# the number of times a bleeding code occurred in the episodes up to
+# 1 year after the index event. There is one predictor column per
+# ICD-10/OPCS-4 code, which contains a count of the number of times this
+# code occurred in the episodes up to 1 year before the index event.
+#
+# NOTE: currently, the predictors include procedure codes found in the
+# secondary procedure columns of the index event. These should not be
+# included, because they may contain information about the bleeding 
+# outcome being predicted. This is just a test script to see roughly
+# how well the neural network does -- to be fixed if it looks promising.
+#
+# 
+#
 
 # Add path to msys2/mingw dependencies of pybind module.
 import os
@@ -16,7 +29,6 @@ from matplotlib import pyplot as plt
 # Load the data
 acs = pbtest.all_icd_codes("scripts/config.yaml")
 raw_df = pd.DataFrame.from_dict(acs)
-
 
 # Pick out valid rows to keep in the training and test
 # data. (Currently, only predict when age is present.)
