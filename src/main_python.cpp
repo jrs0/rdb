@@ -526,7 +526,6 @@ void append_episode_codes_to_counts(CountTable &counts, const Episode &episode) 
             counts.increment_count(clinical_code.name_id());
         }
     }
-
 }
 
 /// @brief Read all the clinical codes in the primary and secondary fields of all the episodes in
@@ -668,6 +667,13 @@ std::map<std::string, std::vector<long long>> all_icd_codes(const std::string &c
             }
         }
 
+        // Print the number of columns
+        std::cout << "Total columns: " << code_counts_before.columns().size() << std::endl;
+
+        for (const auto & [column_name, column] : code_counts_before.columns()) {
+            numerical_results[lookup->at(column_name)] = column;
+        }
+
         return numerical_results;
     } catch (const std::runtime_error &e) {
         std::cout << "Failed with error: " << e.what() << std::endl;
@@ -680,4 +686,5 @@ PYBIND11_MODULE(pbtest, m) {
 
     m.def("print_sql_query", &print_sql_query, "Print the SQL query that will be used to get the underlying data");
     m.def("make_acs_dataset", &make_acs_dataset, "Get the ACS dataset");
+    m.def("all_icd_codes", &all_icd_codes, "Get bleeding as a function of all ICD code predictors");
 }

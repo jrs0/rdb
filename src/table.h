@@ -20,25 +20,42 @@
  */
 class CountTable {
    public:
+    struct CallAddRowFirst {};
+
     /// @brief  Increment the row counter to point to the next row
-    void next_row() {
-        row++;
+    void add_row() {
+        for (auto & column: columns_) {
+            column.second.push_back(0);
+        }
+        next_row++;
     }
 
     /// @brief Increment the count in a column at the current row
     /// @param column The column name to increment
     void increment_count(const std::size_t &column_id) {
+
+        if (next_row == 0) {
+            throw CallAddRowFirst{};
+        }
+
         try {
-            columns_.at(column_id)[row]++;
+            columns_.at(column_id)[next_row-1]++;
         } catch (const std::out_of_range &) {
-            columns_[column_id] = std::vector<std::size_t>(row+1);
-            columns_[column_id][row]++;
+            columns_[column_id] = std::vector<long long>(next_row);
+            columns_[column_id][next_row-1]++;
         }
     }
 
+    /// @brief Get the count columns. Each of these maps a column id
+    /// to a vector of values, all of which are the same length
+    /// @return A map from column ids to columns
+    const auto & columns() const {
+        return columns_;
+    }
+
    private:
-    std::map<std::size_t, std::vector<std::size_t>> columns_;
-    std::size_t row{0};
+    std::map<std::size_t, std::vector<long long>> columns_;
+    std::size_t next_row{0};
 };
 
 #endif
