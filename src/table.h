@@ -18,7 +18,7 @@
  * referred to by string ID (i.e. from the StringLookup).
  *
  */
-class CountTable {
+class Table {
    public:
     struct CallAddRowFirst {};
 
@@ -33,16 +33,22 @@ class CountTable {
     /// @brief Increment the count in a column at the current row
     /// @param column The column name to increment
     void increment_count(const std::size_t &column_id) {
-
-        if (next_row == 0) {
-            throw CallAddRowFirst{};
-        }
-
+        check_row();
         try {
             columns_.at(column_id)[next_row-1]++;
         } catch (const std::out_of_range &) {
             columns_[column_id] = std::vector<long long>(next_row);
             columns_[column_id][next_row-1]++;
+        }
+    }
+
+    void set(const std::size_t &column_id, long long value) {
+        check_row();
+        try {
+            columns_.at(column_id)[next_row-1] = value;
+        } catch (const std::out_of_range &) {
+            columns_[column_id] = std::vector<long long>(next_row);
+            columns_[column_id][next_row-1] = value;
         }
     }
 
@@ -54,6 +60,13 @@ class CountTable {
     }
 
    private:
+
+    void check_row() {
+        if (next_row == 0) {
+            throw CallAddRowFirst{};
+        }
+    }
+
     std::map<std::size_t, std::vector<long long>> columns_;
     std::size_t next_row{0};
 };

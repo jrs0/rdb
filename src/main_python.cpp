@@ -520,7 +520,7 @@ std::map<std::string, std::vector<long long>> make_acs_dataset(const std::string
 /// @param counts Map from code IDs (for a string lookup) to counts. Modified in place.
 /// @param episode The spell to read from
 ///
-void append_episode_codes_to_counts(CountTable &counts, const Episode &episode) {
+void append_episode_codes_to_counts(Table &counts, const Episode &episode) {
     for (const auto &clinical_code : episode.all_procedures_and_diagnosis()) {
         if (clinical_code.valid()) {
             counts.increment_count(clinical_code.name_id());
@@ -534,7 +534,7 @@ void append_episode_codes_to_counts(CountTable &counts, const Episode &episode) 
 /// @param spell The spell to read from
 ///
 ///
-void append_spell_codes_to_counts(CountTable &counts, const Spell &spell) {
+void append_spell_codes_to_counts(Table &counts, const Spell &spell) {
     for (const auto &episode : spell.episodes()) {
         append_episode_codes_to_counts(counts, episode);
     }
@@ -566,15 +566,10 @@ std::map<std::string, std::vector<long long>> all_icd_codes(const std::string &c
 
         std::cout << "Started fetching rows" << std::endl;
 
-        // Includes bleeding outcome counts, prior-event counts, age, stemi/nstemi
-        // (1 for stemi, 0 for nstemi), and pci/acs triggered inclusion (1 for pci,
-        // 0 for acs).
-        std::map<std::string, std::vector<long long>> numerical_results;
-
         // Map from code ids (i.e. string lookup ids) to number of occurances of this
         // code in the spells before the index event (and in the secondary diagnoses
         // of the index event).
-        CountTable code_counts_before;
+        Table results;
 
         // unsigned cancel_counter{0};
         // unsigned ctrl_c_counter_limit{10};
@@ -601,65 +596,50 @@ std::map<std::string, std::vector<long long>> all_icd_codes(const std::string &c
                         continue;
                     }
 
+                    // Must be called before any increment/set operations for
+                    // this row of data. Initialises row to zero.
+                    results.add_row();
+
                     const auto &first_episode_of_index{get_first_episode(index_spell)};
 
                     const auto pci_triggered{primary_pci(first_episode_of_index, pci_metagroup)};
+                    const auto pci_medman_id{lookup->insert_string("pci_medman")};
                     if (pci_triggered) {
-                        numerical_results["index_type"].push_back(1);
-                    } else {
-                        numerical_results["index_type"].push_back(0);
+                        results.increment_count(pci_medman_id);
                     }
 
                     auto age_at_index{first_episode_of_index.age_at_episode()};
+                    const auto age_id{lookup->insert_string("age")};
                     try {
-                        numerical_results["age"].push_back(age_at_index.read());
+                        results.set(age_id, age_at_index.read());
                     } catch (const Integer::Null &) {
-                        numerical_results["age"].push_back(-1);
+                        results.set(age_id, -1);
                     }
 
                     auto stemi_flag{get_stemi_presentation(index_spell, stemi_metagroup)};
+                    const auto stemi_id{lookup->insert_string("stemi")};
                     if (stemi_flag) {
-                        numerical_results["stemi"].push_back(1);
-                    } else {
-                        numerical_results["stemi"].push_back(0);
+                        results.increment_count(stemi_id);
                     }
 
                     // Count events before/after
                     // Do not add secondary procedures into the counts, because they
                     // often represent the current index procedure (not prior procedures)
-                    EventCounter event_counter;
-                    append_spell_codes_to_counts(code_counts_before, index_spell);
-                    for (const auto &group : get_index_secondary_groups(index_spell, CodeType::Diagnosis)) {
-                        event_counter.push_before(group);
-                    }
+                    append_spell_codes_to_counts(results, index_spell);
 
                     auto spells_before{get_spells_in_window(patient.spells(), index_spell, -365 * 24 * 60 * 60)};
                     for (const auto &spell : spells_before) {
-                        append_spell_codes_to_counts(code_counts_before, spell);
-                    }
-                    for (const auto &group : get_all_groups(spells_before)) {
-                        event_counter.push_before(group);
+                        append_spell_codes_to_counts(results, spell);
                     }
 
+                    const ClinicalCodeGroup bleeding_group{"bleeding", lookup};
+                    const auto bleeding_id{lookup->insert_string("bleeding")};
                     auto spells_after{get_spells_in_window(patient.spells(), index_spell, 365 * 24 * 60 * 60)};
                     for (const auto &group : get_all_groups(spells_after)) {
-                        event_counter.push_after(group);
+                        if (group == bleeding_group) {
+                            results.increment_count(bleeding_id);
+                        }
                     }
-
-                    // Get the counts before and after for this record
-                    auto before{event_counter.counts_before()};
-                    auto after{event_counter.counts_after()};
-                    for (const auto &group : all_groups) {
-                        numerical_results[group.name(lookup) + "_before"].push_back(before[group]);
-
-                        // Don't include any after counts for now.
-                        // event_counts[group.name(lookup) + "_after"].push_back(after[group]);
-                    }
-
-                    // Make the bleeding group. This shoud return the same clinical code
-                    // group as is present in the map key (because the lookup ids are unique)
-                    const ClinicalCodeGroup bleeding_group{"bleeding", lookup};
-                    numerical_results["bleeding"].push_back(after[bleeding_group]);
                 }
             } catch (const RowBufferException::NoMoreRows &) {
                 std::cout << "Finished fetching all rows" << std::endl;
@@ -668,9 +648,14 @@ std::map<std::string, std::vector<long long>> all_icd_codes(const std::string &c
         }
 
         // Print the number of columns
-        std::cout << "Total columns: " << code_counts_before.columns().size() << std::endl;
+        std::cout << "Total columns: " << results.columns().size() << std::endl;
 
-        for (const auto & [column_name, column] : code_counts_before.columns()) {
+        // Includes bleeding outcome counts, prior-event counts, age, stemi/nstemi
+        // (1 for stemi, 0 for nstemi), and pci/acs triggered inclusion (1 for pci,
+        // 0 for acs).
+        std::map<std::string, std::vector<long long>> numerical_results;
+
+        for (const auto & [column_name, column] : results.columns()) {
             numerical_results[lookup->at(column_name)] = column;
         }
 
