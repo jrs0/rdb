@@ -36,8 +36,17 @@ def valid_rows(df):
     return df.age != -1
 
 # Drop invalid rows, and remove columns
-df = raw_df[valid_rows(raw_df)]
+df_all_codes = raw_df[valid_rows(raw_df)]
 #df = df.drop(columns=["stemi","age","index_type"])
+
+# Remove the columns which have *really* low numbers of
+# non-zero values. Starting with 7000 codes, even setting
+# a threshold at 99% only retain 219 columns (i.e. nearly 
+# all the codes have less than 1% non-zero values).
+all_code_columns = df_all_codes.drop(columns = ["bleeding", "age", "stemi", "pci_medman"])
+code_percent_zero = (all_code_columns == 0).sum(axis=0)/(len(df_all_codes))
+codes_to_drop = code_percent_zero[code_percent_zero > 0.99].index.to_list()
+df = df_all_codes.drop(columns = codes_to_drop)
 
 # Reduce the bleeding column to 1 (for some bleeding)
 # or 0 (for no bleeding)
@@ -64,7 +73,7 @@ num_hidden_nodes = x_train.shape[1]
 model = tf.keras.models.Sequential(
     [
         normalizer,
-        tf.keras.layers.Dense(1024, activation="relu"),
+        tf.keras.layers.Dense(num_hidden_nodes, activation="relu"),
         tf.keras.layers.Dropout(0.2),
         tf.keras.layers.Dense(2, activation="softmax"),
     ]
