@@ -64,9 +64,7 @@ num_hidden_nodes = x_train.shape[1]
 model = tf.keras.models.Sequential(
     [
         normalizer,
-        tf.keras.layers.Dense(num_hidden_nodes, activation="relu"),
-        tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(num_hidden_nodes, activation="relu"),
+        tf.keras.layers.Dense(1024, activation="relu"),
         tf.keras.layers.Dropout(0.2),
         tf.keras.layers.Dense(2, activation="softmax"),
     ]
@@ -76,7 +74,7 @@ loss_fn = tf.keras.losses.SparseCategoricalCrossentropy()
 model.compile(optimizer="adam", loss=loss_fn, metrics=["accuracy"])
 
 # Fit and evaluate the model
-model.fit(x_train, y_train, epochs=10)
+model.fit(x_train, y_train, epochs=5)
 model.evaluate(x_test, y_test, verbose=2)
 
 # Obtain the probabilities of bleeding
