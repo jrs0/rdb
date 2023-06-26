@@ -45,7 +45,7 @@ df_all_codes = raw_df[valid_rows(raw_df)]
 # all the codes have less than 1% non-zero values).
 all_code_columns = df_all_codes.drop(columns = ["bleeding", "age", "stemi", "pci_medman"])
 code_percent_zero = (all_code_columns == 0).sum(axis=0)/(len(df_all_codes))
-codes_to_drop = code_percent_zero[code_percent_zero > 0.80].index.to_list()
+codes_to_drop = code_percent_zero[code_percent_zero > 0.0].index.to_list()
 df = df_all_codes.drop(columns = codes_to_drop)
 
 # Reduce the bleeding column to 1 (for some bleeding)
