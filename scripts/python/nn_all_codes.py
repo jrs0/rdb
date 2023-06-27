@@ -39,6 +39,9 @@ def valid_rows(df):
 df_all_codes = raw_df[valid_rows(raw_df)]
 #df = df.drop(columns=["stemi","age","index_type"])
 
+plt.matshow(df_all_codes.corr())
+plt.show()
+
 # Remove the columns which have *really* low numbers of
 # non-zero values. Starting with 7000 codes, even setting
 # a threshold at 99% only retain 219 columns (i.e. nearly 

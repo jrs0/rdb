@@ -1,7 +1,7 @@
 [![CMake Build/Test](https://github.com/jrs0/rdb/actions/workflows/cmake.yml/badge.svg)](https://github.com/jrs0/rdb/actions/workflows/cmake.yml)
 [![R-CMD-check](https://github.com/jrs0/rdb/actions/workflows/R-CMD-CHECK.yaml/badge.svg)](https://github.com/jrs0/rdb/actions/workflows/R-CMD-CHECK.yaml)
 
-**This code is an early prototype.** Test coverage is quite sparse, and building has only properly been tested on Windows (using the R build toolchain) and Ubuntu, and the library is not in an easily usable state.
+**This code is an early prototype.** Test coverage is quite sparse, and building has only properly been tested on Windows (using the R build toolchain) and Ubuntu, and the library is not in a usable state.
 
 # Spells/Episodes Pre-processing Library
 

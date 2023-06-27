@@ -40,8 +40,8 @@ connection:
   #cred: /root/db.secret.yaml
 
 parser:
-  diagnosis_file: scripts/icd10.yaml
-  procedure_file: scripts/opcs4.yaml
+  diagnosis_file: ../../scripts/icd10.yaml
+  procedure_file: ../../scripts/opcs4.yaml
   #diagnosis_file: icd10.yaml
   #procedure_file: opcs4.yaml
   

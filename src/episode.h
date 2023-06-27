@@ -129,6 +129,21 @@ class Episode {
         return primary_diagnosis_;
     }
 
+    auto all_codes(CodeType code_type) const {
+        switch (code_type) {
+            case CodeType::Diagnosis: {
+                auto all_codes{secondary_diagnoses_};
+                all_codes.push_back(primary_diagnosis_);
+                return all_codes;
+            }
+            case CodeType::Procedure: {
+                auto all_codes{secondary_procedures_};
+                all_codes.push_back(primary_procedure_);
+                return all_codes;
+            }
+        }
+    }
+
     auto all_procedures_and_diagnosis() const {
         auto all_codes{secondary_diagnoses_};
 

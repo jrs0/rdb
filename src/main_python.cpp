@@ -520,8 +520,10 @@ std::map<std::string, std::vector<long long>> make_acs_dataset(const std::string
 /// @param counts Map from code IDs (for a string lookup) to counts. Modified in place.
 /// @param episode The spell to read from
 ///
-void append_episode_codes_to_counts(Table &counts, const Episode &episode) {
-    for (const auto &clinical_code : episode.all_procedures_and_diagnosis()) {
+/// This function needs to
+///
+void append_episode_codes_to_counts(Table &counts, const Episode &episode, CodeType code_type) {
+    for (const auto &clinical_code : episode.all_codes(code_type)) {
         if (clinical_code.valid()) {
             counts.increment_count(clinical_code.name_id());
         }
@@ -534,9 +536,9 @@ void append_episode_codes_to_counts(Table &counts, const Episode &episode) {
 /// @param spell The spell to read from
 ///
 ///
-void append_spell_codes_to_counts(Table &counts, const Spell &spell) {
+void append_spell_codes_to_counts(Table &counts, const Spell &spell, CodeType code_type) {
     for (const auto &episode : spell.episodes()) {
-        append_episode_codes_to_counts(counts, episode);
+        append_episode_codes_to_counts(counts, episode, code_type);
     }
 }
 
@@ -569,7 +571,9 @@ std::map<std::string, std::vector<long long>> all_icd_codes(const std::string &c
         // Map from code ids (i.e. string lookup ids) to number of occurances of this
         // code in the spells before the index event (and in the secondary diagnoses
         // of the index event).
-        Table results;
+        Table diagnosis_codes;
+        Table procedure_codes;
+        Table other_columns;
 
         // unsigned cancel_counter{0};
         // unsigned ctrl_c_counter_limit{10};
@@ -598,38 +602,42 @@ std::map<std::string, std::vector<long long>> all_icd_codes(const std::string &c
 
                     // Must be called before any increment/set operations for
                     // this row of data. Initialises row to zero.
-                    results.add_row();
+                    diagnosis_codes.add_row();
+                    procedure_codes.add_row();
+                    other_columns.add_row();
 
                     const auto &first_episode_of_index{get_first_episode(index_spell)};
 
                     const auto pci_triggered{primary_pci(first_episode_of_index, pci_metagroup)};
                     const auto pci_medman_id{lookup->insert_string("pci_medman")};
                     if (pci_triggered) {
-                        results.increment_count(pci_medman_id);
+                        other_columns.increment_count(pci_medman_id);
                     }
 
                     auto age_at_index{first_episode_of_index.age_at_episode()};
                     const auto age_id{lookup->insert_string("age")};
                     try {
-                        results.set(age_id, age_at_index.read());
+                        other_columns.set(age_id, age_at_index.read());
                     } catch (const Integer::Null &) {
-                        results.set(age_id, -1);
+                        other_columns.set(age_id, -1);
                     }
 
                     auto stemi_flag{get_stemi_presentation(index_spell, stemi_metagroup)};
                     const auto stemi_id{lookup->insert_string("stemi")};
                     if (stemi_flag) {
-                        results.increment_count(stemi_id);
+                        other_columns.increment_count(stemi_id);
                     }
 
                     // Count events before/after
-                    // Do not add secondary procedures into the counts, because they
+                    // TODO Do not add secondary procedures into the counts, because they
                     // often represent the current index procedure (not prior procedures)
-                    append_spell_codes_to_counts(results, index_spell);
+                    append_spell_codes_to_counts(diagnosis_codes, index_spell, CodeType::Diagnosis);
+                    append_spell_codes_to_counts(diagnosis_codes, index_spell, CodeType::Procedure);
 
                     auto spells_before{get_spells_in_window(patient.spells(), index_spell, -365 * 24 * 60 * 60)};
                     for (const auto &spell : spells_before) {
-                        append_spell_codes_to_counts(results, spell);
+                        append_spell_codes_to_counts(diagnosis_codes, spell, CodeType::Diagnosis);
+                        append_spell_codes_to_counts(procedure_codes, spell, CodeType::Procedure);
                     }
 
                     const ClinicalCodeGroup bleeding_group{"bleeding", lookup};
@@ -637,7 +645,7 @@ std::map<std::string, std::vector<long long>> all_icd_codes(const std::string &c
                     auto spells_after{get_spells_in_window(patient.spells(), index_spell, 365 * 24 * 60 * 60)};
                     for (const auto &group : get_all_groups(spells_after)) {
                         if (group == bleeding_group) {
-                            results.increment_count(bleeding_id);
+                            other_columns.increment_count(bleeding_id);
                         }
                     }
                 }
@@ -648,14 +656,26 @@ std::map<std::string, std::vector<long long>> all_icd_codes(const std::string &c
         }
 
         // Print the number of columns
-        std::cout << "Total columns: " << results.columns().size() << std::endl;
+        std::cout << "Total diagnosis columns: " << diagnosis_codes.columns().size() << std::endl;
+        std::cout << "Total procedure columns: " << procedure_codes.columns().size() << std::endl;
 
         // Includes bleeding outcome counts, prior-event counts, age, stemi/nstemi
         // (1 for stemi, 0 for nstemi), and pci/acs triggered inclusion (1 for pci,
         // 0 for acs).
         std::map<std::string, std::vector<long long>> numerical_results;
 
-        for (const auto & [column_name, column] : results.columns()) {
+
+        // For diagnosis and procedure columns, prepend strings to distingiush them
+        // in the dataframe in R
+        for (const auto &[column_name, column] : diagnosis_codes.columns()) {
+            numerical_results["ICD10_" + lookup->at(column_name)] = column;
+        }
+        
+        for (const auto &[column_name, column] : procedure_codes.columns()) {
+            numerical_results["OPCS4_" + lookup->at(column_name)] = column;
+        }
+
+        for (const auto &[column_name, column] : other_columns.columns()) {
             numerical_results[lookup->at(column_name)] = column;
         }
 
